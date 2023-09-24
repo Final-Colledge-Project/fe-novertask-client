@@ -4,7 +4,9 @@ import './style.scss'
 import { useState } from 'react'
 import { RiArrowRightSLine, RiCloseFill } from 'react-icons/ri'
 import clsx from 'clsx'
+import { useNavigate } from 'react-router-dom'
 const Navigation = () => {
+  const navigateTo = useNavigate()
   const [showNavPane, setShowNavPane] = useState(false)
   const toggleNavPane = () => {
     setShowNavPane((prev) => !prev)
@@ -115,6 +117,9 @@ const Navigation = () => {
               sx={{
                 fontWeight: 'bold',
                 fontSize: '16px'
+              }}
+              onClick={() => {
+                navigateTo('/sign-up')
               }}
             >
               Get Started

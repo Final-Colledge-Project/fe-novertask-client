@@ -1,6 +1,8 @@
 import Button from '@mui/material/Button'
 import './style.scss'
+import { useNavigate } from 'react-router-dom'
 const WelcomeContent = () => {
+  const navigateTo = useNavigate()
   return (
     <div className="welcome-content">
       <div className="content-text">
@@ -17,6 +19,9 @@ const WelcomeContent = () => {
           <Button
             variant="contained"
             color="primary"
+            onClick={() => {
+              navigateTo('/sign-up')
+            }}
             sx={{
               fontWeight: 'bold',
               fontSize: '16px',
@@ -26,10 +31,10 @@ const WelcomeContent = () => {
           >
             Get Started Now
           </Button>
-          <p className='sub'>Free to join!</p>
+          <p className="sub">Free to join!</p>
         </div>
       </div>
-      <div className='content-image'>
+      <div className="content-image">
         <img src="/public/img/welcome-main-pic.png" alt="Demo" />
       </div>
     </div>

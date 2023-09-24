@@ -5,8 +5,9 @@ import PackagesDropMenu from './PackagesDropMenu'
 import AboutDropMenu from './AboutDropMenu'
 import Button from '@mui/material/Button'
 import Navigation from '../Navigation'
-
+import { useNavigate } from 'react-router-dom'
 const WelcomeHeader = () => {
+  const navigateTo = useNavigate()
   return (
     <div className="welcome-header">
       <div className="header-left">
@@ -35,6 +36,9 @@ const WelcomeHeader = () => {
           sx={{
             fontWeight: 'bold',
             fontSize: '16px'
+          }}
+          onClick={() => {
+            navigateTo('/sign-up')
           }}
         >
           Get Started
