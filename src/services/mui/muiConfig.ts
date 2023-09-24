@@ -92,7 +92,9 @@ const theme = extendTheme({
           '*::-webkit-scrollbar-thumb:hover': {}
         },
         '*': {
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          margin: '0',
+          padding: '0'
         },
         button: {
           border: 'none',

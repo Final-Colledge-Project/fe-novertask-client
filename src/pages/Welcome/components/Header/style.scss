@@ -1,0 +1,50 @@
+.welcome-header {
+  padding: 30px 100px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  @media screen and (max-width: 1080px) {
+    padding: 30px;
+  }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  @media screen and (max-width: 1080px) {
+    gap: 20px;
+  }
+  @media screen and (max-width: 768px) {
+    flex: 1;
+  }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  @media screen and (max-width: 1080px) {
+    gap: 20px;
+  }
+  @media screen and (max-width: 600px) {
+    display: none;
+  }
+}
+
+.header-logo {
+  color: var(--mui-palette-blue-main);
+  font-size: 32px;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  margin-right: 45px;
+  @media screen and (max-width: 1080px) {
+    margin-right: 20px;
+  }
+  @media screen and (max-width: 600px) {
+    // display: none;
+  }
+}
