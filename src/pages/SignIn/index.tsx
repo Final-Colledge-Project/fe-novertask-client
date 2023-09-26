@@ -1,47 +1,34 @@
 import { Button } from '@mui/material'
 import './style.scss'
-import { FcGoogle } from 'react-icons/fc'
-import { MdOutlineMailOutline } from 'react-icons/md'
+import { MdOutlineMailOutline, MdLockOutline } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
+
 import TextInput from '~/components/TextInput'
-const SignUp = () => {
+import PasswordInput from '~/components/PasswordInput'
+const SignIn = () => {
   const navigateTo = useNavigate()
+
   return (
     <div className="signup-container">
       <div className="signup-text">
         <p className="title">
-          Welcome to{' '}
+          Welcome back to{' '}
           <span className="logo">
             <img src="/img/novertask-logo-full.png" alt="" />
           </span>
         </p>
-        <p className="sub-title">
-          Get started - it's free. No credit card needed.
-        </p>
+        <p className="sub-title">Continue your trip. Enter your identify</p>
         <div className="signup-action">
-          <Button
-            variant="outlined"
-            fullWidth
-            sx={{
-              fontSize: '16px',
-              color: (theme) => theme.palette.gray.main,
-              border: (theme) => `1px solid ${theme.palette.black.main}`,
-              height: '60px',
-              '& svg': {
-                width: '25px',
-                height: '25px'
-              }
-            }}
-            startIcon={<FcGoogle />}
-          >
-            Continue with Google
-          </Button>
-          <div className="divider">Or</div>
           <TextInput
             type="text"
             placeHolder="Enter your email"
             label="Email"
             startIcon={<MdOutlineMailOutline />}
+          />
+          <PasswordInput
+            startIcon={<MdLockOutline />}
+            label="Password"
+            placeHolder="Enter your password"
           />
           <Button
             variant="contained"
@@ -51,10 +38,10 @@ const SignUp = () => {
               fontSize: '16px'
             }}
           >
-            Continue
+            Sign in
           </Button>
           <p className="navigate-login">
-            Already have an account?
+            Not a member?
             <Button
               variant="text"
               color="primary"
@@ -65,10 +52,10 @@ const SignUp = () => {
                 py: 0
               }}
               onClick={() => {
-                navigateTo('/sign-in')
+                navigateTo('/sign-up')
               }}
             >
-              Log in
+              Sign up now
             </Button>
           </p>
         </div>
@@ -84,4 +71,4 @@ const SignUp = () => {
     </div>
   )
 }
-export default SignUp
+export default SignIn

@@ -35,7 +35,7 @@ const WelcomeContent = () => {
         </div>
       </div>
       <div className="content-image">
-        <img src="/public/img/welcome-main-pic.png" alt="Demo" />
+        <img src="/img/welcome-main-pic.png" alt="Demo" />
       </div>
     </div>
   )

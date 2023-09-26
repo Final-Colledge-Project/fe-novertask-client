@@ -13,7 +13,8 @@ const WelcomeHeader = () => {
       <div className="header-left">
         <Navigation />
         <Link to={'/'} className="header-logo">
-          Novertask
+          {/* Novertask */}
+          <img src="/img/novertask-logo-full.png" alt="" />
         </Link>
         <FeatureDropMenu />
         <PackagesDropMenu />
@@ -26,6 +27,9 @@ const WelcomeHeader = () => {
             color: (theme) => theme.palette.black.main,
             fontWeight: 'bold',
             fontSize: '16px'
+          }}
+          onClick={() => {
+            navigateTo('/sign-in')
           }}
         >
           Sign in
