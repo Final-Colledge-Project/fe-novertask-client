@@ -1,0 +1,69 @@
+.signup-container {
+  padding: 80px 130px 0;
+  display: flex;
+  gap: 136px;
+}
+.signup-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 45%;
+  .title {
+    font-size: 45px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    .logo {
+      width: 220px;
+      display: inline-flex;
+      align-items: center;
+      img {
+        display: inline-block;
+        width: 100%;
+      }
+    }
+  }
+  .blue {
+    color: var(--mui-palette-blue-main);
+  }
+  .sub-title {
+    font-size: 20px;
+  }
+  .signup-action {
+    margin-top: 70px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .divider {
+      display: flex;
+      color: var(--mui-palette-gray2-main);
+      align-items: center;
+      gap: 10px;
+    }
+    .divider::after {
+      content: '';
+      display: block;
+      height: 0;
+      flex: 1;
+      border-top: 1px solid var(--mui-palette-gray2-main);
+    }
+    .divider::before {
+      content: '';
+      display: block;
+      height: 0;
+      flex: 1;
+      border-top: 1px solid var(--mui-palette-gray2-main);
+    }
+  }
+  .navigate-login {
+    width: 100%;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 70px;
+  }
+}
