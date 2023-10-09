@@ -113,7 +113,7 @@ const theme = extendTheme({
           textTransform: 'none',
           fontWeight: 'normal',
           boxShadow: 'none',
-          borderRadius: '5px',
+          borderRadius: '8px',
           borderWidth: '1px',
           '&:focus, :focus-visible': {
             outline: 'none'
@@ -137,7 +137,8 @@ const theme = extendTheme({
         root: {
           borderWidth: '1px',
           // borderColor: theme.palette.primary.main,
-          fontSize: '0.875rem'
+          fontSize: '0.875rem',
+          borderRadius: '8px'
           // '.MuiOutlinedInput-notchedOutline': {
           //   borderColor: theme.palette.primary.light
           // },
@@ -155,6 +156,16 @@ const theme = extendTheme({
         tooltip: ({ theme }) => ({
           backgroundColor: theme.palette.gray.main
         })
+      }
+    },
+    MuiFormControl: {
+      styleOverrides: {
+        root: ({ theme }) => {
+          return {
+            borderRadius: '8px',
+            backgroundColor: theme.palette.white.main
+          }
+        }
       }
     }
   }

@@ -4,35 +4,44 @@ import {
   InputLabel,
   OutlinedInput
 } from '@mui/material'
-import { ReactElement } from 'react'
-
-interface InputProps {
-  label: string
-  placeHolder?: string
-  type?: string
-  startIcon?: ReactElement
-  endIcon?: ReactElement
-}
+import IInputProps from '../IInputProps'
 
 const TextInput = ({
   label,
   placeHolder,
   type,
   startIcon,
-  endIcon
-}: InputProps) => {
+  endIcon,
+  value,
+  onChange,
+  error = false,
+  field
+}: IInputProps) => {
   return (
     <FormControl
       fullWidth
       sx={{
         m: 0,
-        height: '60px'
+        height: '50px',
+        backgroundColor: (theme) => theme.palette.white.main,
+        label: {
+          color: (theme) =>
+            error ? theme.palette.error.main : theme.palette.primary.main,
+          '&.Mui-focused': {
+            color: (theme) =>
+              error ? theme.palette.error.main : theme.palette.primary.main
+          }
+        }
       }}
     >
       <InputLabel htmlFor={'outlined-adornment-amount' + label}>
         {label}
       </InputLabel>
       <OutlinedInput
+        {...field}
+        error={error}
+        defaultValue={value}
+        onChange={onChange}
         type={type || 'text'}
         id="outlined-adornment-amount"
         startAdornment={
@@ -79,6 +88,9 @@ const TextInput = ({
             }
           }
         }}
+        // inputProps={{
+        //   pattern: regex
+        // }}
       />
     </FormControl>
   )

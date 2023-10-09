@@ -5,18 +5,19 @@ import {
   InputLabel,
   OutlinedInput
 } from '@mui/material'
-import { ReactElement, useState } from 'react'
+import { useState } from 'react'
 import { MdVisibility, MdVisibilityOff } from 'react-icons/md'
+import IInputProps from '../IInputProps'
 
-interface InputProps {
-  label: string
-  placeHolder?: string
-  type?: string
-  startIcon?: ReactElement
-  endIcon?: ReactElement
-}
-
-const PasswordInput = ({ label, placeHolder, startIcon }: InputProps) => {
+const PasswordInput = ({
+  label,
+  placeHolder,
+  startIcon,
+  onChange,
+  error = false,
+  field,
+  value
+}: IInputProps) => {
   const [showPassword, setShowPassword] = useState(false)
 
   const handleClickShowPassword = () => setShowPassword((show) => !show)
@@ -27,11 +28,31 @@ const PasswordInput = ({ label, placeHolder, startIcon }: InputProps) => {
     event.preventDefault()
   }
   return (
-    <FormControl fullWidth variant="outlined" sx={{ height: '60px', m: 0 }}>
-      <InputLabel htmlFor="outlined-adornment-password">{label}</InputLabel>
+    <FormControl
+      fullWidth
+      variant="outlined"
+      sx={{
+        height: '50px',
+        backgroundColor: (theme) => theme.palette.white.main,
+        m: 0,
+        label: {
+          color: (theme) =>
+            error ? theme.palette.error.main : theme.palette.primary.main,
+          '&.Mui-focused': {
+            color: (theme) =>
+              error ? theme.palette.error.main : theme.palette.primary.main
+          }
+        }
+      }}
+    >
+      <InputLabel htmlFor={`outlined-adornment-${label}`}>{label}</InputLabel>
       <OutlinedInput
+        {...field}
+        error={error}
+        defaultValue={value}
+        onChange={onChange}
         placeholder={placeHolder}
-        id="outlined-adornment-password"
+        id={`outlined-adornment-${label}`}
         type={showPassword ? 'text' : 'password'}
         sx={{
           'input::-ms-reveal, input::-ms-clear': {
@@ -84,7 +105,7 @@ const PasswordInput = ({ label, placeHolder, startIcon }: InputProps) => {
             </InputAdornment>
           ) : undefined
         }
-        label="Password"
+        label={label}
       />
     </FormControl>
   )
