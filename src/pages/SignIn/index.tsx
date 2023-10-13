@@ -16,13 +16,11 @@ import formSchema from './formSchema'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import IFormFields from './IFormFields'
-import axios, { AxiosError } from 'axios'
 
-// api
-import ILoginResponse from './ILoginResponse'
-import { authApi } from '~/services/apis'
+// api service
+import { authService } from '~/services'
 
-import { useAuth } from '~/services/hooks/useAuth'
+import { useAuth } from '~/hooks/useAuth'
 
 import './style.scss'
 
@@ -45,35 +43,25 @@ const SignIn = () => {
     reValidateMode: 'onBlur'
   })
 
-  const { signIn } = authApi
-
   // navigate to home if don't have last past
   const redirectPath = location.state?.path || '/home'
 
-  const onSubmit: SubmitHandler<IFormFields> = async (fromData) => {
+  const onSubmit: SubmitHandler<IFormFields> = async (formData) => {
     try {
       setProgressVisibility(true)
-      const res = await axios.post<ILoginResponse>(
-        signIn.url,
-        signIn.body(fromData.email, fromData.password)
-      )
 
-      if (res.status === 201) {
-        auth?.signIn(res.data.data.token)
-        navigateTo(redirectPath, { replace: true })
-      }
+      const res = await authService.signIn(formData)
+
+      // save token
+      auth?.signIn(res?.data.token as string)
+      // navigate to home page or last page called login
+      navigateTo(redirectPath, { replace: true })
+
     } catch (error) {
+
       setProgressVisibility(false)
       setErrorBarVisibility(true)
-
-      // conflict request: user is not existing
-      if ((error as AxiosError).response?.status === 409) {
-        setErrorMessage('This account is not existing')
-      }
-      // other errors
-      else {
-        setErrorMessage('Something went wrong! Please try later')
-      }
+      setErrorMessage((error as Error).message)
     } finally {
       setProgressVisibility(false)
     }

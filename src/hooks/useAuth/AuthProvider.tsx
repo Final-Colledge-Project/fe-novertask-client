@@ -3,7 +3,6 @@ import AuthContext from './AuthContext'
 const TOKEN_LOCAL_STORAGE = 'nover-task-token'
 const AuthProvider = ({ children }: { children: ReactElement }) => {
   const signIn = (token: string) => {
-    console.log(token)
     // Handling sign in
     localStorage.setItem(TOKEN_LOCAL_STORAGE, token)
   }

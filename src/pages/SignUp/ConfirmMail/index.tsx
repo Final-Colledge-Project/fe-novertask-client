@@ -6,7 +6,7 @@ import { MdOutlineChangeCircle } from 'react-icons/md'
 import CustomStepper from '../components/Stepper'
 import Button from '@mui/material/Button'
 import './style.scss'
-import useInterval from '~/services/hooks/useInterval'
+import useInterval from '~/hooks/useInterval'
 
 import { userApi } from '~/services/apis'
 import IVerifyResponse from './IVerifyResponse'
@@ -16,6 +16,7 @@ import { CircularProgress } from '@mui/material'
 
 import emailRequestBody from './emailRequestBody'
 import ISendOTPResponse from './ISendOTPResponse'
+import { userService } from '~/services'
 
 const ConfirmMail = ({ email }: { email: string }) => {
   const navigateTo = useNavigate()
@@ -48,33 +49,18 @@ const ConfirmMail = ({ email }: { email: string }) => {
   const [snackBarMessage, setSnackBarMessage] = useState('')
 
   const [counter, setCounter] = useState(60)
-  const { verifyOTP, sendOTP } = userApi
   useInterval(() => {
     setCounter((count) => count - 1)
   }, 1000)
-  const { subject, message } = emailRequestBody()
+
   const handleResendOTP = async () => {
     try {
       setProgressResendVis(true)
-      const res = await axios.post<ISendOTPResponse>(
-        sendOTP.url,
-        sendOTP.body(email, subject, message)
-      )
-
-      // Send OTP success
-      if (res.status === 201) {
-        setCounter(60)
-      } else {
-        setSnackBarMessage('Cannot send OTP to this email! Try another one!')
-        setSnackBarVisibility(true)
-      }
-      setProgressResendVis(false)
+      await userService.sendOTP({ email })
+      setCounter(60)
     } catch (error) {
-      // Close progress bar
-      setProgressResendVis(false)
-
-      // Show error snackbar
-      setSnackBarMessage('Something went wrong! Please try later.')
+      // show error message on snack bar
+      setSnackBarMessage((error as Error).message)
       setSnackBarVisibility(true)
     } finally {
       setProgressResendVis(false)
@@ -147,25 +133,12 @@ const ConfirmMail = ({ email }: { email: string }) => {
       try {
         setProgressVerifyVis(true)
         const codesStr = inputCodes.join('')
-        // console.log(codesStr)
-
-        const res: { data: IVerifyResponse } = await axios.post(
-          verifyOTP.url,
-          verifyOTP.body(email, codesStr)
-        )
-
-        if (res.data.verify === true) {
-          // code is correct
-          navigateTo('/sign-up/finish-profile')
-        } else {
-          // code is wrong
-          setSnackBarMessage('Code is wrong! Please try again ')
-          setSnackBarVisibility(true)
-          setProgressVerifyVis(false)
-        }
+        await userService.verifyOTP({ email, otp: codesStr })
+        navigateTo('/sign-up/finish-profile', { replace: true })
+        setProgressVerifyVis(false)
       } catch (error) {
         // other errors
-        setSnackBarMessage('Something is wrong! Please try again')
+        setSnackBarMessage((error as Error).message)
         setSnackBarVisibility(true)
         setProgressVerifyVis(false)
       }

@@ -13,14 +13,11 @@ import GoogleSignInButton from '../components/GoogleSignInButton'
 // styles
 import './style.scss'
 
-// api
-import { userApi } from '~/services/apis'
-import axios from 'axios'
-import emailRequestBody from './emailRequestBody'
-import IFormFields from './IFormFields'
-import ISendOTPResponse from './ISendOTPResponse'
+// api service
+import { userService } from '~/services'
 
 // form validate
+import IFormFields from './IFormFields'
 import formSchema from './formSchema'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -49,31 +46,17 @@ const EnterMail = ({
     reValidateMode: 'onBlur'
   })
 
-  const { sendOTP } = userApi
-  const { subject, message } = emailRequestBody()
-
   const onSubmit: SubmitHandler<IFormFields> = async (formData) => {
     try {
       setProgressVisibility(true)
-      const res = await axios.post<ISendOTPResponse>(
-        sendOTP.url,
-        sendOTP.body(formData.email, subject, message)
-      )
+      await userService.sendOTP(formData)
 
-      // Send OTP success
-      if (res.status === 201) {
-        onSubmitEmail(formData.email)
-        navigateTo('./confirm-mail')
-      }
+      // send OTP success
+      onSubmitEmail(formData.email)
+      navigateTo('./confirm-mail')
     } catch (error) {
-      setProgressVisibility(false)
-
-      // error: user exists already
-      // setErrorMessage('Cannot send OTP to this email! Try another one!')
-      // setErrorBarVisibility(true)
-
-      // other errors
-      setErrorMessage('Something went wrong! Please try later.')
+      // show error message on snack bar
+      setErrorMessage((error as Error).message)
       setErrorBarVisibility(true)
     } finally {
       setProgressVisibility(false)

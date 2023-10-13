@@ -13,7 +13,7 @@ export default function CustomizedSnackbars({
   message,
   isShow,
   onClose,
-  during = 3000
+  during = 5000
 }: {
   message: string
   isShow: boolean

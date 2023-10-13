@@ -1,27 +1,29 @@
 // package
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import Button from '@mui/material/Button'
 import { CircularProgress } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Button from '@mui/material/Button'
 
 // Component
 import TextInput from '~/components/TextInput'
 import CustomStepper from '../components/Stepper'
-import './style.scss'
 import PasswordInput from '~/components/PasswordInput'
 import DateInput from '~/components/DateInput'
 import InputWithController from '~/components/InputWithController'
+
+// validate form
 import formSchema from './formSchema'
 import IFormFields from './IFormField'
-import TSignUpResponse from './TSignUpResponse'
-import axios from 'axios'
-import { userApi } from '~/services/apis'
+
+// styles
+import './style.scss'
 
 import CustomizedSnackbars from '~/components/SnackBar'
 
-import { useAuth } from '~/services/hooks/useAuth'
+import { useAuth } from '~/hooks/useAuth'
+import { userService } from '~/services'
 
 const FinishProfile = ({ email }: { email: string }) => {
   const auth = useAuth()
@@ -31,6 +33,13 @@ const FinishProfile = ({ email }: { email: string }) => {
       navigateTo('/sign-up')
     }
   }, [email])
+
+  const toDateString = (date: Date) => {
+    const day = date.getDate()
+    const month = date.getMonth() + 1
+    const year = date.getFullYear()
+    return `${year}-${month}-${day}`
+  }
 
   const { control, handleSubmit } = useForm<IFormFields>({
     defaultValues: {},
@@ -44,41 +53,30 @@ const FinishProfile = ({ email }: { email: string }) => {
   // Manage error snackbar visibility
   const [errorBarVisibility, setErrorBarVisibility] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  const { signUp } = userApi
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     try {
       setProgressVisibility(true)
-      const date = data.birthday.getDate()
-      const month = data.birthday.getMonth() + 1
-      const year = data.birthday.getFullYear()
-      const birthdayStr = `${year}-${month}-${date}`
-      const { firstName, lastName, password, phone, address } = data
+      const birthdayStr = toDateString(data.birthday)
 
-      const res = await axios.post<TSignUpResponse>(
-        signUp.url,
-        signUp.body(
-          firstName,
-          lastName,
-          email,
-          password,
-          phone,
-          birthdayStr,
-          address
-        )
-      )
-
-      if (res.status === 201) {
-        setProgressVisibility(false)
-        auth?.signIn(res.data.data.token)
-        navigateTo('/home')
+      const body = {
+        ...data,
+        email,
+        birthDate: birthdayStr
       }
-    } catch (err) {
-      // Catching errors
+
+      const res = await userService.signUp(body)
+      console.log(res)
+
       setProgressVisibility(false)
+      auth?.signIn(res?.data.token as string)
+      navigateTo('/home')
+    } catch (err) {
+      // show error message on snack bar
+      setErrorMessage((err as Error).message)
       setErrorBarVisibility(true)
-      console.log(err)
-      setErrorMessage('Something went wrong! Please try again.')
+    } finally {
+      setProgressVisibility(false)
     }
   }
   return (
