@@ -1,22 +1,22 @@
-import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+// components
 import { MdOutlineChangeCircle } from 'react-icons/md'
 import CustomStepper from '../components/Stepper'
 import Button from '@mui/material/Button'
-import './style.scss'
-import useInterval from '~/hooks/useInterval'
-
-import { userApi } from '~/services/apis'
-import IVerifyResponse from './IVerifyResponse'
-import axios from 'axios'
 import CustomizedSnackbars from '~/components/SnackBar'
 import { CircularProgress } from '@mui/material'
 
-import emailRequestBody from './emailRequestBody'
-import ISendOTPResponse from './ISendOTPResponse'
+// styles
+import './style.scss'
+
+// services
 import { userService } from '~/services'
+import useInterval from '~/hooks/useInterval'
+
+// OTP Input Group
+import useOTPInputGroup from './useOTPInputGroup'
 
 const ConfirmMail = ({ email }: { email: string }) => {
   const navigateTo = useNavigate()
@@ -26,19 +26,6 @@ const ConfirmMail = ({ email }: { email: string }) => {
     }
   }, [email])
   const steps = ['Enter email', 'Verify email', 'Finish profile']
-  const ref = useRef<HTMLDivElement | null>(null)
-  const [inputCodes, setInputCodes] = useState<Array<number>>([
-    0, 0, 0, 0, 0, 0
-  ])
-  const [inputs, setInputs] = useState<Array<HTMLInputElement>>()
-  const [dirties, setDirties] = useState<Array<boolean>>([
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
-  ])
 
   // Manage progress bar
   const [progressVerifyVis, setProgressVerifyVis] = useState(false)
@@ -67,108 +54,25 @@ const ConfirmMail = ({ email }: { email: string }) => {
     }
   }
 
-  const focusInputAt = (index: number, type: 'next' | 'back') => {
-    if (inputs !== undefined) {
-      // turn focus into the next right box of current index
-      if (type === 'next') {
-        if (index >= inputs.length - 1) {
-          return
-        }
-        inputs[index + 1].focus()
-      }
-
-      // turn focus into the next left box of current index
-      else {
-        if (index <= 0) {
-          return
-        }
-        inputs[index - 1].focus()
-      }
+  const handleSubmitCode = async (codes: number[]) => {
+    try {
+      setProgressVerifyVis(true)
+      const codesStr = codes.join('')
+      await userService.verifyOTP({ email, otp: codesStr })
+      navigateTo('/sign-up/finish-profile', { replace: true })
+      setProgressVerifyVis(false)
+    } catch (error) {
+      // other errors
+      setSnackBarMessage((error as Error).message)
+      setSnackBarVisibility(true)
+      setProgressVerifyVis(false)
     }
   }
-  const handleInputCodes = (e: React.ChangeEvent, index: number) => {
-    setInputCodes((prev) => {
-      const newCodes = [...prev]
-      const inputType = (e.nativeEvent as InputEvent).inputType
 
-      // case: pressed key is Backspace
-      if (inputType === 'deleteContentBackward') {
-        newCodes[index] = 0
+  const { InputCodeElement, inputCodes, dirties } = useOTPInputGroup({
+    handleSubmitCode
+  })
 
-        // check if the current box have value -> stay focus
-        // otherwise, turn focus back to the next left box
-        if (!dirties[index]) {
-          focusInputAt(index, 'back')
-        } else {
-          setDirties((prev) => {
-            const newState = [...prev]
-            newState[index] = false
-            return newState
-          })
-        }
-
-        return newCodes
-      }
-
-      // Case: Pressed key is digit
-      const toData = (e.nativeEvent as InputEvent).data
-      if (toData !== null && toData.match(/^[0-9]$/)) {
-        newCodes[index] = +toData
-
-        // Turn focus to the next right box
-        focusInputAt(index, 'next')
-
-        setDirties((prev) => {
-          const newState = [...prev]
-          newState[index] = true
-          return newState
-        })
-      }
-      return newCodes
-    })
-  }
-
-  const handleSubmitCode = async () => {
-    if (dirties.every((i) => i)) {
-      try {
-        setProgressVerifyVis(true)
-        const codesStr = inputCodes.join('')
-        await userService.verifyOTP({ email, otp: codesStr })
-        navigateTo('/sign-up/finish-profile', { replace: true })
-        setProgressVerifyVis(false)
-      } catch (error) {
-        // other errors
-        setSnackBarMessage((error as Error).message)
-        setSnackBarVisibility(true)
-        setProgressVerifyVis(false)
-      }
-    }
-  }
-  useEffect(() => {
-    if (ref.current?.children) {
-      const children = Array.from(ref.current.children)
-      setInputs(children.map((child) => child as HTMLInputElement))
-    }
-  }, [])
-  useEffect(() => {
-    if (inputs !== undefined) {
-      inputs[0].focus()
-    }
-  }, [inputs])
-
-  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
-    switch (e.key) {
-      case 'Enter':
-        handleSubmitCode()
-        break
-      case 'ArrowRight':
-        focusInputAt(index, 'next')
-        break
-      case 'ArrowLeft':
-        focusInputAt(index, 'back')
-        break
-    }
-  }
   return (
     <div className="confirm-container">
       <CustomStepper steps={steps} active={1} />
@@ -194,30 +98,14 @@ const ConfirmMail = ({ email }: { email: string }) => {
             Enter the cod below to verify your email address
           </p>
         </div>
-        <div className="input-box-group" ref={ref}>
-          {inputCodes.map((c, i) => (
-            <input
-              key={`input-box-${i}`}
-              pattern="[0-9]*"
-              step={1}
-              type="text"
-              name="digit-1"
-              id="digit-1"
-              placeholder="0"
-              className={clsx('input-box', dirties[i] ? 'dirty' : '')}
-              value={inputCodes[i]}
-              onChange={(e) => handleInputCodes(e, i)}
-              onKeyDown={(e) => handleKeyDown(e, i)}
-            />
-          ))}
-        </div>
+        {InputCodeElement}
         <div className="input-action">
           <Button
             variant="contained"
             color="primary"
             fullWidth
             sx={{ maxWidth: '500px' }}
-            onClick={handleSubmitCode}
+            onClick={() => handleSubmitCode(inputCodes)}
             disabled={!dirties.every((i) => i === true) || progressVerifyVis}
           >
             {progressVerifyVis ? (
