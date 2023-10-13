@@ -45,12 +45,12 @@
   img {
     display: inline-block;
     width: 180px;
+    @media screen and (max-width: 768px) {
+      width: 130px;
+    }
   }
   margin-right: 45px;
   @media screen and (max-width: 1080px) {
     margin-right: 20px;
-  }
-  @media screen and (max-width: 600px) {
-    // display: none;
   }
 }

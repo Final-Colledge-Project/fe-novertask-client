@@ -1,16 +1,75 @@
 import { Button } from '@mui/material'
-import './style.scss'
 import { MdOutlineMailOutline, MdLockOutline } from 'react-icons/md'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 
+// component
 import TextInput from '~/components/TextInput'
 import PasswordInput from '~/components/PasswordInput'
+import InputWithController from '~/components/InputWithController'
+import AnimPic from '../SignUp/components/AnimPic'
+import CircularProgress from '@mui/material/CircularProgress'
+import CustomizedSnackbars from '~/components/SnackBar'
+
+// form validate
+import formSchema from './formSchema'
+import { useForm, SubmitHandler } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import IFormFields from './IFormFields'
+
+// api service
+import { authService } from '~/services'
+
+import { useAuth } from '~/hooks/useAuth'
+
+import './style.scss'
+
 const SignIn = () => {
   const navigateTo = useNavigate()
+  const location = useLocation()
+  const auth = useAuth()
+
+  // Manage progress bar visibility
+  const [progressVisibility, setProgressVisibility] = useState(false)
+
+  // Manage error snackbar visibility
+  const [errorBarVisibility, setErrorBarVisibility] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const { control, handleSubmit } = useForm<IFormFields>({
+    defaultValues: {},
+    mode: 'onTouched',
+    resolver: yupResolver(formSchema),
+    reValidateMode: 'onBlur'
+  })
+
+  // navigate to home if don't have last past
+  const redirectPath = location.state?.path || '/home'
+
+  const onSubmit: SubmitHandler<IFormFields> = async (formData) => {
+    try {
+      setProgressVisibility(true)
+
+      const res = await authService.signIn(formData)
+
+      // save token
+      auth?.signIn(res?.data.token as string)
+      // navigate to home page or last page called login
+      navigateTo(redirectPath, { replace: true })
+
+    } catch (error) {
+
+      setProgressVisibility(false)
+      setErrorBarVisibility(true)
+      setErrorMessage((error as Error).message)
+    } finally {
+      setProgressVisibility(false)
+    }
+  }
 
   return (
-    <div className="signup-container">
-      <div className="signup-text">
+    <div className="signin-container">
+      <div className="signin-text">
         <p className="title">
           Welcome back to{' '}
           <span className="logo">
@@ -18,18 +77,22 @@ const SignIn = () => {
           </span>
         </p>
         <p className="sub-title">Continue your trip. Enter your identify</p>
-        <div className="signup-action">
-          <TextInput
-            type="text"
-            placeHolder="Enter your email"
-            label="Email"
-            startIcon={<MdOutlineMailOutline />}
-          />
-          <PasswordInput
-            startIcon={<MdLockOutline />}
-            label="Password"
-            placeHolder="Enter your password"
-          />
+        <form className="signin-action" onSubmit={handleSubmit(onSubmit)}>
+          <InputWithController name="email" control={control}>
+            <TextInput
+              placeHolder="Enter your email"
+              label="Email"
+              startIcon={<MdOutlineMailOutline />}
+              type="text"
+            />
+          </InputWithController>
+          <InputWithController name="password" control={control}>
+            <PasswordInput
+              startIcon={<MdLockOutline />}
+              label="Password"
+              placeHolder="Enter your password"
+            />
+          </InputWithController>
           <Button
             variant="contained"
             color="primary"
@@ -37,10 +100,19 @@ const SignIn = () => {
               height: '43px',
               fontSize: '16px'
             }}
+            type="submit"
+            disabled={progressVisibility}
           >
-            Sign in
+            {progressVisibility ? (
+              <CircularProgress
+                size="30px"
+                sx={{ color: (theme) => theme.palette.white.main }}
+              />
+            ) : (
+              'Sign In'
+            )}
           </Button>
-          <p className="navigate-login">
+          <p className="navigate-signup">
             Not a member?
             <Button
               variant="text"
@@ -49,7 +121,10 @@ const SignIn = () => {
                 display: 'inline-block',
                 height: '43px',
                 fontSize: '20px',
-                py: 0
+                py: 0,
+                '@media only screen and (max-width:414px)': {
+                  fontSize: '15px'
+                }
               }}
               onClick={() => {
                 navigateTo('/sign-up')
@@ -58,16 +133,18 @@ const SignIn = () => {
               Sign up now
             </Button>
           </p>
-        </div>
+        </form>
       </div>
-
-      <div className="signup-image">
-        <img className="main" src="/img/sign-up-pic.png" alt="" />
-        <img className="calendar item" src="/img/calendar.png" alt="" />
-        <img className="clock item" src="/img/clock.png" alt="" />
-        <img className="timeline item" src="/img/timeline.png" alt="" />
-        <img className="mail item" src="/img/mail.png" alt="" />
-      </div>
+      <AnimPic />
+      {errorBarVisibility && (
+        <CustomizedSnackbars
+          message={errorMessage}
+          isShow={errorBarVisibility}
+          onClose={() => {
+            setErrorBarVisibility(false)
+          }}
+        />
+      )}
     </div>
   )
 }
