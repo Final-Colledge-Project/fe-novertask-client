@@ -1,6 +1,6 @@
 .nav-container {
-  // max-width: 300px;
-  // min-width: 300px;
+  max-width: 300px;
+  min-width: 300px;
   width: 300px;
   // width: 70px;
   padding: 20px 0px;
@@ -11,12 +11,13 @@
   align-items: center;
   justify-content: space-between;
   font-size: 14px;
-  transition: width 0.3s;
+  transition: width 0.3s, min-width 0.3s;
   overflow: hidden;
   position: relative;
 
   &--short {
     width: 70px;
+    min-width: 0px;
     .nav-toggle-size {
       display: none;
     }

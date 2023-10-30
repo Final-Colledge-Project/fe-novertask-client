@@ -3,11 +3,11 @@ import UnAuthSection from '~/components/UnAuthSection'
 
 const WelcomeLayout = () => {
   return (
-    <>
+    <div>
       <UnAuthSection>
         <Outlet />
       </UnAuthSection>
-    </>
+    </div>
   )
 }
 

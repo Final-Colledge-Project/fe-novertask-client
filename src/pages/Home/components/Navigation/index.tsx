@@ -23,7 +23,7 @@ const Navigation = () => {
   const [fullVisible, setFullVisible] = useState(false)
   const [pinNav, setPinNav] = useState(false)
 
-  const handleMouseHover = () => {
+  const handleMouseHover = async () => {
     if (pinNav) return
     setFullVisible(true)
   }
