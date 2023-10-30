@@ -1,0 +1,95 @@
+.nav-container {
+  max-width: 300px;
+  min-width: 300px;
+  width: 300px;
+  // width: 70px;
+  padding: 20px 0px;
+  border-right: 1px solid var(--mui-palette-gray5-main);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  transition: width 0.3s, min-width 0.3s;
+  overflow: hidden;
+  position: relative;
+
+  &--short {
+    width: 70px;
+    min-width: 0px;
+    .nav-toggle-size {
+      display: none;
+    }
+  }
+
+  .logo {
+    width: 100px;
+    height: 25px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    img {
+      display: block;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    &--short {
+      width: 35px;
+      padding: 0 5px;
+    }
+  }
+
+  .nav-container-top,
+  .nav-container-bottom {
+    width: 100%;
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 10px;
+
+    .divider {
+      border-bottom: 1px solid var(--mui-palette-gray5-main);
+      margin: 10px 0;
+    }
+  }
+
+  .nav-container-top {
+    padding: 0 5px 0 10px;
+    width: 100%;
+    max-height: 60%;
+  }
+
+  .top-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    max-height: 100%;
+    list-style-type: none;
+    overflow-y: auto;
+    padding-right: 5px;
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--mui-palette-gray4-main);
+    }
+
+    &::-webkit-scrollbar {
+      background-color: var(--mui-palette-gray6-main);
+      border-radius: 10px;
+    }
+
+    .item {
+      width: 100%;
+    }
+  }
+
+  .nav-container-bottom {
+    flex-direction: column-reverse;
+  }
+
+  .nav-toggle-size {
+    position: absolute;
+    right: 10px;
+  }
+}

@@ -83,11 +83,16 @@ const theme = extendTheme({
         body: {
           '*::-webkit-scrollbar': {
             width: '8px',
-            height: '8px'
+            height: '8px',
+            borderRadius: '10px',
+            backgroundColor: '#F2F2F7',
+            cursor: 'pointer'
           },
           '*::-webkit-scrollbar-thumb': {
+            cursor: 'pointer',
             borderRadius: '8px',
-            transition: 'background-color linear 0.2s'
+            transition: 'background-color linear 0.2s',
+            backgroundColor: '#D1D1D1'
           },
           '*::-webkit-scrollbar-thumb:hover': {}
         },

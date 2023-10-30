@@ -1,0 +1,53 @@
+@use '/src/utils/styles/effects';
+.dashboard-main-container {
+  flex: 1;
+  max-width: calc(100vw - 300px - 70px);
+  min-width: calc(100vw - 300px - 300px);
+  background-color: var(--mui-palette-gray6-main);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding-bottom: 50px;
+  overflow-y: auto;
+  // margin-right: 10px;
+  // padding-right: 10px;
+  &::-webkit-scrollbar {
+    background-color: var(--mui-palette-gray5-main);
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--mui-palette-gray3-main);
+  }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    background-color: rgba($color: #f2f2f7, $alpha: 0.8);
+    backdrop-filter: blur(15px);
+    &-title {
+      // padding-bottom: 0;
+      color: var(--mui-palette-blue-main);
+      flex: 1;
+    }
+    &-searchbox {
+      width: 300px;
+      label {
+        color: var(--mui-palette-black-main);
+      }
+      .MuiFormControl-root {
+        height: 40px;
+      }
+    }
+    &-add-btn {
+      button {
+        @include effects.glassEffect;
+      }
+    }
+  }
+}

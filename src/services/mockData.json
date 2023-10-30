@@ -1,0 +1,196 @@
+[
+  {
+    "id": "ws001",
+    "title": "Events & Promotions",
+    "projects": [
+      {
+        "name": "Paul's Wedding",
+        "cover": "/img/item-cover-1.jpg",
+        "totalTask": 25,
+        "completeTask": 10,
+        "target": null,
+        "members": [
+          {
+            "img": "/img/Annie.jpg"
+          },
+          {
+            "img": "/img/Beckam.png"
+          },
+          {
+            "img": "/img/Flo.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          }
+        ]
+      },
+      {
+        "name": "Toyota Final-year Event",
+        "cover": "/img/item-cover-2.png",
+        "totalTask": 30,
+        "completeTask": 24,
+        "target": "28th Oct 2023",
+        "members": [
+          {
+            "img": "/img/Annie.jpg"
+          },
+          {
+            "img": "/img/Beckam.png"
+          },
+          {
+            "img": "/img/Flo.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          }
+        ]
+      },
+      {
+        "name": "Alice Birthday",
+        "cover": "/img/item-cover-3.jpg",
+        "totalTask": 16,
+        "completeTask": 9,
+        "target": "12th Dec 2023",
+        "members": [
+          {
+            "img": "/img/Annie.jpg"
+          },
+          {
+            "img": "/img/Beckam.png"
+          },
+          {
+            "img": "/img/Flo.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ws002",
+    "title": "Finance",
+    "projects": [
+      {
+        "name": "Paul's Wedding",
+        "cover": "/img/item-cover-4.jpg",
+        "totalTask": 25,
+        "completeTask": 10,
+        "target": null,
+        "members": [
+          {
+            "img": "/img/Annie.jpg"
+          },
+          {
+            "img": "/img/Beckam.png"
+          },
+          {
+            "img": "/img/Flo.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          }
+        ]
+      },
+      {
+        "name": "Toyota Final-year Event",
+        "cover": "/img/item-cover-5.jpg",
+        "totalTask": 30,
+        "completeTask": 24,
+        "target": "28th Oct 2023",
+        "members": [
+          {
+            "img": "/img/Annie.jpg"
+          },
+          {
+            "img": "/img/Beckam.png"
+          },
+          {
+            "img": "/img/Flo.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          }
+        ]
+      },
+      {
+        "name": "Alice Birthday",
+        "cover": "/img/item-cover-6.png",
+        "totalTask": 16,
+        "completeTask": 9,
+        "target": "12th Dec 2023",
+        "members": [
+          {
+            "img": "/img/Annie.jpg"
+          },
+          {
+            "img": "/img/Beckam.png"
+          },
+          {
+            "img": "/img/Flo.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          }
+        ]
+      },
+      {
+        "name": "Alice Birthday",
+        "cover": "/img/item-cover-7.png",
+        "totalTask": 16,
+        "completeTask": 9,
+        "target": "12th Dec 2023",
+        "members": [
+          {
+            "img": "/img/Annie.jpg"
+          },
+          {
+            "img": "/img/Beckam.png"
+          },
+          {
+            "img": "/img/Flo.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          },
+          {
+            "img": "/img/avatar.jpg"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ws003",
+    "title": "Human Resources",
+    "projects": []
+  }
+]

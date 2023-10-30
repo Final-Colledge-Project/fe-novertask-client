@@ -16,7 +16,7 @@ const SignUp = () => {
   const handleSubmitEmail = (newEmail: string) => setCurrentEmail(newEmail)
   return (
     <Routes>
-      <Route element={SignUpLayout} path="/*">
+      <Route element={SignUpLayout} path="*">
         <Route
           element={
             <EnterMail

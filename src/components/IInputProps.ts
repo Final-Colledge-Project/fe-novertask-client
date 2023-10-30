@@ -12,5 +12,6 @@ interface IInputProps {
   error?: boolean
   field?: object
   type?: string
+  autofocus?: boolean
 }
 export default IInputProps

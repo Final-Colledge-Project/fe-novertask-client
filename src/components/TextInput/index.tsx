@@ -5,6 +5,7 @@ import {
   OutlinedInput
 } from '@mui/material'
 import IInputProps from '../IInputProps'
+import { useEffect, useRef, useState } from 'react'
 
 const TextInput = ({
   label,
@@ -15,8 +16,17 @@ const TextInput = ({
   value,
   onChange,
   error = false,
-  field
+  field,
+  autofocus
 }: IInputProps) => {
+  const inputRef = useRef<HTMLElement | null>(null)
+
+  const [firstRender, setFirstRender] = useState(true)
+
+  useEffect(() => {
+    setFirstRender(false)
+  }, [])
+
   return (
     <FormControl
       fullWidth
@@ -38,7 +48,12 @@ const TextInput = ({
         {label}
       </InputLabel>
       <OutlinedInput
+        autoFocus={autofocus}
         {...field}
+        ref={inputRef}
+        inputRef={(input: HTMLInputElement | null) => {
+          input && autofocus && !firstRender && input.focus()
+        }}
         error={error}
         defaultValue={value}
         onChange={onChange}
@@ -88,9 +103,6 @@ const TextInput = ({
             }
           }
         }}
-        // inputProps={{
-        //   pattern: regex
-        // }}
       />
     </FormControl>
   )
