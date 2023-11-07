@@ -21,6 +21,7 @@ export const sendOTP = async (body: ISendOTP) => {
       return res.data
     }
   } catch (error) {
+    console.log(error)
     const status = (error as AxiosError).response?.status
 
     // email is used
@@ -46,6 +47,7 @@ export const verifyOTP = async (body: IVerifyOTP) => {
       return res.data
     }
   } catch (error) {
+    console.log(error)
     const status = (error as AxiosError).response?.status
 
     if (status && status === 400) {

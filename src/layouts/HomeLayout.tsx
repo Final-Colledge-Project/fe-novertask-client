@@ -1,13 +1,11 @@
 import { Outlet } from 'react-router-dom'
-import RequireAuth from '~/components/RequireAuth'
+import ClientProtectRoute from '~/components/ClientProtectRoute'
 
 const HomeLayout = () => {
   return (
-    <>
-      <RequireAuth>
-        <Outlet />
-      </RequireAuth>
-    </>
+    <ClientProtectRoute>
+      <Outlet />
+    </ClientProtectRoute>
   )
 }
 

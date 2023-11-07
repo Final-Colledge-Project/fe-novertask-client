@@ -1,15 +1,13 @@
 import { Button } from '@mui/material'
 import { MdOutlineMailOutline, MdLockOutline } from 'react-icons/md'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useState } from 'react'
 
 // component
 import TextInput from '~/components/TextInput'
 import PasswordInput from '~/components/PasswordInput'
 import InputWithController from '~/components/InputWithController'
-import AnimPic from '../SignUp/components/AnimPic'
+import AnimPic from '~/components/AnimPic'
 import CircularProgress from '@mui/material/CircularProgress'
-import CustomizedSnackbars from '~/components/SnackBar'
 
 // form validate
 import formSchema from './formSchema'
@@ -17,26 +15,20 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import IFormFields from './IFormFields'
 
-// api service
-import { authService } from '~/services'
-
-import { useAuth } from '~/hooks/useAuth'
-
 import './style.scss'
+import { useDispatch, useSelector } from 'react-redux'
+import { StoreDispatchType, StoreType } from '~/redux'
+import { signIn } from '~/redux/authSlice/action'
+import { showMessage } from '~/redux/snackBarSlice'
 
 const SignIn = () => {
   const navigateTo = useNavigate()
   const location = useLocation()
-  const auth = useAuth()
 
-  // Manage progress bar visibility
-  const [progressVisibility, setProgressVisibility] = useState(false)
+  const dispatch = useDispatch<StoreDispatchType>()
+  const currentAuth = useSelector((store: StoreType) => store.auth)
 
-  // Manage error snackbar visibility
-  const [errorBarVisibility, setErrorBarVisibility] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-
-  const { control, handleSubmit } = useForm<IFormFields>({
+  const { control, handleSubmit, getValues } = useForm<IFormFields>({
     defaultValues: {},
     mode: 'onTouched',
     resolver: yupResolver(formSchema),
@@ -47,23 +39,22 @@ const SignIn = () => {
   const redirectPath = location.state?.path || '/home'
 
   const onSubmit: SubmitHandler<IFormFields> = async (formData) => {
-    try {
-      setProgressVisibility(true)
+    // sign in action -> persist token on local storage
+    await dispatch(signIn(formData))
 
-      const res = await authService.signIn(formData)
+    if (currentAuth.error) {
+      dispatch(
+        showMessage({
+          message: currentAuth.error,
+          open: true,
+          variants: 'error'
+        })
+      )
+    }
 
-      // save token
-      auth?.signIn(res?.data.token as string)
+    if (currentAuth.success) {
       // navigate to home page or last page called login
       navigateTo(redirectPath, { replace: true })
-
-    } catch (error) {
-
-      setProgressVisibility(false)
-      setErrorBarVisibility(true)
-      setErrorMessage((error as Error).message)
-    } finally {
-      setProgressVisibility(false)
     }
   }
 
@@ -71,7 +62,7 @@ const SignIn = () => {
     <div className="signin-container">
       <div className="signin-text">
         <p className="title">
-          Welcome back to{' '}
+          Sign in to{' '}
           <span className="logo">
             <img src="/img/novertask-logo-full.png" alt="" />
           </span>
@@ -84,6 +75,7 @@ const SignIn = () => {
               label="Email"
               startIcon={<MdOutlineMailOutline />}
               type="text"
+              value={getValues('email')}
             />
           </InputWithController>
           <InputWithController name="password" control={control}>
@@ -91,8 +83,29 @@ const SignIn = () => {
               startIcon={<MdLockOutline />}
               label="Password"
               placeHolder="Enter your password"
+              value={getValues('password')}
             />
           </InputWithController>
+          <div className="signin__forgot-password">
+            <Button
+              variant="text"
+              color="primary"
+              sx={{
+                display: 'inline-block',
+                py: 0,
+                '@media only screen and (max-width:414px)': {
+                  fontSize: '15px'
+                }
+              }}
+              onClick={() => {
+                navigateTo('/verify-email', {
+                  state: { redirectPath: '/reset-password' }
+                })
+              }}
+            >
+              Forgot password?
+            </Button>
+          </div>
           <Button
             variant="contained"
             color="primary"
@@ -101,9 +114,9 @@ const SignIn = () => {
               fontSize: '16px'
             }}
             type="submit"
-            disabled={progressVisibility}
+            disabled={currentAuth.loading}
           >
-            {progressVisibility ? (
+            {currentAuth.loading ? (
               <CircularProgress
                 size="30px"
                 sx={{ color: (theme) => theme.palette.white.main }}
@@ -127,7 +140,9 @@ const SignIn = () => {
                 }
               }}
               onClick={() => {
-                navigateTo('/sign-up')
+                navigateTo('/verify-email', {
+                  state: { redirectPath: '/sign-up' }
+                })
               }}
             >
               Sign up now
@@ -136,15 +151,6 @@ const SignIn = () => {
         </form>
       </div>
       <AnimPic />
-      {errorBarVisibility && (
-        <CustomizedSnackbars
-          message={errorMessage}
-          isShow={errorBarVisibility}
-          onClose={() => {
-            setErrorBarVisibility(false)
-          }}
-        />
-      )}
     </div>
   )
 }

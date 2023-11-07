@@ -2,8 +2,8 @@
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { CircularProgress } from '@mui/material'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Navigate, useNavigate } from 'react-router-dom'
 import Button from '@mui/material/Button'
 
 // Component
@@ -20,19 +20,18 @@ import IFormFields from './IFormField'
 // styles
 import './style.scss'
 
-import CustomizedSnackbars from '~/components/SnackBar'
-
-import { useAuth } from '~/hooks/useAuth'
 import { userService } from '~/services'
+import { useDispatch, useSelector } from 'react-redux'
 
-const FinishProfile = ({ email }: { email: string }) => {
-  const auth = useAuth()
+import { StoreType } from '~/redux'
+import { showMessage } from '~/redux/snackBarSlice'
+
+const FinishProfile = () => {
+  const currentUser = useSelector((state: StoreType) => state.user)
+
+  const dispatch = useDispatch()
+
   const navigateTo = useNavigate()
-  useEffect(() => {
-    if (!email) {
-      navigateTo('/sign-up')
-    }
-  }, [email])
 
   const toDateString = (date: Date) => {
     const day = date.getDate()
@@ -47,12 +46,11 @@ const FinishProfile = ({ email }: { email: string }) => {
     resolver: yupResolver(formSchema),
     reValidateMode: 'onBlur'
   })
+
   const steps = ['Enter email', 'Verify email', 'Finish profile']
+
   // Manage progress bar visibility
   const [progressVisibility, setProgressVisibility] = useState(false)
-  // Manage error snackbar visibility
-  const [errorBarVisibility, setErrorBarVisibility] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     try {
@@ -61,25 +59,32 @@ const FinishProfile = ({ email }: { email: string }) => {
 
       const body = {
         ...data,
-        email,
+        email: currentUser.email,
         birthDate: birthdayStr
       }
 
-      const res = await userService.signUp(body)
-      console.log(res)
+      await userService.signUp(body)
 
       setProgressVisibility(false)
-      auth?.signIn(res?.data.token as string)
-      navigateTo('/home')
-    } catch (err) {
+      navigateTo('/sign-in')
+    } catch (error) {
       // show error message on snack bar
-      setErrorMessage((err as Error).message)
-      setErrorBarVisibility(true)
+      dispatch(
+        showMessage({
+          message: (error as Error).message,
+          variants: 'error'
+        })
+      )
     } finally {
       setProgressVisibility(false)
     }
   }
-  return (
+  return currentUser.email === '' ? (
+    <Navigate
+      to={'/verify-email'}
+      state={{ redirectPath: '/sign-up', isShortageEmail: true }}
+    />
+  ) : (
     <div className="finish-root">
       <CustomStepper steps={steps} active={2} />
       <div className="content">
@@ -145,15 +150,6 @@ const FinishProfile = ({ email }: { email: string }) => {
         <div className="image">
           <img src="/img/finish-profile-pic.png" alt="" />
         </div>
-        {errorBarVisibility && (
-          <CustomizedSnackbars
-            message={errorMessage}
-            isShow={errorBarVisibility}
-            onClose={() => {
-              setErrorBarVisibility(false)
-            }}
-          />
-        )}
       </div>
     </div>
   )

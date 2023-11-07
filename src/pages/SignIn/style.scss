@@ -119,6 +119,11 @@
     width: 100%;
   }
 }
+
+.signin__forgot-password {
+  text-align: right;
+  color: var(--mui-palette-blue-main);
+}
 .signin-image {
   width: 40%;
   min-width: 573px;
@@ -151,21 +156,6 @@
     @include animationMixin(0.7);
     bottom: 0px;
     left: -50px;
-  }
-
-  @media screen and (max-width: 1280px) {
-    min-width: 400px;
-    .item {
-      width: 30%;
-    }
-  }
-  @media screen and (max-width: 1080px) {
-    .item {
-      display: none;
-    }
-  }
-  @media screen and (max-width: 768px) {
-    display: none;
   }
 
   @keyframes appear {

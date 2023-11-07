@@ -1,9 +1,9 @@
 const requests = {
   sendOTP: {
-    url: `/authentication/otp-registration`
+    url: `/email-verification`
   },
   verifyOTP: {
-    url: `/authentication/verify-otp`
+    url: `/email-verification/verify`
   },
   signUp: {
     url: `/users`
