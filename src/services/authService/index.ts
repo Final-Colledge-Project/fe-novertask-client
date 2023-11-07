@@ -44,6 +44,7 @@ export const signIn = async (body: ISignInBody) => {
 }
 
 export const forgotPassword = async (body: IForgotPasswordBody) => {
+  console.log('Sending to ' + body.email)
   try {
     const res = await axiosInstance.post<IForgotPasswordResponse>(
       requests.forgotPassword,
@@ -69,14 +70,15 @@ export const forgotPassword = async (body: IForgotPasswordBody) => {
 
 export const resetPassword = async (body: IResetPasswordBody) => {
   try {
-    const res = await axiosInstance.post<IResetPasswordResponse>(
-      requests.forgotPassword,
+    const res = await axiosInstance.patch<IResetPasswordResponse>(
+      requests.resetPassword,
       body
     )
     if (res.status === 200) {
       return res.data
     }
   } catch (error) {
+    console.log(error)
     const status = (error as AxiosError).response?.status
 
     if (status && status === 400) {

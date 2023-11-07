@@ -19,6 +19,7 @@ import { showMessage } from '~/redux/snackBarSlice'
 import { useState } from 'react'
 import useVerifyOTP from '~/hooks/useVerifyOTP'
 import { authService } from '~/services'
+import { setEmail } from '~/redux/userSlice'
 
 const ResetPassword = () => {
   const navigateTo = useNavigate()
@@ -52,12 +53,14 @@ const ResetPassword = () => {
       })
 
       setProgressVisibility(false)
+
       dispatch(
         showMessage({
           message: 'Reset password successfully! Please sign in again.',
           variants: 'success'
         })
       )
+      dispatch(setEmail(''))
       navigateTo('/sign-in')
     } catch (error) {
       // show error message on snack bar
@@ -73,7 +76,7 @@ const ResetPassword = () => {
   }
 
   return !currentUser.email ? (
-    <Navigate to="/" />
+    <Navigate to="/sign-in" />
   ) : (
     <div className="forgot-password-container">
       <div className="content">
@@ -121,6 +124,7 @@ const ResetPassword = () => {
             }}
             type="submit"
             disabled={progressVisibility || !dirties.every((i) => i === true)}
+            onClick={handleSubmit(onSubmit)}
           >
             {progressVisibility ? (
               <CircularProgress
