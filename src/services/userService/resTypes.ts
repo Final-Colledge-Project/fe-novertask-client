@@ -1,3 +1,5 @@
+import { IUser } from '../types'
+
 export interface ISendOTPResponse {
   message: string
   status: string
@@ -16,5 +18,10 @@ export interface ISignUpResponse {
   data: {
     token: string
   }
+  message: string
+}
+
+export interface IGetCurrentUserResponse {
+  data: IUser
   message: string
 }

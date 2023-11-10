@@ -59,7 +59,7 @@ const FinishProfile = () => {
 
       const body = {
         ...data,
-        email: currentUser.email,
+        email: currentUser.tempEmail,
         birthDate: birthdayStr
       }
 
@@ -79,7 +79,7 @@ const FinishProfile = () => {
       setProgressVisibility(false)
     }
   }
-  return currentUser.email === '' ? (
+  return currentUser.tempEmail === '' ? (
     <Navigate
       to={'/verify-email'}
       state={{ redirectPath: '/sign-up', isShortageEmail: true }}

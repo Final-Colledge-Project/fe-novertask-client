@@ -18,11 +18,11 @@ function App() {
           <Route element={<PageNotFound />} path="/*" />
           {/* guest routes */}
           <Route element={<GuestRoutes />} path="/*">
+            <Route element={<SignIn />} path="sign-in" />
             <Route element={<Welcome />} />
             <Route element={<Welcome />} index />
             <Route element={<Welcome />} path="welcome" index />
             <Route element={<SignUp />} path="sign-up/*" />
-            <Route element={<SignIn />} path="sign-in" />
             <Route element={<VerifyEmail />} path="verify-email/*" />
             <Route element={<ForgotPassword />} path="reset-password" />
           </Route>

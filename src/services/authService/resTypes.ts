@@ -14,3 +14,8 @@ export interface IResetPasswordResponse {
 export interface IErrorResponse {
   message: string
 }
+
+export interface IRefreshTokenResponse {
+  data: string
+  message: string
+}

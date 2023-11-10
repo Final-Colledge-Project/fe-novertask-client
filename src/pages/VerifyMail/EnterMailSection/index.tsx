@@ -32,14 +32,14 @@ const EnterMailSection = ({ redirectPath }: IProps) => {
   const dispatch: Dispatch = useDispatch()
 
   const currentUser = useSelector((state: StoreType) => state.user)
-  const { email } = currentUser
+  const { tempEmail } = currentUser
 
   // manage progress bar visibility
   const [progressVisibility, setProgressVisibility] = useState(false)
 
   // form controller from react-hook
   const { control, handleSubmit } = useForm<IFormFields>({
-    defaultValues: { email },
+    defaultValues: { email: tempEmail },
     mode: 'onTouched',
     resolver: yupResolver(formSchema),
     reValidateMode: 'onBlur'
@@ -56,6 +56,11 @@ const EnterMailSection = ({ redirectPath }: IProps) => {
       )
     }
   }, [])
+
+  const handleNavigateToLogin = () => {
+    dispatch(setEmail(''))
+    navigateTo('/sign-in')
+  }
 
   const onSubmit: SubmitHandler<IFormFields> = async (formData) => {
     try {
@@ -96,7 +101,12 @@ const EnterMailSection = ({ redirectPath }: IProps) => {
       <div className="enter-mail-section__text">
         <p className="enter-mail-section__title">
           Welcome to{' '}
-          <span className="enter-mail-section__logo">
+          <span
+            className="enter-mail-section__logo"
+            onClick={() => {
+              navigateTo('/')
+            }}
+          >
             <img src="/img/novertask-logo-full.png" alt="" />
           </span>
         </p>
@@ -151,7 +161,7 @@ const EnterMailSection = ({ redirectPath }: IProps) => {
                 }
               }}
               onClick={() => {
-                navigateTo('/sign-in')
+                handleNavigateToLogin()
               }}
             >
               Log in

@@ -3,7 +3,8 @@ import {
   ISendOTPResponse,
   IVerifyResponse,
   IErrorResponse,
-  ISignUpResponse
+  ISignUpResponse,
+  IGetCurrentUserResponse
 } from './resTypes'
 import requests from './requests'
 import { ISendOTP, ISignUpBody, IVerifyOTP } from './reqTypes'
@@ -12,7 +13,7 @@ import { AxiosError } from 'axios'
 export const sendOTP = async (body: ISendOTP) => {
   try {
     const res = await axiosInstance.post<ISendOTPResponse>(
-      requests.sendOTP.url,
+      requests.sendOTP,
       body
     )
 
@@ -39,7 +40,7 @@ export const sendOTP = async (body: ISendOTP) => {
 export const verifyOTP = async (body: IVerifyOTP) => {
   try {
     const res = await axiosInstance.post<IVerifyResponse>(
-      requests.verifyOTP.url,
+      requests.verifyOTP,
       body
     )
 
@@ -70,10 +71,7 @@ export const verifyOTP = async (body: IVerifyOTP) => {
 
 export const signUp = async (body: ISignUpBody) => {
   try {
-    const res = await axiosInstance.post<ISignUpResponse>(
-      requests.signUp.url,
-      body
-    )
+    const res = await axiosInstance.post<ISignUpResponse>(requests.signUp, body)
 
     if (res.status === 201) {
       return res.data
@@ -94,5 +92,24 @@ export const signUp = async (body: ISignUpBody) => {
 
     // general error
     throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const getCurrentUser = async () => {
+  try {
+    console.log('Calling getCurrentUser service.....')
+    const res = await axiosInstance.get<IGetCurrentUserResponse>(
+      requests.getCurrentUser
+    )
+    if (res.status === 200) {
+      return res.data
+    }
+  } catch (error) {
+    console.log('userServie - getCurrentuser: ', error)
+
+    // general error
+    throw new Error(
+      (error as Error).message || 'Something went wrong! Please try later.'
+    )
   }
 }

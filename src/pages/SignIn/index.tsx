@@ -1,6 +1,6 @@
 import { Button } from '@mui/material'
 import { MdOutlineMailOutline, MdLockOutline } from 'react-icons/md'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 // component
 import TextInput from '~/components/TextInput'
@@ -18,15 +18,13 @@ import IFormFields from './IFormFields'
 import './style.scss'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
-import { signIn } from '~/redux/authSlice/action'
-import { showMessage } from '~/redux/snackBarSlice'
+import { signIn } from '~/redux/authSlice/actions'
 
 const SignIn = () => {
   const navigateTo = useNavigate()
-  const location = useLocation()
 
   const dispatch = useDispatch<StoreDispatchType>()
-  const currentAuth = useSelector((store: StoreType) => store.auth)
+  const auth = useSelector((store: StoreType) => store.auth)
 
   const { control, handleSubmit, getValues } = useForm<IFormFields>({
     defaultValues: {},
@@ -35,27 +33,10 @@ const SignIn = () => {
     reValidateMode: 'onBlur'
   })
 
-  // navigate to home if don't have last past
-  const redirectPath = location.state?.path || '/home'
-
   const onSubmit: SubmitHandler<IFormFields> = async (formData) => {
-    // sign in action -> persist token on local storage
+    // sign in action -> persist token on local storage -> nav to redirectPath automatically
+    // check at ClientProtectedRoutes && UnAuthRoutes
     await dispatch(signIn(formData))
-
-    if (currentAuth.error) {
-      dispatch(
-        showMessage({
-          message: currentAuth.error,
-          open: true,
-          variants: 'error'
-        })
-      )
-    }
-
-    if (currentAuth.success) {
-      // navigate to home page or last page called login
-      navigateTo(redirectPath, { replace: true })
-    }
   }
 
   return (
@@ -63,7 +44,12 @@ const SignIn = () => {
       <div className="signin-text">
         <p className="title">
           Sign in to{' '}
-          <span className="logo">
+          <span
+            className="logo"
+            onClick={() => {
+              navigateTo('/')
+            }}
+          >
             <img src="/img/novertask-logo-full.png" alt="" />
           </span>
         </p>
@@ -114,9 +100,9 @@ const SignIn = () => {
               fontSize: '16px'
             }}
             type="submit"
-            disabled={currentAuth.loading}
+            disabled={auth.loading}
           >
-            {currentAuth.loading ? (
+            {auth.loading ? (
               <CircularProgress
                 size="30px"
                 sx={{ color: (theme) => theme.palette.white.main }}

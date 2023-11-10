@@ -48,7 +48,7 @@ const ResetPassword = () => {
 
       await authService.resetPassword({
         newPassword: formData.password,
-        email: currentUser.email,
+        email: currentUser.tempEmail,
         otp: inputCodes.join('')
       })
 
@@ -75,13 +75,18 @@ const ResetPassword = () => {
     }
   }
 
-  return !currentUser.email ? (
+  return !currentUser.tempEmail ? (
     <Navigate to="/sign-in" />
   ) : (
     <div className="forgot-password-container">
       <div className="content">
         <p className="title">
-          <span className="logo">
+          <span
+            className="logo"
+            onClick={() => {
+              navigateTo('/')
+            }}
+          >
             <img src="/img/novertask-logo-full.png" alt="" />
           </span>
           <span>

@@ -37,10 +37,10 @@ const InputOTPSection = ({ redirectPath }: IProps) => {
   const handleResendOTP = async () => {
     try {
       setProgressResendVis(true)
-      await userService.sendOTP({ email: currentUser.email })
+      await userService.sendOTP({ email: currentUser.tempEmail })
       dispatch(
         showMessage({
-          message: `Successfully resent OTP to ${currentUser.email}`,
+          message: `Successfully resent OTP to ${currentUser.tempEmail}`,
           variants: 'success'
         })
       )
@@ -62,7 +62,7 @@ const InputOTPSection = ({ redirectPath }: IProps) => {
     try {
       setProgressVerifyVis(true)
       const codesStr = codes.join('')
-      await userService.verifyOTP({ email: currentUser.email, otp: codesStr })
+      await userService.verifyOTP({ email: currentUser.tempEmail, otp: codesStr })
 
       // if the code is correct -> redirect to the redirectPath
       navigateTo(redirectPath, { replace: true })
@@ -84,7 +84,7 @@ const InputOTPSection = ({ redirectPath }: IProps) => {
     length: 6
   })
 
-  return !currentUser.email ? (
+  return !currentUser.tempEmail ? (
     <Navigate to="/verify-email" state={{ isShortageEmail: true }} />
   ) : (
     <div className="input-otp-section">
@@ -98,7 +98,7 @@ const InputOTPSection = ({ redirectPath }: IProps) => {
           <div className="input-otp-section__sub-title">
             <span>We emailed you a six digit code to </span>
             <div className="input-otp-section__mail-group">
-              <span className="mail">{currentUser.email}</span>
+              <span className="mail">{currentUser.tempEmail}</span>
               <span
                 className="input-otp-section__change-mail-icon"
                 onClick={() => navigateTo('..')}

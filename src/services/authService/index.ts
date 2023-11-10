@@ -3,6 +3,7 @@ import {
   IErrorResponse,
   IForgotPasswordResponse,
   ILoginResponse,
+  IRefreshTokenResponse,
   IResetPasswordResponse
 } from './resTypes'
 import {
@@ -12,7 +13,7 @@ import {
 } from './reqTypes'
 export type * from './reqTypes'
 import requests from './requests'
-import { AxiosError } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 
 export const signIn = async (body: ISignInBody) => {
   try {
@@ -44,7 +45,6 @@ export const signIn = async (body: ISignInBody) => {
 }
 
 export const forgotPassword = async (body: IForgotPasswordBody) => {
-  console.log('Sending to ' + body.email)
   try {
     const res = await axiosInstance.post<IForgotPasswordResponse>(
       requests.forgotPassword,
@@ -78,7 +78,6 @@ export const resetPassword = async (body: IResetPasswordBody) => {
       return res.data
     }
   } catch (error) {
-    console.log(error)
     const status = (error as AxiosError).response?.status
 
     if (status && status === 400) {
@@ -92,6 +91,33 @@ export const resetPassword = async (body: IResetPasswordBody) => {
       if (errorData.message === 'OTP record not found') {
         throw new Error('This OTP & email address is invalid. Please try again')
       }
+    }
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const refreshToken = async () => {
+  try {
+    const res = await axiosInstance.get<IRefreshTokenResponse>(
+      requests.refreshToken
+    )
+    console.log('Resfresh token: ', res.data)
+    if (res.status === 200) {
+      return res.data
+    }
+  } catch (error) {
+    const response = (error as AxiosError)
+      .response as AxiosResponse<IErrorResponse>
+
+    console.log('authServer - refresh token error: ', error)
+    // const status = response.status
+    const message = response.data.message
+
+    // refresh token is expired
+    if (message === 'Unauthorized' || message === 'Invalid refresh token') {
+      throw new Error('Token is expired or invalid! Please sign in.')
     }
 
     // general error
