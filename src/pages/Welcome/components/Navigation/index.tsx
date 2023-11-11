@@ -108,6 +108,9 @@ const Navigation = () => {
                 fontWeight: 'bold',
                 fontSize: '16px'
               }}
+              onClick={() => {
+                navigateTo('/sign-in')
+              }}
             >
               Sign in
             </Button>
@@ -119,7 +122,9 @@ const Navigation = () => {
                 fontSize: '16px'
               }}
               onClick={() => {
-                navigateTo('/sign-up')
+                navigateTo('/verify-email', {
+                  state: { redirectPath: '/sign-up' }
+                })
               }}
             >
               Get Started

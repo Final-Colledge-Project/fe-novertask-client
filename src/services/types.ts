@@ -12,3 +12,14 @@ export interface IWSSummaryProject {
   target: string | null
   members: { img: string }[]
 }
+
+export interface IUser {
+  _id: string
+  email: string
+  createdAt: string
+  address: string
+  birthDate: string
+  firstName: string
+  lastName: string
+  phone: string
+}

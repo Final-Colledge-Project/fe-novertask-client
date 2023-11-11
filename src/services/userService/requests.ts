@@ -1,12 +1,8 @@
 const requests = {
-  sendOTP: {
-    url: `/authentication/otp-registration`
-  },
-  verifyOTP: {
-    url: `/authentication/verify-otp`
-  },
-  signUp: {
-    url: `/users`
-  }
+  sendOTP: `/email-verification`,
+  verifyOTP: `/email-verification/verify`,
+  signUp: `/users`,
+  getCurrentUser: '/auth',
+  signOut: '/auth/logout'
 }
 export default requests

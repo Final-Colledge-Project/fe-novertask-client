@@ -1,5 +1,5 @@
-import WelcomeContent from './components/Content'
-import WelcomeHeader from './components/Header'
+import WelcomeContent from './Content'
+import WelcomeHeader from './Header'
 
 const WelcomePage = () => {
   return (

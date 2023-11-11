@@ -1,12 +1,16 @@
 import Button from '@mui/material/Button'
 import clsx from 'clsx'
 import { RiLogoutBoxLine } from 'react-icons/ri'
-import { useAuth } from '~/hooks/useAuth'
+import { useDispatch } from 'react-redux'
+import { StoreDispatchType } from '~/redux'
+import { signOut } from '~/redux/authSlice/actions'
 
 const SignOutButton = ({ fullVisible }: { fullVisible: boolean }) => {
-  const auth = useAuth()
+  const dispatch = useDispatch<StoreDispatchType>()
+
+  // sign out user: clear current user info
   const handleLogout = () => {
-    auth?.signOut()
+    dispatch(signOut())
   }
   return (
     <Button
