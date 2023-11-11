@@ -103,7 +103,6 @@ export const refreshToken = async () => {
     const res = await axiosInstance.get<IRefreshTokenResponse>(
       requests.refreshToken
     )
-    console.log('Resfresh token: ', res.data)
     if (res.status === 200) {
       return res.data
     }
@@ -111,7 +110,6 @@ export const refreshToken = async () => {
     const response = (error as AxiosError)
       .response as AxiosResponse<IErrorResponse>
 
-    console.log('authServer - refresh token error: ', error)
     // const status = response.status
     const message = response.data.message
 

@@ -24,13 +24,12 @@ import { userService } from '~/services'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { StoreType } from '~/redux'
-import { showMessage } from '~/redux/snackBarSlice'
+import { enqueueSnackbar } from 'notistack'
+import { setEmail } from '~/redux/authSlice'
 
 const FinishProfile = () => {
-  const currentUser = useSelector((state: StoreType) => state.user)
-
+  const { emailToVerify } = useSelector((state: StoreType) => state.auth)
   const dispatch = useDispatch()
-
   const navigateTo = useNavigate()
 
   const toDateString = (date: Date) => {
@@ -59,27 +58,28 @@ const FinishProfile = () => {
 
       const body = {
         ...data,
-        email: currentUser.tempEmail,
+        email: emailToVerify as string,
         birthDate: birthdayStr
       }
 
       await userService.signUp(body)
 
       setProgressVisibility(false)
+      enqueueSnackbar('Sign up successfully! Please sign in to access.', {
+        variant: 'success'
+      })
+      dispatch(setEmail(undefined))
       navigateTo('/sign-in')
     } catch (error) {
       // show error message on snack bar
-      dispatch(
-        showMessage({
-          message: (error as Error).message,
-          variants: 'error'
-        })
-      )
+      enqueueSnackbar((error as Error).message, {
+        variant: 'error'
+      })
     } finally {
       setProgressVisibility(false)
     }
   }
-  return currentUser.tempEmail === '' ? (
+  return !emailToVerify ? (
     <Navigate
       to={'/verify-email'}
       state={{ redirectPath: '/sign-up', isShortageEmail: true }}

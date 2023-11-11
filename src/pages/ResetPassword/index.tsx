@@ -15,11 +15,11 @@ import IFormFields from './IFormFields'
 import './style.scss'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
-import { showMessage } from '~/redux/snackBarSlice'
 import { useState } from 'react'
 import useVerifyOTP from '~/hooks/useVerifyOTP'
 import { authService } from '~/services'
-import { setEmail } from '~/redux/userSlice'
+import { enqueueSnackbar } from 'notistack'
+import { setEmail } from '~/redux/authSlice'
 
 const ResetPassword = () => {
   const navigateTo = useNavigate()
@@ -54,22 +54,17 @@ const ResetPassword = () => {
 
       setProgressVisibility(false)
 
-      dispatch(
-        showMessage({
-          message: 'Reset password successfully! Please sign in again.',
-          variants: 'success'
-        })
-      )
-      dispatch(setEmail(''))
+      enqueueSnackbar('Reset password successfully! Please sign in again.', {
+        variant: 'success'
+      })
+      dispatch(setEmail(undefined))
+
       navigateTo('/sign-in')
     } catch (error) {
       // show error message on snack bar
-      dispatch(
-        showMessage({
-          message: (error as Error).message,
-          variants: 'error'
-        })
-      )
+      enqueueSnackbar((error as Error).message, {
+        variant: 'error'
+      })
     } finally {
       setProgressVisibility(false)
     }

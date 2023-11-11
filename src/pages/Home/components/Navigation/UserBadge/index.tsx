@@ -37,7 +37,9 @@ const UserBadge = ({ fullVisible }: { fullVisible: boolean }) => {
             fullVisible ? '' : 'badge-text--hidden'
           )}
         >
-          <div className="badge-text__name">{userInfo?.firstName}</div>
+          <div className="badge-text__name">
+            {userInfo.firstName} {userInfo.lastName}
+          </div>
           <div className="badge-text__mail">{userInfo?.email}</div>
         </div>
       </div>

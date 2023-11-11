@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { getCurrentUser, signIn } from './actions'
+import { getCurrentUser, signIn, signOut } from './actions'
 import { IUser } from '~/services/types'
 
 // get the token from local storage
@@ -18,6 +18,8 @@ const initialState: {
   success: boolean
   otp: string | undefined
   shouldReSign: boolean
+  isSigningOut: boolean
+  emailToVerify: string | undefined
 } = {
   userToken,
   userInfo: undefined,
@@ -25,7 +27,9 @@ const initialState: {
   error: undefined,
   success: false,
   otp: undefined,
-  shouldReSign: false
+  shouldReSign: false,
+  isSigningOut: false,
+  emailToVerify: undefined
 }
 
 const authSlice = createSlice({
@@ -44,6 +48,9 @@ const authSlice = createSlice({
     },
     setReSign: (state, action) => {
       state.shouldReSign = action.payload
+    },
+    setEmail: (state, action) => {
+      state.emailToVerify = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -52,6 +59,7 @@ const authSlice = createSlice({
         state.loading = true
         state.error = undefined
         state.shouldReSign = false
+        state.emailToVerify = undefined
       })
       .addCase(signIn.fulfilled, (state, { payload }) => {
         state.loading = false
@@ -69,6 +77,7 @@ const authSlice = createSlice({
         state.error = undefined
         state.success = false
         state.shouldReSign = false
+        state.emailToVerify = undefined
       })
       .addCase(getCurrentUser.fulfilled, (state, { payload }) => {
         state.loading = false
@@ -80,8 +89,27 @@ const authSlice = createSlice({
         state.error = payload as string
         state.success = false
       })
+      .addCase(signOut.pending, (state) => {
+        state.loading = true
+        state.error = undefined
+        state.success = false
+        state.isSigningOut = false
+      })
+      .addCase(signOut.fulfilled, (state) => {
+        state.loading = false
+        state.success = true
+        state.userInfo = undefined
+        localStorage.setItem(import.meta.env.VITE_USER_TOKEN_KEY, 'undefined')
+        state.userToken = undefined
+        state.isSigningOut = true
+      })
+      .addCase(signOut.rejected, (state, { payload }) => {
+        state.loading = false
+        state.error = payload as string
+        state.success = false
+      })
   }
 })
 
 export default authSlice.reducer
-export const { setOTP, setToken, setReSign } = authSlice.actions
+export const { setOTP, setToken, setReSign, setEmail } = authSlice.actions

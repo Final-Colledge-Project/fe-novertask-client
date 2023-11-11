@@ -67,3 +67,16 @@ export const getCurrentUser = createAsyncThunk(
     }
   }
 )
+
+export const signOut = createAsyncThunk(
+  'auth/signOut',
+  async (_data, thunkApi) => {
+    try {
+      // sign out
+      await userService.signOut()
+      return ''
+    } catch (err) {
+      return thunkApi.rejectWithValue((err as Error).message as string)
+    }
+  }
+)

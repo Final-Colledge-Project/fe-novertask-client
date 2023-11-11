@@ -22,11 +22,10 @@ export const sendOTP = async (body: ISendOTP) => {
       return res.data
     }
   } catch (error) {
-    console.log(error)
     const status = (error as AxiosError).response?.status
 
     // email is used
-    if (status && status === 401) {
+    if (status && status === 400) {
       throw new Error(
         `${body.email} is already used! Try another email address.`
       )
@@ -48,7 +47,6 @@ export const verifyOTP = async (body: IVerifyOTP) => {
       return res.data
     }
   } catch (error) {
-    console.log(error)
     const status = (error as AxiosError).response?.status
 
     if (status && status === 400) {
@@ -97,7 +95,6 @@ export const signUp = async (body: ISignUpBody) => {
 
 export const getCurrentUser = async () => {
   try {
-    console.log('Calling getCurrentUser service.....')
     const res = await axiosInstance.get<IGetCurrentUserResponse>(
       requests.getCurrentUser
     )
@@ -105,11 +102,22 @@ export const getCurrentUser = async () => {
       return res.data
     }
   } catch (error) {
-    console.log('userServie - getCurrentuser: ', error)
-
     // general error
     throw new Error(
       (error as Error).message || 'Something went wrong! Please try later.'
     )
+  }
+}
+
+export const signOut = async () => {
+  try {
+
+    // response is nothing
+    await axiosInstance.get(requests.signOut)
+
+  } catch (error) {
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
   }
 }

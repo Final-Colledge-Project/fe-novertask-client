@@ -6,15 +6,19 @@ import { enqueueSnackbar } from 'notistack'
 
 const UnAuthRoute = ({ children }: { children: ReactElement }) => {
   const location = useLocation()
-  const { shouldReSign, error, userToken, userInfo } = useSelector(
-    (state: StoreType) => state.auth
-  )
+  const { shouldReSign, error, userToken, userInfo, isSigningOut } =
+    useSelector((state: StoreType) => state.auth)
 
   useEffect(() => {
     let message = undefined
 
     // case: user access protected route without token
-    if (!shouldReSign && location.state?.redirectPath)
+    if (
+      !isSigningOut &&
+      !shouldReSign &&
+      location.state?.redirectPath &&
+      location.pathname === '/sign-in'
+    )
       message = 'Please sign in to access this page.'
 
     if (message) {
@@ -36,7 +40,7 @@ const UnAuthRoute = ({ children }: { children: ReactElement }) => {
   // raise success message when signing in is successful
   useEffect(() => {
     if (userInfo && location.pathname === '/sign-in') {
-      enqueueSnackbar('Sign in successfully.', {
+      enqueueSnackbar(`Welcome, ${userInfo.firstName} ${userInfo.lastName}`, {
         variant: 'success'
       })
     }

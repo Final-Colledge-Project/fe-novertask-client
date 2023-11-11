@@ -16,17 +16,16 @@ import { userService } from '~/services'
 // OTP Input Group
 import useVerifyOTP from '~/hooks/useVerifyOTP'
 
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 import IProps from './IProps'
 import useCounter from '~/hooks/useCounter'
-import { showMessage } from '~/redux/snackBarSlice'
+import { enqueueSnackbar } from 'notistack'
 
 const InputOTPSection = ({ redirectPath }: IProps) => {
   const navigateTo = useNavigate()
 
-  const currentUser = useSelector((state: StoreType) => state.user)
-  const dispatch = useDispatch()
+  const { emailToVerify } = useSelector((state: StoreType) => state.auth)
 
   // Manage progress bar
   const [progressVerifyVis, setProgressVerifyVis] = useState(false)
@@ -37,22 +36,18 @@ const InputOTPSection = ({ redirectPath }: IProps) => {
   const handleResendOTP = async () => {
     try {
       setProgressResendVis(true)
-      await userService.sendOTP({ email: currentUser.tempEmail })
-      dispatch(
-        showMessage({
-          message: `Successfully resent OTP to ${currentUser.tempEmail}`,
-          variants: 'success'
-        })
-      )
+
+      await userService.sendOTP({ email: emailToVerify as string })
+      enqueueSnackbar(`Successfully resent OTP to ${emailToVerify}`, {
+        variant: 'success'
+      })
+
       reset()
     } catch (error) {
       // show error message on snack bar
-      dispatch(
-        showMessage({
-          message: (error as Error).message,
-          variants: 'error'
-        })
-      )
+      enqueueSnackbar((error as Error).message, {
+        variant: 'error'
+      })
     } finally {
       setProgressResendVis(false)
     }
@@ -62,19 +57,20 @@ const InputOTPSection = ({ redirectPath }: IProps) => {
     try {
       setProgressVerifyVis(true)
       const codesStr = codes.join('')
-      await userService.verifyOTP({ email: currentUser.tempEmail, otp: codesStr })
+      await userService.verifyOTP({
+        email: emailToVerify as string,
+        otp: codesStr
+      })
 
       // if the code is correct -> redirect to the redirectPath
       navigateTo(redirectPath, { replace: true })
       setProgressVerifyVis(false)
     } catch (error) {
       // other errors
-      dispatch(
-        showMessage({
-          message: (error as Error).message,
-          variants: 'error'
-        })
-      )
+      enqueueSnackbar((error as Error).message, {
+        variant: 'error'
+      })
+
       setProgressVerifyVis(false)
     }
   }
@@ -84,7 +80,7 @@ const InputOTPSection = ({ redirectPath }: IProps) => {
     length: 6
   })
 
-  return !currentUser.tempEmail ? (
+  return !emailToVerify ? (
     <Navigate to="/verify-email" state={{ isShortageEmail: true }} />
   ) : (
     <div className="input-otp-section">
@@ -98,7 +94,7 @@ const InputOTPSection = ({ redirectPath }: IProps) => {
           <div className="input-otp-section__sub-title">
             <span>We emailed you a six digit code to </span>
             <div className="input-otp-section__mail-group">
-              <span className="mail">{currentUser.tempEmail}</span>
+              <span className="mail">{emailToVerify}</span>
               <span
                 className="input-otp-section__change-mail-icon"
                 onClick={() => navigateTo('..')}

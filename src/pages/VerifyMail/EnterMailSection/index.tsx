@@ -22,24 +22,23 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { StoreType } from '~/redux'
 import { Dispatch } from '@reduxjs/toolkit'
-import { setEmail } from '~/redux/userSlice'
-import { showMessage } from '~/redux/snackBarSlice'
 import IProps from './IProps'
+import { enqueueSnackbar } from 'notistack'
+import { setEmail } from '~/redux/authSlice'
 
 const EnterMailSection = ({ redirectPath }: IProps) => {
   const location = useLocation()
   const navigateTo = useNavigate()
   const dispatch: Dispatch = useDispatch()
 
-  const currentUser = useSelector((state: StoreType) => state.user)
-  const { tempEmail } = currentUser
+  const { emailToVerify } = useSelector((state: StoreType) => state.auth)
 
   // manage progress bar visibility
   const [progressVisibility, setProgressVisibility] = useState(false)
 
   // form controller from react-hook
   const { control, handleSubmit } = useForm<IFormFields>({
-    defaultValues: { email: tempEmail },
+    defaultValues: { email: emailToVerify },
     mode: 'onTouched',
     resolver: yupResolver(formSchema),
     reValidateMode: 'onBlur'
@@ -48,17 +47,13 @@ const EnterMailSection = ({ redirectPath }: IProps) => {
   useEffect(() => {
     // if this page is redirected because shortage of email
     if (location.state?.isShortageEmail) {
-      dispatch(
-        showMessage({
-          message: 'You have to verify your email first',
-          variants: 'error'
-        })
-      )
+      enqueueSnackbar('You have to verify your email first', {
+        variant: 'error'
+      })
     }
   }, [])
 
   const handleNavigateToLogin = () => {
-    dispatch(setEmail(''))
     navigateTo('/sign-in')
   }
 
@@ -73,24 +68,18 @@ const EnterMailSection = ({ redirectPath }: IProps) => {
 
       // update user in store
       dispatch(setEmail(formData.email))
-      dispatch(
-        showMessage({
-          message: `OTP have been sent successfully to ${formData.email}!`,
-          variants: 'success'
-        })
-      )
+      enqueueSnackbar(`OTP have been sent successfully to ${formData.email}!`, {
+        variant: 'success'
+      })
 
       redirectPath === '/sign-up'
         ? navigateTo('confirm-otp')
         : navigateTo('/reset-password')
     } catch (error) {
       // show error message on snack bar
-      dispatch(
-        showMessage({
-          message: (error as Error).message,
-          variants: 'error'
-        })
-      )
+      enqueueSnackbar((error as Error).message, {
+        variant: 'error'
+      })
     } finally {
       setProgressVisibility(false)
     }
