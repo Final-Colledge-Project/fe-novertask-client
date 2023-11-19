@@ -14,7 +14,7 @@ import { IWSSummary } from '~/services/types'
 const DashBoardMain = () => {
   const {
     currentTeamWS,
-    createWS: { error, loading }
+    createWS: { error }
   } = useSelector((state: StoreType) => state.teamWorkspace)
 
   const dispatch = useDispatch()
@@ -47,28 +47,20 @@ const DashBoardMain = () => {
   }, [error])
 
   useEffect(() => {
-    if (loading) {
+    const getData = async () => {
       dispatch(showLoading())
-    } else {
-      dispatch(hideLoading())
-    }
-  }, [loading])
-
-  useEffect(() => {
-    dispatch(showLoading())
-    try {
-      const getData = async () => {
+      try {
         const res = await getFakeData()
         if (res) {
           setWorkspaceDatas(res as IWSSummary[])
-          dispatch(hideLoading())
         }
+      } catch (err) {
+        console.log(err)
+      } finally {
+        dispatch(hideLoading())
       }
-      getData()
-    } catch (err) {
-      console.log(err)
-      dispatch(hideLoading())
     }
+    getData()
   }, [])
 
   return (

@@ -37,7 +37,7 @@ export const getFakeData = async () => {
     const res = await new Promise((res) => {
       setTimeout(() => {
         res(data)
-      }, 3000)
+      }, 5000)
     })
     if (res) return res
   } catch (error) {

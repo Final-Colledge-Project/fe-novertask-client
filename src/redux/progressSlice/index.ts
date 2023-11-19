@@ -6,11 +6,11 @@ const progressSlice = createSlice({
     loading: false
   },
   reducers: {
-    showLoading: (state) => {
-      state.loading = true
+    showLoading: () => {
+      return { loading: true }
     },
-    hideLoading: (state) => {
-      state.loading = false
+    hideLoading: () => {
+      return { loading: false }
     }
   }
 })

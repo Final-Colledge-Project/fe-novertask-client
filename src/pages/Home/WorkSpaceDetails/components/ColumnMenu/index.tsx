@@ -29,10 +29,6 @@ export default function ColumnMenu() {
 
   const [currentFields, setCurrentFields] = useState(() => columns.current)
   const [tempFields, setTempFields] = useState(() => columns.current)
-  console.log(
-    '✨ ~ file: index.tsx:32 ~ ColumnMenu ~ currentFields:',
-    currentFields
-  )
 
   const handleSelectionColumn = (checked: boolean, index: number) => {
     setTempFields((prev) => {
@@ -43,7 +39,7 @@ export default function ColumnMenu() {
   }
 
   const handleCheckAll = () => {
-    const isAllChecked = currentFields.every((item) => item.show)
+    const isAllChecked = tempFields.every((item) => item.show)
     if (isAllChecked) {
       setTempFields((prev) => {
         const newState = prev.map((item) => ({ ...item, show: false }))

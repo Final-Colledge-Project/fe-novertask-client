@@ -35,11 +35,13 @@ const AddWSPopup = () => {
   })
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
+    dispatch(showLoading())
     await dispatch(createWS({ name: data.WSName }))
+    dispatch(hideLoading())
   }
 
   const {
-    createWS: { error, loading, success }
+    createWS: { error, success }
   } = useSelector((state: StoreType) => state.teamWorkspace)
 
   useEffect(() => {
@@ -47,14 +49,6 @@ const AddWSPopup = () => {
       enqueueSnackbar(error, { variant: 'error' })
     }
   }, [error])
-
-  useEffect(() => {
-    if (loading) {
-      dispatch(showLoading())
-    } else {
-      dispatch(hideLoading())
-    }
-  }, [loading])
 
   useEffect(() => {
     if (success) {
