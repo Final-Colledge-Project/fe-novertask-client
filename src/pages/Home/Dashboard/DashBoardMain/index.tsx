@@ -1,46 +1,75 @@
 import WorkSpaceSummary from '../components/WorkSpaceSummary'
 import './style.scss'
-import workspaceDatas from '~/services/mockData.json'
 import SearchBox from '~/components/SearchBox'
 import MenuPopup from './MenuPopup'
-import AddWSPopup from './AddWSPopup'
-import { useState } from 'react'
-import AddPJPopup from './AddPJPopup'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import { enqueueSnackbar } from 'notistack'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
+import { setPopupAddPJ, setPopupAddWS } from '~/redux/popupSlice'
+import { getFakeData } from '~/services/workspaceService'
+import { IWSSummary } from '~/services/types'
 
 const DashBoardMain = () => {
-  const [addWSPopupVisible, setAddWSPopupVisible] = useState(false)
-  const [addPJPopupVisible, setAddPJPopupVisible] = useState(false)
-  const [addTaskPopupVisible, setAddTaskPopupVisible] = useState(false)
+  const {
+    currentTeamWS,
+    createWS: { error, loading }
+  } = useSelector((state: StoreType) => state.teamWorkspace)
 
-  const handleCloseAddWSPopup = () => {
-    setAddWSPopupVisible(false)
-  }
-  const handleCloseAddPJPopup = () => {
-    setAddPJPopupVisible(false)
-  }
+  const dispatch = useDispatch()
+
+  const [workspaceDatas, setWorkspaceDatas] = useState<IWSSummary[]>([])
 
   const addMenuItems = [
     {
       title: 'Add workspace',
       onChoose: () => {
-        setAddWSPopupVisible(true)
+        dispatch(setPopupAddWS(true))
       }
     },
     {
       title: 'Add project',
       onChoose: () => {
-        setAddPJPopupVisible(true)
+        dispatch(setPopupAddPJ(true))
       }
     },
     {
       title: 'Add task',
-      onChoose: () => {
-        setAddTaskPopupVisible(true)
-      }
+      onChoose: () => {}
     }
   ]
 
-  console.log('add WS popup: ', addWSPopupVisible)
+  useEffect(() => {
+    if (error) {
+      enqueueSnackbar(error, { variant: 'error' })
+    }
+  }, [error])
+
+  useEffect(() => {
+    if (loading) {
+      dispatch(showLoading())
+    } else {
+      dispatch(hideLoading())
+    }
+  }, [loading])
+
+  useEffect(() => {
+    dispatch(showLoading())
+    try {
+      const getData = async () => {
+        const res = await getFakeData()
+        if (res) {
+          setWorkspaceDatas(res as IWSSummary[])
+          dispatch(hideLoading())
+        }
+      }
+      getData()
+    } catch (err) {
+      console.log(err)
+      dispatch(hideLoading())
+    }
+  }, [])
 
   return (
     <div className="dashboard-main-container">
@@ -56,19 +85,16 @@ const DashBoardMain = () => {
       {workspaceDatas.map((workspace) => (
         <WorkSpaceSummary data={workspace} />
       ))}
-
-      {addWSPopupVisible && (
-        <AddWSPopup
-          visible={addWSPopupVisible}
-          onClose={handleCloseAddWSPopup}
-        />
-      )}
-      {addPJPopupVisible && (
-        <AddPJPopup
-          visible={addPJPopupVisible}
-          onClose={handleCloseAddPJPopup}
-        />
-      )}
+      {currentTeamWS &&
+        currentTeamWS.map((workspace) => (
+          <WorkSpaceSummary
+            data={{
+              title: workspace.name,
+              projects: [],
+              id: workspace.id
+            }}
+          />
+        ))}
     </div>
   )
 }

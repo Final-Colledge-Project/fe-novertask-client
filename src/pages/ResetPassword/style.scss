@@ -146,8 +146,16 @@
         border-top: 1px solid var(--mui-palette-gray2-main);
       }
 
-      .submit-button {
-        margin-top: 20px;
+      // .submit-button {
+      //   margin-top: 20px;
+      // }
+
+      & > .action-button {
+        width: 100%;
+        display: flex;
+        justify-content: stretch;
+        // flex-direction: column;
+        gap: 4px;
       }
     }
 

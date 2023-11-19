@@ -4,37 +4,71 @@ import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { RiCloseFill } from 'react-icons/ri'
 import clsx from 'clsx'
-import IProps from './IProps'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import WithController from '~/components/InputWithController'
 import IFormFields from './IFormFields'
 import { yupResolver } from '@hookform/resolvers/yup'
 import schema from './formSchema'
+import { useDispatch, useSelector } from 'react-redux'
+import { createWS } from '~/redux/teamWSSlice/actions'
+import { StoreDispatchType, StoreType } from '~/redux'
+import { setPopupAddWS } from '~/redux/popupSlice'
+import { useEffect } from 'react'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
+import { enqueueSnackbar } from 'notistack'
+import { resetCreateWS } from '~/redux/teamWSSlice'
 
-const AddWSPopup = ({ visible, onClose }: IProps) => {
+const AddWSPopup = () => {
+  const dispatch = useDispatch<StoreDispatchType>()
+
   const handleClose = () => {
-    onClose()
+    dispatch(setPopupAddWS(false))
   }
 
-  const { control, handleSubmit } = useForm<IFormFields>({
+  const { PopupAddWS } = useSelector((state: StoreType) => state.popup)
+
+  const { control, handleSubmit, getValues } = useForm<IFormFields>({
     defaultValues: {},
-    mode: 'onChange',
+    mode: 'onSubmit',
     resolver: yupResolver(schema),
     reValidateMode: 'onBlur'
   })
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
-    try {
-      alert(data)
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.log(err)
-    }
+    await dispatch(createWS({ name: data.WSName }))
   }
+
+  const {
+    createWS: { error, loading, success }
+  } = useSelector((state: StoreType) => state.teamWorkspace)
+
+  useEffect(() => {
+    if (error) {
+      enqueueSnackbar(error, { variant: 'error' })
+    }
+  }, [error])
+
+  useEffect(() => {
+    if (loading) {
+      dispatch(showLoading())
+    } else {
+      dispatch(hideLoading())
+    }
+  }, [loading])
+
+  useEffect(() => {
+    if (success) {
+      enqueueSnackbar(`Create successfully workspace ${getValues('WSName')}`, {
+        variant: 'success'
+      })
+      dispatch(resetCreateWS())
+      handleClose()
+    }
+  }, [success])
 
   return (
     <div
-      className={clsx('add-ws-popup', !visible && 'add-ws-popup--hidden')}
+      className={clsx('add-ws-popup', !PopupAddWS && 'add-ws-popup--hidden')}
       onClick={handleClose}
     >
       <div

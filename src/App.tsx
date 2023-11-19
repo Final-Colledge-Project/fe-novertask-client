@@ -9,6 +9,8 @@ import GeneralSnackBar from './components/GeneralSnackBar'
 import GuestRoutes from './layouts/GuestRoutes'
 import UserRoutes from './layouts/UserRoutes'
 import ForgotPassword from './pages/ResetPassword'
+import ProgressModal from './components/ProgressModal'
+import Invitation from './pages/Invitation'
 
 function App() {
   return (
@@ -28,12 +30,15 @@ function App() {
           </Route>
 
           {/* protected routes */}
-          <Route element={<UserRoutes />}>
-            <Route element={<Home />} path="/home/*" />
+          <Route element={<UserRoutes />} path="u">
+            <Route element={<Home />} path="home/*" />
+            <Route element={<Home />} index />
+            <Route element={<Invitation />} path="invitation" />
           </Route>
         </Routes>
       </BrowserRouter>
       <GeneralSnackBar />
+      <ProgressModal />
     </div>
   )
 }

@@ -25,7 +25,8 @@ const ResetPassword = () => {
   const navigateTo = useNavigate()
   const dispatch = useDispatch()
 
-  const currentUser = useSelector((state: StoreType) => state.user)
+  // const currentUser = useSelector((state: StoreType) => state.user)
+  const { emailToVerify } = useSelector((state: StoreType) => state.auth)
 
   const { control, handleSubmit, getValues } = useForm<IFormFields>({
     defaultValues: {},
@@ -48,13 +49,13 @@ const ResetPassword = () => {
 
       await authService.resetPassword({
         newPassword: formData.password,
-        email: currentUser.tempEmail,
+        email: emailToVerify as string,
         otp: inputCodes.join('')
       })
 
       setProgressVisibility(false)
 
-      enqueueSnackbar('Reset password successfully! Please sign in again.', {
+      enqueueSnackbar('Reset password successfully! Please sign in.', {
         variant: 'success'
       })
       dispatch(setEmail(undefined))
@@ -70,7 +71,11 @@ const ResetPassword = () => {
     }
   }
 
-  return !currentUser.tempEmail ? (
+  const handleCancel = () => {
+    dispatch(setEmail(undefined))
+  }
+
+  return !emailToVerify ? (
     <Navigate to="/sign-in" />
   ) : (
     <div className="forgot-password-container">
@@ -114,27 +119,38 @@ const ResetPassword = () => {
               value={getValues('repeatPassword')}
             />
           </InputWithController>
-          <Button
-            className="submit-button"
-            variant="contained"
-            color="primary"
-            sx={{
-              height: '43px',
-              fontSize: '16px'
-            }}
-            type="submit"
-            disabled={progressVisibility || !dirties.every((i) => i === true)}
-            onClick={handleSubmit(onSubmit)}
-          >
-            {progressVisibility ? (
-              <CircularProgress
-                size="30px"
-                sx={{ color: (theme) => theme.palette.white.main }}
-              />
-            ) : (
-              'Reset password'
-            )}
-          </Button>
+          <div className="action-button">
+            <Button
+              variant="text"
+              color="error"
+              fullWidth
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="submit-button"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{
+                height: '43px',
+                fontSize: '16px'
+              }}
+              type="submit"
+              disabled={progressVisibility || !dirties.every((i) => i === true)}
+              onClick={handleSubmit(onSubmit)}
+            >
+              {progressVisibility ? (
+                <CircularProgress
+                  size="30px"
+                  sx={{ color: (theme) => theme.palette.white.main }}
+                />
+              ) : (
+                'Reset password'
+              )}
+            </Button>
+          </div>
         </form>
       </div>
       <div className="gif">

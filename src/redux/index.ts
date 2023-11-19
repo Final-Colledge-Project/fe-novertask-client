@@ -2,11 +2,17 @@ import { configureStore } from '@reduxjs/toolkit'
 import userReducer from './userSlice'
 import authReducer from './authSlice'
 import snackBarReducer from './snackBarSlice'
+import teamWSReducer from './teamWSSlice'
+import progressReducer from './progressSlice'
+import popupReducer from './popupSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
     auth: authReducer,
-    snackBar: snackBarReducer
+    snackBar: snackBarReducer,
+    teamWorkspace: teamWSReducer,
+    progress: progressReducer,
+    popup: popupReducer
   }
 })
 

@@ -60,7 +60,7 @@ const UnAuthRoute = ({ children }: { children: ReactElement }) => {
   return !userToken ? (
     <>{children}</>
   ) : (
-    <Navigate to={location.state?.redirectPath || '/home'} replace />
+    <Navigate to={location.state?.redirectPath || '/u/home'} replace />
   )
 }
 

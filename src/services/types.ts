@@ -10,6 +10,7 @@ export interface IWSSummaryProject {
   totalTask: number
   completeTask: number
   target: string | null
+  createdAt?: string | null
   members: { img: string }[]
 }
 

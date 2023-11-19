@@ -11,7 +11,8 @@ const SearchBox = ({
   placeHolder,
   onChange,
   error = false,
-  value
+  value,
+  sx
 }: IInputProps) => {
   return (
     <FormControl
@@ -28,7 +29,8 @@ const SearchBox = ({
             color: (theme) =>
               error ? theme.palette.error.main : theme.palette.primary.main
           }
-        }
+        },
+        ...sx
       }}
     >
       <InputLabel htmlFor={`outlined-adornment-${label}`}>{label}</InputLabel>

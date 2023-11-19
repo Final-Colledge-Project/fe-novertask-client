@@ -51,6 +51,14 @@ const FinishProfile = () => {
   // Manage progress bar visibility
   const [progressVisibility, setProgressVisibility] = useState(false)
 
+  const [currEmail, setCurrEmail] = useState(() => emailToVerify)
+
+  const handleCancel = () => {
+    dispatch(setEmail(undefined))
+    setCurrEmail(undefined)
+    navigateTo('/')
+  }
+
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     try {
       setProgressVisibility(true)
@@ -58,7 +66,7 @@ const FinishProfile = () => {
 
       const body = {
         ...data,
-        email: emailToVerify as string,
+        email: currEmail as string,
         birthDate: birthdayStr
       }
 
@@ -70,6 +78,7 @@ const FinishProfile = () => {
       })
       dispatch(setEmail(undefined))
       navigateTo('/sign-in')
+      setCurrEmail(undefined)
     } catch (error) {
       // show error message on snack bar
       enqueueSnackbar((error as Error).message, {
@@ -79,7 +88,7 @@ const FinishProfile = () => {
       setProgressVisibility(false)
     }
   }
-  return !emailToVerify ? (
+  return !currEmail ? (
     <Navigate
       to={'/verify-email'}
       state={{ redirectPath: '/sign-up', isShortageEmail: true }}
@@ -131,21 +140,27 @@ const FinishProfile = () => {
               />
             </InputWithController>
           </div>
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            disabled={progressVisibility}
-          >
-            {progressVisibility ? (
-              <CircularProgress
-                size="30px"
-                sx={{ color: (theme) => theme.palette.white.main }}
-              />
-            ) : (
-              'Submit'
-            )}
-          </Button>
+          <div className="input-group button-group">
+            <Button variant="text" color="error" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              disabled={progressVisibility}
+              sx={{ px: '40px' }}
+            >
+              {progressVisibility ? (
+                <CircularProgress
+                  size="30px"
+                  sx={{ color: (theme) => theme.palette.white.main }}
+                />
+              ) : (
+                'Submit'
+              )}
+            </Button>
+          </div>
         </form>
         <div className="image">
           <img src="/img/finish-profile-pic.png" alt="" />

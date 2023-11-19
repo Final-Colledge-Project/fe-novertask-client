@@ -61,6 +61,8 @@ const EnterMailSection = ({ redirectPath }: IProps) => {
     try {
       setProgressVisibility(true)
 
+      console.log(location)
+
       // verify email for sign up -> sendOTP
       if (redirectPath === '/sign-up') await userService.sendOTP(formData)
       // verify email for reset password -> forgotPassword

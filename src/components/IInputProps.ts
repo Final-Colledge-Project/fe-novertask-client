@@ -1,3 +1,4 @@
+import { SxProps } from '@mui/material'
 import { ChangeEventHandler, ReactElement } from 'react'
 
 interface IInputProps {
@@ -13,5 +14,6 @@ interface IInputProps {
   field?: object
   type?: string
   autofocus?: boolean
+  sx?: SxProps
 }
 export default IInputProps
