@@ -15,8 +15,8 @@ const UserBadge = ({ fullVisible }: { fullVisible: boolean }) => {
         )}
       >
         <Avatar
-          alt="Giang Hoang"
-          src="/img/avatar.jpg"
+          alt={userInfo.firstName}
+          src={userInfo.avatar}
           sx={{
             //   width: fullVisible ? '40px' : '50px',
             //   height: fullVisible ? '40px' : '50px'

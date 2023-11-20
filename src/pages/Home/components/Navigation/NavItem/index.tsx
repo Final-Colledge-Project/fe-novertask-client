@@ -8,7 +8,8 @@ const NavItem = ({
   startIcon,
   endIcon,
   children,
-  fullVisible
+  fullVisible,
+  onClick
 }: {
   isIndex?: boolean
   title: string
@@ -16,6 +17,7 @@ const NavItem = ({
   endIcon?: ReactElement
   fullVisible: boolean
   children?: ReactNode | ReactNode[]
+  onClick?: () => void
 }) => {
   const [menuVisible, setMenuVisible] = useState(false)
 
@@ -28,7 +30,10 @@ const NavItem = ({
   return (
     <div className="nav-item-container">
       <Button
-        onClick={handleToggleMenu}
+        onClick={() => {
+          handleToggleMenu()
+          if (onClick) onClick()
+        }}
         fullWidth={fullVisible}
         sx={{
           width: fullVisible ? '100%' : '50px',
