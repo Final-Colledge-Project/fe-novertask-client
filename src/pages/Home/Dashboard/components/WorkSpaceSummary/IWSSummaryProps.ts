@@ -1,5 +1,5 @@
 import { types } from '~/services'
 
 export default interface IWSSummaryProps {
-  data: types.IWSSummary
+  data: types.IBoardData
 }

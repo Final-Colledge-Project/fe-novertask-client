@@ -10,11 +10,8 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
     <div className="workspace-summary">
       <div className="workspace-summary-header">
         <div className="header-text">
-          <p className="header-text-name">{data.title}</p>
-          <p className="header-text-count">
-            {' '}
-            • {data.projects.length} projects
-          </p>
+          <p className="header-text-name">{data.name}</p>
+          <p className="header-text-count"> • {data.board.length} projects</p>
         </div>
         <div className="header-divider"></div>
         <div className="header-show-type">
@@ -22,10 +19,10 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
         </div>
       </div>
       <div className="workspace-summary-outlet">
-        {data.projects.length > 0 ? (
+        {data.board.length > 0 ? (
           <div className="outlet-items-list">
-            {data.projects.map((project) => (
-              <WorkSpaceItem data={project} />
+            {data.board.map((project) => (
+              <WorkSpaceItem data={project} key={project._id} />
             ))}
           </div>
         ) : (

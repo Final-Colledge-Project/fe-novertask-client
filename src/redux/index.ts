@@ -5,6 +5,7 @@ import snackBarReducer from './snackBarSlice'
 import teamWSReducer from './teamWSSlice'
 import progressReducer from './progressSlice'
 import popupReducer from './popupSlice'
+import boardReducer from './boardSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -12,7 +13,8 @@ const store = configureStore({
     snackBar: snackBarReducer,
     teamWorkspace: teamWSReducer,
     progress: progressReducer,
-    popup: popupReducer
+    popup: popupReducer,
+    board: boardReducer
   }
 })
 

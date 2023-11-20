@@ -1,53 +1,40 @@
 import WorkSpaceSummary from '../../components/WorkSpaceSummary'
-import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { StoreType } from '~/redux'
-import { getFakeData } from '~/services/workspaceService'
-import { IWSSummary } from '~/services/types'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { StoreDispatchType, StoreType } from '~/redux'
 import LoadingSkelelton from '~/pages/Home/components/LoadingSkeleton'
+import { getAllByUserId } from '~/redux/boardSlice/actions'
+import { enqueueSnackbar } from 'notistack'
 
 const Data = () => {
-  const { currentTeamWS } = useSelector(
-    (state: StoreType) => state.teamWorkspace
-  )
-
-  const [workspaceDatas, setWorkspaceDatas] = useState<
-    IWSSummary[] | undefined
-  >(undefined)
+  const {
+    boards,
+    getAllBoard: { error }
+  } = useSelector((state: StoreType) => state.board)
+  const dispatch = useDispatch<StoreDispatchType>()
 
   useEffect(() => {
     const getData = async () => {
-      // dispatch(showLoading())
       try {
-        const res = await getFakeData()
-        if (res) {
-          setWorkspaceDatas(res as IWSSummary[])
-        }
+        await dispatch(getAllByUserId())
       } catch (err) {
         console.log(err)
-      } finally {
-        // dispatch(hideLoading())
       }
     }
     getData()
   }, [])
 
-  return workspaceDatas ? (
+  useEffect(() => {
+    if (error) {
+      enqueueSnackbar(error as string, { variant: 'error' })
+    }
+  }, [error])
+
+  return boards ? (
     <>
-      {workspaceDatas.map((workspace) => (
-        <WorkSpaceSummary data={workspace} key={workspace.id} />
+      {boards?.map((workspace) => (
+        <WorkSpaceSummary data={workspace} key={workspace._id} />
       ))}
-      {currentTeamWS &&
-        currentTeamWS.map((workspace) => (
-          <WorkSpaceSummary
-            key={workspace.id}
-            data={{
-              title: workspace.name,
-              projects: [],
-              id: workspace.id
-            }}
-          />
-        ))}
     </>
   ) : (
     <LoadingSkelelton />

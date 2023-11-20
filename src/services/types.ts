@@ -46,3 +46,27 @@ export interface IInvitation {
     workspaceMembers?: { user: IMockUser }[]
   }
 }
+
+export interface IBoard {
+  _id: string
+  title: string
+  description: string
+  cover: undefined | string
+  columnOrderIds?: Array<string>
+  type: 'private' | 'public'
+  teamWorkspaceId: string
+  ownerIds: Array<string>
+  memberIds: Array<string>
+  dueDate?: string
+  isActive?: boolean
+  isDestroyed?: boolean
+  createdAt: string
+  updatedAt?: string
+  __v: string
+}
+
+export interface IBoardData {
+  board: IBoard[]
+  _id: string
+  name: string
+}
