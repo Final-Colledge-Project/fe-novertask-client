@@ -1,25 +1,19 @@
-import WorkSpaceSummary from '../components/WorkSpaceSummary'
 import './style.scss'
 import SearchBox from '~/components/SearchBox'
 import MenuPopup from './MenuPopup'
-import { useEffect, useState } from 'react'
+import { lazy, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 import { enqueueSnackbar } from 'notistack'
-import { hideLoading, showLoading } from '~/redux/progressSlice'
 import { setPopupAddPJ, setPopupAddWS } from '~/redux/popupSlice'
-import { getFakeData } from '~/services/workspaceService'
-import { IWSSummary } from '~/services/types'
+const Data = lazy(() => import('./Data'))
 
 const DashBoardMain = () => {
   const {
-    currentTeamWS,
     createWS: { error }
   } = useSelector((state: StoreType) => state.teamWorkspace)
 
   const dispatch = useDispatch()
-
-  const [workspaceDatas, setWorkspaceDatas] = useState<IWSSummary[]>([])
 
   const addMenuItems = [
     {
@@ -46,23 +40,6 @@ const DashBoardMain = () => {
     }
   }, [error])
 
-  useEffect(() => {
-    const getData = async () => {
-      dispatch(showLoading())
-      try {
-        const res = await getFakeData()
-        if (res) {
-          setWorkspaceDatas(res as IWSSummary[])
-        }
-      } catch (err) {
-        console.log(err)
-      } finally {
-        dispatch(hideLoading())
-      }
-    }
-    getData()
-  }, [])
-
   return (
     <div className="dashboard-main-container">
       <div className="dashboard-header">
@@ -74,19 +51,7 @@ const DashBoardMain = () => {
           <MenuPopup items={addMenuItems} />
         </div>
       </div>
-      {workspaceDatas.map((workspace) => (
-        <WorkSpaceSummary data={workspace} />
-      ))}
-      {currentTeamWS &&
-        currentTeamWS.map((workspace) => (
-          <WorkSpaceSummary
-            data={{
-              title: workspace.name,
-              projects: [],
-              id: workspace.id
-            }}
-          />
-        ))}
+      <Data />
     </div>
   )
 }

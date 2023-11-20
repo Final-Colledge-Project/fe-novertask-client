@@ -2,7 +2,6 @@ import { Route, Routes, BrowserRouter } from 'react-router-dom'
 import Welcome from './pages/Welcome'
 import SignUp from './pages/SignUp'
 import SignIn from './pages/SignIn'
-import Home from './pages/Home'
 import PageNotFound from './pages/PageNotFound'
 import VerifyEmail from './pages/VerifyMail'
 import GeneralSnackBar from './components/GeneralSnackBar'
@@ -10,7 +9,10 @@ import GuestRoutes from './layouts/GuestRoutes'
 import UserRoutes from './layouts/UserRoutes'
 import ForgotPassword from './pages/ResetPassword'
 import ProgressModal from './components/ProgressModal'
-import Invitation from './pages/Invitation'
+import { lazy, Suspense } from 'react'
+import Loading from './components/Loading'
+const Home = lazy(() => import('./pages/Home'))
+const Invitation = lazy(() => import('./pages/Invitation'))
 
 function App() {
   return (
@@ -31,9 +33,30 @@ function App() {
 
           {/* protected routes */}
           <Route element={<UserRoutes />} path="u">
-            <Route element={<Home />} path="home/*" />
-            <Route element={<Home />} index />
-            <Route element={<Invitation />} path="invitation" />
+            <Route
+              element={
+                <Suspense fallback={<Loading />}>
+                  <Home />
+                </Suspense>
+              }
+              path="home/*"
+            />
+            <Route
+              element={
+                <Suspense fallback={<Loading />}>
+                  <Home />
+                </Suspense>
+              }
+              index
+            />
+            <Route
+              element={
+                <Suspense fallback={<Loading />}>
+                  <Invitation />
+                </Suspense>
+              }
+              path="invitation/:id"
+            />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -5,7 +5,8 @@ const popupSlice = createSlice({
   initialState: {
     PopupAddWS: false,
     PopupAddPJ: false,
-    PopupAddTask: false
+    PopupAddTask: false,
+    PopupInvite: false
   },
   reducers: {
     setPopupAddWS: (state, action) => {
@@ -16,10 +17,17 @@ const popupSlice = createSlice({
     },
     setPopupAddTask: (state, action) => {
       state.PopupAddTask = action.payload
+    },
+    setPopupInvitePeople: (state, action) => {
+      state.PopupInvite = action.payload
     }
   }
 })
 
 export default popupSlice.reducer
-export const { setPopupAddWS, setPopupAddPJ, setPopupAddTask } =
-  popupSlice.actions
+export const {
+  setPopupAddWS,
+  setPopupAddPJ,
+  setPopupAddTask,
+  setPopupInvitePeople
+} = popupSlice.actions

@@ -24,3 +24,25 @@ export interface IUser {
   lastName: string
   phone: string
 }
+
+interface IMockUser {
+  avatar: string
+  fullName: string
+}
+
+export interface IInvitation {
+  _id: string
+  teamWorkspace: {
+    _id: string
+    name: string
+    workspaceAdmins: {
+      user: IMockUser
+      role: 'admin' | 'superAdmin'
+    }[]
+  }
+  senders: IMockUser
+  receiver: IMockUser
+  teamWorkspaceMember?: {
+    workspaceMembers?: { user: IMockUser }[]
+  }
+}

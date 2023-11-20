@@ -27,7 +27,7 @@ import {
 } from '@mui/material'
 import BlockItem from './components/BlockProjectItem'
 import LineItem from './components/LineProjectItem'
-import { setPopupAddPJ } from '~/redux/popupSlice'
+import { setPopupAddPJ, setPopupInvitePeople } from '~/redux/popupSlice'
 import { useDispatch } from 'react-redux'
 import { StoreDispatchType } from '~/redux'
 import ToggleViewButton from '../components/ToggleViewButton'
@@ -67,6 +67,10 @@ const WorkSpaceDetails = () => {
 
   const handleShowAddPJPopup = () => {
     dispatch(setPopupAddPJ(true))
+  }
+
+  const handleShowPopupInvite = () => {
+    dispatch(setPopupInvitePeople(true))
   }
 
   const handleChangeViewType = (viewType: 'list' | 'block') => {
@@ -209,12 +213,11 @@ const WorkSpaceDetails = () => {
                 variant="contained"
                 color="primary"
                 endIcon={<img className="icon" src="/img/plane_2.png" alt="" />}
+                onClick={handleShowPopupInvite}
                 sx={{
                   '&.MuiButton-root': {
                     backgroundImage:
                       'linear-gradient(45deg, #0B84FF -15.23%, #0040DD 102.22%);'
-                    // bgcolor: (theme) => theme.palette.yellow.main
-                    // bgcolor: '#70D7FF'
                   }
                 }}
               >

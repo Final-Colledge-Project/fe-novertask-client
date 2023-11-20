@@ -58,7 +58,7 @@ export const Modal = styled.div`
   & > .title {
     font-size: 20px;
     font-weight: 700;
-    color: var(--mui-palette-blue-main);
+    /* color: var(--mui-palette-blue-main); */
   }
 `
 
@@ -68,6 +68,7 @@ export const Letter = styled.div`
   background: var(--mui-palette-white-main);
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
   display: flex;
+  gap: 30px;
   align-items: center;
   flex-direction: column;
   padding: 50px 50px;
@@ -76,30 +77,31 @@ export const Letter = styled.div`
     padding: 20px 10px;
   }
 
-  & > .invitation-source {
-    font-size: 24px;
-    margin-top: 10px;
+  & > .workspace-name {
+    font-size: 28px;
+    margin-bottom: 10px;
     font-weight: 700;
-    /* color: var(--mui-palette-blue-main); */
+    color: var(--mui-palette-blue-main);
   }
   & > .invitation-text {
-    margin: 30px 0;
+    /* margin: 30px 0; */
+    text-align: center;
   }
 `
 
 export const Image = styled.div`
   position: relative;
   margin-top: 10px;
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 8px;
   overflow: hidden;
   border: 3px solid var(--mui-palette-blue-main);
-  /* padding: 5px; */
-  background: linear-gradient(209deg, #70d7ff -15.23%, #0271a4 102.22%);
+  padding: 5px;
+  /* background: linear-gradient(209deg, #70d7ff -15.23%, #0271a4 102.22%); */
 
   img {
-    position: absolute;
+    /* position: absolute; */
     z-index: 1;
     display: block;
     border-radius: 5px;
@@ -107,7 +109,7 @@ export const Image = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* object-position: center; */
+    object-position: center;
     text-indent: -100000px;
   }
 `
@@ -136,5 +138,19 @@ export const Buttons = styled.div`
     margin-top: 10px;
     gap: 0px;
     flex-direction: column-reverse;
+  }
+`
+
+export const ImageGroup = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+
+  & > svg {
+    width: 30px;
+    height: 30px;
+    color: var(--mui-palette-gray3-main);
   }
 `
