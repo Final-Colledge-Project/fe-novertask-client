@@ -1,6 +1,7 @@
 import axiosInstance from '../axiosInstance'
-import { IGetAllByUserIdResponse } from './resTypes'
+import { IGetAllByUserIdResponse, IGetAllByWSIdResponse } from './resTypes'
 import requests from './requests'
+import { IGetAllByWSIdBody } from './reqTypes'
 
 export const getAllByUserId = async () => {
   try {
@@ -19,6 +20,21 @@ export const getAllByUserId = async () => {
     //   throw new Error(`Invitation is not exist! Please check your email.`)
     // }
 
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const getAllByWSId = async (body: IGetAllByWSIdBody) => {
+  try {
+    const res = await axiosInstance.get<IGetAllByWSIdResponse>(
+      // handle option first
+      requests.getAllByWSId(body.wsId)
+    )
+    if (res && res.data) {
+      return res.data
+    }
+  } catch (error) {
     // general error
     throw new Error('Something went wrong! Please try later.')
   }

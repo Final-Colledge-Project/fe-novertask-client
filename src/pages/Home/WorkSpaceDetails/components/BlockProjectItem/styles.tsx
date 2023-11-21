@@ -42,7 +42,7 @@ export const Item = styled.div`
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      padding: 10px 0;
       .item__estimate {
         display: flex;
         align-items: center;
@@ -58,7 +58,9 @@ export const Item = styled.div`
       }
 
       .item__avatar-group {
-        // flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 5px;
       }
     }
   }
@@ -113,16 +115,34 @@ export const ItemCover = styled.div`
     // margin-bottom: 15px;
 
     &__title {
-      padding-top: 2px;
-      font-weight: 700;
-      font-size: 16px;
-      text-wrap: wrap;
-      // display: -webkit-box;
-      // text-overflow: ellipsis;
-      // -webkit-line-clamp: 1;
-      // overflow: hidden;
-      // // white-space: nowrap;
-      // -webkit-box-orient: vertical;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      & > p {
+        padding-top: 2px;
+        font-weight: 700;
+        font-size: 16px;
+        word-wrap: break-word;
+        display: -webkit-box;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+        /* white-space: nowrap; */
+        -webkit-box-orient: vertical;
+      }
+
+      .circle {
+        font-size: 10px;
+        /* width: 5px; */
+        /* height: 5px; */
+        border-radius: 50px;
+        padding: 0px 8px;
+        background-color: var(--mui-palette-green-main);
+      }
+
+      .circle.private {
+        background-color: var(--mui-palette-orange-main);
+      }
     }
   }
 `

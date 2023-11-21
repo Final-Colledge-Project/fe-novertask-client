@@ -63,11 +63,21 @@ export interface IBoard {
   isDestroyed?: boolean
   createdAt: string
   updatedAt?: string
-  __v: string
+  __v?: string
 }
 
 export interface IBoardData {
   board: IBoard[]
   _id: string
   name: string
+}
+
+export interface IBoardMembers {
+  workspaceAdmins: {
+    user: IMockUser & { email: string; _id: string }
+    role: 'admin' | 'superAdmin'
+  }[]
+  workspaceMembers?: {
+    user: IMockUser & { email: string; _id: string }
+  }[]
 }

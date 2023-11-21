@@ -103,9 +103,9 @@ const Navigation = () => {
               startIcon={<MdWorkspacesOutline />}
               endIcon={<MdKeyboardArrowDown />}
             >
-              {boards.length > 0 ? (
-                boards.map((data) => (
-                  <LevelMenu key={data._id}>
+              <LevelMenu>
+                {boards.length > 0 ? (
+                  boards.map((data) => (
                     <LevelMenuItem>
                       <NavItem
                         onClick={() => {
@@ -118,11 +118,11 @@ const Navigation = () => {
                         startIcon={<RiSettings2Line />}
                       ></NavItem>
                     </LevelMenuItem>
-                  </LevelMenu>
-                ))
-              ) : (
-                <></>
-              )}
+                  ))
+                ) : (
+                  <></>
+                )}
+              </LevelMenu>
             </NavItem>
           </li>
           <li className="divider"></li>

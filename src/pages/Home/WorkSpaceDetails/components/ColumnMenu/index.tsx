@@ -22,7 +22,6 @@ export default function ColumnMenu() {
     { value: 'cover', show: true, label: 'Cover' },
     { value: 'name', show: true, label: 'Name' },
     { value: 'members', show: true, label: 'Members' },
-    { value: 'estimation', show: true, label: 'Estimation' },
     { value: 'createAt', show: true, label: 'Created at' },
     { value: 'dueDate', show: true, label: 'Due date' }
   ])

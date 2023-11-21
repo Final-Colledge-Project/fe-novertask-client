@@ -1,5 +1,5 @@
-import { IWSSummaryProject } from '~/services/types'
+import { IBoard } from '~/services/types'
 
 export default interface IWSItemProps {
-  data: IWSSummaryProject
+  data: IBoard
 }

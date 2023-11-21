@@ -56,7 +56,7 @@ export const Summary = styled.div`
   display: flex;
   align-items: center;
   margin: 0 20px;
-  gap: 10px;
+  gap: 12px;
 `
 
 export const ProjectSummary = styled.div`
@@ -75,6 +75,9 @@ export const ProjectSummary = styled.div`
   }
 `
 export const MembersSummary = styled.div`
+  min-width: 360px;
+  max-width: 360px;
+  flex-shrink: 0;
   padding: 12px;
   height: 100%;
   background-color: var(--mui-palette-white-main);
@@ -101,6 +104,7 @@ export const MembersSummary = styled.div`
     /* align-items: center; */
 
     & > .image-group {
+      flex: 1;
       padding-left: 15px;
       border-left: 1px solid var(--mui-palette-gray4-main);
       height: 100%;
@@ -150,9 +154,16 @@ export const MemberPart = styled.div`
   & > .label {
     font-size: 14px;
     color: var(--mui-palette-gray-main);
+    margin-bottom: 3px;
+    text-align: center;
+  }
+
+  &.members {
+    flex: 1;
   }
 `
 export const Members = styled.div`
+  width: 100%;
   display: flex;
   gap: 20px;
   /* flex-direction: column;
@@ -168,7 +179,18 @@ export const Title = styled.div`
   width: 100%;
   align-items: center;
   justify-content: space-between;
-  & > p {
+
+  & > .title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .icon {
+      display: flex;
+      align-items: center;
+    }
+  }
+  & > .title > p {
     font-weight: 700;
   }
 `
@@ -177,7 +199,7 @@ export const LineTitle = styled.div`
   background-color: var(--mui-palette-white-main);
   padding: 4px 8px;
   display: grid;
-  grid-template-columns: 0.8fr 4fr 2fr 2fr 2fr 2fr 0.5fr;
+  grid-template-columns: 0.8fr 3fr 1fr 1fr 2fr 2fr 0.5fr;
   /* align-items: center; */
   justify-items: flex-start;
   overflow: hidden;
@@ -204,8 +226,7 @@ export const LineTitleItem = styled.div<{
 
   & > p {
     color: var(
-      ${(props) =>
-        props.active ? '--mui-palette-black-main' : '--mui-palette-gray-main'}
+      ${(props) => props.active ? '--mui-palette-black-main' : '--mui-palette-gray-main'}
     );
     font-weight: ${(props) => (props.active ? '700' : 'normal')};
   }

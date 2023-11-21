@@ -12,7 +12,7 @@ export const Item = styled.div<{ $img: string }>`
   top: 0;
   transition: box-shadow 0.2s, transform 0.2s;
   display: grid;
-  grid-template-columns: 0.8fr 4fr 2fr 2fr 2fr 2fr 0.5fr;
+  grid-template-columns: 0.8fr 3fr 1fr 1fr 2fr 2fr 0.5fr;
   align-items: center;
   gap: 20px;
   overflow: hidden;
@@ -31,7 +31,7 @@ export const Item = styled.div<{ $img: string }>`
     background-size: cover;
     background-repeat: no-repeat;
     filter: blur(20px);
-    opacity: 0.9;
+    opacity: 0.7;
   }
 
   &:hover {
@@ -39,6 +39,13 @@ export const Item = styled.div<{ $img: string }>`
     position: relative;
     /* top: -2px; */
     transform: scale(1.01);
+  }
+
+  & > .section > .member-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
   }
 `
 
@@ -132,4 +139,18 @@ export const CreatedDate = styled.div`
 export const MoreButton = styled.div`
   display: flex;
   justify-content: flex-end;
+`
+
+export const Badge = styled.div`
+  margin: 0 auto;
+  width: fit-content;
+  border-radius: 50px;
+  padding: 0 12px;
+  font-size: 14px;
+  text-align: center;
+  background-color: var(--mui-palette-green-main);
+  color: var(--mui-palette-white-main);
+  &.private {
+    background-color: var(--mui-palette-orange-main);
+  }
 `

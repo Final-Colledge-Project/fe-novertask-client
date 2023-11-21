@@ -1,34 +1,31 @@
-import {
-  Avatar,
-  AvatarGroup,
-  LinearProgress,
-  linearProgressClasses,
-  styled
-} from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import { RiFlagLine, RiMore2Fill } from 'react-icons/ri'
 import IWSItemProps from './IWSItemProps'
 import { Item, ItemCover } from './styles'
-
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 5,
-  borderRadius: 5,
-  [`&.${linearProgressClasses.colorPrimary}`]: {
-    backgroundColor: 'rgba(4, 199, 190, 0.20)'
-  },
-  [`& .${linearProgressClasses.bar}`]: {
-    borderRadius: 5,
-    backgroundColor: theme.palette.mint.main
-  }
-}))
+import { BsPerson } from 'react-icons/bs'
+import { Tooltip } from '@mui/material'
+import clsx from 'clsx'
 
 const WorkSpaceItem = ({ data }: IWSItemProps) => {
-  const { name, members, totalTask, completeTask, target, cover } = data
+  // clean up members list -> avoid dupicates
+  const count = [...data.memberIds, ...data.ownerIds].filter(
+    (member, index, all) => index === all.findIndex((obj) => obj === member)
+  ).length
+
   return (
     <Item>
       <ItemCover>
         <div className="item-header">
-          <div className="item-header__title">{name}</div>
+          <div className="item-header__title">
+            <Tooltip title={'This board is ' + data.type} placement="top">
+              <div
+                className={clsx('circle', data.type === 'private' && 'private')}
+              >
+                {data.type}
+              </div>
+            </Tooltip>
+            <p>{data.title}</p>
+          </div>
           <IconButton
             aria-label="more"
             sx={{
@@ -39,59 +36,22 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
             <RiMore2Fill />
           </IconButton>
         </div>
-        <img src={cover} alt="" />
+        <img src={data.cover} alt="" />
         {/* <div className="item__cover-fallback"></div> */}
       </ItemCover>
       <div className="item-bottom">
-        <div className="item-bottom__task-progress">
-          <div className="progress-text">
-            <p className="progress-text__title">Task progress</p>
-            <p className="progress-text__number">
-              {completeTask}/{totalTask}
-            </p>
-          </div>
-          <div className="progress__bar">
-            <BorderLinearProgress
-              variant="determinate"
-              value={(completeTask / totalTask) * 100}
-            />
-          </div>
-        </div>
         <div className="item-bottom__info-group">
-          {target ? (
+          {data.dueDate ? (
             <div className="item__estimate">
               <RiFlagLine />
-              <p>{target}</p>
+              <p>{data.dueDate}</p>
             </div>
           ) : (
             <div></div>
           )}
           <div className="item__avatar-group">
-            <AvatarGroup
-              max={4}
-              sx={{
-                flexDirection: 'row',
-                '& .MuiAvatar-root': {
-                  width: '25px',
-                  height: '25px',
-                  ml: '-12px'
-                },
-
-                '& .MuiAvatar-root:first-child': {
-                  order: 3,
-                  fontSize: '12px',
-                  bgcolor: (theme) => theme.palette.gray5.main,
-                  color: (theme) => theme.palette.gray.main
-                },
-                '& .MuiAvatar-root:last-child': {
-                  ml: '-12px'
-                }
-              }}
-            >
-              {members.map((member) => (
-                <Avatar alt="Remy Sharp" src={member.img} />
-              ))}
-            </AvatarGroup>
+            <BsPerson />
+            <p>{count}</p>
           </div>
         </div>
       </div>

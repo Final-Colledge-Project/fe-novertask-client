@@ -15,7 +15,7 @@ import {
   Total,
   WorkSpaceDetailContainer
 } from './style'
-import { RiArrowUpSLine, RiMoreFill } from 'react-icons/ri'
+import { RiArrowUpSLine, RiMoreFill, RiQuestionLine } from 'react-icons/ri'
 import IconButton from '@mui/material/IconButton'
 import {
   Avatar,
@@ -28,12 +28,20 @@ import {
 import BlockItem from './components/BlockProjectItem'
 import LineItem from './components/LineProjectItem'
 import { setPopupAddPJ, setPopupInvitePeople } from '~/redux/popupSlice'
-import { useDispatch } from 'react-redux'
-import { StoreDispatchType } from '~/redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { StoreDispatchType, StoreType } from '~/redux'
 import ToggleViewButton from '../components/ToggleViewButton'
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import ColumnMenu from './components/ColumnMenu'
+import { IBoard, IBoardMembers } from '~/services/types'
 
+import * as workspaceService from '~/services/workspaceService'
+import { useParams } from 'react-router-dom'
+import { AxiosError } from 'axios'
+import { enqueueSnackbar } from 'notistack'
+import { getAllByWSId } from '~/services/boardService'
+import LoadingSkeleton from '../components/LoadingSkeleton'
+import InvitePeoplePopup from '../components/InvitePeoplePopup'
 const AdminTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))`
@@ -65,6 +73,13 @@ const WorkSpaceDetails = () => {
     isAsc: true
   })
 
+  const [members, setMembers] = useState<IBoardMembers | undefined>(undefined)
+  const [boards, setBoards] = useState<IBoard[] | undefined>(undefined)
+  const currentUser = useSelector((state: StoreType) => state.auth)
+  const allBoardInfoOfCurrentUser = useSelector(
+    (state: StoreType) => state.board
+  )
+
   const handleShowAddPJPopup = () => {
     dispatch(setPopupAddPJ(true))
   }
@@ -95,10 +110,85 @@ const WorkSpaceDetails = () => {
     })
   }
 
+  const { id } = useParams()
+
+  useEffect(() => {
+    const getMembers = async () => {
+      try {
+        const res = await workspaceService.getMembers({ id: id as string })
+        if (res && res.data) {
+          const { workspaceAdmins, workspaceMembers } = res.data
+
+          // clean members list
+          const cleanedMemberList = workspaceMembers?.filter(
+            (member) =>
+              workspaceAdmins.findIndex(
+                (admin) => admin.user._id === member.user._id
+              ) === -1
+          )
+
+          setMembers({
+            workspaceAdmins,
+            workspaceMembers: cleanedMemberList || []
+          })
+        }
+      } catch (err) {
+        const message = (err as AxiosError).message
+        enqueueSnackbar(message, { variant: 'error' })
+      }
+    }
+    getMembers()
+  }, [id])
+
+  useEffect(() => {
+    const getBoards = async () => {
+      try {
+        const res = await getAllByWSId({ wsId: id as string })
+        if (res && res.data) {
+          setBoards(res.data)
+        }
+      } catch (error) {
+        const message = (error as AxiosError).message
+        enqueueSnackbar(message, { variant: 'error' })
+      }
+    }
+    getBoards()
+  }, [id])
+
+  const checkIsUserInBoard = useCallback(
+    (board: IBoard) => {
+      if (board.type === 'public') return true
+      const { ownerIds, memberIds } = board
+      const members = [...ownerIds, ...memberIds]
+      return members.includes(currentUser.userInfo?._id as string)
+    },
+    [currentUser]
+  )
+
+  const checkIsUserAnAdmin = useCallback(() => {
+    return (
+      members?.workspaceAdmins.findIndex(
+        (admin) => admin.user._id === currentUser.userInfo?._id
+      ) !== -1
+    )
+  }, [members?.workspaceAdmins, currentUser.userInfo?._id])
+
+  const countMembers = useMemo(() => {
+    if (members) {
+      const { workspaceAdmins, workspaceMembers } = members
+      let count = workspaceAdmins.length
+      if (workspaceMembers) count += workspaceMembers.length
+      return count
+    }
+    return 0
+  }, [members])
+
   return (
     <WorkSpaceDetailContainer>
       <div className="header">
-        <h2 className="name">workspace name</h2>
+        <h2 className="name">
+          {allBoardInfoOfCurrentUser.boards.find((b) => b._id === id)?.name}
+        </h2>
         <div className="search-box">
           <SearchBox label="" />
         </div>
@@ -123,7 +213,7 @@ const WorkSpaceDetails = () => {
             </Button>
           </div>
           <Total>
-            <div className="count">6</div>
+            <div className="count">{boards?.length}</div>
             <div className="label">Total</div>
           </Total>
         </ProjectSummary>
@@ -136,12 +226,12 @@ const WorkSpaceDetails = () => {
           </div>
           <div className="content">
             <Total>
-              <div className="count">9</div>
+              <div className="count">{countMembers}</div>
               <div className="label">Total</div>
             </Total>
             <div className="image-group">
               <Members>
-                <MemberPart>
+                <MemberPart className="admin">
                   <div className="label">Admins</div>
                   <AvatarGroup
                     max={4}
@@ -151,31 +241,49 @@ const WorkSpaceDetails = () => {
                       '& .MuiAvatar-root': {
                         width: '35px',
                         height: '35px',
-                        ml: '-8px'
+                        ml: '-8px',
+                        boxShadow: '0 0 2px 1px rgba(0,0,0, 0.2)'
                       },
                       '& .MuiAvatar-root:last-child': {
                         ml: '-8px'
                       }
                     }}
                   >
-                    <AdminTooltip title="Super admin: Liliana" arrow>
-                      <Avatar
-                        alt="Admin"
-                        src={'/img/Annie.jpg'}
-                        sx={{
-                          '&.MuiAvatar-root': {
-                            // order: 2,
-                            border: (theme) =>
-                              `3px solid ${theme.palette.yellow.main} !important`
-                          }
-                        }}
-                      />
-                    </AdminTooltip>
-                    <Avatar alt="Leader" src={'/img/Beckam.png'} />
-                    <Avatar alt="Quan que" src={'/img/Flo.jpg'} />
+                    {members?.workspaceAdmins.map((mem) => {
+                      if (mem.role === 'superAdmin')
+                        return (
+                          <AdminTooltip
+                            title={'Super admin | ' + mem.user.fullName}
+                            arrow
+                            key={mem.user._id}
+                          >
+                            <Avatar
+                              alt={mem.user.fullName}
+                              src={mem.user.avatar}
+                              sx={{
+                                '&.MuiAvatar-root': {
+                                  // order: 2,
+                                  border: (theme) =>
+                                    `3px solid ${theme.palette.yellow.main} !important`
+                                }
+                              }}
+                            />
+                          </AdminTooltip>
+                        )
+                      else
+                        return (
+                          <Tooltip title={mem.user.fullName}>
+                            <Avatar
+                              key={mem.user._id}
+                              alt={mem.user.fullName}
+                              src={mem.user.avatar}
+                            />
+                          </Tooltip>
+                        )
+                    })}
                   </AvatarGroup>
                 </MemberPart>
-                <MemberPart>
+                <MemberPart className="members">
                   <div className="label">Members</div>
                   <AvatarGroup
                     max={5}
@@ -185,249 +293,161 @@ const WorkSpaceDetails = () => {
                       '& .MuiAvatar-root': {
                         width: '35px',
                         height: '35px',
-                        ml: '-8px'
+                        ml: '-8px',
+                        boxShadow: '0 0 2px 1px rgba(0,0,0, 0.2)'
                       },
 
                       '& .MuiAvatar-root:first-child': {
                         order: 3,
                         fontSize: '14px'
-                        // bgcolor: (theme) => theme.palette.gray5.main,
-                        // color: (theme) => theme.palette.gray.main
                       },
                       '& .MuiAvatar-root:last-child': {
                         ml: '-8px'
                       }
                     }}
                   >
-                    <Avatar alt="Admin" src={'/img/Kente.jpg'} />
-                    <Avatar alt="Leader" src={'/img/Beckam.png'} />
-                    <Avatar alt="Quan que" src={'/img/Annie.jpg'} />
-                    <Avatar alt="Quan que" src={'/img/avatar.jpg'} />
-                    <Avatar alt="Quan que" src={'/img/Flo.jpg'} />
-                    <Avatar alt="Quan que" src={'/img/Flo.jpg'} />
+                    {members?.workspaceMembers?.map((mem) => (
+                      <Tooltip title={mem.user.fullName}>
+                        <Avatar
+                          key={mem.user._id}
+                          alt={mem.user.fullName}
+                          src={mem.user.avatar}
+                        />
+                      </Tooltip>
+                    ))}
                   </AvatarGroup>
                 </MemberPart>
               </Members>
-              <Button
-                fullWidth
-                variant="contained"
-                color="primary"
-                endIcon={<img className="icon" src="/img/plane_2.png" alt="" />}
-                onClick={handleShowPopupInvite}
-                sx={{
-                  '&.MuiButton-root': {
-                    backgroundImage:
-                      'linear-gradient(45deg, #0B84FF -15.23%, #0040DD 102.22%);'
+              {checkIsUserAnAdmin() && (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  endIcon={
+                    <img className="icon" src="/img/plane_2.png" alt="" />
                   }
-                }}
-              >
-                Invite new people
-              </Button>
+                  onClick={handleShowPopupInvite}
+                  sx={{
+                    '&.MuiButton-root': {
+                      backgroundImage:
+                        'linear-gradient(45deg, #0B84FF -15.23%, #0040DD 102.22%);'
+                    }
+                  }}
+                >
+                  Invite new people
+                </Button>
+              )}
             </div>
           </div>
         </MembersSummary>
       </Summary>
 
-      <ProjectSection>
-        <Title>
-          <p>Projects</p>
-          <FilterSection>
-            <SearchBox
-              label=""
-              sx={{ height: '35px', width: 'auto' }}
-              placeHolder="Search"
-            />
-            <ColumnMenu />
-            <ToggleViewButton onChange={handleChangeViewType} />
-          </FilterSection>
-        </Title>
-        {/* <WorkSpaceSummary data={{ id: '123', title: 'title', projects: [] }} /> */}
-        <ProjectBoard $display={viewType}>
-          {viewType === 'list' ? (
-            <LineTitle>
-              <LineTitleItem></LineTitleItem>
-              <LineTitleItem
-                active={viewState.sortBy === 'name'}
-                isAsc={viewState.sortBy === 'name' ? viewState.isAsc : true}
-                onClick={() => handleChangeSort('name')}
-              >
-                <p>Name</p>
-                <div className="icon">
-                  <IconButton aria-label="sort">
-                    <RiArrowUpSLine />
-                  </IconButton>
-                </div>
-              </LineTitleItem>
-              <LineTitleItem>Members</LineTitleItem>
-              <LineTitleItem className="center">Estimation</LineTitleItem>
-              <LineTitleItem
-                className="center"
-                active={viewState.sortBy === 'createdAt'}
-                isAsc={
-                  viewState.sortBy === 'createdAt' ? viewState.isAsc : true
-                }
-                onClick={() => handleChangeSort('createdAt')}
-              >
-                <p>Created at</p>
-                <div className="icon">
-                  <IconButton aria-label="sort">
-                    <RiArrowUpSLine />
-                  </IconButton>
-                </div>
-              </LineTitleItem>
-              <LineTitleItem
-                className="center"
-                active={viewState.sortBy === 'dueDate'}
-                isAsc={viewState.sortBy === 'dueDate' ? viewState.isAsc : true}
-                onClick={() => handleChangeSort('dueDate')}
-              >
-                <p>Due date</p>
-                <div className="icon">
-                  <IconButton aria-label="sort">
-                    <RiArrowUpSLine />
-                  </IconButton>
-                </div>
-              </LineTitleItem>
-              <LineTitleItem></LineTitleItem>
-            </LineTitle>
-          ) : (
-            <></>
-          )}
-          <ProjectContainer $display={viewType === 'list' ? 'flex' : 'grid'}>
+      {boards ? (
+        <ProjectSection>
+          <Title>
+            <div className="title">
+              <p>Projects</p>
+              {boards.filter((b) => !checkIsUserInBoard(b)).length > 0 && (
+                <Tooltip
+                  title={`You only see the projects you have access to or public projects`}
+                >
+                  <div className="icon">
+                    <RiQuestionLine />
+                  </div>
+                </Tooltip>
+              )}
+            </div>
+            <FilterSection>
+              <SearchBox
+                label=""
+                sx={{ height: '35px', width: 'auto' }}
+                placeHolder="Search"
+              />
+              {viewType === 'list' && <ColumnMenu />}
+              <ToggleViewButton onChange={handleChangeViewType} />
+            </FilterSection>
+          </Title>
+          {/* <WorkSpaceSummary data={{ id: '123', title: 'title', projects: [] }} /> */}
+          <ProjectBoard $display={viewType}>
             {viewType === 'list' ? (
-              <>
-                <LineItem
-                  data={{
-                    name: 'project title is really long luon a choi oi choi, dai gi ma dai du vay',
-                    cover: '/img/item-cover-1.jpg',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: '16/11/2023',
-                    createdAt: '10/11/2023',
-                    members: [{ img: '/img/avatar.jpg' }]
-                  }}
-                />
-
-                <LineItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-24.png',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-                <LineItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-3.jpg',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-                <LineItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-4.jpg',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-                <LineItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-5.jpg',
-                    totalTask: 1,
-                    completeTask: 0,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-                <LineItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-6.png',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-              </>
+              <LineTitle>
+                <LineTitleItem></LineTitleItem>
+                <LineTitleItem
+                  active={viewState.sortBy === 'name'}
+                  isAsc={viewState.sortBy === 'name' ? viewState.isAsc : true}
+                  onClick={() => handleChangeSort('name')}
+                >
+                  <p>Name</p>
+                  <div className="icon">
+                    <IconButton aria-label="sort">
+                      <RiArrowUpSLine />
+                    </IconButton>
+                  </div>
+                </LineTitleItem>
+                <LineTitleItem className="center">Type</LineTitleItem>
+                <LineTitleItem className="center">Members</LineTitleItem>
+                <LineTitleItem
+                  className="center"
+                  active={viewState.sortBy === 'createdAt'}
+                  isAsc={
+                    viewState.sortBy === 'createdAt' ? viewState.isAsc : true
+                  }
+                  onClick={() => handleChangeSort('createdAt')}
+                >
+                  <p>Created at</p>
+                  <div className="icon">
+                    <IconButton aria-label="sort">
+                      <RiArrowUpSLine />
+                    </IconButton>
+                  </div>
+                </LineTitleItem>
+                <LineTitleItem
+                  className="center"
+                  active={viewState.sortBy === 'dueDate'}
+                  isAsc={
+                    viewState.sortBy === 'dueDate' ? viewState.isAsc : true
+                  }
+                  onClick={() => handleChangeSort('dueDate')}
+                >
+                  <p>Due date</p>
+                  <div className="icon">
+                    <IconButton aria-label="sort">
+                      <RiArrowUpSLine />
+                    </IconButton>
+                  </div>
+                </LineTitleItem>
+                <LineTitleItem></LineTitleItem>
+              </LineTitle>
             ) : (
-              <>
-                <BlockItem
-                  data={{
-                    name: 'project title is really long luon a choi oi choi, dai gi ma dai du vay',
-                    cover: '/img/item-cover-1.jpg',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: '16/11/2023',
-                    createdAt: '10/11/2023',
-                    members: [{ img: '/img/avatar.jpg' }]
-                  }}
-                />
-
-                <BlockItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-24.png',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-                <BlockItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-3.jpg',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-                <BlockItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-4.jpg',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-                <BlockItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-5.jpg',
-                    totalTask: 1,
-                    completeTask: 0,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-                <BlockItem
-                  data={{
-                    name: 'project',
-                    cover: '/img/item-cover-6.png',
-                    totalTask: 1,
-                    completeTask: 1,
-                    target: null,
-                    members: [{ img: '/' }]
-                  }}
-                />
-              </>
+              <></>
             )}
-          </ProjectContainer>
-        </ProjectBoard>
-      </ProjectSection>
+            <ProjectContainer $display={viewType === 'list' ? 'flex' : 'grid'}>
+              {viewType === 'list' ? (
+                <>
+                  {boards?.map(
+                    (board) =>
+                      checkIsUserInBoard(board) && (
+                        <LineItem data={board} key={board._id} />
+                      )
+                  )}
+                </>
+              ) : (
+                <>
+                  {boards?.map(
+                    (board) =>
+                      checkIsUserInBoard(board) && (
+                        <BlockItem data={board} key={board._id} />
+                      )
+                  )}
+                </>
+              )}
+            </ProjectContainer>
+          </ProjectBoard>
+        </ProjectSection>
+      ) : (
+        <LoadingSkeleton />
+      )}
+      <InvitePeoplePopup wsID={id as string} />
     </WorkSpaceDetailContainer>
   )
 }

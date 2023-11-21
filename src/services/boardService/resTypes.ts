@@ -9,3 +9,9 @@ export interface IGetAllByUserIdResponse {
   }[]
   message: string
 }
+
+export interface IGetAllByWSIdResponse {
+  length: number
+  data: IBoard[]
+  message: string
+}
