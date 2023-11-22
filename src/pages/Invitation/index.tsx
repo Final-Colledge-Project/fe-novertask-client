@@ -1,15 +1,18 @@
-import { Avatar, AvatarGroup } from '@mui/material'
+import { Avatar, AvatarGroup, Tooltip } from '@mui/material'
 import * as styles from './styles'
 import Button from '@mui/material/Button'
 import { useState } from 'react'
 import { IInvitation } from '~/services/types'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useEffectOnce } from 'usehooks-ts'
-import { getDetail } from '~/services/inviteService'
+import { getDetail, respondInvitation } from '~/services/inviteService'
 import { enqueueSnackbar } from 'notistack'
 import { AxiosError } from 'axios'
 import { useMemo } from 'react'
 import { TbNetwork } from 'react-icons/tb'
+import { useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import Loading from './Loading'
 const Invitation = () => {
   const {
     Background,
@@ -25,8 +28,10 @@ const Invitation = () => {
 
   const [invitation, setInvitation] = useState<IInvitation | undefined>()
   const { id } = useParams()
+  const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+  const navigate = useNavigate()
 
-  const members = useMemo(() => {
+  const generalMembers = useMemo(() => {
     if (invitation) {
       const {
         teamWorkspace: { workspaceAdmins }
@@ -41,13 +46,38 @@ const Invitation = () => {
       }
 
       // delete duplicated members
-      return members.filter(
+      const filteredMemList = members.filter(
         (member, index, all) =>
-          index ===
-          all.findIndex((obj) => obj.user.fullName === member.user.fullName)
+          index === all.findIndex((obj) => obj.user._id === member.user._id)
       )
+
+      // current user is not the receiver
+      if (invitation.receiver._id !== currentUser?._id) {
+        enqueueSnackbar('Unauthorized! Switching to home', {
+          variant: 'info'
+        })
+
+        navigate('/u/home/', {
+          replace: true
+        })
+        return
+      }
+      // current user is already in workspace
+      if (
+        filteredMemList?.find((mem) => mem.user._id === invitation.receiver._id)
+      ) {
+        enqueueSnackbar('Already a member! Switching to home', {
+          variant: 'info'
+        })
+        navigate('/u/home/', {
+          replace: true
+        })
+        return
+      }
+
+      return filteredMemList
     }
-  }, [invitation])
+  }, [currentUser?._id, invitation])
 
   useEffectOnce(() => {
     const getData = async () => {
@@ -57,18 +87,62 @@ const Invitation = () => {
           setInvitation(res.data)
         }
       } catch (err) {
+        const message = (err as AxiosError).message
+        if (message === `Invitation not found!`) {
+          enqueueSnackbar(message, { variant: 'error' })
+          navigate('/u/home/', {
+            replace: true
+          })
+          return
+        }
         enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
       }
     }
     getData()
   })
 
-  const handleRespond = (isAccepted: boolean) => {
-    enqueueSnackbar(isAccepted ? 'OK' : 'No OK', {
-      variant: isAccepted ? 'success' : 'error'
-    })
+  const handleRespondInvitation = (isAccepted: boolean) => {
+    const respond = async () => {
+      try {
+        const res = await respondInvitation({
+          wsID: invitation?.teamWorkspace._id as string,
+          isAccepted,
+          email: currentUser?.email as string
+        })
+        if (res) {
+          if (isAccepted) {
+            enqueueSnackbar(
+              `Congratulations! You are a member of ${invitation?.teamWorkspace.name}`,
+              {
+                variant: 'success'
+              }
+            )
+            navigate('/u/home/workspaces/' + invitation?.teamWorkspace._id, {
+              replace: true
+            })
+          } else {
+            navigate('/u/home/', {
+              replace: true
+            })
+          }
+        }
+      } catch (err) {
+        if (
+          (err as Error).message ===
+          'You are already a member of this workspace.'
+        ) {
+          navigate('/u/home/workspaces/' + invitation?.teamWorkspace._id, {
+            replace: true
+          })
+          enqueueSnackbar((err as Error).message, { variant: 'warning' })
+          return
+        }
+        enqueueSnackbar((err as Error).message, { variant: 'error' })
+      }
+    }
+    respond()
   }
-  return (
+  return generalMembers ? (
     <Container>
       <Background $img={invitation?.senders.avatar}>
         <BlurLayer>
@@ -76,13 +150,17 @@ const Invitation = () => {
             <p className="title">Invitation</p>
             <Letter>
               <ImageGroup>
-                <Image>
-                  <img src={invitation?.senders.avatar} />
-                </Image>
+                <Tooltip title={invitation?.senders.fullName}>
+                  <Image>
+                    <img src={invitation?.senders.avatar} />
+                  </Image>
+                </Tooltip>
                 <TbNetwork />
-                <Image>
-                  <img src={invitation?.receiver.avatar} />
-                </Image>
+                <Tooltip title={invitation?.receiver.fullName}>
+                  <Image>
+                    <img src={invitation?.receiver.avatar} />
+                  </Image>
+                </Tooltip>
               </ImageGroup>
               <p className="invitation-text">
                 <b>{invitation?.senders.fullName}</b> has invited you to
@@ -114,18 +192,20 @@ const Invitation = () => {
                     }
                   }}
                 >
-                  {members?.map((item) => (
+                  {generalMembers?.map((item) => (
                     <Avatar
                       alt={item.user.fullName}
                       src={item.user.avatar}
-                      key={item.user.avatar}
+                      key={item.user._id}
                     />
                   ))}
                   {/* <Avatar alt="Leader" src={'/img/Beckam.png'} />
                   <Avatar alt="Quan que" src={'/img/avatar.jpg'} />
                   <Avatar alt="Quan que" src={'/img/Flo.jpg'} /> */}
                 </AvatarGroup>
-                <p className="text">{members?.length} members are already in</p>
+                <p className="text">
+                  {generalMembers?.length} members are already in
+                </p>
               </GroupMembers>
             </Letter>
             <Buttons>
@@ -133,7 +213,7 @@ const Invitation = () => {
                 variant="text"
                 color="error"
                 onClick={() => {
-                  handleRespond(false)
+                  handleRespondInvitation(false)
                 }}
               >
                 Decline
@@ -142,7 +222,7 @@ const Invitation = () => {
                 variant="contained"
                 color="primary"
                 onClick={() => {
-                  handleRespond(true)
+                  handleRespondInvitation(true)
                 }}
               >
                 ✨ Accept the invitation
@@ -152,6 +232,8 @@ const Invitation = () => {
         </BlurLayer>
       </Background>
     </Container>
+  ) : (
+    <Loading />
   )
 }
 export default Invitation

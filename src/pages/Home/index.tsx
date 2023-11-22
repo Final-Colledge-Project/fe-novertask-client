@@ -7,6 +7,7 @@ import WorkSpaceDetails from './WorkSpaceDetails'
 import AddWSPopup from './components/AddWSPopup'
 import AddPJPopup from './components/AddPJPopup'
 import Dashboard from './Dashboard'
+import InvitePeoplePopup from './components/InvitePeoplePopup'
 
 const Home = () => {
   return (
@@ -23,6 +24,7 @@ const Home = () => {
       </div>
       <AddWSPopup />
       <AddPJPopup />
+      <InvitePeoplePopup/>
     </div>
   )
 }

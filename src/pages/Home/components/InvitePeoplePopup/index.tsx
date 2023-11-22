@@ -1,5 +1,13 @@
-import { IconButton, Tooltip, Button } from '@mui/material'
-import { Container, Form, Header, Modal } from './styles'
+import { IconButton, Tooltip, Button, Avatar } from '@mui/material'
+import {
+  Container,
+  CurrentMember,
+  Form,
+  Header,
+  MemberItem,
+  MemberList,
+  Modal
+} from './styles'
 import { RiCloseFill, RiInformationLine } from 'react-icons/ri'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import IFormFields from './IFormFields'
@@ -14,48 +22,68 @@ import { enqueueSnackbar } from 'notistack'
 import { setPopupInvitePeople } from '~/redux/popupSlice'
 import clsx from 'clsx'
 import { StoreType } from '~/redux'
+import { IBoardMembers } from '~/services/types'
 
-const InvitePeoplePopup = ({ wsID }: { wsID: string }) => {
-  const { control, handleSubmit, reset } = useForm<IFormFields>({
-    defaultValues: { email: undefined },
+const InvitePeoplePopup = () => {
+  const { control, handleSubmit, reset, setError } = useForm<IFormFields>({
+    defaultValues: { email: '' },
     mode: 'onBlur',
     resolver: yupResolver(schema),
     reValidateMode: 'onBlur'
   })
 
+  const { PopupInvite } = useSelector((state: StoreType) => state.popup)
+
   const dispatch = useDispatch()
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
-    try {
-      dispatch(showLoading())
-      const res = await sendInvitation({ email: data.email, wsID })
-      if (res) {
-        enqueueSnackbar(`Sent invitation to ${data.email} successfully!`, {
-          variant: 'success'
+    // check if email is in workspace
+    const { workspaceAdmins, workspaceMembers } = PopupInvite.data
+      .members as IBoardMembers
+    const memberList = [...workspaceAdmins.map((mem) => mem.user)]
+    if (workspaceMembers)
+      memberList.push(...workspaceMembers.map((mem) => mem.user))
+    if (memberList.find((mem) => mem.email === data.email)) {
+      setError('email', {
+        type: 'validate',
+        message: 'User is already in this workspace '
+      })
+    } else
+      try {
+        dispatch(showLoading())
+        const res = await sendInvitation({
+          email: data.email,
+          wsID: PopupInvite.data.wsID as string
         })
+        if (res) {
+          enqueueSnackbar(`Sent invitation to ${data.email} successfully!`, {
+            variant: 'success'
+          })
+          handleClose()
+        }
+      } catch (err) {
+        enqueueSnackbar((err as Error).message, {
+          variant: 'error'
+        })
+      } finally {
+        dispatch(hideLoading())
       }
-    } catch (err) {
-      console.log(
-        '✨ ~ file: index.tsx:21 ~ constonSubmit:SubmitHandler<IFormFields>= ~ err:',
-        err
-      )
-    } finally {
-      dispatch(hideLoading())
-    }
   }
 
-  const handleClose = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    e.stopPropagation()
+  const handleClose = (e?: React.MouseEvent<HTMLElement, MouseEvent>) => {
     reset()
-    dispatch(setPopupInvitePeople(false))
+    e?.stopPropagation()
+    dispatch(
+      setPopupInvitePeople({
+        show: false,
+        data: { wsID: undefined, members: undefined }
+      })
+    )
   }
-
-  const { PopupInvite } = useSelector((state: StoreType) => state.popup)
-
   return (
     <Container
       onClick={(e) => handleClose(e)}
-      className={clsx(!PopupInvite && 'hidden')}
+      className={clsx(!PopupInvite.show && 'hidden')}
     >
       <Modal onClick={(e) => e.stopPropagation()}>
         <Header>
@@ -91,6 +119,37 @@ const InvitePeoplePopup = ({ wsID }: { wsID: string }) => {
             </Button>
           </div>
         </Form>
+        <CurrentMember>
+          <div className="title">Current members</div>
+          <MemberList>
+            {PopupInvite.data.members?.workspaceAdmins.map((member) => (
+              <MemberItem>
+                <div className="image">
+                  <Avatar src={member.user.avatar} alt="" />
+                </div>
+                <div className="info">
+                  <div className="name">{member.user.fullName}</div>
+                  <div className="email">{member.user.email}</div>
+                </div>
+                <div className="role admin">
+                  {member.role === 'superAdmin' ? 'Super admin' : 'Admin'}
+                </div>
+              </MemberItem>
+            ))}
+            {PopupInvite.data.members?.workspaceMembers?.map((member) => (
+              <MemberItem>
+                <div className="image">
+                  <Avatar src={member.user.avatar} alt="" />
+                </div>
+                <div className="info">
+                  <div className="name">{member.user.fullName}</div>
+                  <div className="email">{member.user.email}</div>
+                </div>
+                <div className="role member">Member</div>
+              </MemberItem>
+            ))}
+          </MemberList>
+        </CurrentMember>
       </Modal>
     </Container>
   )

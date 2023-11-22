@@ -29,6 +29,7 @@ export interface IUser {
 interface IMockUser {
   avatar: string
   fullName: string
+  _id: string
 }
 
 export interface IInvitation {
@@ -80,4 +81,8 @@ export interface IBoardMembers {
   workspaceMembers?: {
     user: IMockUser & { email: string; _id: string }
   }[]
+}
+
+export interface IErrorResponse {
+  message: string
 }

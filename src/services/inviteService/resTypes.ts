@@ -1,4 +1,5 @@
 interface IUser {
+  _id: string
   avatar: string
   fullName: string
 }

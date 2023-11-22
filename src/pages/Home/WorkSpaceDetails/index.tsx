@@ -41,7 +41,6 @@ import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
 import { getAllByWSId } from '~/services/boardService'
 import LoadingSkeleton from '../components/LoadingSkeleton'
-import InvitePeoplePopup from '../components/InvitePeoplePopup'
 const AdminTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))`
@@ -85,7 +84,12 @@ const WorkSpaceDetails = () => {
   }
 
   const handleShowPopupInvite = () => {
-    dispatch(setPopupInvitePeople(true))
+    dispatch(
+      setPopupInvitePeople({
+        show: true,
+        data: { wsID: id, members: members }
+      })
+    )
   }
 
   const handleChangeViewType = (viewType: 'list' | 'block') => {
@@ -447,7 +451,6 @@ const WorkSpaceDetails = () => {
       ) : (
         <LoadingSkeleton />
       )}
-      <InvitePeoplePopup wsID={id as string} />
     </WorkSpaceDetailContainer>
   )
 }

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { IBoardMembers } from '~/services/types'
 
 const popupSlice = createSlice({
   name: 'popup',
@@ -6,7 +7,13 @@ const popupSlice = createSlice({
     PopupAddWS: false,
     PopupAddPJ: false,
     PopupAddTask: false,
-    PopupInvite: false
+    PopupInvite: {
+      show: false,
+      data: {
+        wsID: undefined as undefined | string,
+        members: undefined as IBoardMembers | undefined
+      }
+    }
   },
   reducers: {
     setPopupAddWS: (state, action) => {
