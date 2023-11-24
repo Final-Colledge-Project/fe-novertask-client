@@ -6,7 +6,8 @@ import {
   Title,
   BoardHeader,
   BoardHeaderItem,
-  BoardBody
+  BoardBody,
+  TabHeader
 } from './style'
 import { RiArrowLeftSLine, RiArrowUpSLine } from 'react-icons/ri'
 import { useState } from 'react'
@@ -19,6 +20,7 @@ import { enqueueSnackbar } from 'notistack'
 import LineMemberItem from '../components/LineMemberItem'
 import { useDispatch } from 'react-redux'
 import { setPopupInvitePeople } from '~/redux/popupSlice'
+import clsx from 'clsx'
 
 const MemberSection = () => {
   const [viewState, setViewState] = useState<{
@@ -56,14 +58,33 @@ const MemberSection = () => {
     { title: 'Member', shouldSort: true },
     { title: 'Email', shouldSort: true },
     { title: 'Role', shouldSort: false },
-    { title: 'Action', shouldSort: false },
-    { title: '', shouldSort: false }
+    { title: 'Action', shouldSort: false }
+  ]
+
+  const tabHeaderTitle = [
+    {
+      value: 'all',
+      title: 'All'
+    },
+    {
+      value: 'superAdmin',
+      title: 'Super admin'
+    },
+    {
+      value: 'admin',
+      title: 'Admin'
+    },
+    {
+      value: 'member',
+      title: 'Member'
+    }
   ]
 
   const [members, setMembers] = useState<IBoardMembers | undefined>(undefined)
   const { id } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [tab, setTab] = useState('all')
   useEffect(() => {
     const getMembers = async () => {
       try {
@@ -95,14 +116,10 @@ const MemberSection = () => {
     getMembers()
   }, [id])
 
-  const adjustMemberList = () => {
-    const generalList = members?.workspaceAdmins.concat(
-      (members.workspaceMembers &&
-        members.workspaceMembers.map((mem) => ({ ...mem, role: 'member' }))) ||
-        []
-    )
-
-    return generalList
+  const superAdmin = () => {
+    if (members) {
+      return members?.workspaceAdmins.find((m) => m.role === 'superAdmin')
+    }
   }
 
   const handleShowPopupInvite = () => {
@@ -122,7 +139,7 @@ const MemberSection = () => {
             <IconButton size="small" onClick={() => navigate('../')}>
               <RiArrowLeftSLine />
             </IconButton>
-            <p className="text">Members</p>
+            <p className="text">Members in this workspace</p>
           </div>
           <Button
             variant="contained"
@@ -139,7 +156,7 @@ const MemberSection = () => {
         </p>
       </Header>
       <Board>
-        <BoardHeader>
+        {/* <BoardHeader>
           {boardColumnTitles.map((c, i) => (
             <BoardHeaderItem
               key={c.title + i}
@@ -157,19 +174,58 @@ const MemberSection = () => {
               )}
             </BoardHeaderItem>
           ))}
-        </BoardHeader>
-        <BoardBody>
-          {adjustMemberList()?.map((mem) => (
-            <LineMemberItem
-              key={mem.user._id}
-              data={mem}
-              superAdminId={
-                members?.workspaceAdmins.find((m) => m.role === 'superAdmin')
-                  ?.user._id || ''
-              }
-            />
+        </BoardHeader> */}
+        <TabHeader>
+          {tabHeaderTitle.map((item) => (
+            <div
+              className={clsx('item', tab === item.value && 'index')}
+              onClick={() => setTab(item.value)}
+            >
+              {item.title}
+            </div>
           ))}
-          {adjustMemberList()?.length === 0 && <p>There is no members</p>}
+        </TabHeader>
+        <BoardBody>
+          {/* show super admin */}
+          {(tab === 'all' || tab === 'superAdmin') && superAdmin() && (
+            <LineMemberItem
+              key={superAdmin()?.user?._id}
+              data={superAdmin()!}
+              superAdminId={superAdmin()?.user?._id || ''}
+            />
+          )}
+          {/* show admin */}
+          {(tab === 'all' || tab === 'admin') &&
+            members &&
+            members?.workspaceAdmins
+              .filter((mem) => mem.role === 'admin')
+              .map((mem) => (
+                <LineMemberItem
+                  key={mem?.user?._id}
+                  data={mem}
+                  superAdminId={mem.user?._id || ''}
+                />
+              ))}
+          {/* show member */}
+          {(tab === 'all' || tab === 'member') &&
+            members &&
+            members.workspaceMembers &&
+            members.workspaceMembers.map((mem) => (
+              <LineMemberItem
+                key={mem.user._id}
+                data={{ ...mem, role: 'member' }}
+                superAdminId={superAdmin()?.user._id || ''}
+              />
+            ))}
+          {/* show placeholder */}
+          {tab === 'admin' &&
+            members?.workspaceAdmins.filter((mem) => mem.role === 'admin')
+              .length === 0 && (
+              <p className="placeholder">There is no one here</p>
+            )}
+          {tab === 'member' && members?.workspaceMembers?.length === 0 && (
+            <p className="placeholder">There is no one here</p>
+          )}
         </BoardBody>
       </Board>
     </Container>

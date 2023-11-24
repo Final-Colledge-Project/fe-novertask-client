@@ -63,6 +63,7 @@ export const Form = styled.form`
 export const CurrentMember = styled.div`
   max-height: 300px;
   overflow-y: auto;
+  border-top: 1px solid var(--mui-palette-divider);
   & > .title {
     /* color: var(--mui-palette-gray-main); */
     font-weight: 700;
@@ -79,7 +80,16 @@ export const MemberList = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+  max-height: 300px;
+  overflow-y: auto;
   gap: 15px;
+
+  & > .placeholder {
+    width: 100%;
+    padding: 30px;
+    color: var(--mui-palette-gray-main);
+    text-align: center;
+  }
 `
 
 export const MemberItem = styled.div`
@@ -94,6 +104,7 @@ export const MemberItem = styled.div`
     flex-direction: column;
     gap: 2px;
     line-height: normal;
+    flex: 1;
 
     .email {
       color: var(--mui-palette-gray-main);
@@ -105,16 +116,26 @@ export const MemberItem = styled.div`
   }
 
   & > .role {
-    flex: 1;
     display: flex;
     width: fit-content;
     justify-content: flex-end;
     text-align: right;
     font-size: 14px;
-    color: var(--mui-palette-black-main);
+    padding: 2px 8px;
+    border-radius: 50px;
+    color: var(--mui-palette-white-main);
 
     &.admin {
+      background-color: rgba(var(--mui-palette-yellow-mainChannel) / 0.1);
       color: var(--mui-palette-yellow-main);
+    }
+    &.superAdmin {
+      background-color: rgba(var(--mui-palette-orange-mainChannel) / 0.1);
+      color: var(--mui-palette-orange-main);
+    }
+    &.member {
+      background-color: rgba(var(--mui-palette-green-mainChannel) / 0.1);
+      color: var(--mui-palette-green-main);
     }
   }
 `

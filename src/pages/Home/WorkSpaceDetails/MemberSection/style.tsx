@@ -92,6 +92,36 @@ export const BoardBody = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 20px;
   padding: 0 5px;
+  min-height: 100px;
+
+  & .placeholder {
+    width: 100%;
+    height: 100px;
+    text-align: center;
+    line-height: 100px;
+    color: var(--mui-palette-gray-main);
+    /* padding: 50px; */
+  }
+`
+
+export const TabHeader = styled.div`
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  color: var(--mui-palette-gray3-main);
+  border-bottom: 1px solid var(--mui-palette-divider);
+
+  & > .item {
+    cursor: pointer;
+    transition: color 0.15s;
+    &:hover {
+      color: var(--mui-palette-gray-main);
+    }
+  }
+  & > .item.index {
+    color: var(--mui-palette-black-main);
+  }
 `

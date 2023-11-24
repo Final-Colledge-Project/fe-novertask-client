@@ -7,10 +7,6 @@ import { useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 
 const LineMemberItem = ({ data, superAdminId }: IWSItemProps) => {
-  // clean up members list -> avoid dupicates
-  // const count = [...data.memberIds, ...data.ownerIds].filter(
-  //   (member, index, all) => index === all.findIndex((obj) => obj === member)
-  // ).length
 
   const { user, role } = data
   const currentUser = useSelector((state: StoreType) => state.auth).userInfo
@@ -31,7 +27,7 @@ const LineMemberItem = ({ data, superAdminId }: IWSItemProps) => {
   }
 
   return (
-    <Item $img={user.avatar as string}>
+    <Item $img={user.avatar as string} $isMe={currentUser?._id === user._id}>
       <ItemCover className="section">
         <img src={user.avatar} alt="" />
         {/* <div className="item__cover-fallback"></div> */}

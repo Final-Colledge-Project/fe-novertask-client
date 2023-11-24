@@ -1,12 +1,16 @@
 import styled from '@emotion/styled'
 
-export const Item = styled.div<{ $img: string }>`
+export const Item = styled.div<{ $img: string; $isMe: boolean }>`
   width: 100%;
   min-width: 244px;
-  background-color: var(--mui-palette-white-main);
+  background-color: var(-mui-palette-white-main);
   box-shadow: 0px 0px 7px 1px var(--mui-palette-gray5-main);
   border-radius: 8px;
-  border: 1px solid var(--mui-palette-white-main);
+  border: 1px solid
+    ${(props) =>
+      props.$isMe
+        ? 'var(--mui-palette-primary-main)'
+        : 'var(-mui-palette-white-main)'};
   padding: 8px;
   /* cursor: pointer; */
   top: 0;
@@ -18,6 +22,7 @@ export const Item = styled.div<{ $img: string }>`
   overflow: hidden;
   position: relative;
   transform: scale(1);
+  font-size: 14px;
 
   &::before {
     display: block;

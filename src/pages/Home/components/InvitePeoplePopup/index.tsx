@@ -80,6 +80,24 @@ const InvitePeoplePopup = () => {
       })
     )
   }
+
+  const sortByRoleMembers = () => {
+    if (PopupInvite.data.members) {
+      const { workspaceAdmins, workspaceMembers } = PopupInvite.data
+        .members as IBoardMembers
+      const result = [workspaceAdmins.find((mem) => mem.role === 'superAdmin')]
+      result.push(...workspaceAdmins.filter((mem) => mem.role === 'admin'))
+      if (workspaceMembers) {
+        result.push(
+          ...workspaceMembers.map((mem) => ({
+            ...mem,
+            role: 'member' as 'member' | 'admin' | 'superAdmin'
+          }))
+        )
+      }
+      return result
+    }
+  }
   return (
     <Container
       onClick={(e) => handleClose(e)}
@@ -122,32 +140,26 @@ const InvitePeoplePopup = () => {
         <CurrentMember>
           <div className="title">Current members</div>
           <MemberList>
-            {PopupInvite.data.members?.workspaceAdmins.map((member) => (
+            {sortByRoleMembers()?.map((member) => (
               <MemberItem>
                 <div className="image">
-                  <Avatar src={member.user.avatar} alt="" />
+                  <Avatar src={member?.user.avatar} alt="" />
                 </div>
                 <div className="info">
-                  <div className="name">{member.user.fullName}</div>
-                  <div className="email">{member.user.email}</div>
+                  <div className="name">{member?.user.fullName}</div>
+                  <div className="email">{member?.user.email}</div>
                 </div>
-                <div className="role admin">
-                  {member.role === 'superAdmin' ? 'Super admin' : 'Admin'}
+                <div className={clsx('role', member?.role)}>
+                  {member?.role === 'superAdmin' && 'Super admin'}
+                  {member?.role === 'admin' && 'Admin'}
+                  {member?.role === 'member' && 'Member'}
                 </div>
               </MemberItem>
             ))}
-            {PopupInvite.data.members?.workspaceMembers?.map((member) => (
-              <MemberItem>
-                <div className="image">
-                  <Avatar src={member.user.avatar} alt="" />
-                </div>
-                <div className="info">
-                  <div className="name">{member.user.fullName}</div>
-                  <div className="email">{member.user.email}</div>
-                </div>
-                <div className="role member">Member</div>
-              </MemberItem>
-            ))}
+
+            {(!sortByRoleMembers() || sortByRoleMembers()?.length === 0) && (
+              <p className="placeholder">There is no one here</p>
+            )}
           </MemberList>
         </CurrentMember>
       </Modal>
