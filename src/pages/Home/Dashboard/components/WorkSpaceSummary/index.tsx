@@ -4,13 +4,25 @@ import ToggleViewButton from './ToggleViewButton'
 import WorkSpaceItem from './WorkSpaceItem'
 import './style.scss'
 import Button from '@mui/material/Button'
+import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { setCurrentNavItem } from '~/redux/navSlice'
 
 const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const handleNavigateToDetailWS = () => {
+    dispatch(setCurrentNavItem(data._id))
+    navigate(`/u/home/workspaces/${data._id}`)
+  }
+
   return (
     <div className="workspace-summary">
       <div className="workspace-summary-header">
         <div className="header-text">
-          <p className="header-text-name">{data.name}</p>
+          <p className="header-text-name" onClick={handleNavigateToDetailWS}>
+            {data.name}
+          </p>
           <p className="header-text-count"> • {data.board.length} projects</p>
         </div>
         <div className="header-divider"></div>

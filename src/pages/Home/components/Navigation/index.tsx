@@ -9,7 +9,9 @@ import {
   RiQuestionLine,
   RiSettings2Line,
   RiPushpinLine,
-  RiUnpinLine
+  RiUnpinLine,
+  RiDashboardLine,
+  RiGroupLine
 } from 'react-icons/ri'
 
 import './style.scss'
@@ -18,16 +20,17 @@ import UserBadge from './UserBadge'
 import { LevelMenu, LevelMenuItem } from '~/components/LevelMenu'
 import { useEffect, useState } from 'react'
 import clsx from 'clsx'
-import { IconButton } from '@mui/material'
+import { IconButton, Tooltip } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useNavigate } from 'react-router-dom'
 import { enqueueSnackbar } from 'notistack'
 import { getAllByUserId } from '~/redux/boardSlice/actions'
+import { setCurrentNavItem } from '~/redux/navSlice'
 const Navigation = () => {
   const [fullVisible, setFullVisible] = useState(false)
   const [pinNav, setPinNav] = useState(false)
-  const [currentIndex, setCurrentIndex] = useState('dashboard')
+  const { current } = useSelector((state: StoreType) => state.nav)
 
   const handleMouseHover = async () => {
     if (pinNav) return
@@ -87,12 +90,12 @@ const Navigation = () => {
           <li className="item">
             <NavItem
               onClick={() => {
-                setCurrentIndex('dashboard')
+                dispatch(setCurrentNavItem('dashboard'))
                 navigate('/u/home/dashboard')
               }}
               title="Dashboard"
               startIcon={<RiHome6Line />}
-              isIndex={currentIndex === 'dashboard'}
+              isIndex={current === 'dashboard'}
               fullVisible={fullVisible}
             />
           </li>
@@ -109,14 +112,42 @@ const Navigation = () => {
                     <LevelMenuItem>
                       <NavItem
                         onClick={() => {
-                          setCurrentIndex(data._id)
+                          dispatch(setCurrentNavItem(data._id))
                           navigate('workspaces/' + data._id)
                         }}
                         fullVisible={fullVisible}
                         title={data.name}
-                        isIndex={currentIndex === data._id}
+                        isIndex={current === data._id}
                         startIcon={<RiSettings2Line />}
                       ></NavItem>
+                      {current === data._id && (
+                        <div className="part-group">
+                          <Tooltip title={'Overview'}>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => {
+                                navigate('/u/home/workspaces/' + data._id)
+                              }}
+                            >
+                              <RiDashboardLine />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={'Members'}>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => {
+                                navigate(
+                                  '/u/home/workspaces/' + data._id + '/members'
+                                )
+                              }}
+                            >
+                              <RiGroupLine />
+                            </IconButton>
+                          </Tooltip>
+                        </div>
+                      )}
                     </LevelMenuItem>
                   ))
                 ) : (
@@ -129,9 +160,9 @@ const Navigation = () => {
           <li className="item">
             <NavItem
               onClick={() => {
-                setCurrentIndex('myspace')
+                dispatch(setCurrentNavItem('myspace'))
               }}
-              isIndex={currentIndex === 'myspace'}
+              isIndex={current === 'myspace'}
               title="My task"
               startIcon={<MdOutlineTaskAlt />}
               fullVisible={fullVisible}

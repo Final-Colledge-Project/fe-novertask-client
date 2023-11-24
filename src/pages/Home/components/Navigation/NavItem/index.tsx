@@ -48,11 +48,6 @@ const NavItem = ({
           '&:hover': {
             backgroundColor: (theme) =>
               isIndex ? theme.palette.gray4.main : theme.palette.gray6.main
-            // '& .MuiButton-startIcon::after': {
-            //   background: isIndex
-            //     ? 'linear-gradient(180deg, rgba(229, 229, 234, 0.00) 50%, #D1D1D6 95%)'
-            //     : 'linear-gradient(180deg, rgba(229, 229, 234, 0.00) 50%, #F2F2F7 95%)'
-            // }
           },
           justifyContent: fullVisible ? 'flex-start' : 'center',
           padding: '10px 15px',
@@ -77,20 +72,6 @@ const NavItem = ({
           '& .MuiButton-iconSizeMedium': {
             position: 'relative'
           }
-          // '& .MuiButton-startIcon::after': {
-          //   content: '""',
-          //   display: 'block',
-          //   width: '100%',
-          //   height: '20px',
-          //   position: 'absolute',
-          //   overflow: 'visible',
-          //   left: 0,
-          //   top: 0,
-          //   transition: 'background 150ms cubic-bezier(0.4, 0, 0.2, 1) 100ms'
-          //   // background: isIndex
-          //   //   ? 'linear-gradient(180deg, rgba(229, 229, 234, 0.00) 50%, #F2F2F7 95%)'
-          //   //   : 'linear-gradient(180deg, rgba(229, 229, 234, 0.00) 50%, #FFFFFF 95%)'
-          // }
         }}
         startIcon={startIcon}
         endIcon={fullVisible && endIcon}

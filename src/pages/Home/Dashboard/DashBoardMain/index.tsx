@@ -25,7 +25,11 @@ const DashBoardMain = () => {
     {
       title: 'Add project',
       onChoose: () => {
-        dispatch(setPopupAddPJ(true))
+        dispatch(
+          setPopupAddPJ({
+            show: true
+          })
+        )
       }
     },
     {

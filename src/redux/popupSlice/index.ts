@@ -5,7 +5,12 @@ const popupSlice = createSlice({
   name: 'popup',
   initialState: {
     PopupAddWS: false,
-    PopupAddPJ: false,
+    PopupAddPJ: {
+      show: false,
+      data: {
+        currentWsID: undefined as undefined | string
+      }
+    },
     PopupAddTask: false,
     PopupInvite: {
       show: false,
@@ -20,7 +25,10 @@ const popupSlice = createSlice({
       state.PopupAddWS = action.payload
     },
     setPopupAddPJ: (state, action) => {
-      state.PopupAddPJ = action.payload
+      state.PopupAddPJ = {
+        ...state.PopupAddPJ,
+        ...action.payload
+      }
     },
     setPopupAddTask: (state, action) => {
       state.PopupAddTask = action.payload

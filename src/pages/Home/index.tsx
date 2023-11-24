@@ -18,7 +18,7 @@ const Home = () => {
           <Route element={<HomeLayout />} path="*">
             <Route element={<Dashboard />} index />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="workspaces/:id" element={<WorkSpaceDetails />} />
+            <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />
           </Route>
         </Routes>
       </div>

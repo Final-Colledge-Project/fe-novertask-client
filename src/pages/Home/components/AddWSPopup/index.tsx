@@ -22,13 +22,14 @@ const AddWSPopup = () => {
   const dispatch = useDispatch<StoreDispatchType>()
 
   const handleClose = () => {
+    reset()
     dispatch(setPopupAddWS(false))
   }
 
   const { PopupAddWS } = useSelector((state: StoreType) => state.popup)
 
-  const { control, handleSubmit, getValues } = useForm<IFormFields>({
-    defaultValues: {},
+  const { control, handleSubmit, getValues, reset } = useForm<IFormFields>({
+    defaultValues: { WSName: '' },
     mode: 'onSubmit',
     resolver: yupResolver(schema),
     reValidateMode: 'onBlur'

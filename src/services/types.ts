@@ -26,7 +26,7 @@ export interface IUser {
   avatar: string
 }
 
-interface IMockUser {
+export interface IMockUser {
   avatar: string
   fullName: string
   _id: string
@@ -76,7 +76,7 @@ export interface IBoardData {
 export interface IBoardMembers {
   workspaceAdmins: {
     user: IMockUser & { email: string; _id: string }
-    role: 'admin' | 'superAdmin'
+    role: 'admin' | 'superAdmin' | 'member'
   }[]
   workspaceMembers?: {
     user: IMockUser & { email: string; _id: string }

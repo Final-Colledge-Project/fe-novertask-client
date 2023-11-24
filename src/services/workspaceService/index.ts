@@ -59,9 +59,9 @@ export const getMembers = async (body: IGetMemberBody) => {
   } catch (error) {
     const status = (error as AxiosError).response?.status
 
-    // workspace is not exists or user not in this workspace
+    // user is not allowed to or workspace is not exists
     if (status && status === 409) {
-      throw new Error(`Get member in this workspace fail!`)
+      throw new Error(`UNAUTHORIZED`)
     }
 
     // general error

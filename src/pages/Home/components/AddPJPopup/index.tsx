@@ -12,23 +12,34 @@ import schema from './formSchema'
 import { useState, useRef, useEffect } from 'react'
 import WSSelectBox from './WSSelectBox'
 import { SelectChangeEvent, Switch } from '@mui/material'
-import workspaceDatas from '~/services/mockData.json'
 import PublicButtonTooltip from './PublicButtonToolTip'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 import { setPopupAddPJ } from '~/redux/popupSlice'
+import { useParams } from 'react-router-dom'
 
 const AddPJPopup = () => {
   const dispatch = useDispatch()
+  const { id } = useParams()
+  console.log('✨ ~ file: index.tsx:24 ~ AddPJPopup ~ id:', id)
+
   const { PopupAddPJ } = useSelector((state: StoreType) => state.popup)
-  console.log('✨ ~ file: index.tsx:24 ~ AddPJPopup ~ PopupAddPJ:', PopupAddPJ)
+  const { boards: workspaces } = useSelector((state: StoreType) => state.board)
 
   const handleClose = () => {
-    dispatch(setPopupAddPJ(false))
+    reset()
+    dispatch(
+      setPopupAddPJ({
+        show: false,
+        data: {
+          currentWsID: undefined
+        }
+      })
+    )
   }
 
-  const { control, handleSubmit } = useForm<IFormFields>({
-    defaultValues: { PJName: '', workspace: workspaceDatas[0].id },
+  const { control, handleSubmit, reset } = useForm<IFormFields>({
+    defaultValues: { PJName: '', workspace: id },
     mode: 'onChange',
     resolver: yupResolver(schema),
     reValidateMode: 'onBlur'
@@ -45,7 +56,7 @@ const AddPJPopup = () => {
     }
   }
 
-  const [choseWorkspace, setChoseWorkspace] = useState(workspaceDatas[0].id)
+  const [choseWorkspace, setChoseWorkspace] = useState(id)
   const [isPublic, setIsPublic] = useState(true)
   const isFirstFocus = useRef(true)
 
@@ -63,9 +74,30 @@ const AddPJPopup = () => {
     setIsPublic(event.target.checked)
   }
 
+  const workspaceNameList = () => {
+    if (PopupAddPJ.data.currentWsID) {
+      const selectedWS = workspaces.find(
+        (w) => w._id === PopupAddPJ.data.currentWsID
+      )
+      return [
+        {
+          id: selectedWS?._id as string,
+          name: selectedWS?.name as string
+        }
+      ]
+    } else
+      return workspaces.map((w) => ({
+        id: w._id,
+        name: w.name
+      }))
+  }
+
   return (
     <div
-      className={clsx('add-pj-popup', !PopupAddPJ && 'add-pj-popup--hidden')}
+      className={clsx(
+        'add-pj-popup',
+        !PopupAddPJ.show && 'add-pj-popup--hidden'
+      )}
       onClick={handleClose}
     >
       <div
@@ -98,12 +130,9 @@ const AddPJPopup = () => {
           <div className="add-pj-popup__input-row">
             <WithController name="workspace" control={control}>
               <WSSelectBox
-                value={choseWorkspace}
+                value={choseWorkspace as string}
                 handleChange={handleChangeWorkspace}
-                workspaces={workspaceDatas.map((w) => ({
-                  id: w.id,
-                  name: w.title
-                }))}
+                workspaces={workspaceNameList()}
               />
             </WithController>
           </div>

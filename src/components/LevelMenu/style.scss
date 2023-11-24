@@ -5,7 +5,7 @@
   width: 100%;
 
   .level-menu-item {
-    cursor: pointer;
+    // cursor: pointer;
     display: block;
     width: 100%;
     position: relative;
@@ -55,5 +55,6 @@
     &-show {
       margin-left: 24px;
     }
+    
   }
 }

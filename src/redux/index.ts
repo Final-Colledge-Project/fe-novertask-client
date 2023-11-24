@@ -6,6 +6,7 @@ import teamWSReducer from './teamWSSlice'
 import progressReducer from './progressSlice'
 import popupReducer from './popupSlice'
 import boardReducer from './boardSlice'
+import navReducer from './navSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -14,7 +15,8 @@ const store = configureStore({
     teamWorkspace: teamWSReducer,
     progress: progressReducer,
     popup: popupReducer,
-    board: boardReducer
+    board: boardReducer,
+    nav: navReducer
   }
 })
 
