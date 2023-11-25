@@ -1,4 +1,11 @@
-import NavItem from './NavItem'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { enqueueSnackbar } from 'notistack'
+import clsx from 'clsx'
+import { useDispatch, useSelector } from 'react-redux'
+
+// component library
+import { IconButton, Tooltip } from '@mui/material'
 import {
   MdWorkspacesOutline,
   MdKeyboardArrowDown,
@@ -14,24 +21,24 @@ import {
   RiGroupLine
 } from 'react-icons/ri'
 
-import './style.scss'
+// component
+import NavItem from './NavItem'
 import SignOutButton from './SignOutButton'
 import UserBadge from './UserBadge'
 import { LevelMenu, LevelMenuItem } from '~/components/LevelMenu'
-import { useEffect, useState } from 'react'
-import clsx from 'clsx'
-import { IconButton, Tooltip } from '@mui/material'
-import { useDispatch, useSelector } from 'react-redux'
+import './style.scss'
+
+// services
 import { StoreDispatchType, StoreType } from '~/redux'
-import { useNavigate } from 'react-router-dom'
-import { enqueueSnackbar } from 'notistack'
 import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setCurrentNavItem } from '~/redux/navSlice'
+
 const Navigation = () => {
   const [fullVisible, setFullVisible] = useState(false)
   const [pinNav, setPinNav] = useState(false)
   const { current } = useSelector((state: StoreType) => state.nav)
 
+  // hover to nav bar
   const handleMouseHover = async () => {
     if (pinNav) return
     setFullVisible(true)
@@ -109,7 +116,7 @@ const Navigation = () => {
               <LevelMenu>
                 {boards.length > 0 ? (
                   boards.map((data) => (
-                    <LevelMenuItem>
+                    <LevelMenuItem key={data._id}>
                       <NavItem
                         onClick={() => {
                           dispatch(setCurrentNavItem(data._id))

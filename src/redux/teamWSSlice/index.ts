@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createWS, getAllMembers } from './actions'
+import { assignAdmin, createWS, getAllMembers } from './actions'
 import { IMockUser } from '~/services/workspaceService/resTypes'
 
 interface TempWSType {
@@ -23,12 +23,17 @@ const initialState: {
     error: undefined | string
     success: boolean
   }
-  allMember:
+  currTeamMembers:
     | {
         workspaceAdmins: { user: IMockUser; role: 'admin' | 'superAdmin' }[]
         workspaceMembers: { user: IMockUser }[]
       }
     | undefined
+  assignAdmin: {
+    loading: boolean
+    error: undefined | string
+    success: boolean
+  }
 } = {
   loading: false,
   error: undefined,
@@ -44,7 +49,12 @@ const initialState: {
     error: undefined,
     success: false
   },
-  allMember: undefined
+  assignAdmin: {
+    loading: false,
+    error: undefined,
+    success: false
+  },
+  currTeamMembers: undefined
 }
 
 const teamWSSlice = createSlice({
@@ -53,6 +63,20 @@ const teamWSSlice = createSlice({
   reducers: {
     resetCreateWS: (state) => {
       state.createWS = {
+        loading: false,
+        error: undefined,
+        success: false
+      }
+    },
+    resetAssignAdmin: (state) => {
+      state.assignAdmin = {
+        loading: false,
+        error: undefined,
+        success: false
+      }
+    },
+    resetGetAllMember: (state) => {
+      state.getAllMember = {
         loading: false,
         error: undefined,
         success: false
@@ -92,7 +116,7 @@ const teamWSSlice = createSlice({
       })
       .addCase(getAllMembers.fulfilled, (state, { payload }) => {
         const { workspaceAdmins, workspaceMembers } = payload!
-        state.allMember = {
+        state.currTeamMembers = {
           workspaceAdmins,
           workspaceMembers: workspaceMembers || []
         }
@@ -109,8 +133,35 @@ const teamWSSlice = createSlice({
           success: false
         }
       })
+      .addCase(assignAdmin.pending, (state) => {
+        state.assignAdmin = {
+          loading: true,
+          error: undefined,
+          success: false
+        }
+      })
+      .addCase(assignAdmin.fulfilled, (state, { payload }) => {
+        const { workspaceAdmins, workspaceMembers } = payload!
+        state.currTeamMembers = {
+          workspaceAdmins,
+          workspaceMembers: workspaceMembers || []
+        }
+        state.assignAdmin = {
+          error: undefined,
+          loading: false,
+          success: true
+        }
+      })
+      .addCase(assignAdmin.rejected, (state, { payload }) => {
+        state.assignAdmin = {
+          error: payload as string,
+          loading: false,
+          success: false
+        }
+      })
   }
 })
 
 export default teamWSSlice.reducer
-export const { resetCreateWS } = teamWSSlice.actions
+export const { resetCreateWS, resetAssignAdmin, resetGetAllMember } =
+  teamWSSlice.actions

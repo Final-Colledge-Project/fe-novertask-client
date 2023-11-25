@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
-import { Tooltip, TooltipProps } from '@mui/material'
+import { AvatarGroup, Tooltip, TooltipProps } from '@mui/material'
+import { ReactNode } from 'react'
 
 export const Summary = styled.div`
   display: flex;
@@ -255,3 +256,51 @@ export const AdminTooltip = styled(({ className, ...props }: TooltipProps) => (
     }
   }
 `
+
+export const AdminAvatarGroup = ({ children }: { children: ReactNode }) => (
+  <AvatarGroup
+    max={3}
+    sx={{
+      ml: '8px',
+      // flexDirection: 'row',
+      '& .MuiAvatar-root': {
+        width: '35px',
+        height: '35px',
+        ml: '-8px',
+        boxShadow: '0 0 2px 1px rgba(0,0,0, 0.2)'
+      },
+      '& .MuiAvatar-root:last-child': {
+        ml: '-8px'
+      }
+    }}
+  >
+    {children}
+  </AvatarGroup>
+)
+export const MemberAvatarGroup = ({ children }: { children: ReactNode }) => (
+  <AvatarGroup
+    max={5}
+    sx={{
+      height: '100%',
+      ml: '8px',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      '& .MuiAvatar-root': {
+        width: '35px',
+        height: '35px',
+        ml: '-8px',
+        boxShadow: '0 0 2px 1px rgba(0,0,0, 0.2)'
+      },
+
+      '& .MuiAvatar-root:first-child': {
+        order: 3,
+        fontSize: '14px'
+      },
+      '& .MuiAvatar-root:last-child': {
+        ml: '-8px'
+      }
+    }}
+  >
+    {children}
+  </AvatarGroup>
+)

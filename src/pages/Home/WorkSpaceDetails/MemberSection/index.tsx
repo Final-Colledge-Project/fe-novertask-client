@@ -1,4 +1,14 @@
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { enqueueSnackbar } from 'notistack'
+import clsx from 'clsx'
+
+// component libraries
 import { Button, IconButton } from '@mui/material'
+import { RiArrowLeftSLine, RiArrowUpSLine } from 'react-icons/ri'
+
+// components
 import {
   Board,
   Container,
@@ -9,18 +19,13 @@ import {
   BoardBody,
   TabHeader
 } from './style'
-import { RiArrowLeftSLine, RiArrowUpSLine } from 'react-icons/ri'
-import { useState } from 'react'
-import { IBoardMembers } from '~/services/types'
-import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { getMembers as getMembersList } from '~/services/workspaceService'
-import { AxiosError } from 'axios'
-import { enqueueSnackbar } from 'notistack'
 import LineMemberItem from '../components/LineMemberItem'
-import { useDispatch } from 'react-redux'
+
+// services
 import { setPopupInvitePeople } from '~/redux/popupSlice'
-import clsx from 'clsx'
+import { StoreDispatchType, StoreType } from '~/redux'
+import { getAllMembers } from '~/redux/teamWSSlice/actions'
+import { resetAssignAdmin } from '~/redux/teamWSSlice'
 
 const MemberSection = () => {
   const [viewState, setViewState] = useState<{
@@ -80,41 +85,43 @@ const MemberSection = () => {
     }
   ]
 
-  const [members, setMembers] = useState<IBoardMembers | undefined>(undefined)
+  const {
+    getAllMember,
+    currTeamMembers: members,
+    assignAdmin
+  } = useSelector((state: StoreType) => state.teamWorkspace)
   const { id } = useParams()
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<StoreDispatchType>()
   const [tab, setTab] = useState('all')
+
   useEffect(() => {
     const getMembers = async () => {
       try {
-        const res = await getMembersList({ id: id as string })
-        if (res && res.data) {
-          const { workspaceAdmins, workspaceMembers } = res.data
-
-          // clean members list
-          const cleanedMemberList = workspaceMembers?.filter(
-            (member) =>
-              workspaceAdmins.findIndex(
-                (admin) => admin.user._id === member.user._id
-              ) === -1
-          )
-
-          setMembers({
-            workspaceAdmins,
-            workspaceMembers: cleanedMemberList || []
-          })
-        }
+        await dispatch(getAllMembers({ id: id as string }))
       } catch (err) {
-        const message = (err as AxiosError).message
-        if (message === 'UNAUTHORIZED') {
-          return
-        }
+        const message = (err as Error).message
         enqueueSnackbar(message, { variant: 'error' })
       }
     }
     getMembers()
   }, [id])
+
+  useEffect(() => {
+    if (getAllMember.error) {
+      if (getAllMember.error === 'UNAUTHORIZED') {
+        return
+      }
+      enqueueSnackbar(getAllMember.error, { variant: 'error' })
+    }
+  }, [getAllMember.error])
+
+  useEffect(() => {
+    if (assignAdmin.success) {
+      enqueueSnackbar('Assign admin successfully', { variant: 'success' })
+      dispatch(resetAssignAdmin())
+    }
+  }, [assignAdmin.success])
 
   const superAdmin = () => {
     if (members) {

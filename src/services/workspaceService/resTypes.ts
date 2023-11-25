@@ -23,3 +23,9 @@ export interface IGetMemberResponse {
   }
   message: string
 }
+export interface IAssignAdminResponse {
+  message: string
+}
+export interface IErrorResponse {
+  message: string
+}

@@ -1,8 +1,13 @@
 import { AxiosError } from 'axios'
 import axiosInstance from '../axiosInstance'
-import { ICreateWSBody, IGetMemberBody } from './reqTypes'
+import { IAssignAdminBody, ICreateWSBody, IGetMemberBody } from './reqTypes'
 import requests from './requests'
-import { ICreateWSResponse, IGetMemberResponse } from './resTypes'
+import {
+  IAssignAdminResponse,
+  ICreateWSResponse,
+  IErrorResponse,
+  IGetMemberResponse
+} from './resTypes'
 import data from '../mockData.json'
 export type * from './reqTypes'
 
@@ -62,6 +67,42 @@ export const getMembers = async (body: IGetMemberBody) => {
     // user is not allowed to or workspace is not exists
     if (status && status === 409) {
       throw new Error(`UNAUTHORIZED`)
+    }
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const assignAdmin = async (body: IAssignAdminBody) => {
+  try {
+    const res = await axiosInstance.post<IAssignAdminResponse>(
+      requests.assignAdmin(body.wsID),
+      {
+        emailUser: body.emailUser
+      }
+    )
+
+    // assign admin successfully
+    if (res.status === 200) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    // 409: throw the error form api
+    if (status && status === 409) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      // user is already admin
+      if (errorData.message === 'User is already admin') {
+        throw new Error(`User is already admin!`)
+      }
+      // user is not member
+      if (errorData.message === 'User is not member') {
+        throw new Error('Account for this email is not exist!')
+      }
     }
 
     // general error

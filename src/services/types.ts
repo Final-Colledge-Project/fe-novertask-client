@@ -76,7 +76,7 @@ export interface IBoardData {
 export interface IBoardMembers {
   workspaceAdmins: {
     user: IMockUser & { email: string; _id: string }
-    role: 'admin' | 'superAdmin' | 'member'
+    role: 'admin' | 'superAdmin'
   }[]
   workspaceMembers?: {
     user: IMockUser & { email: string; _id: string }

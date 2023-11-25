@@ -1,4 +1,14 @@
+import { enqueueSnackbar } from 'notistack'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { useDispatch, useSelector } from 'react-redux'
+import { yupResolver } from '@hookform/resolvers/yup'
+import clsx from 'clsx'
+
+// component libraries
 import { IconButton, Tooltip, Button, Avatar } from '@mui/material'
+import { RiCloseFill, RiInformationLine } from 'react-icons/ri'
+
+// components
 import {
   Container,
   CurrentMember,
@@ -8,20 +18,18 @@ import {
   MemberList,
   Modal
 } from './styles'
-import { RiCloseFill, RiInformationLine } from 'react-icons/ri'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import IFormFields from './IFormFields'
-import { yupResolver } from '@hookform/resolvers/yup'
-import schema from './formSchema'
-import WithController from '~/components/InputWithController'
 import TextInput from '~/components/TextInput'
-import { useDispatch, useSelector } from 'react-redux'
+
+// form
+import IFormFields from './IFormFields'
+import schema from './formSchema'
+
+//services
+import { StoreType } from '~/redux'
+import WithController from '~/components/InputWithController'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import { sendInvitation } from '~/services/inviteService'
-import { enqueueSnackbar } from 'notistack'
 import { setPopupInvitePeople } from '~/redux/popupSlice'
-import clsx from 'clsx'
-import { StoreType } from '~/redux'
 import { IBoardMembers } from '~/services/types'
 
 const InvitePeoplePopup = () => {
@@ -32,14 +40,16 @@ const InvitePeoplePopup = () => {
     reValidateMode: 'onBlur'
   })
 
-  const { PopupInvite } = useSelector((state: StoreType) => state.popup)
+  const {
+    data: { members, wsID },
+    show
+  } = useSelector((state: StoreType) => state.popup.PopupInvite)
 
   const dispatch = useDispatch()
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     // check if email is in workspace
-    const { workspaceAdmins, workspaceMembers } = PopupInvite.data
-      .members as IBoardMembers
+    const { workspaceAdmins, workspaceMembers } = members as IBoardMembers
     const memberList = [...workspaceAdmins.map((mem) => mem.user)]
     if (workspaceMembers)
       memberList.push(...workspaceMembers.map((mem) => mem.user))
@@ -53,7 +63,7 @@ const InvitePeoplePopup = () => {
         dispatch(showLoading())
         const res = await sendInvitation({
           email: data.email,
-          wsID: PopupInvite.data.wsID as string
+          wsID: wsID as string
         })
         if (res) {
           enqueueSnackbar(`Sent invitation to ${data.email} successfully!`, {
@@ -81,27 +91,19 @@ const InvitePeoplePopup = () => {
     )
   }
 
-  const sortByRoleMembers = () => {
-    if (PopupInvite.data.members) {
-      const { workspaceAdmins, workspaceMembers } = PopupInvite.data
-        .members as IBoardMembers
+  const superAdminFirstList = () => {
+    if (members) {
+      const { workspaceAdmins } = members as IBoardMembers
       const result = [workspaceAdmins.find((mem) => mem.role === 'superAdmin')]
       result.push(...workspaceAdmins.filter((mem) => mem.role === 'admin'))
-      if (workspaceMembers) {
-        result.push(
-          ...workspaceMembers.map((mem) => ({
-            ...mem,
-            role: 'member' as 'member' | 'admin' | 'superAdmin'
-          }))
-        )
-      }
+
       return result
     }
   }
   return (
     <Container
       onClick={(e) => handleClose(e)}
-      className={clsx(!PopupInvite.show && 'hidden')}
+      className={clsx(!show && 'hidden')}
     >
       <Modal onClick={(e) => e.stopPropagation()}>
         <Header>
@@ -140,8 +142,8 @@ const InvitePeoplePopup = () => {
         <CurrentMember>
           <div className="title">Current members</div>
           <MemberList>
-            {sortByRoleMembers()?.map((member) => (
-              <MemberItem>
+            {superAdminFirstList()?.map((member) => (
+              <MemberItem key={member?.user._id}>
                 <div className="image">
                   <Avatar src={member?.user.avatar} alt="" />
                 </div>
@@ -152,12 +154,25 @@ const InvitePeoplePopup = () => {
                 <div className={clsx('role', member?.role)}>
                   {member?.role === 'superAdmin' && 'Super admin'}
                   {member?.role === 'admin' && 'Admin'}
-                  {member?.role === 'member' && 'Member'}
                 </div>
               </MemberItem>
             ))}
+            {members?.workspaceMembers?.map((mem) => (
+              <MemberItem key={mem.user._id}>
+                <div className="image">
+                  <Avatar src={mem?.user.avatar} alt="" />
+                </div>
+                <div className="info">
+                  <div className="name">{mem?.user.fullName}</div>
+                  <div className="email">{mem?.user.email}</div>
+                </div>
+                <div className={clsx('role', 'member')}>Member</div>
+              </MemberItem>
+            ))}
 
-            {(!sortByRoleMembers() || sortByRoleMembers()?.length === 0) && (
+            {(!superAdminFirstList() ||
+              (superAdminFirstList()?.length === 0 &&
+                members?.workspaceMembers?.length === 0)) && (
               <p className="placeholder">There is no one here</p>
             )}
           </MemberList>

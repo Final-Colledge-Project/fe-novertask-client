@@ -1,9 +1,18 @@
-import { Avatar, AvatarGroup, Button, IconButton, Tooltip } from '@mui/material'
+import { AxiosError } from 'axios'
+import { enqueueSnackbar } from 'notistack'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
+// component libraries
+import { Avatar, Button, IconButton, Tooltip } from '@mui/material'
 import {
+  AdminAvatarGroup,
   AdminTooltip,
   FilterSection,
   LineTitle,
   LineTitleItem,
+  MemberAvatarGroup,
   MemberPart,
   Members,
   MembersSummary,
@@ -16,27 +25,28 @@ import {
   Total
 } from './style'
 import { RiArrowUpSLine, RiQuestionLine } from 'react-icons/ri'
+
+//component
 import SearchBox from '~/components/SearchBox'
 import ColumnMenu from '../components/ColumnMenu'
 import ToggleViewButton from '../../components/ToggleViewButton'
 import LoadingSkeleton from '../../components/LoadingSkeleton'
-import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { StoreDispatchType, StoreType } from '~/redux'
-import { setPopupAddPJ, setPopupInvitePeople } from '~/redux/popupSlice'
-import { AxiosError } from 'axios'
-import { enqueueSnackbar } from 'notistack'
-import { getAllByWSId } from '~/services/boardService'
-import * as workspaceService from '~/services/workspaceService'
-import { IBoard, IBoardMembers } from '~/services/types'
 import BlockItem from '../components/BlockProjectItem'
 import LineItem from '../components/LineProjectItem'
+
+//services
+import { StoreDispatchType, StoreType } from '~/redux'
+import { setPopupAddPJ, setPopupInvitePeople } from '~/redux/popupSlice'
+import { getAllByWSId } from '~/services/boardService'
+import { IBoard } from '~/services/types'
+import { getAllMembers } from '~/redux/teamWSSlice/actions'
+import { resetGetAllMember } from '~/redux/teamWSSlice'
 
 const OverviewSection = () => {
   const dispatch = useDispatch<StoreDispatchType>()
   const navigate = useNavigate()
 
+  // manage show type of project item
   const [viewType, setViewType] = useState<'list' | 'block'>('block')
   const [viewState, setViewState] = useState<{
     pageSize: number
@@ -50,10 +60,13 @@ const OverviewSection = () => {
     isAsc: true
   })
 
-  const [members, setMembers] = useState<IBoardMembers | undefined>(undefined)
   const [boards, setBoards] = useState<IBoard[] | undefined>(undefined)
   const currentUser = useSelector((state: StoreType) => state.auth)
+  const { getAllMember, currTeamMembers } = useSelector(
+    (state: StoreType) => state.teamWorkspace
+  )
 
+  // show popup add project
   const handleShowAddPJPopup = () => {
     dispatch(
       setPopupAddPJ({
@@ -65,19 +78,22 @@ const OverviewSection = () => {
     )
   }
 
+  // show popup invite people
   const handleShowPopupInvite = () => {
     dispatch(
       setPopupInvitePeople({
         show: true,
-        data: { wsID: id, members: members }
+        data: { wsID: id, members: currTeamMembers }
       })
     )
   }
 
+  // handle change project view type
   const handleChangeViewType = (viewType: 'list' | 'block') => {
     setViewType(viewType)
   }
 
+  // handle change sort order of projects
   const handleChangeSort = (toSortBy: 'name' | 'createdAt' | 'dueDate') => {
     const fromSortBy = viewState.sortBy
     const fromSortType = viewState.isAsc
@@ -96,39 +112,23 @@ const OverviewSection = () => {
     })
   }
 
+  // get current workspace id via url parameter
   const { id } = useParams()
 
+  // get members of current workspace
   useEffect(() => {
     const getMembers = async () => {
       try {
-        const res = await workspaceService.getMembers({ id: id as string })
-        if (res && res.data) {
-          const { workspaceAdmins, workspaceMembers } = res.data
-
-          // clean members list
-          const cleanedMemberList = workspaceMembers?.filter(
-            (member) =>
-              workspaceAdmins.findIndex(
-                (admin) => admin.user._id === member.user._id
-              ) === -1
-          )
-
-          setMembers({
-            workspaceAdmins,
-            workspaceMembers: cleanedMemberList || []
-          })
-        }
+        await dispatch(getAllMembers({ id: id as string }))
       } catch (err) {
-        const message = (err as AxiosError).message
-        if (message === 'UNAUTHORIZED') {
-          return
-        }
+        const message = (err as Error).message
         enqueueSnackbar(message, { variant: 'error' })
       }
     }
     getMembers()
   }, [id])
 
+  // get board of current workspace
   useEffect(() => {
     const getBoards = async () => {
       try {
@@ -154,6 +154,18 @@ const OverviewSection = () => {
     getBoards()
   }, [id])
 
+  // just catch the error
+  useEffect(() => {
+    if (getAllMember.error) {
+      if (getAllMember.error === 'UNAUTHORIZED') {
+        return
+      }
+      enqueueSnackbar(getAllMember.error, { variant: 'error' })
+      dispatch(resetGetAllMember())
+    }
+  }, [getAllMember.error])
+
+  // the name is really meaningful already :)
   const checkIsUserInBoard = useCallback(
     (board: IBoard) => {
       if (board.type === 'public') return true
@@ -164,23 +176,35 @@ const OverviewSection = () => {
     [currentUser]
   )
 
+  // the name is really meaningful already :)
   const checkIsUserAnAdmin = useCallback(() => {
     return (
-      members?.workspaceAdmins.findIndex(
+      currTeamMembers?.workspaceAdmins.findIndex(
         (admin) => admin.user._id === currentUser.userInfo?._id
       ) !== -1
     )
-  }, [members?.workspaceAdmins, currentUser.userInfo?._id])
+  }, [currTeamMembers?.workspaceAdmins, currentUser.userInfo?._id])
 
+  // count members, 2 lists are not duplicate the item
   const countMembers = useMemo(() => {
-    if (members) {
-      const { workspaceAdmins, workspaceMembers } = members
+    if (currTeamMembers) {
+      const { workspaceAdmins, workspaceMembers } = currTeamMembers
       let count = workspaceAdmins.length
       if (workspaceMembers) count += workspaceMembers.length
       return count
     }
     return 0
-  }, [members])
+  }, [currTeamMembers])
+
+  // find the super admin of current workspace
+  const superAdmin = () => {
+    if (currTeamMembers) {
+      return currTeamMembers?.workspaceAdmins.find(
+        (m) => m.role === 'superAdmin'
+      )
+    }
+  }
+
   return (
     <>
       <Summary>
@@ -224,46 +248,28 @@ const OverviewSection = () => {
               <Members>
                 <MemberPart className="admin">
                   <div className="label">Admins</div>
-                  <AvatarGroup
-                    max={4}
-                    sx={{
-                      ml: '8px',
-                      // flexDirection: 'row',
-                      '& .MuiAvatar-root': {
-                        width: '35px',
-                        height: '35px',
-                        ml: '-8px',
-                        boxShadow: '0 0 2px 1px rgba(0,0,0, 0.2)'
-                      },
-                      '& .MuiAvatar-root:last-child': {
-                        ml: '-8px'
-                      }
-                    }}
-                  >
-                    {members?.workspaceAdmins.map((mem) => {
-                      if (mem.role === 'superAdmin')
-                        return (
-                          <AdminTooltip
-                            title={'Super admin | ' + mem.user.fullName}
-                            arrow
-                            key={mem.user._id}
-                          >
-                            <Avatar
-                              alt={mem.user.fullName}
-                              src={mem.user.avatar}
-                              sx={{
-                                '&.MuiAvatar-root': {
-                                  // order: 2,
-                                  border: (theme) =>
-                                    `3px solid ${theme.palette.yellow.main} !important`
-                                }
-                              }}
-                            />
-                          </AdminTooltip>
-                        )
-                      else
-                        return (
-                          <Tooltip title={mem.user.fullName}>
+                  <AdminAvatarGroup>
+                    <AdminTooltip
+                      title={'Super admin | ' + superAdmin()?.user.fullName}
+                      arrow
+                      key={superAdmin()?.user._id}
+                    >
+                      <Avatar
+                        alt={superAdmin()?.user.fullName}
+                        src={superAdmin()?.user.avatar}
+                        sx={{
+                          '&.MuiAvatar-root': {
+                            // order: 2,
+                            border: (theme) =>
+                              `3px solid ${theme.palette.yellow.main} !important`
+                          }
+                        }}
+                      />
+                    </AdminTooltip>
+                    {currTeamMembers?.workspaceAdmins.map(
+                      (mem) =>
+                        mem.role === 'admin' && (
+                          <Tooltip title={mem.user.fullName} key={mem.user._id}>
                             <Avatar
                               key={mem.user._id}
                               alt={mem.user.fullName}
@@ -271,35 +277,14 @@ const OverviewSection = () => {
                             />
                           </Tooltip>
                         )
-                    })}
-                  </AvatarGroup>
+                    )}
+                  </AdminAvatarGroup>
                 </MemberPart>
                 <MemberPart className="members">
                   <div className="label">Members</div>
-                  <AvatarGroup
-                    max={5}
-                    sx={{
-                      ml: '8px',
-                      flexDirection: 'row',
-                      justifyContent: 'center',
-                      '& .MuiAvatar-root': {
-                        width: '35px',
-                        height: '35px',
-                        ml: '-8px',
-                        boxShadow: '0 0 2px 1px rgba(0,0,0, 0.2)'
-                      },
-
-                      '& .MuiAvatar-root:first-child': {
-                        order: 3,
-                        fontSize: '14px'
-                      },
-                      '& .MuiAvatar-root:last-child': {
-                        ml: '-8px'
-                      }
-                    }}
-                  >
-                    {members?.workspaceMembers?.map((mem) => (
-                      <Tooltip title={mem.user.fullName}>
+                  <MemberAvatarGroup>
+                    {currTeamMembers?.workspaceMembers?.map((mem) => (
+                      <Tooltip title={mem.user.fullName} key={mem.user._id}>
                         <Avatar
                           key={mem.user._id}
                           alt={mem.user.fullName}
@@ -307,7 +292,7 @@ const OverviewSection = () => {
                         />
                       </Tooltip>
                     ))}
-                  </AvatarGroup>
+                  </MemberAvatarGroup>
                 </MemberPart>
               </Members>
               {checkIsUserAnAdmin() && (
@@ -342,7 +327,9 @@ const OverviewSection = () => {
               {boards.filter((b) => !checkIsUserInBoard(b)).length > 0 &&
                 !checkIsUserAnAdmin() && (
                   <Tooltip
-                    title={`You only see the projects you have access to or public projects`}
+                    title={
+                      'You only see the projects you have access to or public projects'
+                    }
                   >
                     <div className="icon">
                       <RiQuestionLine />
