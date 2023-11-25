@@ -24,7 +24,7 @@ const AddPJPopup = () => {
   console.log('✨ ~ file: index.tsx:24 ~ AddPJPopup ~ id:', id)
 
   const { PopupAddPJ } = useSelector((state: StoreType) => state.popup)
-  const { boards: workspaces } = useSelector((state: StoreType) => state.board)
+  const { boards } = useSelector((state: StoreType) => state.board)
 
   const handleClose = () => {
     reset()
@@ -36,6 +36,20 @@ const AddPJPopup = () => {
         }
       })
     )
+  }
+
+  const getWorkspaces = () => {
+    if (boards) {
+      const { workspaceHasBoards, workspaceWithNoBoard } = boards
+      const result = workspaceHasBoards.map((w) => ({
+        _id: w._id,
+        name: w.name
+      }))
+      result.push(
+        ...workspaceWithNoBoard.map((w) => ({ _id: w._id, name: w.name }))
+      )
+      return result
+    }
   }
 
   const { control, handleSubmit, reset } = useForm<IFormFields>({
@@ -76,20 +90,16 @@ const AddPJPopup = () => {
 
   const workspaceNameList = () => {
     if (PopupAddPJ.data.currentWsID) {
-      const selectedWS = workspaces.find(
+      const selectedWS = getWorkspaces()?.find(
         (w) => w._id === PopupAddPJ.data.currentWsID
       )
       return [
         {
-          id: selectedWS?._id as string,
+          _id: selectedWS?._id as string,
           name: selectedWS?.name as string
         }
       ]
-    } else
-      return workspaces.map((w) => ({
-        id: w._id,
-        name: w.name
-      }))
+    } else return getWorkspaces()
   }
 
   return (
@@ -132,7 +142,7 @@ const AddPJPopup = () => {
               <WSSelectBox
                 value={choseWorkspace as string}
                 handleChange={handleChangeWorkspace}
-                workspaces={workspaceNameList()}
+                workspaces={workspaceNameList() || []}
               />
             </WithController>
           </div>

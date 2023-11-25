@@ -73,6 +73,20 @@ const Navigation = () => {
     }
   }, [error])
 
+  const getWorkspaces = () => {
+    if (boards) {
+      const { workspaceHasBoards, workspaceWithNoBoard } = boards
+      const result = workspaceHasBoards.map((w) => ({
+        _id: w._id,
+        name: w.name
+      }))
+      result.push(
+        ...workspaceWithNoBoard.map((w) => ({ _id: w._id, name: w.name }))
+      )
+      return result
+    }
+  }
+
   return (
     <div
       className={clsx(
@@ -114,10 +128,11 @@ const Navigation = () => {
               endIcon={<MdKeyboardArrowDown />}
             >
               <LevelMenu>
-                {boards.length > 0 ? (
-                  boards.map((data) => (
-                    <LevelMenuItem key={data._id}>
+                {getWorkspaces() ? (
+                  getWorkspaces()?.map((data) => (
+                    <LevelMenuItem key={data._id} isIndex>
                       <NavItem
+                        isThin
                         onClick={() => {
                           dispatch(setCurrentNavItem(data._id))
                           navigate('workspaces/' + data._id)
@@ -175,6 +190,7 @@ const Navigation = () => {
               fullVisible={fullVisible}
             />
           </li>
+          <li className="divider"></li>
         </ul>
       </div>
       <ul className="nav-container-bottom">

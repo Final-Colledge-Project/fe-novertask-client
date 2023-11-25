@@ -75,14 +75,37 @@ export interface IBoardData {
 
 export interface IBoardMembers {
   workspaceAdmins: {
-    user: IMockUser & { email: string; _id: string }
+    user?: IMockUser & { email: string; _id: string }
     role: 'admin' | 'superAdmin'
   }[]
   workspaceMembers?: {
-    user: IMockUser & { email: string; _id: string }
+    user?: IMockUser & { email: string; _id: string }
   }[]
 }
 
 export interface IErrorResponse {
   message: string
+}
+
+export interface IWorkspaceWithoutBoard {
+  _id: string
+  name: string
+  createdAt: string
+}
+export interface IWorkspaceWithBoard {
+  board: IBoard[]
+  _id: string
+  name: string
+  createdAt: string
+}
+export interface IGeneralWorkspace {
+  board?: IBoard[]
+  _id: string
+  name: string
+  createdAt: string
+}
+
+export interface IAllBoardOfCurrentUser {
+  workspaceWithNoBoard: IWorkspaceWithoutBoard[]
+  workspaceHasBoards: IWorkspaceWithBoard[]
 }

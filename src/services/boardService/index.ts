@@ -4,6 +4,7 @@ import requests from './requests'
 import { IGetAllByWSIdBody } from './reqTypes'
 import { AxiosError } from 'axios'
 
+// it's the same with get all workspace of current user
 export const getAllByUserId = async () => {
   try {
     const res = await axiosInstance.get<IGetAllByUserIdResponse>(

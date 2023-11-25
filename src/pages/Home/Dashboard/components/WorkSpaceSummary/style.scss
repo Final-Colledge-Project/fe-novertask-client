@@ -43,7 +43,7 @@
     }
   }
   &-outlet {
-    width: 100%;
+    // width: 100%;
     max-width: unset;
     min-width: 0;
     position: relative;
@@ -65,14 +65,15 @@
 
     .outlet-items-list {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       // align-items: center;
       column-gap: 16px;
       row-gap: 15px;
       padding: 10px;
       margin: 10px;
       // flex-wrap: wrap;
-      overflow-x: auto;
+      // overflow-x: auto;
+      overflow-y: auto;
 
       &::-webkit-scrollbar {
         background-color: var(--mui-palette-gray5-main);

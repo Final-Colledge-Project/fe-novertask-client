@@ -20,7 +20,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
         </IconButton>
       </div>
       <div className="item__cover">
-        <img src={cover} alt="" />
+        <img src={cover || '/img/item-cover.jpg'} alt="" />
         {/* <div className="item__cover-fallback"></div> */}
       </div>
       <div className="item-bottom">

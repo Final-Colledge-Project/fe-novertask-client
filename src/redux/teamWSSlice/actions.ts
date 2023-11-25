@@ -36,13 +36,14 @@ export const getAllMembers = createAsyncThunk(
         // clean members list
         const cleanedMemberList = workspaceMembers?.filter(
           (member) =>
+            member.user &&
             workspaceAdmins.findIndex(
-              (admin) => admin.user._id === member.user._id
+              (admin) => admin.user?._id === member?.user?._id
             ) === -1
         )
         return {
           workspaceAdmins,
-          workspaceMembers: cleanedMemberList || undefined
+          workspaceMembers: cleanedMemberList || []
         }
       }
     } catch (err) {
@@ -67,7 +68,7 @@ export const assignAdmin = createAsyncThunk(
           const cleanedMemberList = workspaceMembers?.filter(
             (member) =>
               workspaceAdmins.findIndex(
-                (admin) => admin.user._id === member.user._id
+                (admin) => admin.user?._id === member.user?._id
               ) === -1
           )
           return {

@@ -4,7 +4,7 @@
   box-shadow: 0px 0px 7px 1px var(--mui-palette-gray5-main);
   border-radius: 8px;
   border: 1px solid var(--mui-palette-gray5-main);
-  padding: 10px;
+  padding: 10px 10px 5px 10px;
   cursor: pointer;
   position: relative;
   top: 0;
@@ -20,7 +20,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 
     &__title {
       font-weight: 700;
@@ -98,7 +98,7 @@
         display: flex;
         align-items: center;
         gap: 5px;
-        margin-top: 10px;
+        margin-top: 5px;
       }
     }
   }

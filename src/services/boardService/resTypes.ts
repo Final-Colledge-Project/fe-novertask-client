@@ -1,12 +1,11 @@
-import { IBoard } from '../types'
+import { IBoard, IWorkspaceWithBoard, IWorkspaceWithoutBoard } from '../types'
 
 export interface IGetAllByUserIdResponse {
   length: number
   data: {
-    board: IBoard[]
-    _id: string
-    name: string
-  }[]
+    workspaceHasBoards: IWorkspaceWithBoard[]
+    workspaceWithNoBoard: IWorkspaceWithoutBoard[]
+  }
   message: string
 }
 

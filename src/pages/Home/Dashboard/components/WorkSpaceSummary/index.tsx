@@ -1,11 +1,17 @@
+import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+
+// component libraries
 import { RiAddLine } from 'react-icons/ri'
+import Button from '@mui/material/Button'
+
+// components
 import IWSSummaryProps from './IWSSummaryProps'
 import ToggleViewButton from './ToggleViewButton'
 import WorkSpaceItem from './WorkSpaceItem'
 import './style.scss'
-import Button from '@mui/material/Button'
-import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+
+// services
 import { setCurrentNavItem } from '~/redux/navSlice'
 
 const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
@@ -23,7 +29,10 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
           <p className="header-text-name" onClick={handleNavigateToDetailWS}>
             {data.name}
           </p>
-          <p className="header-text-count"> • {data.board.length} projects</p>
+          <p className="header-text-count">
+            {' '}
+            • {data.board?.length || 0} projects
+          </p>
         </div>
         <div className="header-divider"></div>
         <div className="header-show-type">
@@ -31,9 +40,9 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
         </div>
       </div>
       <div className="workspace-summary-outlet">
-        {data.board.length > 0 ? (
+        {data.board && data.board.length > 0 ? (
           <div className="outlet-items-list">
-            {data.board.map((project) => (
+            {data.board?.map((project) => (
               <WorkSpaceItem data={project} key={project._id} />
             ))}
           </div>

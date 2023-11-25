@@ -16,6 +16,7 @@ import {
   MemberPart,
   Members,
   MembersSummary,
+  PlaceHolder,
   ProjectBoard,
   ProjectContainer,
   ProjectSection,
@@ -283,15 +284,21 @@ const OverviewSection = () => {
                 <MemberPart className="members">
                   <div className="label">Members</div>
                   <MemberAvatarGroup>
-                    {currTeamMembers?.workspaceMembers?.map((mem) => (
-                      <Tooltip title={mem.user.fullName} key={mem.user._id}>
-                        <Avatar
-                          key={mem.user._id}
-                          alt={mem.user.fullName}
-                          src={mem.user.avatar}
-                        />
-                      </Tooltip>
-                    ))}
+                    {currTeamMembers?.workspaceMembers?.map(
+                      (mem) =>
+                        mem.user && (
+                          <Tooltip
+                            title={mem.user?.fullName}
+                            key={mem.user?._id}
+                          >
+                            <Avatar
+                              key={mem.user?._id}
+                              alt={mem.user?.fullName}
+                              src={mem.user?.avatar}
+                            />
+                          </Tooltip>
+                        )
+                    )}
                   </MemberAvatarGroup>
                 </MemberPart>
               </Members>
@@ -404,24 +411,32 @@ const OverviewSection = () => {
             <ProjectContainer $display={viewType === 'list' ? 'flex' : 'grid'}>
               {viewType === 'list' ? (
                 <>
-                  {boards?.map(
-                    (board) =>
-                      (checkIsUserInBoard(board) || checkIsUserAnAdmin()) && (
-                        <LineItem data={board} key={board._id} />
-                      )
-                  )}
+                  {boards &&
+                    boards.length > 0 &&
+                    boards.map(
+                      (board) =>
+                        (checkIsUserInBoard(board) || checkIsUserAnAdmin()) && (
+                          <LineItem data={board} key={board._id} />
+                        )
+                    )}
                 </>
               ) : (
                 <>
-                  {boards?.map(
-                    (board) =>
-                      (checkIsUserInBoard(board) || checkIsUserAnAdmin()) && (
-                        <BlockItem data={board} key={board._id} />
-                      )
-                  )}
+                  {boards &&
+                    boards.length > 0 &&
+                    boards?.map(
+                      (board) =>
+                        (checkIsUserInBoard(board) || checkIsUserAnAdmin()) && (
+                          <BlockItem data={board} key={board._id} />
+                        )
+                    )}
                 </>
               )}
             </ProjectContainer>
+            {!boards ||
+              (boards?.length <= 0 && (
+                <PlaceHolder>There is no board here</PlaceHolder>
+              ))}
           </ProjectBoard>
         </ProjectSection>
       ) : (

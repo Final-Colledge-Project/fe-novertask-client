@@ -11,7 +11,6 @@ const WSSelectBox = ({
   field,
   error
 }: IProps) => {
-
   return (
     <FormControl
       fullWidth
@@ -42,8 +41,8 @@ const WSSelectBox = ({
         {...field}
       >
         {/* <MenuItem value={'NONE_WORKSPACE_SELECTED'}>None</MenuItem> */}
-        {workspaces.map((item: { id: string; name: string }) => (
-          <MenuItem value={item.id} key={item.id}>
+        {workspaces.map((item: { _id: string; name: string }) => (
+          <MenuItem value={item._id} key={item._id}>
             {item.name}
           </MenuItem>
         ))}

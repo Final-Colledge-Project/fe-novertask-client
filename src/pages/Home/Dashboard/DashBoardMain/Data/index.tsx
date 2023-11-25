@@ -8,7 +8,10 @@ const Data = () => {
 
   return boards ? (
     <>
-      {boards?.map((workspace) => (
+      {boards?.workspaceHasBoards.map((workspace) => (
+        <WorkSpaceSummary data={workspace} key={workspace._id} />
+      ))}
+      {boards?.workspaceWithNoBoard.map((workspace) => (
         <WorkSpaceSummary data={workspace} key={workspace._id} />
       ))}
     </>

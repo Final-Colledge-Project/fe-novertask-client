@@ -15,13 +15,24 @@ const WorkSpaceDetails = () => {
 
   const { id } = useParams()
 
+  const joinWorkspacesName = () => {
+    const {
+      boards: { workspaceHasBoards, workspaceWithNoBoard }
+    } = allBoardInfoOfCurrentUser
+    const result = workspaceHasBoards.map((w) => ({
+      _id: w._id,
+      name: w.name
+    }))
+    result.push(
+      ...workspaceWithNoBoard.map((w) => ({ _id: w._id, name: w.name }))
+    )
+    return result
+  }
+
   return (
     <WorkSpaceDetailContainer>
       <Header
-        title={
-          allBoardInfoOfCurrentUser.boards.find((b) => b._id === id)
-            ?.name as string
-        }
+        title={joinWorkspacesName().find((b) => b._id === id)?.name as string}
       />
       <Routes>
         <Route index element={<OverviewSection />} />

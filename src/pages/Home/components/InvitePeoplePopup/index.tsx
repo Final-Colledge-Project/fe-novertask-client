@@ -53,7 +53,7 @@ const InvitePeoplePopup = () => {
     const memberList = [...workspaceAdmins.map((mem) => mem.user)]
     if (workspaceMembers)
       memberList.push(...workspaceMembers.map((mem) => mem.user))
-    if (memberList.find((mem) => mem.email === data.email)) {
+    if (memberList.find((mem) => mem?.email === data.email)) {
       setError('email', {
         type: 'validate',
         message: 'User is already in this workspace '
@@ -143,13 +143,13 @@ const InvitePeoplePopup = () => {
           <div className="title">Current members</div>
           <MemberList>
             {superAdminFirstList()?.map((member) => (
-              <MemberItem key={member?.user._id}>
+              <MemberItem key={member?.user?._id}>
                 <div className="image">
-                  <Avatar src={member?.user.avatar} alt="" />
+                  <Avatar src={member?.user?.avatar} alt="" />
                 </div>
                 <div className="info">
-                  <div className="name">{member?.user.fullName}</div>
-                  <div className="email">{member?.user.email}</div>
+                  <div className="name">{member?.user?.fullName}</div>
+                  <div className="email">{member?.user?.email}</div>
                 </div>
                 <div className={clsx('role', member?.role)}>
                   {member?.role === 'superAdmin' && 'Super admin'}
@@ -158,13 +158,13 @@ const InvitePeoplePopup = () => {
               </MemberItem>
             ))}
             {members?.workspaceMembers?.map((mem) => (
-              <MemberItem key={mem.user._id}>
+              <MemberItem key={mem.user?._id}>
                 <div className="image">
-                  <Avatar src={mem?.user.avatar} alt="" />
+                  <Avatar src={mem?.user?.avatar} alt="" />
                 </div>
                 <div className="info">
-                  <div className="name">{mem?.user.fullName}</div>
-                  <div className="email">{mem?.user.email}</div>
+                  <div className="name">{mem?.user?.fullName}</div>
+                  <div className="email">{mem?.user?.email}</div>
                 </div>
                 <div className={clsx('role', 'member')}>Member</div>
               </MemberItem>

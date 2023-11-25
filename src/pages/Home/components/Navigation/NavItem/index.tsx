@@ -1,7 +1,8 @@
 import { Button } from '@mui/material'
-import { ReactElement, ReactNode, useState } from 'react'
+import { useState } from 'react'
 import './style.scss'
 import clsx from 'clsx'
+import IProps from './IProps'
 const NavItem = ({
   isIndex,
   title,
@@ -9,16 +10,9 @@ const NavItem = ({
   endIcon,
   children,
   fullVisible,
-  onClick
-}: {
-  isIndex?: boolean
-  title: string
-  startIcon?: ReactElement
-  endIcon?: ReactElement
-  fullVisible: boolean
-  children?: ReactNode | ReactNode[]
-  onClick?: () => void
-}) => {
+  onClick,
+  isThin
+}: IProps) => {
   const [menuVisible, setMenuVisible] = useState(false)
 
   const handleToggleMenu = () => {
@@ -37,7 +31,7 @@ const NavItem = ({
         fullWidth={fullVisible}
         sx={{
           width: fullVisible ? '100%' : '50px',
-          height: '50px',
+          height: isThin ? '40px' : '50px',
           minWidth: 'unset',
           color: (theme) =>
             isIndex ? theme.palette.black.main : theme.palette.gray.main,
@@ -60,6 +54,7 @@ const NavItem = ({
           },
           '& .MuiButton-startIcon': {
             mr: fullVisible ? '16px' : '0px',
+            // mr: '8px',
             ml: '0px'
           },
           '& .MuiButton-endIcon': {
@@ -79,7 +74,8 @@ const NavItem = ({
         <p
           className={clsx(
             'nav-item-title',
-            !fullVisible && 'nav-item-title--hidden'
+            !fullVisible && 'nav-item-title--hidden',
+            isThin && 'thin'
           )}
         >
           {title}

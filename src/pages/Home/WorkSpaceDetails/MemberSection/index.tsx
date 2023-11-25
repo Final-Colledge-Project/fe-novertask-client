@@ -219,7 +219,7 @@ const MemberSection = () => {
             members.workspaceMembers &&
             members.workspaceMembers.map((mem) => (
               <LineMemberItem
-                key={mem.user._id}
+                key={mem.user?._id}
                 data={{ ...mem, role: 'member' }}
                 superAdminId={superAdmin()?.user._id || ''}
               />

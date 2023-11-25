@@ -205,6 +205,7 @@ export const ProjectContainer = styled.div<{ $display: string }>`
   display: ${(props) => props.$display};
   flex-direction: column;
   grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 10px;
   margin-top: 10px;
 `
@@ -304,3 +305,13 @@ export const MemberAvatarGroup = ({ children }: { children: ReactNode }) => (
     {children}
   </AvatarGroup>
 )
+
+export const PlaceHolder = styled.p`
+  margin-top: 10px;
+  width: 100%;
+  padding: 50px;
+  text-align: center;
+  color: var(--mui-palette-gray-main);
+  background-color: var(--mui-palette-gray5-main);
+  border-radius: 8px;
+`
