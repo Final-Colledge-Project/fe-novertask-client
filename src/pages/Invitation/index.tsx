@@ -7,7 +7,9 @@ import { useSelector } from 'react-redux'
 import { useState } from 'react'
 
 // component libraries
-import { Avatar, AvatarGroup, Tooltip } from '@mui/material'
+import Avatar from '@mui/material/Avatar'
+import AvatarGroup from '@mui/material/AvatarGroup'
+import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
 import { TbNetwork } from 'react-icons/tb'
 

@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
-import { AvatarGroup, Tooltip, TooltipProps } from '@mui/material'
+import AvatarGroup from '@mui/material/AvatarGroup'
+import Tooltip, { TooltipProps } from '@mui/material/Tooltip'
 import { ReactNode } from 'react'
 
 export const Summary = styled.div`

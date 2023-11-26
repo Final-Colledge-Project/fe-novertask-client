@@ -4,7 +4,7 @@ import { SyntheticEvent, forwardRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 import { hideMessage } from '~/redux/snackBarSlice'
-import { Slide, SlideProps } from '@mui/material'
+import Slide, { SlideProps } from '@mui/material/Slide'
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,

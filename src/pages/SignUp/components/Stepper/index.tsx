@@ -1,4 +1,5 @@
-import { Step, StepLabel } from '@mui/material'
+import Step from '@mui/material/Step'
+import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 interface StepperProps {
   steps: Array<string>

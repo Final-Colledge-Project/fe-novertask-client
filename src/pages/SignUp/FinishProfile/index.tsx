@@ -1,7 +1,7 @@
 // package
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { CircularProgress } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import Button from '@mui/material/Button'

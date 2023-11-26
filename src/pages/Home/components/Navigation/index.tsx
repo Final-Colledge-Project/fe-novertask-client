@@ -5,7 +5,8 @@ import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 
 // component library
-import { IconButton, Tooltip } from '@mui/material'
+import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/material/IconButton'
 import {
   MdWorkspacesOutline,
   MdKeyboardArrowDown,

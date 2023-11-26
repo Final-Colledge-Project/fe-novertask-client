@@ -1,10 +1,9 @@
-import {
-  FormControl,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput
-} from '@mui/material'
+import FormControl from '@mui/material/FormControl'
+import InputAdornment from '@mui/material/InputAdornment'
+import InputLabel from '@mui/material/InputLabel'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import IconButton from '@mui/material/IconButton'
+
 import { useState } from 'react'
 import { MdVisibility, MdVisibilityOff } from 'react-icons/md'
 import IInputProps from '../IInputProps'

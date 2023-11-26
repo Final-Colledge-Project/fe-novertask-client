@@ -1,4 +1,5 @@
-import { Button, IconButton } from '@mui/material'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
 import { RiMenuFill } from 'react-icons/ri'
 import './style.scss'
 import { useState } from 'react'

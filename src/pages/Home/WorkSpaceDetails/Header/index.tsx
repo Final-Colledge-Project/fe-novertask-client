@@ -1,4 +1,4 @@
-import { IconButton } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
 import { RiMoreFill } from 'react-icons/ri'
 import SearchBox from '~/components/SearchBox'
 import { StyledHeader } from './style'

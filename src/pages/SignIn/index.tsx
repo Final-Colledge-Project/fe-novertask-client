@@ -1,4 +1,4 @@
-import { Button } from '@mui/material'
+import Button from '@mui/material/Button'
 import { MdOutlineMailOutline, MdLockOutline } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
 

@@ -1,4 +1,4 @@
-import { Avatar } from '@mui/material'
+import Avatar from '@mui/material/Avatar'
 import './style.scss'
 import clsx from 'clsx'
 import { useSelector } from 'react-redux'

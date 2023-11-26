@@ -1,9 +1,7 @@
-import {
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput
-} from '@mui/material'
+import FormControl from '@mui/material/FormControl'
+import InputAdornment from '@mui/material/InputAdornment'
+import InputLabel from '@mui/material/InputLabel'
+import OutlinedInput from '@mui/material/OutlinedInput'
 import { RiSearchLine } from 'react-icons/ri'
 import IInputProps from '../IInputProps'
 const SearchBox = ({

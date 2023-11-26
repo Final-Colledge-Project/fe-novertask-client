@@ -5,7 +5,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { MdOutlineChangeCircle } from 'react-icons/md'
 // import CustomStepper from '../components/Stepper'
 import Button from '@mui/material/Button'
-import { CircularProgress } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
 
 // styles
 import './style.scss'

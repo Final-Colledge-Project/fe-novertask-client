@@ -1,4 +1,4 @@
-import { CircularProgress } from '@mui/material'
+import CircularProgress from '@mui/material/CircularProgress'
 import * as StyledComponent from './style'
 import { useSelector } from 'react-redux'
 import { StoreType } from '~/redux'

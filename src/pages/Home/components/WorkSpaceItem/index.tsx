@@ -1,11 +1,10 @@
-import {
-  Avatar,
-  AvatarGroup,
-  LinearProgress,
-  linearProgressClasses,
-  styled
-} from '@mui/material'
+import { styled } from '@mui/material'
 import './style.scss'
+import Avatar from '@mui/material/Avatar'
+import AvatarGroup from '@mui/material/AvatarGroup'
+import LinearProgress, {
+  linearProgressClasses
+} from '@mui/material/LinearProgress'
 import IconButton from '@mui/material/IconButton'
 import { RiFlagLine, RiMore2Fill } from 'react-icons/ri'
 import IWSItemProps from './IWSItemProps'

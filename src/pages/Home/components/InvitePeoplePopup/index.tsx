@@ -5,7 +5,10 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import clsx from 'clsx'
 
 // component libraries
-import { IconButton, Tooltip, Button, Avatar } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
 import { RiCloseFill, RiInformationLine } from 'react-icons/ri'
 
 // components

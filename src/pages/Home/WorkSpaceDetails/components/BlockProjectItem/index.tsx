@@ -3,7 +3,7 @@ import { RiFlagLine, RiMore2Fill } from 'react-icons/ri'
 import IWSItemProps from './IWSItemProps'
 import { Item, ItemCover } from './styles'
 import { BsPerson } from 'react-icons/bs'
-import { Tooltip } from '@mui/material'
+import Tooltip from '@mui/material/Tooltip'
 import clsx from 'clsx'
 
 const WorkSpaceItem = ({ data }: IWSItemProps) => {

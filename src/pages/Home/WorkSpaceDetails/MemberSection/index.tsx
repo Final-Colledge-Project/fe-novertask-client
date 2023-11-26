@@ -5,7 +5,8 @@ import { enqueueSnackbar } from 'notistack'
 import clsx from 'clsx'
 
 // component libraries
-import { Button, IconButton } from '@mui/material'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
 import { RiArrowLeftSLine, RiArrowUpSLine } from 'react-icons/ri'
 
 // components

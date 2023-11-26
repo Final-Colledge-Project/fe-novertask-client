@@ -5,7 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 // component libraries
-import { Avatar, Button, IconButton, Tooltip } from '@mui/material'
+import Avatar from '@mui/material/Avatar'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import {
   AdminAvatarGroup,
   AdminTooltip,

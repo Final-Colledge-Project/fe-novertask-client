@@ -1,4 +1,4 @@
-import { Tooltip } from '@mui/material'
+import Tooltip from '@mui/material/Tooltip'
 import { RiInformationLine } from 'react-icons/ri'
 
 const PublicButtonTooltip = () => {

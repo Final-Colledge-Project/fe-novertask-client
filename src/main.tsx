@@ -13,7 +13,8 @@ import muiTheme from './utils/muiTheme/'
 import App from './App.tsx'
 import { AuthProvider } from './hooks/useAuth'
 import store from './redux/index.ts'
-import { Slide, styled } from '@mui/material'
+import { styled } from '@mui/material'
+import Slide from '@mui/material/Slide'
 
 import { MaterialDesignContent } from 'notistack'
 

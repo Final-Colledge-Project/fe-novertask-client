@@ -1,4 +1,6 @@
-import { ToggleButton, ToggleButtonGroup } from '@mui/material'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import ToggleButton from '@mui/material/ToggleButton'
+
 import { RiLayoutGridFill } from 'react-icons/ri'
 import { MdViewList } from 'react-icons/md'
 import { useState } from 'react'
