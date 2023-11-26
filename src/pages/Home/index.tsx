@@ -1,6 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
 import Navigation from './components/Navigation'
-// import Dashboard from './Dashboard'
 import HomeLayout from '~/layouts/HomeLayout'
 import './style.scss'
 import WorkSpaceDetails from './WorkSpaceDetails'
@@ -15,7 +14,7 @@ const Home = () => {
       <Navigation />
       <div className="home-outlet">
         <Routes>
-          <Route element={<HomeLayout />} path="*">
+          <Route element={<HomeLayout />}>
             <Route element={<Dashboard />} index />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />
@@ -24,7 +23,7 @@ const Home = () => {
       </div>
       <AddWSPopup />
       <AddPJPopup />
-      <InvitePeoplePopup/>
+      <InvitePeoplePopup />
     </div>
   )
 }

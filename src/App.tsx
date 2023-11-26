@@ -39,7 +39,7 @@ function App() {
                   <Home />
                 </Suspense>
               }
-              path="home/*"
+              index
             />
             <Route
               element={
@@ -47,7 +47,7 @@ function App() {
                   <Home />
                 </Suspense>
               }
-              index
+              path="*"
             />
             <Route
               element={

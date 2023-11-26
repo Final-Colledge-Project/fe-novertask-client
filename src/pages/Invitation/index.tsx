@@ -66,7 +66,7 @@ const Invitation = () => {
           variant: 'info'
         })
 
-        navigate('/u/home/', {
+        navigate('/u/', {
           replace: true
         })
         return
@@ -78,7 +78,7 @@ const Invitation = () => {
         enqueueSnackbar('Already a member! Switching to home', {
           variant: 'info'
         })
-        navigate('/u/home/', {
+        navigate('/u/', {
           replace: true
         })
         return
@@ -99,7 +99,7 @@ const Invitation = () => {
         const message = (err as AxiosError).message
         if (message === `Invitation not found!`) {
           enqueueSnackbar(message, { variant: 'error' })
-          navigate('/u/home/', {
+          navigate('/u/', {
             replace: true
           })
           return
@@ -126,11 +126,11 @@ const Invitation = () => {
                 variant: 'success'
               }
             )
-            navigate('/u/home/workspaces/' + invitation?.teamWorkspace._id, {
+            navigate('/u/workspaces/' + invitation?.teamWorkspace._id, {
               replace: true
             })
           } else {
-            navigate('/u/home/', {
+            navigate('/u/', {
               replace: true
             })
           }
@@ -140,7 +140,7 @@ const Invitation = () => {
           (err as Error).message ===
           'You are already a member of this workspace.'
         ) {
-          navigate('/u/home/workspaces/' + invitation?.teamWorkspace._id, {
+          navigate('/u/workspaces/' + invitation?.teamWorkspace._id, {
             replace: true
           })
           enqueueSnackbar((err as Error).message, { variant: 'warning' })

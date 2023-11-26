@@ -99,7 +99,7 @@ const Navigation = () => {
       <div className="nav-container-top">
         <div
           className={clsx('logo', fullVisible ? '' : 'logo--short')}
-          onClick={() => navigate('/u/home')}
+          onClick={() => navigate('/u')}
         >
           {fullVisible ? (
             <img src="/img/novertask-logo-full.png" alt="" />
@@ -112,7 +112,7 @@ const Navigation = () => {
             <NavItem
               onClick={() => {
                 dispatch(setCurrentNavItem('dashboard'))
-                navigate('/u/home/dashboard')
+                navigate('/u/dashboard')
               }}
               title="Dashboard"
               startIcon={<RiHome6Line />}
@@ -135,7 +135,7 @@ const Navigation = () => {
                         isThin
                         onClick={() => {
                           dispatch(setCurrentNavItem(data._id))
-                          navigate('workspaces/' + data._id)
+                          navigate('/u/workspaces/' + data._id)
                         }}
                         fullVisible={fullVisible}
                         title={data.name}
@@ -149,7 +149,7 @@ const Navigation = () => {
                               size="small"
                               color="primary"
                               onClick={() => {
-                                navigate('/u/home/workspaces/' + data._id)
+                                navigate('/u/workspaces/' + data._id)
                               }}
                             >
                               <RiDashboardLine />
@@ -161,7 +161,7 @@ const Navigation = () => {
                               color="primary"
                               onClick={() => {
                                 navigate(
-                                  '/u/home/workspaces/' + data._id + '/members'
+                                  '/u/workspaces/' + data._id + '/members'
                                 )
                               }}
                             >

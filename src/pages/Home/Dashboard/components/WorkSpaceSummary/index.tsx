@@ -24,7 +24,7 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
   const dispatch = useDispatch()
   const handleNavigateToDetailWS = () => {
     dispatch(setCurrentNavItem(data._id))
-    navigate(`/u/home/workspaces/${data._id}`)
+    navigate(`/u/workspaces/${data._id}`)
   }
 
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
@@ -54,7 +54,7 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
         // ignore errors
       }
     }
-    getMember()
+    data.board?.length === 0 && getMember()
   })
 
   return (
@@ -93,7 +93,7 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
             </Button>
           </div>
         ) : (
-          <p className='placeholder'>There is no projects here</p>
+          <p className="placeholder">There is no projects here</p>
         )}
       </div>
     </div>

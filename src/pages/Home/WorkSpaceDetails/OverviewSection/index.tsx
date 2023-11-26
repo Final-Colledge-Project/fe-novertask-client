@@ -145,11 +145,11 @@ const OverviewSection = () => {
         enqueueSnackbar('Unauthorized! Switching to home', {
           variant: 'info'
         })
-        navigate('/u/home', { replace: true })
+        navigate('/u', { replace: true })
         return
       }
       if (message === 'Something went wrong! Please try later.') {
-        navigate('/u/home', { replace: true })
+        navigate('/u', { replace: true })
         enqueueSnackbar(message, { variant: 'error' })
       }
     }
