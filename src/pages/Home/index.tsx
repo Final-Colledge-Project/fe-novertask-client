@@ -7,6 +7,7 @@ import AddWSPopup from './components/AddWSPopup'
 import AddPJPopup from './components/AddPJPopup'
 import Dashboard from './Dashboard'
 import InvitePeoplePopup from './components/InvitePeoplePopup'
+import BoardDetail from './BoardDetail'
 
 const Home = () => {
   return (
@@ -18,6 +19,7 @@ const Home = () => {
             <Route element={<Dashboard />} index />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />
+            <Route path="boards/:id/*" element={<BoardDetail />} />
           </Route>
         </Routes>
       </div>

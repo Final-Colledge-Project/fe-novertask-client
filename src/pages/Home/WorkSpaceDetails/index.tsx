@@ -4,7 +4,7 @@ import { StoreType } from '~/redux'
 
 import { Route, Routes, useParams } from 'react-router-dom'
 
-import Header from './Header'
+import Header from '../components/Header'
 import OverviewSection from './OverviewSection'
 import MemberSection from './MemberSection'
 

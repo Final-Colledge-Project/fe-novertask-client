@@ -116,12 +116,38 @@ export const TabHeader = styled.div`
 
   & > .item {
     cursor: pointer;
+    font-weight: 400;
+    position: relative;
     transition: color 0.15s;
+
     &:hover {
       color: var(--mui-palette-gray-main);
     }
+
+    &::after {
+      transform-origin: left;
+      transition: color 0.15s, transform 0.15s;
+      display: block;
+      border-bottom: 2px solid var(--mui-palette-black-main);
+      content: '';
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      transform: scaleX(0);
+    }
   }
   & > .item.index {
+    display: block;
     color: var(--mui-palette-black-main);
+    font-weight: 700;
+    &::after {
+      border-bottom: 2px solid var(--mui-palette-black-main);
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      transform: scaleX(1);
+    }
   }
 `
