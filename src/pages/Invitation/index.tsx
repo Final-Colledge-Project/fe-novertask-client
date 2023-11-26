@@ -1,18 +1,25 @@
-import { Avatar, AvatarGroup, Tooltip } from '@mui/material'
-import * as styles from './styles'
-import Button from '@mui/material/Button'
-import { useState } from 'react'
-import { IInvitation } from '~/services/types'
-import { useNavigate, useParams } from 'react-router-dom'
 import { useEffectOnce } from 'usehooks-ts'
-import { getDetail, respondInvitation } from '~/services/inviteService'
+import { useNavigate, useParams } from 'react-router-dom'
 import { enqueueSnackbar } from 'notistack'
 import { AxiosError } from 'axios'
 import { useMemo } from 'react'
-import { TbNetwork } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
-import { StoreType } from '~/redux'
+import { useState } from 'react'
+
+// component libraries
+import { Avatar, AvatarGroup, Tooltip } from '@mui/material'
+import Button from '@mui/material/Button'
+import { TbNetwork } from 'react-icons/tb'
+
+// components
 import Loading from './Loading'
+import * as styles from './styles'
+
+// services
+import { IInvitation } from '~/services/types'
+import { getDetail, respondInvitation } from '~/services/inviteService'
+import { StoreType } from '~/redux'
+
 const Invitation = () => {
   const {
     Background,
@@ -42,7 +49,9 @@ const Invitation = () => {
       // merge admin list and member list
       const members = [...workspaceAdmins.map((item) => ({ user: item.user }))]
       if (workspaceMembers) {
-        members.push(...workspaceMembers)
+        workspaceMembers.forEach((mem) => {
+          mem.user && members.push(mem)
+        })
       }
 
       // delete duplicated members

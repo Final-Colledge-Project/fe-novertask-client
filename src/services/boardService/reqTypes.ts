@@ -14,3 +14,9 @@ export interface IGetAllByWSIdBody {
     page: number
   }
 }
+
+export interface ICreateBoardBody {
+  title: string
+  description: string
+  teamWorkspaceId: string
+}

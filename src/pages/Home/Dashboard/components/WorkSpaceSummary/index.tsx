@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { useState } from 'react'
 
 // component libraries
 import { RiAddLine } from 'react-icons/ri'
@@ -13,6 +14,10 @@ import './style.scss'
 
 // services
 import { setCurrentNavItem } from '~/redux/navSlice'
+import { setPopupAddPJ } from '~/redux/popupSlice'
+import { getMembers } from '~/services/workspaceService'
+import { StoreType } from '~/redux'
+import { useEffectOnce } from 'usehooks-ts'
 
 const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
   const navigate = useNavigate()
@@ -21,6 +26,36 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
     dispatch(setCurrentNavItem(data._id))
     navigate(`/u/home/workspaces/${data._id}`)
   }
+
+  const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  const handleOpenAddBoardPopup = () => {
+    dispatch(
+      setPopupAddPJ({
+        show: true,
+        data: {
+          currentWsID: data._id
+        }
+      })
+    )
+  }
+
+  useEffectOnce(() => {
+    const getMember = async () => {
+      try {
+        const res = await getMembers({ id: data._id })
+        if (res && res.data) {
+          !!res.data.workspaceAdmins.find(
+            (admin) => admin.user?._id === currentUser?._id
+          ) && setIsAdmin(true)
+        }
+      } catch (err) {
+        // ignore errors
+      }
+    }
+    getMember()
+  })
 
   return (
     <div className="workspace-summary">
@@ -46,12 +81,19 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
               <WorkSpaceItem data={project} key={project._id} />
             ))}
           </div>
-        ) : (
+        ) : isAdmin ? (
           <div className="outlet-items-list--empty">
-            <Button variant="contained" fullWidth className="glass-effect">
+            <Button
+              variant="contained"
+              fullWidth
+              className="glass-effect"
+              onClick={handleOpenAddBoardPopup}
+            >
               <RiAddLine />
             </Button>
           </div>
+        ) : (
+          <p className='placeholder'>There is no projects here</p>
         )}
       </div>
     </div>

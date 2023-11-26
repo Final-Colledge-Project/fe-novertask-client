@@ -42,6 +42,7 @@ import { getAllByWSId } from '~/services/boardService'
 import { IBoard } from '~/services/types'
 import { getAllMembers } from '~/redux/teamWSSlice/actions'
 import { resetGetAllMember } from '~/redux/teamWSSlice'
+import { setShouldReloadAllBoard } from '~/redux/boardSlice'
 
 const OverviewSection = () => {
   const dispatch = useDispatch<StoreDispatchType>()
@@ -65,6 +66,9 @@ const OverviewSection = () => {
   const currentUser = useSelector((state: StoreType) => state.auth)
   const { getAllMember, currTeamMembers } = useSelector(
     (state: StoreType) => state.teamWorkspace
+  )
+  const { shouldRefreshAllBoard } = useSelector(
+    (state: StoreType) => state.board
   )
 
   // show popup add project
@@ -129,31 +133,46 @@ const OverviewSection = () => {
     getMembers()
   }, [id])
 
-  // get board of current workspace
-  useEffect(() => {
-    const getBoards = async () => {
-      try {
-        const res = await getAllByWSId({ wsId: id as string })
-        if (res && res.data) {
-          setBoards(res.data)
-        }
-      } catch (error) {
-        const message = (error as AxiosError).message
-        if (message === 'UNAUTHORIZED') {
-          enqueueSnackbar('Unauthorized! Switching to home', {
-            variant: 'info'
-          })
-          navigate('/u/home', { replace: true })
-          return
-        }
-        if (message === 'Something went wrong! Please try later.') {
-          navigate('/u/home', { replace: true })
-          enqueueSnackbar(message, { variant: 'error' })
-        }
+  const getBoards = async () => {
+    try {
+      const res = await getAllByWSId({ wsId: id as string })
+      if (res && res.data) {
+        setBoards(res.data)
+      }
+    } catch (error) {
+      const message = (error as AxiosError).message
+      if (message === 'UNAUTHORIZED') {
+        enqueueSnackbar('Unauthorized! Switching to home', {
+          variant: 'info'
+        })
+        navigate('/u/home', { replace: true })
+        return
+      }
+      if (message === 'Something went wrong! Please try later.') {
+        navigate('/u/home', { replace: true })
+        enqueueSnackbar(message, { variant: 'error' })
       }
     }
-    getBoards()
+  }
+
+  // get board of current workspace
+  useEffect(() => {
+    const getAllBoard = async () => {
+      await getBoards()
+    }
+    getAllBoard()
   }, [id])
+
+  // get board of current workspace if flag is on
+  useEffect(() => {
+    const getAllBoard = async () => {
+      await getBoards()
+
+      // refresh successfully, inactive off this flag
+      dispatch(setShouldReloadAllBoard(false))
+    }
+    shouldRefreshAllBoard && getAllBoard()
+  }, [shouldRefreshAllBoard])
 
   // just catch the error
   useEffect(() => {
@@ -181,7 +200,7 @@ const OverviewSection = () => {
   const checkIsUserAnAdmin = useCallback(() => {
     return (
       currTeamMembers?.workspaceAdmins.findIndex(
-        (admin) => admin.user._id === currentUser.userInfo?._id
+        (admin) => admin.user?._id === currentUser.userInfo?._id
       ) !== -1
     )
   }, [currTeamMembers?.workspaceAdmins, currentUser.userInfo?._id])
@@ -251,13 +270,13 @@ const OverviewSection = () => {
                   <div className="label">Admins</div>
                   <AdminAvatarGroup>
                     <AdminTooltip
-                      title={'Super admin | ' + superAdmin()?.user.fullName}
+                      title={'Super admin | ' + superAdmin()?.user?.fullName}
                       arrow
-                      key={superAdmin()?.user._id}
+                      key={superAdmin()?.user?._id}
                     >
                       <Avatar
-                        alt={superAdmin()?.user.fullName}
-                        src={superAdmin()?.user.avatar}
+                        alt={superAdmin()?.user?.fullName}
+                        src={superAdmin()?.user?.avatar}
                         sx={{
                           '&.MuiAvatar-root': {
                             // order: 2,
@@ -270,11 +289,14 @@ const OverviewSection = () => {
                     {currTeamMembers?.workspaceAdmins.map(
                       (mem) =>
                         mem.role === 'admin' && (
-                          <Tooltip title={mem.user.fullName} key={mem.user._id}>
+                          <Tooltip
+                            title={mem.user?.fullName}
+                            key={mem.user?._id}
+                          >
                             <Avatar
-                              key={mem.user._id}
-                              alt={mem.user.fullName}
-                              src={mem.user.avatar}
+                              key={mem.user?._id}
+                              alt={mem.user?.fullName}
+                              src={mem.user?.avatar}
                             />
                           </Tooltip>
                         )

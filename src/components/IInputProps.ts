@@ -15,5 +15,7 @@ interface IInputProps {
   type?: string
   autofocus?: boolean
   sx?: SxProps
+  multiple?: boolean
+  row?: number 
 }
 export default IInputProps

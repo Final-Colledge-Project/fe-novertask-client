@@ -3,6 +3,7 @@ const requests = {
   getAllByWSId: (
     wsID: string,
     option: string | undefined = '?sort=-createdAt'
-  ) => `/boards/workspace/${wsID}${option}`
+  ) => `/boards/workspace/${wsID}${option}`,
+  createBoard: `/boards`
 }
 export default requests

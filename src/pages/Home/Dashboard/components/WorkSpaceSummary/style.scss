@@ -102,5 +102,15 @@
         }
       }
     }
+
+    & > .placeholder {
+      margin: 10px 20px 0 20px;
+      width: calc(100% - 40px);
+      padding: 50px;
+      text-align: center;
+      color: var(--mui-palette-gray-main);
+      background-color: var(--mui-palette-gray5-main);
+      border-radius: 8px;
+    }
   }
 }

@@ -17,7 +17,9 @@ const TextInput = ({
   onChange,
   error = false,
   field,
-  autofocus
+  autofocus,
+  multiple,
+  row
 }: IInputProps) => {
   const inputRef = useRef<HTMLElement | null>(null)
 
@@ -32,7 +34,7 @@ const TextInput = ({
       fullWidth
       sx={{
         m: 0,
-        height: '50px',
+        height: multiple ? 'unset' : '50px',
         backgroundColor: (theme) => theme.palette.white.main,
         label: {
           color: (theme) =>
@@ -48,7 +50,9 @@ const TextInput = ({
         {label}
       </InputLabel>
       <OutlinedInput
+        multiline={multiple}
         autoFocus={autofocus}
+        rows={(multiple && row) || 2}
         {...field}
         ref={inputRef}
         inputRef={(input: HTMLInputElement | null) => {

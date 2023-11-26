@@ -4,13 +4,7 @@ import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import IProps from './IProps'
 
-const WSSelectBox = ({
-  value,
-  handleChange,
-  workspaces,
-  field,
-  error
-}: IProps) => {
+const WSSelectBox = ({ workspaces, field, error }: IProps) => {
   return (
     <FormControl
       fullWidth
@@ -31,14 +25,13 @@ const WSSelectBox = ({
     >
       <InputLabel id="workspace-names-select-label">Workspace</InputLabel>
       <Select
+        {...field}
         error={error}
-        required
         labelId="workspace-names-select-label"
         id="workspace-names-select"
-        value={value}
+        // value={value}
         label="Workspace"
-        onChange={handleChange}
-        {...field}
+        // onChange={onChange}
       >
         {/* <MenuItem value={'NONE_WORKSPACE_SELECTED'}>None</MenuItem> */}
         {workspaces.map((item: { _id: string; name: string }) => (

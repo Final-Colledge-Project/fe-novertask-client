@@ -1,7 +1,11 @@
 import axiosInstance from '../axiosInstance'
-import { IGetAllByUserIdResponse, IGetAllByWSIdResponse } from './resTypes'
+import {
+  ICreateBoardResponse,
+  IGetAllByUserIdResponse,
+  IGetAllByWSIdResponse
+} from './resTypes'
 import requests from './requests'
-import { IGetAllByWSIdBody } from './reqTypes'
+import { ICreateBoardBody, IGetAllByWSIdBody } from './reqTypes'
 import { AxiosError } from 'axios'
 
 // it's the same with get all workspace of current user
@@ -34,6 +38,27 @@ export const getAllByWSId = async (body: IGetAllByWSIdBody) => {
       requests.getAllByWSId(body.wsId)
     )
     if (res && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    // user is not allowed to
+    if (status && status === 409) {
+      throw new Error(`UNAUTHORIZED`)
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const createBoard = async (body: ICreateBoardBody) => {
+  try {
+    const res = await axiosInstance.post<ICreateBoardResponse>(
+      requests.createBoard,
+      body
+    )
+    if (res && res.status === 201 && res.data) {
       return res.data
     }
   } catch (error) {

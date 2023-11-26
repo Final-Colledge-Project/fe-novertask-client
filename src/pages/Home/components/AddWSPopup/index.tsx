@@ -1,22 +1,29 @@
-import TextInput from '~/components/TextInput'
-import './style.scss'
+import { useEffect } from 'react'
+import { enqueueSnackbar } from 'notistack'
+import { useDispatch, useSelector } from 'react-redux'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import clsx from 'clsx'
+
+// component libraries
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { RiCloseFill } from 'react-icons/ri'
-import clsx from 'clsx'
-import { SubmitHandler, useForm } from 'react-hook-form'
+
+// components
+import TextInput from '~/components/TextInput'
 import WithController from '~/components/InputWithController'
+import './style.scss'
 import IFormFields from './IFormFields'
-import { yupResolver } from '@hookform/resolvers/yup'
 import schema from './formSchema'
-import { useDispatch, useSelector } from 'react-redux'
+
+// services
 import { createWS } from '~/redux/teamWSSlice/actions'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { setPopupAddWS } from '~/redux/popupSlice'
-import { useEffect } from 'react'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
-import { enqueueSnackbar } from 'notistack'
 import { resetCreateWS } from '~/redux/teamWSSlice'
+import { getAllByUserId } from '~/redux/boardSlice/actions'
 
 const AddWSPopup = () => {
   const dispatch = useDispatch<StoreDispatchType>()
@@ -27,6 +34,9 @@ const AddWSPopup = () => {
   }
 
   const { PopupAddWS } = useSelector((state: StoreType) => state.popup)
+  const {
+    createWS: { error, success }
+  } = useSelector((state: StoreType) => state.teamWorkspace)
 
   const { control, handleSubmit, getValues, reset } = useForm<IFormFields>({
     defaultValues: { WSName: '' },
@@ -41,10 +51,6 @@ const AddWSPopup = () => {
     dispatch(hideLoading())
   }
 
-  const {
-    createWS: { error, success }
-  } = useSelector((state: StoreType) => state.teamWorkspace)
-
   useEffect(() => {
     if (error) {
       enqueueSnackbar(error, { variant: 'error' })
@@ -56,10 +62,12 @@ const AddWSPopup = () => {
       enqueueSnackbar(`Create successfully workspace ${getValues('WSName')}`, {
         variant: 'success'
       })
+      dispatch(getAllByUserId())
       dispatch(resetCreateWS())
       handleClose()
     }
   }, [success])
+
 
   return (
     <div

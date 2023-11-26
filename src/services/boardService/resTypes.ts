@@ -14,3 +14,8 @@ export interface IGetAllByWSIdResponse {
   data: IBoard[]
   message: string
 }
+
+export interface ICreateBoardResponse{
+  data: IBoard,
+  message: string
+}

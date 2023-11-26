@@ -2,17 +2,10 @@ import { createSlice } from '@reduxjs/toolkit'
 import { assignAdmin, createWS, getAllMembers } from './actions'
 import { IMockUser } from '~/services/workspaceService/resTypes'
 
-interface TempWSType {
-  id: string
-  name: string
-  workspaceSuperAdmins: string
-}
-
 const initialState: {
   loading: boolean
   error: undefined | string
   success: boolean
-  currentTeamWS: TempWSType[] | undefined
   createWS: {
     loading: boolean
     error: undefined | string
@@ -25,8 +18,8 @@ const initialState: {
   }
   currTeamMembers:
     | {
-        workspaceAdmins: { user: IMockUser; role: 'admin' | 'superAdmin' }[]
-        workspaceMembers: { user: IMockUser }[]
+        workspaceAdmins: { user?: IMockUser; role: 'admin' | 'superAdmin' }[]
+        workspaceMembers: { user?: IMockUser }[]
       }
     | undefined
   assignAdmin: {
@@ -38,7 +31,6 @@ const initialState: {
   loading: false,
   error: undefined,
   success: false,
-  currentTeamWS: [],
   createWS: {
     loading: false,
     error: undefined,
@@ -92,8 +84,7 @@ const teamWSSlice = createSlice({
           success: false
         }
       })
-      .addCase(createWS.fulfilled, (state, { payload }) => {
-        state.currentTeamWS?.push(payload as TempWSType)
+      .addCase(createWS.fulfilled, (state) => {
         state.createWS = {
           error: undefined,
           loading: false,

@@ -1,10 +1,16 @@
-import './style.scss'
-import SearchBox from '~/components/SearchBox'
-import MenuPopup from './MenuPopup'
 import { lazy, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { StoreType } from '~/redux'
 import { enqueueSnackbar } from 'notistack'
+
+// component libraries
+
+// components
+import SearchBox from '~/components/SearchBox'
+import MenuPopup from './MenuPopup'
+import './style.scss'
+
+// services
+import { StoreType } from '~/redux'
 import { setPopupAddPJ, setPopupAddWS } from '~/redux/popupSlice'
 const Data = lazy(() => import('./Data'))
 
@@ -27,7 +33,10 @@ const DashBoardMain = () => {
       onChoose: () => {
         dispatch(
           setPopupAddPJ({
-            show: true
+            show: true,
+            data: {
+              currentWsID: undefined
+            }
           })
         )
       }

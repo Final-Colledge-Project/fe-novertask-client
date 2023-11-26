@@ -1,42 +1,39 @@
-import TextInput from '~/components/TextInput'
-import './style.scss'
+import { useRef, useEffect } from 'react'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useDispatch, useSelector } from 'react-redux'
+import { enqueueSnackbar } from 'notistack'
+import { AxiosError } from 'axios'
+import clsx from 'clsx'
+
+// component libraries
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import { RiCloseFill } from 'react-icons/ri'
-import clsx from 'clsx'
-import { SubmitHandler, useForm } from 'react-hook-form'
+
+// components
+import TextInput from '~/components/TextInput'
+import './style.scss'
 import WithController from '~/components/InputWithController'
 import IFormFields from './IFormFields'
-import { yupResolver } from '@hookform/resolvers/yup'
 import schema from './formSchema'
-import { useState, useRef, useEffect } from 'react'
 import WSSelectBox from './WSSelectBox'
-import { SelectChangeEvent, Switch } from '@mui/material'
-import PublicButtonTooltip from './PublicButtonToolTip'
-import { useDispatch, useSelector } from 'react-redux'
-import { StoreType } from '~/redux'
+
+// services
+import { StoreDispatchType, StoreType } from '~/redux'
 import { setPopupAddPJ } from '~/redux/popupSlice'
-import { useParams } from 'react-router-dom'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
+import { createBoard } from '~/services/boardService'
+import { getAllByUserId } from '~/redux/boardSlice/actions'
+import { setShouldReloadAllBoard } from '~/redux/boardSlice'
 
 const AddPJPopup = () => {
-  const dispatch = useDispatch()
-  const { id } = useParams()
-  console.log('✨ ~ file: index.tsx:24 ~ AddPJPopup ~ id:', id)
+  const dispatch = useDispatch<StoreDispatchType>()
 
   const { PopupAddPJ } = useSelector((state: StoreType) => state.popup)
   const { boards } = useSelector((state: StoreType) => state.board)
 
-  const handleClose = () => {
-    reset()
-    dispatch(
-      setPopupAddPJ({
-        show: false,
-        data: {
-          currentWsID: undefined
-        }
-      })
-    )
-  }
+  const isFirstFocus = useRef(true)
 
   const getWorkspaces = () => {
     if (boards) {
@@ -53,40 +50,71 @@ const AddPJPopup = () => {
   }
 
   const { control, handleSubmit, reset } = useForm<IFormFields>({
-    defaultValues: { PJName: '', workspace: id },
+    defaultValues: {
+      PJName: '',
+      workspace: '',
+      description: ''
+    },
     mode: 'onChange',
     resolver: yupResolver(schema),
     reValidateMode: 'onBlur'
   })
 
-  const onSubmit: SubmitHandler<IFormFields> = async (data) => {
-    try {
-      alert(
-        `Project: ${data.PJName} added in workspace having id ${data.workspace}`
-      )
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.log(err)
-    }
+  const handleClose = () => {
+    reset()
+    dispatch(
+      setPopupAddPJ({
+        show: false,
+        data: {
+          currentWsID: undefined
+        }
+      })
+    )
   }
 
-  const [choseWorkspace, setChoseWorkspace] = useState(id)
-  const [isPublic, setIsPublic] = useState(true)
-  const isFirstFocus = useRef(true)
+  const onSubmit: SubmitHandler<IFormFields> = async (data) => {
+    try {
+      dispatch(showLoading)
+      const res = await createBoard({
+        description: data.description,
+        title: data.PJName,
+        teamWorkspaceId: data.workspace
+      })
+      // if create board is successful -> load all boards again
+      if (res && res.data) {
+        // refresh board aat dashboard
+        dispatch(getAllByUserId())
+
+        // refresh board at workspace detail if id is specified
+        PopupAddPJ.data.currentWsID && dispatch(setShouldReloadAllBoard(true))
+
+        enqueueSnackbar(`Create successfully board ${data.PJName}.`, {
+          variant: 'success'
+        })
+        handleClose()
+      }
+    } catch (err) {
+      const message = (err as AxiosError).message
+      if (message === 'UNAUTHORIZED') {
+        enqueueSnackbar(
+          'You are not an admin to create board in this workspace.',
+          {
+            variant: 'error'
+          }
+        )
+      } else {
+        enqueueSnackbar((err as AxiosError).message, {
+          variant: 'error'
+        })
+      }
+    } finally {
+      dispatch(hideLoading())
+    }
+  }
 
   useEffect(() => {
     isFirstFocus.current = false
   }, [])
-
-  const handleChangeWorkspace = (e: SelectChangeEvent) => {
-    setChoseWorkspace(e.target.value)
-  }
-
-  const handleSwitchPublicButton = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setIsPublic(event.target.checked)
-  }
 
   const workspaceNameList = () => {
     if (PopupAddPJ.data.currentWsID) {
@@ -133,40 +161,22 @@ const AddPJPopup = () => {
               />
             </WithController>
           </div>
-          {/* <p className="add-pj-popup__subtitle">
-            After creating successfully a new project, you will be the admin of
-            it
-          </p> */}
           <div className="add-pj-popup__input-row">
             <WithController name="workspace" control={control}>
-              <WSSelectBox
-                value={choseWorkspace as string}
-                handleChange={handleChangeWorkspace}
-                workspaces={workspaceNameList() || []}
-              />
+              <WSSelectBox workspaces={workspaceNameList() || []} />
             </WithController>
           </div>
-          <label
-            htmlFor="is-project-public"
-            className="add-pj-popup__input-row"
-          >
-            <div className="switch-label">
-              <span>Public this project</span>
-              <PublicButtonTooltip />
-            </div>
-            <Switch
-              id="is-project-public"
-              checked={isPublic}
-              onChange={handleSwitchPublicButton}
-              inputProps={{ 'aria-label': 'controlled' }}
-            />
-          </label>
+          <div className="add-pj-popup__input-row">
+            <WithController name="description" control={control}>
+              <TextInput label="Description" multiple row={3} />
+            </WithController>
+          </div>
           <div className="add-pj-popup__actions">
             <Button variant="text" color="warning" onClick={handleClose}>
               Cancel
             </Button>
             <Button variant="contained" color="primary" type="submit">
-              Create workspace
+              Create project
             </Button>
           </div>
           <div className="add-pj-popup__close">
