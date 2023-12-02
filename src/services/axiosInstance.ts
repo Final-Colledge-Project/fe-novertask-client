@@ -2,7 +2,8 @@ import axios, { AxiosError, AxiosResponse } from 'axios'
 import guestRequest from './guestRequest'
 import store from '~/redux'
 import { authService } from '.'
-import { setReSign, setToken } from '~/redux/authSlice'
+import { setIsRefreshingToken, setReSign, setToken } from '~/redux/authSlice'
+import { IErrorResponse } from './types'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -30,9 +31,6 @@ axiosInstance.interceptors.request.use(
       }
     }
 
-    // if (req.url === '/auth/refresh-token' && req.method === 'GET') {
-    // }
-
     return req
   },
   (error) => {
@@ -44,38 +42,57 @@ axiosInstance.interceptors.response.use(
     return res
   },
   async (err: AxiosError) => {
-    interface IErrorResponse {
-      message: string
-    }
+    console.log('✨ ~ file: axiosInstance.ts:46 ~ err:', err)
     const baseConfig = err.config
     const { dispatch } = store
-
-    console.log('✨ ~ file: axiosInstance.ts:53 ~ err:', err)
 
     const errorMessage = (err.response as AxiosResponse<IErrorResponse>).data
       .message
 
     // unauthorized -> token is expired -> need refresh token
     if (
-      errorMessage === 'Token is expired' ||
-      errorMessage === 'Token is not valid'
+      (errorMessage === 'Token is expired' ||
+        errorMessage === 'Token is not valid') &&
+      err.response?.status === 401
     ) {
-      // dispatch refreshToken action
-      try {
-        const res = await authService.refreshToken()
+      /**
+       * If there are many requests with 401 status code
+       * Just 1st request have to refresh the token
+       * Others have to wait until it is resolved
+       */
+      if (!store.getState().auth.isRefreshingToken) {
+        dispatch(setIsRefreshingToken(true))
+        try {
+          // dispatch refreshToken action
+          const res = await authService.refreshToken()
 
-        // refresh token successfully -> resend request with new token
-        if (res && res.data) {
-          baseConfig!.headers['Authorization'] = `Bearer ${res.data}`
+          // refresh token successfully -> resend request with new token
+          if (res && res.data) {
+            baseConfig!.headers['Authorization'] = `Bearer ${res.data}`
 
-          // set new token to local storage
-          dispatch(setToken(res.data))
-          // refresh token successfully -> do not need to resign
-          dispatch(setReSign(false))
+            // set new token to local storage
+            dispatch(setToken(res.data))
+            // refresh token successfully -> do not need to resign
+            dispatch(setReSign(false))
+            // inform to other requests that refresh token successfully
+            dispatch(setIsRefreshingToken(false))
+          }
+        } catch (err) {
+          dispatch(setToken(undefined))
+          return Promise.reject(err)
         }
-      } catch (err) {
-        dispatch(setToken(undefined))
-        return Promise.reject(err)
+      } else {
+        return new Promise((resolve) => {
+          // in a 100ms time interval checks the store state
+          const intervalId = setInterval(() => {
+            // if the state indicates that there is no refresh token request anymore
+            // it clears the time interval and retries the failed API call with updated token data
+            if (!store.getState().auth.isRefreshingToken) {
+              clearInterval(intervalId)
+              resolve(axiosInstance(baseConfig!))
+            }
+          }, 100)
+        })
       }
 
       return await axiosInstance(baseConfig!)

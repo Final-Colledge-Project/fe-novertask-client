@@ -20,6 +20,7 @@ const initialState: {
   shouldReSign: boolean
   isSigningOut: boolean
   emailToVerify: string | undefined
+  isRefreshingToken: boolean
 } = {
   userToken,
   userInfo: undefined,
@@ -29,7 +30,8 @@ const initialState: {
   otp: undefined,
   shouldReSign: false,
   isSigningOut: false,
-  emailToVerify: undefined
+  emailToVerify: undefined,
+  isRefreshingToken: false
 }
 
 const authSlice = createSlice({
@@ -51,6 +53,9 @@ const authSlice = createSlice({
     },
     setEmail: (state, action) => {
       state.emailToVerify = action.payload
+    },
+    setIsRefreshingToken: (state, action) => {
+      state.isRefreshingToken = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -112,4 +117,4 @@ const authSlice = createSlice({
 })
 
 export default authSlice.reducer
-export const { setOTP, setToken, setReSign, setEmail } = authSlice.actions
+export const { setOTP, setToken, setReSign, setEmail, setIsRefreshingToken } = authSlice.actions
