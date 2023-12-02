@@ -1,4 +1,9 @@
-import { IBoard, IWorkspaceWithBoard, IWorkspaceWithoutBoard } from '../types'
+import {
+  IAllMemberInBoard,
+  IBoard,
+  IWorkspaceWithBoard,
+  IWorkspaceWithoutBoard
+} from '../types'
 
 export interface IGetAllByUserIdResponse {
   length: number
@@ -15,7 +20,17 @@ export interface IGetAllByWSIdResponse {
   message: string
 }
 
-export interface ICreateBoardResponse{
-  data: IBoard,
+export interface ICreateBoardResponse {
+  data: IBoard
+  message: string
+}
+
+export interface IGetBoardDetailResponse {
+  data: IBoard
+  message: string
+}
+
+export interface IGetMemberInBoardResponse {
+  data: IAllMemberInBoard
   message: string
 }

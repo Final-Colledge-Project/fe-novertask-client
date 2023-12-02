@@ -6,6 +6,8 @@
 
   .home-outlet {
     flex: 1;
+    max-width: calc(100vw - 70px);
+    min-width: calc(100vw - 300px);
     max-height: 100vh;
     height: 100vh;
     display: flex;

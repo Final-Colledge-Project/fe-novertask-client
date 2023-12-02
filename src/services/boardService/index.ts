@@ -2,10 +2,17 @@ import axiosInstance from '../axiosInstance'
 import {
   ICreateBoardResponse,
   IGetAllByUserIdResponse,
-  IGetAllByWSIdResponse
+  IGetAllByWSIdResponse,
+  IGetBoardDetailResponse,
+  IGetMemberInBoardResponse
 } from './resTypes'
 import requests from './requests'
-import { ICreateBoardBody, IGetAllByWSIdBody } from './reqTypes'
+import {
+  ICreateBoardBody,
+  IGetAllByWSIdBody,
+  IGetBoardDetailBody,
+  IGetMemberInBoardBody
+} from './reqTypes'
 import { AxiosError } from 'axios'
 
 // it's the same with get all workspace of current user
@@ -64,6 +71,43 @@ export const createBoard = async (body: ICreateBoardBody) => {
   } catch (error) {
     const status = (error as AxiosError).response?.status
 
+    // user is not allowed to
+    if (status && status === 409) {
+      throw new Error(`UNAUTHORIZED`)
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const getBoardDetail = async (body: IGetBoardDetailBody) => {
+  try {
+    const res = await axiosInstance.get<IGetBoardDetailResponse>(
+      requests.getBoardDetail(body.id)
+    )
+    if (res && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    // user is not allowed to
+    if (status && status === 403) {
+      throw new Error(`UNAUTHORIZED`)
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+export const getAllMemberInBoard = async (body: IGetMemberInBoardBody) => {
+  try {
+    const res = await axiosInstance.get<IGetMemberInBoardResponse>(
+      requests.getMemberInBoard(body.id)
+    )
+    if (res && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
     // user is not allowed to
     if (status && status === 409) {
       throw new Error(`UNAUTHORIZED`)

@@ -1,19 +1,15 @@
 import styled from '@emotion/styled'
-import { AvatarGroup } from '@mui/material'
+import { AvatarGroup, Tooltip, TooltipProps } from '@mui/material'
 import { ReactNode } from 'react'
 
 export const BoardDetailContainer = styled.div`
   flex: 1;
-  background-color: var(--mui-palette-gray6-main);
   display: flex;
+  background-color: rgba(var(--mui-palette-gray6-mainChannel));
   flex-direction: column;
-  /* min-width: calc(100vw - 300px); */
-  /* max-width: calc(100vw - 70px); */
   height: 100vh;
-  /* padding-bottom: 50px; */
-  overflow-y: auto;
-  // margin-right: 10px;
-  // padding-right: 10px;
+  overflow-x: hidden;
+  /* overflow-y: auto; */
   &::-webkit-scrollbar {
     background-color: var(--mui-palette-gray5-main);
   }
@@ -22,8 +18,7 @@ export const BoardDetailContainer = styled.div`
   }
 `
 export const Header = styled.div<{ $img: string }>`
-  width: calc(100% - 0px);
-  margin: 0;
+  /* width: calc(100% - 0px); */
   height: 100px;
   border-radius: 0 0 20px 20px;
   background-image: url(${(props) => props.$img}), url('/img/item-cover.jpg'),
@@ -33,14 +28,38 @@ export const Header = styled.div<{ $img: string }>`
   background-repeat: no-repeat;
   color: var(--mui-palette-white-main);
   position: relative;
+  transform: scaleY(1);
+  transition: transform 0.2s, height 0.2s;
+  transform-origin: top;
+
+  &.hidden {
+    height: 0px;
+    transform: scaleY(0);
+  }
+
+  & > .show-header {
+    cursor: pointer;
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    background-color: rgba(var(--mui-palette-black-mainChannel) / 0.2);
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+    transition: border 0.2s;
+    border: 1px solid rgba(var(--mui-palette-black-mainChannel) / 0.2);
+    &:hover {
+      border: 1px solid var(--mui-palette-white-main);
+    }
+  }
 `
 
 export const TitleHeader = styled.div`
-  width: 100%;
+  background-color: var(--mui-palette-white-main);
   justify-content: space-between;
   display: flex;
   align-items: flex-start;
-  padding: 10px 20px;
+  padding: 10px 30px 0;
   /* padding-top: 10px; */
   & > .left-block {
     display: flex;
@@ -49,9 +68,13 @@ export const TitleHeader = styled.div`
     .title {
       color: var(--mui-palette-blue-main);
       font-weight: 700;
-      font-size: 24px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     .description {
+      font-size: 14px;
       color: var(--mui-palette-gray-main);
     }
   }
@@ -64,12 +87,13 @@ export const TitleHeader = styled.div`
 `
 
 export const TypeHeader = styled.div`
-  width: 100%;
+  /* width: 100%; */
+  background-color: var(--mui-palette-white-main);
   justify-content: space-between;
   display: flex;
   align-items: flex-end;
   border-bottom: 1px solid var(--mui-palette-divider);
-  padding: 10px 20px;
+  padding: 0px 30px 10px;
 `
 export const TypeMenu = styled.div`
   display: flex;
@@ -150,14 +174,50 @@ export const MemberAvatarGroup = ({ children }: { children: ReactNode }) => (
 
 export const Body = styled.div`
   flex: 1;
-  /* min-width: calc(100vw - 300px); */
-  min-width: calc(100vw - 300px);
-  max-width: calc(100vw - 70px);
-  /* width: fit-content; */
-  background-color: var(--mui-palette-gray-main);
+  /* max-width: calc(100vw - 70px); */
   display: flex;
-  align-items: start;
+  /* align-items: flex-start; */
   gap: 20px;
-  overflow-x: scroll;
-  /* overflow-y: unset; */
+  overflow-x: auto;
+  padding: 10px 20px;
+  margin: 10px;
+
+  &::-webkit-scrollbar {
+    height: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background-color: var(--mui-palette-gray4-main);
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--mui-palette-gray2-main);
+  }
+`
+
+export const YellowTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))`
+  & .MuiTooltip-tooltip {
+    background: #ffcc02;
+  }
+
+  & .MuiTooltip-arrow {
+    /* top: -10px !important; */
+    &::before {
+      background: #ffcc02;
+    }
+  }
+`
+
+export const ProjectType = styled.div<{ $type: string }>`
+  font-weight: 400;
+  display: inline-block;
+  color: white;
+  font-size: 12px;
+  padding: 0 8px;
+  border-radius: 50px;
+  background-color: ${(props) =>
+    props.$type === 'private'
+      ? 'var(--mui-palette-orange-main)'
+      : 'var(--mui-palette-green-main)'};
 `

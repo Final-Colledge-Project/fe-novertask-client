@@ -65,6 +65,7 @@ export interface IBoard {
   createdAt: string
   updatedAt?: string
   __v?: string
+  columns?: IColumn[]
 }
 
 export interface IBoardData {
@@ -108,4 +109,54 @@ export interface IGeneralWorkspace {
 export interface IAllBoardOfCurrentUser {
   workspaceWithNoBoard: IWorkspaceWithoutBoard[]
   workspaceHasBoards: IWorkspaceWithBoard[]
+}
+
+export interface IAllMemberInBoard {
+  boardId: string
+  oweners: IMemberInBoard[]
+  members: IMemberInBoard[]
+}
+
+export interface IMemberInBoard {
+  _id: string
+  email: string
+  firstName: string
+  lastName: string
+  avatar: string
+}
+
+export interface IColumn {
+  _id: string
+  title: string
+  boardId: string
+  cardOrderIds: string[]
+  createdAt: string
+  updatedAt: string
+  isActive?: boolean
+  __v?: number
+  cards?: ICard[]
+}
+
+export interface ICard {
+  _id: string
+  boardId: string
+  cardId: string
+  columnId: string
+  title: string
+  cover: string | undefined
+  startDate: string
+  dueDate: string
+  priority: string
+  isDone: undefined | boolean
+  isOverdue: boolean
+  memberIds: {
+    _id: string
+    avatar: string
+    fullName: string
+  }[]
+  label: {
+    _id: string
+    name: string
+    color: string
+  }
 }

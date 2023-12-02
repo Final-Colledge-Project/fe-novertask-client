@@ -20,3 +20,10 @@ export interface ICreateBoardBody {
   description: string
   teamWorkspaceId: string
 }
+
+export interface IGetBoardDetailBody {
+  id: string
+}
+export interface IGetMemberInBoardBody {
+  id: string
+}
