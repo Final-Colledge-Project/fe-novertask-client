@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import clsx from 'clsx'
 import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
+import { useDispatch, useSelector } from 'react-redux'
 
 // component libraries
 import { Avatar, Button, IconButton, Tooltip } from '@mui/material'
@@ -26,58 +27,92 @@ import SearchBox from '~/components/SearchBox'
 import Column from './Column'
 import AddColumnButton from './AddColumnButton'
 import BoardDetailLoading from '../components/BoardDetailLoading'
+import AddMenu from './AddMenu'
 
 // services
 import { IAllMemberInBoard, IBoard } from '~/services/types'
 import { getAllMemberInBoard, getBoardDetail } from '~/services/boardService'
+import { StoreType } from '~/redux'
+import { setCreateColumn } from '~/redux/boardSlice'
 
 const BoardDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
+
   const [viewType, setViewType] = useState('Kanban')
   const [board, setBoard] = useState<IBoard | undefined>(undefined)
   const [members, setMembers] = useState<IAllMemberInBoard | undefined>(
     undefined
   )
   const [shouldShowHeader, setShouldShowHeader] = useState(true)
+  const [addingColumn, setAddingColumn] = useState(false)
 
+  const { success } = useSelector(
+    (state: StoreType) => state.board.creatingBoard
+  )
   const viewList = ['Kanban', 'List']
+  const items = [
+    {
+      title: 'Add task',
+      onChoose: () => {}
+    },
+    {
+      title: 'Add column',
+      onChoose: () => {
+        setAddingColumn(true)
+      }
+    }
+  ]
+
+  const handleAddingColumn = (nextState: boolean) => {
+    setAddingColumn(nextState)
+  }
 
   const handleToggleCover = () => {
     setShouldShowHeader((prev) => !prev)
   }
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const res = await getBoardDetail({ id: id as string })
-        if (res && res?.data) {
-          setBoard(res.data)
-        }
-      } catch (err) {
-        const message = (err as AxiosError).message
-        if (message === 'UNAUTHORIZED') {
-          enqueueSnackbar('You cannot access this board', { variant: 'error' })
-          navigate('/u', { replace: true })
-        }
+  const getBoard = async () => {
+    try {
+      const res = await getBoardDetail({ id: id as string })
+      if (res && res?.data) {
+        setBoard(res.data)
+      }
+    } catch (err) {
+      const message = (err as AxiosError).message
+      if (message === 'UNAUTHORIZED') {
+        enqueueSnackbar('You cannot access this board', { variant: 'error' })
+        navigate('/u', { replace: true })
       }
     }
-    getData()
+  }
+
+  const getMembers = async () => {
+    try {
+      const res = await getAllMemberInBoard({ id: id as string })
+      if (res && res?.data) {
+        setMembers(res.data)
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    }
+  }
+
+  useEffect(() => {
+    getBoard()
   }, [id])
 
   useEffect(() => {
-    const getData = async () => {
-      try {
-        const res = await getAllMemberInBoard({ id: id as string })
-        if (res && res?.data) {
-          setMembers(res.data)
-        }
-      } catch (err) {
-        enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
-      }
-    }
-    board && getData()
+    board && getMembers()
   }, [id, board])
+
+  useEffect(() => {
+    if (success) {
+      getBoard()
+      dispatch(setCreateColumn({ success: false }))
+    }
+  }, [success])
 
   return (
     <BoardDetailContainer>
@@ -101,6 +136,7 @@ const BoardDetail = () => {
           <p className="description">{board?.description}</p>
         </div>
         <div className="right-block">
+          <AddMenu items={items} />
           <SearchBox label="" sx={{ height: '35px' }} />
           <IconButton>
             <RiMore2Fill />
@@ -149,17 +185,11 @@ const BoardDetail = () => {
         {!board?.columns && <BoardDetailLoading />}
         {board?.columns &&
           board.columns.map((column) => <Column column={column} />)}
-        {board?.columns &&
-          board.columns.map((column) => <Column column={column} />)}
-        {board?.columns &&
-          board.columns.map((column) => <Column column={column} />)}
-        {board?.columns &&
-          board.columns.map((column) => <Column column={column} />)}
-        {board?.columns &&
-          board.columns.map((column) => <Column column={column} />)}
-        {board?.columns &&
-          board.columns.map((column) => <Column column={column} />)}
-        <AddColumnButton />
+        <AddColumnButton
+          addingColumn={addingColumn}
+          setFocus={handleAddingColumn}
+          boardId={board?._id as string}
+        />
       </Body>
     </BoardDetailContainer>
   )

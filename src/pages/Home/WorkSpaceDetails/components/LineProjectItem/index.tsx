@@ -1,5 +1,11 @@
+import { useNavigate } from 'react-router-dom'
+
+// component libraries
 import IconButton from '@mui/material/IconButton'
 import { RiFlagLine, RiFolderAddLine, RiMore2Fill } from 'react-icons/ri'
+import { BsPerson } from 'react-icons/bs'
+
+// components
 import IWSItemProps from './IWSItemProps'
 import {
   Badge,
@@ -10,7 +16,8 @@ import {
   TargetDate,
   Title
 } from './styles'
-import { BsPerson } from 'react-icons/bs'
+
+// services
 import convertDate from '~/utils/convertDate'
 
 const WorkSpaceItem = ({ data }: IWSItemProps) => {
@@ -19,8 +26,13 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
     (member, index, all) => index === all.findIndex((obj) => obj === member)
   ).length
 
+  const navigate = useNavigate()
+
   return (
-    <Item $img={data.cover as string}>
+    <Item
+      $img={data.cover as string}
+      onClick={() => navigate('/u/boards/' + data._id)}
+    >
       <ItemCover className="section">
         <img src={data.cover} alt="" />
         {/* <div className="item__cover-fallback"></div> */}

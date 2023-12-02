@@ -1,8 +1,11 @@
 import { AxiosError } from 'axios'
 import axiosInstance from '../axiosInstance'
-import { IGetColumnsInBoardBody } from './reqTypes'
+import { IGetColumnsInBoardBody } from './reqTypes.ts'
 import requests from './requests'
-import { IGetColumnsInBoardResponse } from './resTypes'
+import { IGetColumnsInBoardResponse } from './resTypes.ts'
+import { ICreateColumnResponse } from './resTypes.ts'
+import { ICreateColumnBody } from './reqTypes.ts'
+import { IErrorResponse } from '../types'
 
 export const getColumnInBoard = async (body: IGetColumnsInBoardBody) => {
   try {
@@ -18,6 +21,41 @@ export const getColumnInBoard = async (body: IGetColumnsInBoardBody) => {
     // user is not allowed to
     if (status && status === 409) {
       throw new Error(`UNAUTHORIZED`)
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const createColumn = async (body: ICreateColumnBody) => {
+  try {
+    const res = await axiosInstance.post<ICreateColumnResponse>(
+      requests.createColumn,
+      body
+    )
+    if (res && res.status === 201 && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    if (status && status === 409) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      // board is not found
+      if (errorData.message === 'Board not found') {
+        throw new Error(`Board not found!`)
+      }
+      // duplicate column name
+      if (errorData.message === 'Column with title Done already exists') {
+        throw new Error('Column with title Done already exists')
+      }
+    }
+
+    // user is not an admin
+    if (status && status === 403) {
+      throw new Error('Only admin users can create a new column!')
     }
     // general error
     throw new Error('Something went wrong! Please try later.')

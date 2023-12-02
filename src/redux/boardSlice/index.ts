@@ -10,6 +10,11 @@ const initialState: {
   }
   boards: IAllBoardOfCurrentUser
   shouldRefreshAllBoard: boolean
+  creatingBoard: {
+    loading: boolean
+    error: string | undefined
+    success: boolean
+  }
 } = {
   getAllBoard: {
     loading: false,
@@ -20,7 +25,12 @@ const initialState: {
     workspaceHasBoards: [],
     workspaceWithNoBoard: []
   },
-  shouldRefreshAllBoard: false
+  shouldRefreshAllBoard: false,
+  creatingBoard: {
+    loading: false,
+    error: undefined,
+    success: false
+  }
 }
 
 const boardSlice = createSlice({
@@ -29,6 +39,12 @@ const boardSlice = createSlice({
   reducers: {
     setShouldReloadAllBoard: (state, { payload }) => {
       state.shouldRefreshAllBoard = payload
+    },
+    setCreateColumn: (state, { payload }) => {
+      state.creatingBoard = {
+        ...state.creatingBoard,
+        ...payload
+      }
     }
   },
   extraReducers: (builder) => {
@@ -53,4 +69,4 @@ const boardSlice = createSlice({
 })
 
 export default boardSlice.reducer
-export const { setShouldReloadAllBoard } = boardSlice.actions
+export const { setShouldReloadAllBoard, setCreateColumn } = boardSlice.actions

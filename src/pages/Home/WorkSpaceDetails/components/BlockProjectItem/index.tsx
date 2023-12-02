@@ -1,10 +1,17 @@
+import clsx from 'clsx'
+import { useNavigate } from 'react-router-dom'
+
+// component libraries
 import IconButton from '@mui/material/IconButton'
 import { RiFlagLine, RiMore2Fill } from 'react-icons/ri'
-import IWSItemProps from './IWSItemProps'
-import { Item, ItemCover } from './styles'
-import { BsPerson } from 'react-icons/bs'
 import { Tooltip } from '@mui/material'
-import clsx from 'clsx'
+import { BsPerson } from 'react-icons/bs'
+
+// components
+import { Item, ItemCover } from './styles'
+
+// services
+import IWSItemProps from './IWSItemProps'
 
 const WorkSpaceItem = ({ data }: IWSItemProps) => {
   // clean up members list -> avoid dupicates
@@ -12,8 +19,10 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
     (member, index, all) => index === all.findIndex((obj) => obj === member)
   ).length
 
+  const navigate = useNavigate()
+
   return (
-    <Item>
+    <Item onClick={() => navigate('/u/boards/' + data._id)}>
       <ItemCover>
         <div className="item-header">
           <div className="item-header__title">

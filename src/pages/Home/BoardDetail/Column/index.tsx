@@ -42,9 +42,13 @@ const Column = ({ column }: { column: IColumn }) => {
           <RiMore2Fill />
         </IconButton>
       </Header>
-      <CardsContainer>
-        {column.cards && column.cards.map((card) => <Card card={card} />)}
-      </CardsContainer>
+      {column.cards && column.cards.length > 0 && (
+        <CardsContainer>
+          {column.cards.map((card) => (
+            <Card card={card} key={card._id} />
+          ))}
+        </CardsContainer>
+      )}
       <Footer>Add card</Footer>
     </ColumnContainer>
   )

@@ -76,6 +76,7 @@ export const TitleHeader = styled.div`
     .description {
       font-size: 14px;
       color: var(--mui-palette-gray-main);
+      height: 20px;
     }
   }
 

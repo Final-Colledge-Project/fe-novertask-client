@@ -44,7 +44,7 @@ const Card = ({ card }: { card: ICard }) => {
           <RiMore2Fill />
         </IconButton>
       </CardHeader>
-      <Title>{card.title} ahihi do ngoc hay xuat hien day</Title>
+      <Title>{card.title}</Title>
       <Info>
         <div className="info-section">
           <DueDate $isOverDue={card.isOverdue}>
