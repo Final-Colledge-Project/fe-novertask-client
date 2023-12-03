@@ -27,3 +27,8 @@ export interface IGetBoardDetailBody {
 export interface IGetMemberInBoardBody {
   id: string
 }
+
+export interface IAddMemberToBoardBody {
+  boardId: string
+  memberIds: string[]
+}

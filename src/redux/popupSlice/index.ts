@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { IBoardMembers } from '~/services/types'
+import { IAllMemberInBoard, IBoardMembers } from '~/services/types'
 
 const popupSlice = createSlice({
   name: 'popup',
@@ -9,6 +9,14 @@ const popupSlice = createSlice({
       show: false,
       data: {
         currentWsID: undefined as undefined | string
+      }
+    },
+    PopupAddMemberToBoard: {
+      show: false,
+      data: {
+        currentWsID: undefined as undefined | string,
+        currentBoardID: undefined as undefined | string,
+        currentMembers: {} as IAllMemberInBoard
       }
     },
     PopupAddTask: false,
@@ -35,6 +43,9 @@ const popupSlice = createSlice({
     },
     setPopupInvitePeople: (state, action) => {
       state.PopupInvite = action.payload
+    },
+    setPopupAddMemberToBoard: (state, action) => {
+      state.PopupAddMemberToBoard = action.payload
     }
   }
 })
@@ -44,5 +55,6 @@ export const {
   setPopupAddWS,
   setPopupAddPJ,
   setPopupAddTask,
-  setPopupInvitePeople
+  setPopupInvitePeople,
+  setPopupAddMemberToBoard
 } = popupSlice.actions

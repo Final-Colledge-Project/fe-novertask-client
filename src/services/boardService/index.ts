@@ -8,12 +8,14 @@ import {
 } from './resTypes'
 import requests from './requests'
 import {
+  IAddMemberToBoardBody,
   ICreateBoardBody,
   IGetAllByWSIdBody,
   IGetBoardDetailBody,
   IGetMemberInBoardBody
 } from './reqTypes'
 import { AxiosError } from 'axios'
+import { IErrorResponse } from '../types'
 
 // it's the same with get all workspace of current user
 export const getAllByUserId = async () => {
@@ -111,6 +113,39 @@ export const getAllMemberInBoard = async (body: IGetMemberInBoardBody) => {
     // user is not allowed to
     if (status && status === 409) {
       throw new Error(`UNAUTHORIZED`)
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const addMember = async (body: IAddMemberToBoardBody) => {
+  try {
+    const res = await axiosInstance.patch(
+      requests.addMemberToBoard(body.boardId),
+      {
+        memberIds: body.memberIds
+      }
+    )
+
+    if (res && res.status) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    if (status && status === 409) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      // added member is not found
+      if (errorData.message === 'Member not found') {
+        throw new Error(`User being added is not found!`)
+      }
+
+      // added member is already added
+      if (errorData.message === 'Member already exists') {
+        throw new Error(`User being added is already in!`)
+      }
     }
     // general error
     throw new Error('Something went wrong! Please try later.')

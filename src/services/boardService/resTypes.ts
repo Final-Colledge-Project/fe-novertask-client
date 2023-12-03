@@ -34,3 +34,7 @@ export interface IGetMemberInBoardResponse {
   data: IAllMemberInBoard
   message: string
 }
+export interface IAddMemberToBoardResponse {
+  data: IBoard
+  message: string
+}

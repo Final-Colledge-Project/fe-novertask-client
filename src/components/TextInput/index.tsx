@@ -60,6 +60,7 @@ const TextInput = ({
         }}
         error={error}
         defaultValue={value}
+        value={value}
         onChange={onChange}
         type={type || 'text'}
         id="outlined-adornment-amount"

@@ -28,12 +28,17 @@ import Column from './Column'
 import AddColumnButton from './AddColumnButton'
 import BoardDetailLoading from '../components/BoardDetailLoading'
 import AddMenu from './AddMenu'
+import AddMemberPopup from './AddMemberPopup'
 
 // services
 import { IAllMemberInBoard, IBoard } from '~/services/types'
 import { getAllMemberInBoard, getBoardDetail } from '~/services/boardService'
 import { StoreType } from '~/redux'
-import { setCreateColumn } from '~/redux/boardSlice'
+import {
+  setCreateColumn,
+  setShouldRefreshBoardDetail
+} from '~/redux/boardSlice'
+import { setPopupAddMemberToBoard } from '~/redux/popupSlice'
 
 const BoardDetail = () => {
   const { id } = useParams()
@@ -51,6 +56,11 @@ const BoardDetail = () => {
   const { success } = useSelector(
     (state: StoreType) => state.board.creatingBoard
   )
+  const { shouldRefreshBoardDetail } = useSelector(
+    (state: StoreType) => state.board
+  )
+  const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+
   const viewList = ['Kanban', 'List']
   const items = [
     {
@@ -114,6 +124,30 @@ const BoardDetail = () => {
     }
   }, [success])
 
+  useEffect(() => {
+    if (shouldRefreshBoardDetail) {
+      getBoard()
+      dispatch(setShouldRefreshBoardDetail(false))
+    }
+  }, [shouldRefreshBoardDetail])
+
+  const isUserAnAdmin = () => {
+    return members?.oweners.find((owner) => owner._id === currentUser?._id)
+  }
+
+  const handleShowAddMemberPopup = () => {
+    dispatch(
+      setPopupAddMemberToBoard({
+        show: true,
+        data: {
+          currentWsID: board?.teamWorkspaceId,
+          currentBoardID: board?._id,
+          currentMembers: members
+        }
+      })
+    )
+  }
+
   return (
     <BoardDetailContainer>
       <Header
@@ -172,13 +206,16 @@ const BoardDetail = () => {
                 </Tooltip>
               ))}
           </MemberAvatarGroup>
-          <Button
-            color="primary"
-            variant="contained"
-            startIcon={<RiUserAddLine />}
-          >
-            Invite
-          </Button>
+          {isUserAnAdmin() && (
+            <Button
+              color="primary"
+              variant="contained"
+              startIcon={<RiUserAddLine />}
+              onClick={handleShowAddMemberPopup}
+            >
+              Invite
+            </Button>
+          )}
         </Members>
       </TypeHeader>
       <Body>
@@ -191,6 +228,7 @@ const BoardDetail = () => {
           boardId={board?._id as string}
         />
       </Body>
+      <AddMemberPopup />
     </BoardDetailContainer>
   )
 }

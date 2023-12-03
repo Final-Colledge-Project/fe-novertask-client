@@ -39,26 +39,26 @@ const LineMemberItem = ({ data, superAdminId }: IWSItemProps) => {
   const handleAssignAdmin = async () => {
     try {
       dispatch(showLoading())
-      await dispatch(assignAdmin({ emailUser: user.email, wsID: id as string }))
+      await dispatch(
+        assignAdmin({ emailUser: user?.email as string, wsID: id as string })
+      )
       dispatch(hideLoading())
     } catch (err) {
       console.log('✨ ~ file: index.tsx:36 ~ handleAssignAdmin ~ err:', err)
     }
   }
 
-  
-
   return (
-    <Item $img={user.avatar as string} $isMe={currentUser?._id === user._id}>
+    <Item $img={user?.avatar as string} $isMe={currentUser?._id === user?._id}>
       <ItemCover className="section">
-        <img src={user.avatar} alt="" />
+        <img src={user?.avatar} alt="" />
         {/* <div className="item__cover-fallback"></div> */}
       </ItemCover>
       <Title className="section clamp-1">
-        <p>{user.fullName}</p>
+        <p>{user?.fullName}</p>
       </Title>
       <div className="section clamp-1">
-        <p>{user.email}</p>
+        <p>{user?.email}</p>
       </div>
       <div className="section">
         <Badge className={role}>{roleString(role)}</Badge>
@@ -77,7 +77,7 @@ const LineMemberItem = ({ data, superAdminId }: IWSItemProps) => {
         <Tooltip title="Leave this workspace">
           <IconButton
             color="error"
-            disabled={!(role === 'member' && user._id === currentUser?._id)}
+            disabled={!(role === 'member' && user?._id === currentUser?._id)}
           >
             <RiLogoutBoxRLine />
           </IconButton>

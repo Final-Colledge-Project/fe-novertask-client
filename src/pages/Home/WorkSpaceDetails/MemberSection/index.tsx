@@ -6,19 +6,10 @@ import clsx from 'clsx'
 
 // component libraries
 import { Button, IconButton } from '@mui/material'
-import { RiArrowLeftSLine, RiArrowUpSLine } from 'react-icons/ri'
+import { RiArrowLeftSLine } from 'react-icons/ri'
 
 // components
-import {
-  Board,
-  Container,
-  Header,
-  Title,
-  BoardHeader,
-  BoardHeaderItem,
-  BoardBody,
-  TabHeader
-} from './style'
+import { Board, Container, Header, Title, BoardBody, TabHeader } from './style'
 import LineMemberItem from '../components/LineMemberItem'
 
 // services
@@ -28,43 +19,43 @@ import { getAllMembers } from '~/redux/teamWSSlice/actions'
 import { resetAssignAdmin } from '~/redux/teamWSSlice'
 
 const MemberSection = () => {
-  const [viewState, setViewState] = useState<{
-    pageSize: number
-    page: number
-    sortBy: string | undefined
-    isAsc: boolean
-  }>({
-    pageSize: 5,
-    page: 1,
-    sortBy: undefined,
-    isAsc: true
-  })
+  // const [viewState, setViewState] = useState<{
+  //   pageSize: number
+  //   page: number
+  //   sortBy: string | undefined
+  //   isAsc: boolean
+  // }>({
+  //   pageSize: 5,
+  //   page: 1,
+  //   sortBy: undefined,
+  //   isAsc: true
+  // })
 
-  const handleChangeSort = (toSortBy: string) => {
-    const fromSortBy = viewState.sortBy
-    const fromSortType = viewState.isAsc
-    setViewState((prev) => {
-      const newState = { ...prev }
-      newState.sortBy = toSortBy
-      if (fromSortBy !== toSortBy) {
-        newState.isAsc = true
-      } else {
-        if (!fromSortType) {
-          newState.isAsc = false
-        }
-        newState.isAsc = !fromSortType
-      }
-      return newState
-    })
-  }
+  // const handleChangeSort = (toSortBy: string) => {
+  //   const fromSortBy = viewState.sortBy
+  //   const fromSortType = viewState.isAsc
+  //   setViewState((prev) => {
+  //     const newState = { ...prev }
+  //     newState.sortBy = toSortBy
+  //     if (fromSortBy !== toSortBy) {
+  //       newState.isAsc = true
+  //     } else {
+  //       if (!fromSortType) {
+  //         newState.isAsc = false
+  //       }
+  //       newState.isAsc = !fromSortType
+  //     }
+  //     return newState
+  //   })
+  // }
 
-  const boardColumnTitles = [
-    { title: '', shouldSort: false },
-    { title: 'Member', shouldSort: true },
-    { title: 'Email', shouldSort: true },
-    { title: 'Role', shouldSort: false },
-    { title: 'Action', shouldSort: false }
-  ]
+  // const boardColumnTitles = [
+  //   { title: '', shouldSort: false },
+  //   { title: 'Member', shouldSort: true },
+  //   { title: 'Email', shouldSort: true },
+  //   { title: 'Role', shouldSort: false },
+  //   { title: 'Action', shouldSort: false }
+  // ]
 
   const tabHeaderTitle = [
     {
@@ -221,7 +212,7 @@ const MemberSection = () => {
               <LineMemberItem
                 key={mem.user?._id}
                 data={{ ...mem, role: 'member' }}
-                superAdminId={superAdmin()?.user._id || ''}
+                superAdminId={superAdmin()?.user?._id || ''}
               />
             ))}
           {/* show placeholder */}

@@ -15,6 +15,8 @@ const initialState: {
     error: string | undefined
     success: boolean
   }
+  shouldRefreshBoardDetail: boolean
+  shouldRefreshMemberInBoard: boolean
 } = {
   getAllBoard: {
     loading: false,
@@ -30,7 +32,9 @@ const initialState: {
     loading: false,
     error: undefined,
     success: false
-  }
+  },
+  shouldRefreshBoardDetail: false,
+  shouldRefreshMemberInBoard: false
 }
 
 const boardSlice = createSlice({
@@ -39,6 +43,12 @@ const boardSlice = createSlice({
   reducers: {
     setShouldReloadAllBoard: (state, { payload }) => {
       state.shouldRefreshAllBoard = payload
+    },
+    setShouldRefreshBoardDetail: (state, { payload }) => {
+      state.shouldRefreshBoardDetail = payload
+    },
+    setShouldRefreshMemberInBoard: (state, { payload }) => {
+      state.shouldRefreshMemberInBoard = payload
     },
     setCreateColumn: (state, { payload }) => {
       state.creatingBoard = {
@@ -69,4 +79,9 @@ const boardSlice = createSlice({
 })
 
 export default boardSlice.reducer
-export const { setShouldReloadAllBoard, setCreateColumn } = boardSlice.actions
+export const {
+  setShouldReloadAllBoard,
+  setCreateColumn,
+  setShouldRefreshBoardDetail,
+  setShouldRefreshMemberInBoard
+} = boardSlice.actions
