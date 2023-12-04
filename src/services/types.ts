@@ -136,6 +136,10 @@ export interface IColumn {
   __v?: number
   cards?: ICard[]
 }
+export interface IUpdatableColumn {
+  title?: string
+  cardOrderIds?: string[]
+}
 
 export interface ICard {
   _id: string

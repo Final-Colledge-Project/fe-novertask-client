@@ -9,3 +9,8 @@ export interface ICreateColumnResponse {
   data: IColumn
   message: string
 }
+
+export interface IUpdateColumnResponse {
+  data: IColumn
+  message: string
+}

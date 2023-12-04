@@ -79,6 +79,7 @@ export const Modal = styled.div`
   left: 0;
   right: 0;
   background-color: rgba(var(--mui-palette-black-mainChannel) / 0.2);
+  z-index: 1;
 `
 
 export const Error = styled.div`

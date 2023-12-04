@@ -7,8 +7,6 @@ export const ColumnContainer = styled.div`
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  /* border: 2px solid var(--mui-palette-white-main); */
-  /* background-color: rgba(var(--mui-palette-black-mainChannel) / 0.05); */
   border-radius: 8px;
   gap: 10px;
 `
@@ -23,6 +21,7 @@ export const Header = styled.div`
   background-color: var(--mui-palette-white-main);
   font-size: 14px;
   margin-right: 5px;
+
   & > .icon {
     cursor: grab;
     height: 20px;
@@ -37,15 +36,6 @@ export const Header = styled.div`
     display: flex;
     align-items: center;
     gap: 10px;
-
-    & > .name {
-      display: -webkit-box;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      -webkit-line-clamp: 1;
-      white-space: pre-wrap;
-      -webkit-box-orient: vertical;
-    }
 
     & > .cards-count {
       font-weight: 400;
@@ -101,4 +91,60 @@ export const Footer = styled.div`
     background-color: var(--mui-palette-gray5-main);
     cursor: pointer;
   }
+`
+export const ActionGroup = styled.div`
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  display: flex;
+  gap: 5px;
+`
+
+export const Modal = styled.div`
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(var(--mui-palette-black-mainChannel) / 0.2);
+`
+
+export const Form = styled.form`
+  position: relative;
+  z-index: 0;
+
+  &.showing-modal {
+    z-index: 10;
+  }
+`
+
+export const Input = styled.input`
+  cursor: pointer;
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 1;
+  white-space: pre-wrap;
+  -webkit-box-orient: vertical;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  width: 100%;
+  height: 100%;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-family: inherit;
+
+  &:focus {
+    outline: 2px solid var(--mui-palette-blue-main);
+  }
+`
+
+export const Error = styled.div`
+  font-size: 12px;
+  color: var(--mui-palette-red-main);
+  width: 100%;
+  text-align: right;
+  font-weight: 400;
 `
