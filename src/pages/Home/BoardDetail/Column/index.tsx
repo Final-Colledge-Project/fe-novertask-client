@@ -16,7 +16,6 @@ import {
   CardsContainer,
   ColumnContainer,
   Error,
-  Footer,
   Form,
   Header,
   Input,
@@ -28,6 +27,7 @@ import { IColumn } from '~/services/types'
 import IFormFields from './IFormFields'
 import schema from './formSchema'
 import { updateColumn } from '~/services/columnService'
+import ColumnFooter from './ColumnFooter'
 
 const Column = ({ column }: { column: IColumn }) => {
   const [showModal, setShowModal] = useState(false)
@@ -160,7 +160,8 @@ const Column = ({ column }: { column: IColumn }) => {
           ))}
         </CardsContainer>
       )}
-      <Footer>Add card</Footer>
+      {/* <Footer>Add card</Footer> */}
+      <ColumnFooter columnId={column._id} />
     </ColumnContainer>
   )
 }

@@ -106,19 +106,27 @@ export const Info = styled.div`
   }
 `
 
-export const DueDate = styled.div<{ $isOverDue: boolean }>`
+export const DueDate = styled.div<{
+  $isOverDue: boolean
+  $isCloseToDue: boolean
+}>`
   width: fit-content;
   display: flex;
   align-items: center;
   gap: 5px;
   color: var(--mui-palette-gray-main);
-  color: ${(props) => props.$isOverDue && 'var(--mui-palette-orange-main)'};
+  color: ${(props) => props.$isCloseToDue && 'var(--mui-palette-orange-main)'};
+  color: ${(props) => props.$isOverDue && 'var(--mui-palette-pink-main)'};
+  background-color: rgba(var(--mui-palette-yellow-mainChannel) / 0.1);
   background-color: rgba(
     ${(props) =>
-      props.$isOverDue
-        ? 'var(--mui-palette-orange-mainChannel) / 0.1'
-        : 'var(--mui-palette-gray6-mainChannel)'}
+      props.$isCloseToDue && 'var(--mui-palette-orange-mainChannel) / 0.1'}
   );
+  background-color: rgba(
+    ${(props) =>
+      props.$isOverDue && 'var(--mui-palette-pink-mainChannel) / 0.1'}
+  );
+
   padding: 0px 8px;
   border-radius: 5px;
 `

@@ -163,4 +163,8 @@ export interface ICard {
     name: string
     color: string
   }
+  reporterId?: string
+  comments?: []
+  createdAt?: string
+  updatedAt?: string
 }

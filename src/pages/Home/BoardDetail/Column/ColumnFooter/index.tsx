@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { AxiosError } from 'axios'
@@ -6,63 +6,35 @@ import { enqueueSnackbar } from 'notistack'
 import { useDispatch } from 'react-redux'
 
 // component libraries
-import MuiButton from '@mui/material/Button'
 
 // components
-import {
-  ActionGroup,
-  AddZone,
-  Button,
-  Error,
-  Form,
-  Input,
-  Modal
-} from './styles'
+import { ActionGroup, AddZone, Error, Form, Input, Modal } from './styles'
 
 // services
 import IFormFields from './IFormFields'
 import schema from './formSchema'
-import { createColumn } from '~/services/columnService'
 import { setCreateColumn } from '~/redux/boardSlice'
+import clsx from 'clsx'
+import { createCard } from '~/services/cardService'
+import { IconButton } from '@mui/material'
+import { RiCheckLine, RiCloseLine } from 'react-icons/ri'
 
-const AddColumnButton = ({
-  addingColumn,
-  setFocus,
-  boardId
-}: {
-  addingColumn: boolean
-  setFocus: (val: boolean) => void
-  boardId: string
-}) => {
+const ColumnFooter = ({ columnId }: { columnId: string }) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const dispatch = useDispatch()
-
-  useEffect(() => {
-    if (inputRef.current && addingColumn === true) {
-      if (inputRef.current.parentElement?.parentElement?.parentElement) {
-        const scrollElement =
-          inputRef.current.parentElement.parentElement.parentElement
-        const parent = inputRef.current.parentElement.parentElement
-        scrollElement.scrollTo({
-          left: parent?.offsetLeft || 0,
-          top: 0,
-          behavior: 'smooth'
-        })
-      }
-      inputRef.current.focus({ preventScroll: true })
-    }
-  }, [addingColumn])
+  const [isAddingCard, setIsAddingCard] = useState(false)
 
   const handleFocus = () => {
+    setIsAddingCard(true)
     if (inputRef.current) {
-      setFocus(true)
       inputRef.current.focus()
     }
   }
 
   const handleUnFocus = () => {
+    setIsAddingCard(false)
+    reset()
     if (inputRef.current) {
-      setFocus(false)
       inputRef.current.blur()
     }
   }
@@ -88,9 +60,11 @@ const AddColumnButton = ({
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     try {
-      const res = await createColumn({ title: data.name, boardId })
+      const res = await createCard({
+        title: data.name,
+        columnId: columnId
+      })
       if (res) {
-        // enqueueSnackbar('Add column successfully', { variant: 'success' })
         dispatch(setCreateColumn({ success: true }))
         handleClose()
       }
@@ -107,39 +81,42 @@ const AddColumnButton = ({
 
   return (
     <AddZone>
-      <Button $isShow={!addingColumn} onClick={handleFocus}>
-        + Add Column
-      </Button>
-      {addingColumn && <Modal onClick={handleClose} />}
-      <Form onSubmit={handleSubmit(onSubmit)}>
+      {isAddingCard && <Modal onClick={handleClose} />}
+      <Form
+        onSubmit={handleSubmit(onSubmit)}
+        className={clsx(isAddingCard && 'is-focused')}
+      >
         <Input
-          $isShow={addingColumn}
+          //   $isShow={isAddingCard}
+          className={clsx(isAddingCard && 'is-focused')}
+          placeholder="Add card"
           {...register('name')}
           ref={inputRef}
+          onFocus={handleFocus}
         ></Input>
         <Error>{errors.name?.message}</Error>
-        {addingColumn && (
+        {isAddingCard && (
           <ActionGroup>
-            <MuiButton
-              variant="contained"
+            <IconButton
+              // variant="contained"
               color="error"
-              sx={{ p: '2px 10px', height: '0', minWidth: 'unset' }}
+              sx={{ p: '4px', height: '0', minWidth: 'unset' }}
               onClick={handleClose}
             >
-              Cancel
-            </MuiButton>
-            <MuiButton
+              <RiCloseLine />
+            </IconButton>
+            <IconButton
               type="submit"
-              variant="contained"
-              color="primary"
-              sx={{ p: '2px 10px', height: '0', minWidth: 'unset' }}
+              // variant="contained"
+              color="success"
+              sx={{ p: '4px', height: '0', minWidth: 'unset' }}
             >
-              Add
-            </MuiButton>
+              <RiCheckLine />
+            </IconButton>
           </ActionGroup>
         )}
       </Form>
     </AddZone>
   )
 }
-export default AddColumnButton
+export default ColumnFooter

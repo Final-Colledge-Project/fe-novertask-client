@@ -20,8 +20,12 @@ import {
 //servicesv
 import { ICard } from '~/services/types'
 import convertDate from '~/utils/convertDate'
+import dayjs from 'dayjs'
+import isTomorrow  from 'dayjs/plugin/isTomorrow'
 
 const Card = ({ card }: { card: ICard }) => {
+  dayjs.extend(isTomorrow)
+
   return (
     <CardContainer>
       {card.cover && (
@@ -47,10 +51,17 @@ const Card = ({ card }: { card: ICard }) => {
       <Title>{card.title}</Title>
       <Info>
         <div className="info-section">
-          <DueDate $isOverDue={card.isOverdue}>
-            <RiTimerLine />
-            <p>{convertDate(card.dueDate)}</p>
-          </DueDate>
+          {convertDate(card.dueDate) ? (
+            <DueDate
+              $isOverDue={card.isOverdue}
+              $isCloseToDue={true}
+            >
+              <RiTimerLine />
+              <p>{convertDate(card.dueDate)}</p>
+            </DueDate>
+          ) : (
+            <div></div>
+          )}
           <MemberAvatarGroup>
             {card.memberIds.map((mem) => (
               <Tooltip key={mem._id} title={mem.fullName}>

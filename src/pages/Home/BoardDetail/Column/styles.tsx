@@ -75,23 +75,6 @@ export const CardsContainer = styled.div`
     background-color: var(--mui-palette-gray2-main);
   }
 `
-export const Footer = styled.div`
-  width: 100%;
-  height: 40px;
-  min-height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid var(--mui-palette-gray5-main);
-  color: var(--mui-palette-gray-main);
-  border-radius: 8px;
-  font-size: 14px;
-  margin-right: 5px;
-  &:hover {
-    background-color: var(--mui-palette-gray5-main);
-    cursor: pointer;
-  }
-`
 export const ActionGroup = styled.div`
   position: absolute;
   top: calc(100% + 10px);
