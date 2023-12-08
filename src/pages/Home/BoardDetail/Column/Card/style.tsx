@@ -22,8 +22,17 @@ export const CardContainer = styled.div`
   border: 1px solid var(--mui-palette-white-main);
   transition: border 0.2s;
 
+  &.drag-over-card {
+    transform: rotateZ(8deg);
+  }
+
   &:hover {
     border: 1px solid var(--mui-palette-blue-main);
+  }
+
+  &.fe-only {
+    display: none;
+    margin-bottom: -10px;
   }
 `
 
@@ -117,14 +126,12 @@ export const DueDate = styled.div<{
   color: var(--mui-palette-gray-main);
   color: ${(props) => props.$isCloseToDue && 'var(--mui-palette-orange-main)'};
   color: ${(props) => props.$isOverDue && 'var(--mui-palette-pink-main)'};
-  background-color: rgba(var(--mui-palette-yellow-mainChannel) / 0.1);
+  background-color: rgba(var(--mui-palette-gray-mainChannel) / 0.1);
   background-color: rgba(
-    ${(props) =>
-      props.$isCloseToDue && 'var(--mui-palette-orange-mainChannel) / 0.1'}
+    ${(props) => props.$isCloseToDue && 'var(--mui-palette-orange-mainChannel) / 0.1'}
   );
   background-color: rgba(
-    ${(props) =>
-      props.$isOverDue && 'var(--mui-palette-pink-mainChannel) / 0.1'}
+    ${(props) => props.$isOverDue && 'var(--mui-palette-pink-mainChannel) / 0.1'}
   );
 
   padding: 0px 8px;

@@ -9,6 +9,15 @@ export const ColumnContainer = styled.div`
   align-items: center;
   border-radius: 8px;
   gap: 10px;
+  max-height: 100%;
+
+  &.drag-over-column {
+    transform: rotateZ(8deg);
+  }
+
+  &.collapse-space {
+    gap: 5px;
+  }
 `
 
 export const Header = styled.div`
@@ -61,6 +70,7 @@ export const CardsContainer = styled.div`
   display: flex;
   max-height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   flex-direction: column;
   align-items: center;
   justify-content: start;
@@ -118,9 +128,15 @@ export const Input = styled.input`
   padding: 4px 8px;
   border-radius: 5px;
   font-family: inherit;
+  caret-color: transparent;
 
   &:focus {
+    outline: none;
+  }
+
+  &.is-focus {
     outline: 2px solid var(--mui-palette-blue-main);
+    caret-color: var(--mui-palette-black-main);
   }
 `
 
@@ -130,4 +146,8 @@ export const Error = styled.div`
   width: 100%;
   text-align: right;
   font-weight: 400;
+`
+
+export const DnDContainer = styled.div`
+  height: 100% !important;
 `

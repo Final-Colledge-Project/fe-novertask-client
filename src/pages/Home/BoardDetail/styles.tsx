@@ -5,7 +5,7 @@ import { ReactNode } from 'react'
 export const BoardDetailContainer = styled.div`
   flex: 1;
   display: flex;
-  background-color: rgba(var(--mui-palette-gray6-mainChannel));
+  background-color: rgba(var(--mui-palette-white-mainChannel));
   flex-direction: column;
   height: 100vh;
   overflow-x: hidden;
@@ -177,11 +177,13 @@ export const Body = styled.div`
   flex: 1;
   /* max-width: calc(100vw - 70px); */
   display: flex;
-  /* align-items: flex-start; */
+  align-items: flex-start;
   gap: 20px;
   overflow-x: auto;
-  padding: 10px 20px;
-  margin: 10px;
+  padding: 10px 30px;
+  margin-bottom: 10px;
+  background-color: var(--mui-palette-gray6-main);
+  /* overflow-y: hidden; */
 
   &::-webkit-scrollbar {
     height: 10px;

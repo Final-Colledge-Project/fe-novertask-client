@@ -167,4 +167,5 @@ export interface ICard {
   comments?: []
   createdAt?: string
   updatedAt?: string
+  FE_ONLY_PLACEHOLDER?: boolean
 }

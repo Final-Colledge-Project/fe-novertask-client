@@ -1,3 +1,7 @@
+import dayjs from 'dayjs'
+import isTomorrow from 'dayjs/plugin/isTomorrow'
+import clsx from 'clsx'
+
 // component libraries
 import { Avatar, IconButton, Tooltip } from '@mui/material'
 import { RiMore2Fill, RiTimerLine } from 'react-icons/ri'
@@ -20,14 +24,36 @@ import {
 //servicesv
 import { ICard } from '~/services/types'
 import convertDate from '~/utils/convertDate'
-import dayjs from 'dayjs'
-import isTomorrow  from 'dayjs/plugin/isTomorrow'
 
-const Card = ({ card }: { card: ICard }) => {
+// Dnd specific
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+const Card = ({ card, className }: { card: ICard; className?: string }) => {
   dayjs.extend(isTomorrow)
+  const {
+    transform,
+    transition,
+    setNodeRef,
+    attributes,
+    listeners,
+    isDragging
+  } = useSortable({ id: card._id, data: { ...card } })
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : undefined
+  }
 
   return (
-    <CardContainer>
+    <CardContainer
+      onClick={(e) => e.stopPropagation()}
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={style}
+      className={clsx(card.FE_ONLY_PLACEHOLDER && 'fe-only', className)}
+    >
       {card.cover && (
         <Cover>
           <img src={card.cover} alt="" />
@@ -54,7 +80,7 @@ const Card = ({ card }: { card: ICard }) => {
           {convertDate(card.dueDate) ? (
             <DueDate
               $isOverDue={card.isOverdue}
-              $isCloseToDue={true}
+              $isCloseToDue={dayjs(card.dueDate).isTomorrow()}
             >
               <RiTimerLine />
               <p>{convertDate(card.dueDate)}</p>

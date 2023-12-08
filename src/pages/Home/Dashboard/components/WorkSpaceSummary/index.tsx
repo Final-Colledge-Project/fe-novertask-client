@@ -46,15 +46,18 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
       try {
         const res = await getMembers({ id: data._id })
         if (res && res.data) {
-          !!res.data.workspaceAdmins.find(
-            (admin) => admin.user?._id === currentUser?._id
-          ) && setIsAdmin(true)
+          if (
+            res.data.workspaceAdmins.find(
+              (admin) => admin.user?._id === currentUser?._id
+            )
+          )
+            setIsAdmin(true)
         }
       } catch (err) {
         // ignore errors
       }
     }
-    data.board?.length === 0 && getMember()
+    ;(!data.board || data.board?.length === 0) && getMember()
   })
 
   return (

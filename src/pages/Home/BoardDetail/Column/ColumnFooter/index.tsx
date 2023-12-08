@@ -4,8 +4,11 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
 import { useDispatch } from 'react-redux'
+import clsx from 'clsx'
 
 // component libraries
+import { IconButton } from '@mui/material'
+import { RiCheckLine, RiCloseLine } from 'react-icons/ri'
 
 // components
 import { ActionGroup, AddZone, Error, Form, Input, Modal } from './styles'
@@ -14,10 +17,7 @@ import { ActionGroup, AddZone, Error, Form, Input, Modal } from './styles'
 import IFormFields from './IFormFields'
 import schema from './formSchema'
 import { setCreateColumn } from '~/redux/boardSlice'
-import clsx from 'clsx'
 import { createCard } from '~/services/cardService'
-import { IconButton } from '@mui/material'
-import { RiCheckLine, RiCloseLine } from 'react-icons/ri'
 
 const ColumnFooter = ({ columnId }: { columnId: string }) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -80,7 +80,7 @@ const ColumnFooter = ({ columnId }: { columnId: string }) => {
   }
 
   return (
-    <AddZone>
+    <AddZone onMouseDownCapture={(e) => e.stopPropagation()}>
       {isAddingCard && <Modal onClick={handleClose} />}
       <Form
         onSubmit={handleSubmit(onSubmit)}
