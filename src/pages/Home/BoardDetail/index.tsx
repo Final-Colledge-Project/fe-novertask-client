@@ -34,7 +34,11 @@ import Card from './Column/Card'
 
 // services
 import { IAllMemberInBoard, IBoard, ICard, IColumn } from '~/services/types'
-import { getAllMemberInBoard, getBoardDetail } from '~/services/boardService'
+import {
+  getAllMemberInBoard,
+  getBoardDetail,
+  updateBoard
+} from '~/services/boardService'
 import { StoreType } from '~/redux'
 import {
   setCreateColumn,
@@ -69,10 +73,20 @@ import {
   horizontalListSortingStrategy
 } from '@dnd-kit/sortable'
 import mapOrder from '~/utils/mapOrder'
+import {
+  updateColumn,
+  updateTwoColumnsConcurrentLy
+} from '~/services/columnService'
+import { updateCard } from '~/services/cardService'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
   CARD: 'card'
+}
+
+interface IChangeColumn {
+  id: string
+  changes: { cardOrderIds: string[] }
 }
 
 const BoardDetail = () => {
@@ -105,6 +119,8 @@ const BoardDetail = () => {
   const [activeItemData, setActiveItemData] = useState<ICard | IColumn>()
   const [originColumn, setOriginColumn] = useState<IColumn>()
   const lastOverId = useRef<UniqueIdentifier | null>(null)
+  const newChangesWithDiffColumn = useRef<IChangeColumn[]>()
+  // const originColumnsBeforeUpdate = useRef<IChangeColumn[]>()
 
   // #endregion
 
@@ -183,7 +199,7 @@ const BoardDetail = () => {
     }
   }
 
-  // get data from api
+  // for api
   const getMembers = async () => {
     try {
       const res = await getAllMemberInBoard({ id: id as string })
@@ -217,9 +233,9 @@ const BoardDetail = () => {
     }
   }, [shouldRefreshBoardDetail])
 
-  const isUserAnAdmin = () => {
-    return members?.oweners.find((owner) => owner._id === currentUser?._id)
-  }
+  const isUserAnAdmin = useCallback(() => {
+    return !!members?.oweners.find((owner) => owner._id === currentUser?._id)
+  }, [members, currentUser])
 
   const handleShowAddMemberPopup = () => {
     dispatch(
@@ -232,6 +248,60 @@ const BoardDetail = () => {
         }
       })
     )
+  }
+
+  const updateBoardColumnsOrder = async (newOrder: string[]) => {
+    try {
+      const res = await updateBoard({
+        boardId: id as string,
+        changes: {
+          columnOrderIds: newOrder
+        }
+      })
+      if (res && res.data) {
+        console.log('Update all columns order successfully')
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+      await getBoard()
+    }
+  }
+
+  const updateColumnCardsOrder = async (
+    changes: IChangeColumn[],
+    cardId?: string
+  ) => {
+    try {
+      const [toColumnChange, fromColumnChange] = changes
+      if (fromColumnChange) {
+        await updateTwoColumnsConcurrentLy([fromColumnChange, toColumnChange])
+        await updateMovedCard(cardId as string, toColumnChange.id)
+        console.log('Update card orders in 2 column successfully')
+      } else {
+        const res = await updateColumn(toColumnChange)
+        if (res && res.data) {
+          console.log('Update card order in 1 column successfully')
+        }
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+      await getBoard()
+    }
+  }
+
+  const updateMovedCard = async (cardId: string, newColumnId: string) => {
+    try {
+      const res = await updateCard({
+        cardId,
+        changes: { columnId: newColumnId }
+      })
+      if (res && res.data) {
+        console.log('Update card successfully')
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+      await getBoard()
+    }
   }
   // #endregion
 
@@ -314,8 +384,13 @@ const BoardDetail = () => {
   }
 
   const handleDragStart = (e: DragStartEvent) => {
+    console.log('handleDragStart')
     // active: đối tượng bắt đầu kéo thả, bao gồm data được bind
     const { active } = e
+
+    // only admin can drag column
+    if (!isUserAnAdmin() && !active.data.current?.columnId) return
+
     setActiveItemID(active.id)
     setActiveItemData(active.data.current as ICard | IColumn)
     if (active.data.current?.columnId) {
@@ -356,6 +431,7 @@ const BoardDetail = () => {
   }
 
   const handleDragEnd = (e: DragEndEvent) => {
+    console.log('handleDragEnd')
     const { active, over } = e
     if (!over) return
 
@@ -371,6 +447,12 @@ const BoardDetail = () => {
       const overColumn = findColumnByCardID(overCardId as string)
 
       if (!activeColumn || !overColumn) return
+      newChangesWithDiffColumn.current &&
+        updateColumnCardsOrder(
+          [...newChangesWithDiffColumn.current],
+          activeDraggingCardId as string
+        )
+      newChangesWithDiffColumn.current = undefined
 
       // Phải dùng column khi bắt đầu kéo thả chứ không phải activeItem
       // Vì khi kéo state đã bị thay đổi ở handleDragOver
@@ -411,6 +493,16 @@ const BoardDetail = () => {
             targetColumn.cardOrderIds = nextOrderedCards.map((card) => card._id)
             // console.log('[Move card in the same column] > ', nextOrderColumns)
 
+            updateColumnCardsOrder([
+              {
+                id: targetColumn._id,
+                changes: {
+                  cardOrderIds: targetColumn.cards
+                    .filter((c) => !c.FE_ONLY_PLACEHOLDER)
+                    .map((c) => c._id)
+                }
+              }
+            ])
             return nextOrderColumns
           })
         }
@@ -429,8 +521,10 @@ const BoardDetail = () => {
         )
         // console.log('[Move column] > ', nextOrderedColumns)
         setOrderedColumns(nextOrderedColumns)
+        updateBoardColumnsOrder(nextOrderedColumns.map((c) => c._id))
       }
     }
+
     setOriginColumn(undefined)
     setActiveItemID('')
     setActiveItemData(undefined)
@@ -471,7 +565,6 @@ const BoardDetail = () => {
       const nextOverColumn: IColumn = nextOrderColumns.find(
         (c: IColumn) => c._id === overColumn._id
       )
-
       // active -> cũ, nextActiveColumn -> column cũ khi kéo
       if (nextActiveColumn) {
         // Tính toán lại cards mới sau khi kéo một cục card ra khỏi column đó má
@@ -530,7 +623,31 @@ const BoardDetail = () => {
         // Cập nhật lại cái order ids
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map((c) => c._id)
       }
+
       // console.log('[Move card to order column] > ', nextOrderColumns)
+      // only update via api when drag is true end
+      if (nextActiveColumn || nextOverColumn) {
+        newChangesWithDiffColumn.current = [
+          {
+            id: nextOverColumn._id,
+            changes: {
+              cardOrderIds:
+                nextOverColumn.cards
+                  ?.filter((c) => !c.FE_ONLY_PLACEHOLDER)
+                  .map((c) => c._id) || []
+            }
+          },
+          {
+            id: nextActiveColumn._id,
+            changes: {
+              cardOrderIds:
+                nextActiveColumn.cards
+                  ?.filter((c) => !c.FE_ONLY_PLACEHOLDER)
+                  .map((c) => c._id) || []
+            }
+          }
+        ]
+      }
       return nextOrderColumns
     })
   }

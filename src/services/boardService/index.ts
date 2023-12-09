@@ -12,7 +12,8 @@ import {
   ICreateBoardBody,
   IGetAllByWSIdBody,
   IGetBoardDetailBody,
-  IGetMemberInBoardBody
+  IGetMemberInBoardBody,
+  IUpdateBoardBody
 } from './reqTypes'
 import { AxiosError } from 'axios'
 import { IErrorResponse } from '../types'
@@ -29,11 +30,6 @@ export const getAllByUserId = async () => {
     }
   } catch (error) {
     // const status = (error as AxiosError).response?.status
-
-    // // invatation is not exist
-    // if (status && status === 500) {
-    //   throw new Error(`Invitation is not exist! Please check your email.`)
-    // }
 
     // general error
     throw new Error('Something went wrong! Please try later.')
@@ -145,6 +141,41 @@ export const addMember = async (body: IAddMemberToBoardBody) => {
       // added member is already added
       if (errorData.message === 'Member already exists') {
         throw new Error(`User being added is already in!`)
+      }
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const updateBoard = async (body: IUpdateBoardBody) => {
+  try {
+    const res = await axiosInstance.patch(
+      requests.updateBoard(body.boardId),
+      body.changes
+    )
+
+    if (res && res.status) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    if (status && status === 404) {
+      throw new Error('Board not found')
+    }
+
+    if (status && status === 403) {
+      throw new Error('You are not admin of this board')
+    }
+
+    if (status && status === 409) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      // added member is not found
+      if (errorData.message === 'Board not updated') {
+        throw new Error('Board not updated')
       }
     }
     // general error

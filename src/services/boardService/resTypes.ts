@@ -38,3 +38,8 @@ export interface IAddMemberToBoardResponse {
   data: IBoard
   message: string
 }
+
+export interface IUpdateBoardResponse {
+  data: IBoard
+  message: string
+}

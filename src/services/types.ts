@@ -141,6 +141,17 @@ export interface IUpdatableColumn {
   cardOrderIds?: string[]
 }
 
+export interface IUpdatableCard {
+  title?: string
+  description?: string
+  cover?: string
+  dueDate?: string
+  labelId?: string
+  priorityId?: string
+  isDone?: false
+  columnId?: string
+}
+
 export interface ICard {
   _id: string
   boardId: string

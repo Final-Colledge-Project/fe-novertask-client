@@ -7,6 +7,7 @@ const requests = {
   createBoard: `/boards`,
   getBoardDetail: (id: string) => `/boards/${id}`,
   getMemberInBoard: (id: string) => `/boards/${id}/members`,
-  addMemberToBoard: (boardId: string) => `/boards/${boardId}/members`
+  addMemberToBoard: (boardId: string) => `/boards/${boardId}/members`,
+  updateBoard: (boardId: string) => `/boards/${boardId}`
 }
 export default requests

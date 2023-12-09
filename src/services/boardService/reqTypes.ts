@@ -32,3 +32,15 @@ export interface IAddMemberToBoardBody {
   boardId: string
   memberIds: string[]
 }
+
+interface IUpdatableBoard {
+  columnOrderIds?: string[]
+  title?: string
+  description?: string
+  type?: string
+}
+
+export interface IUpdateBoardBody {
+  boardId: string
+  changes: IUpdatableBoard
+}

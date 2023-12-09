@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios'
+import axios, { AxiosError } from 'axios'
 import axiosInstance from '../axiosInstance'
 import { IGetColumnsInBoardBody, IUpdateColumnBody } from './reqTypes.ts'
 import requests from './requests'
@@ -69,7 +69,7 @@ export const updateColumn = async (body: IUpdateColumnBody) => {
   try {
     const res = await axiosInstance.patch<IUpdateColumnResponse>(
       requests.updateColumn(body.id as string),
-      body.changes
+      { ...body.changes }
     )
     if (res && res.status === 200 && res.data) {
       return res.data
@@ -84,6 +84,46 @@ export const updateColumn = async (body: IUpdateColumnBody) => {
       // column not found
       if (errorData.message === 'Column not found') {
         throw new Error('Column not found')
+      }
+    }
+
+    // user is not an admin
+    if (status && status === 403) {
+      throw new Error('You are not member of this board')
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const updateTwoColumnsConcurrentLy = async (
+  body: IUpdateColumnBody[]
+) => {
+  try {
+    const responses = await axios.all([
+      axiosInstance.patch<IUpdateColumnResponse>(
+        requests.updateColumn(body[0].id as string),
+        body[0].changes
+      ),
+      axiosInstance.patch<IUpdateColumnResponse>(
+        requests.updateColumn(body[1].id as string),
+        body[1].changes
+      )
+    ])
+
+    if (responses && responses.every((response) => response.status === 200)) {
+      return responses
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    if (status && status === 409) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      // column not found
+      if (errorData.message === 'Columns not found') {
+        throw new Error('Columns not found')
       }
     }
 

@@ -1,4 +1,4 @@
-import { IUpdatableColumn } from '../types'
+import { IUpdatableCard, IUpdatableColumn } from '../types'
 
 export interface IGetColumnsInBoardBody {
   id: string
@@ -10,4 +10,9 @@ export interface IUpdateColumnBody {
 export interface ICreateColumnBody {
   boardId: string
   title: string
+}
+
+export interface IUpdateColumnAndCardDnd {
+  columns: [IUpdateColumnBody, IUpdateColumnBody]
+  card: { cardId: string; changes: IUpdatableCard }
 }
