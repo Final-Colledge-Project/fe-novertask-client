@@ -1,0 +1,198 @@
+.forgot-password-container {
+  padding: 0 130px;
+  display: flex;
+  gap: 100px;
+  height: 100vh;
+  max-height: 100vh;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+@media screen and (max-width: 1280px) {
+  .forgot-password-container {
+    padding: 0px 100px;
+    gap: 100px;
+  }
+}
+@media screen and (max-width: 1080px) {
+  .forgot-password-container {
+    padding: 0px 50px;
+    gap: 50px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .forgot-password-container {
+    padding: 0 20px;
+  }
+}
+@media screen and (max-width: 600px) {
+  .forgot-password-container {
+    height: 80vh;
+  }
+}
+.forgot-password-container > .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 50%;
+  gap: 70px;
+}
+@media screen and (max-width: 900px) {
+  .forgot-password-container > .content {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 600px) {
+  .forgot-password-container > .content {
+    max-width: none;
+    padding: 0 20px;
+  }
+}
+@media screen and (max-width: 414px) {
+  .forgot-password-container > .content {
+    padding: 0 12px;
+  }
+}
+.forgot-password-container > .content > .title {
+  font-size: 35px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  flex-direction: column;
+}
+@media screen and (max-width: 1280px) {
+  .forgot-password-container > .content > .title {
+    font-size: 30px;
+  }
+}
+@media screen and (max-width: 414px) {
+  .forgot-password-container > .content > .title {
+    font-size: 25px;
+  }
+}
+.forgot-password-container > .content > .title > .logo {
+  cursor: pointer;
+  width: 150px;
+  display: inline-flex;
+  align-items: center;
+}
+.forgot-password-container > .content > .title > .logo img {
+  display: inline-block;
+  width: 100%;
+}
+.forgot-password-container > .content > .title .sub-title {
+  font-size: 16px;
+  font-weight: 400;
+}
+@media screen and (max-width: 414px) {
+  .forgot-password-container > .content > .title .sub-title {
+    font-size: 15px;
+  }
+}
+.forgot-password-container > .content .blue {
+  color: var(--mui-palette-blue-main);
+}
+.forgot-password-container > .content > .input-codes {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+}
+.forgot-password-container > .content > .input-codes > .label {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+@media screen and (max-width: 768px) {
+  .forgot-password-container > .content > .input-codes {
+    width: 100%;
+    margin: 0;
+  }
+}
+.forgot-password-container > .content > .key-image {
+  width: 200px;
+  height: 200px;
+  font-size: 100px;
+  line-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--mui-palette-blue-main);
+  background-color: var(--mui-palette-Alert-infoStandardBg);
+  display: none;
+}
+@media screen and (max-width: 768px) {
+  .forgot-password-container > .content > .key-image {
+    display: flex;
+  }
+}
+.forgot-password-container > .content > .form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.forgot-password-container > .content > .form > .divider {
+  display: flex;
+  color: var(--mui-palette-gray2-main);
+  align-items: center;
+  gap: 10px;
+}
+.forgot-password-container > .content > .form > .divider::after {
+  content: "";
+  display: block;
+  height: 0;
+  flex: 1;
+  border-top: 1px solid var(--mui-palette-gray2-main);
+}
+.forgot-password-container > .content > .form > .divider::before {
+  content: "";
+  display: block;
+  height: 0;
+  flex: 1;
+  border-top: 1px solid var(--mui-palette-gray2-main);
+}
+.forgot-password-container > .content > .form > .action-button {
+  width: 100%;
+  display: flex;
+  justify-content: stretch;
+  gap: 4px;
+}
+@media screen and (max-width: 1280px) {
+  .forgot-password-container > .content > .form {
+    gap: 20px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .forgot-password-container > .content {
+    width: 100%;
+  }
+}
+.forgot-password-container > .gif {
+  width: 70%;
+}
+.forgot-password-container > .gif img {
+  width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+@media screen and (max-width: 1280px) {
+  .forgot-password-container > .gif {
+    min-width: 400px;
+  }
+  .forgot-password-container > .gif > .item {
+    width: 30%;
+  }
+}
+@media screen and (max-width: 900px) {
+  .forgot-password-container > .gif {
+    display: none;
+  }
+}
+@media screen and (max-width: 768px) {
+  .forgot-password-container > .gif {
+    display: none;
+  }
+}/*# sourceMappingURL=style.css.map */

@@ -1,0 +1,90 @@
+.nav-container {
+  max-width: 300px;
+  min-width: 300px;
+  width: 300px;
+  padding: 20px 0px;
+  border-right: 1px solid var(--mui-palette-gray5-main);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  transition: width 0.3s, min-width 0.3s;
+  overflow: hidden;
+  position: relative;
+}
+.nav-container--short {
+  width: 70px;
+  min-width: 70px;
+}
+.nav-container--short .nav-toggle-size {
+  display: none;
+}
+.nav-container .logo {
+  width: 100px;
+  height: 25px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.nav-container .logo img {
+  display: block;
+  width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.nav-container .logo--short {
+  width: 35px;
+  padding: 0 5px;
+}
+.nav-container .nav-container-top,
+.nav-container .nav-container-bottom {
+  width: 100%;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 10px;
+}
+.nav-container .nav-container-top .divider,
+.nav-container .nav-container-bottom .divider {
+  border-bottom: 1px solid var(--mui-palette-gray5-main);
+  margin: 2px 0;
+}
+.nav-container .nav-container-top {
+  padding: 0 5px 0 10px;
+  width: 100%;
+  max-height: 60%;
+}
+.nav-container .top-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  list-style-type: none;
+  padding-right: 5px;
+}
+.nav-container .top-items-list::-webkit-scrollbar-thumb {
+  background-color: var(--mui-palette-gray4-main);
+}
+.nav-container .top-items-list::-webkit-scrollbar {
+  background-color: var(--mui-palette-gray6-main);
+  border-radius: 10px;
+}
+.nav-container .top-items-list .item {
+  width: 100%;
+}
+.nav-container .top-items-list .item .part-group {
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.nav-container .nav-container-bottom {
+  flex-direction: column-reverse;
+}
+.nav-container .nav-toggle-size {
+  position: absolute;
+  right: 10px;
+}/*# sourceMappingURL=style.css.map */

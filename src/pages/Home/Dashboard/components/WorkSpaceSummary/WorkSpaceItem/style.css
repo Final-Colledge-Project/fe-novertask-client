@@ -1,0 +1,92 @@
+.workspace-summary-item {
+  min-width: 244px;
+  background-color: var(--mui-palette-white-main);
+  box-shadow: 0px 0px 7px 1px var(--mui-palette-gray5-main);
+  border-radius: 8px;
+  border: 1px solid var(--mui-palette-gray5-main);
+  padding: 10px 10px 5px 10px;
+  cursor: pointer;
+  position: relative;
+  top: 0;
+  transition: box-shadow 0.2s, top 0.2s;
+}
+.workspace-summary-item:hover {
+  box-shadow: 0px 0px 10px 4px var(--mui-palette-gray4-main);
+  position: relative;
+  top: -2px;
+}
+.workspace-summary-item .item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.workspace-summary-item .item-header__title {
+  font-weight: 700;
+  font-size: 14px;
+  display: -webkit-box;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+}
+.workspace-summary-item .item__cover {
+  width: 100%;
+  height: 120px;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(191deg, #ff6482 23.33%, #d20f44 107.81%);
+}
+.workspace-summary-item .item__cover:hover img {
+  transform: scale(1.05);
+}
+.workspace-summary-item .item__cover img {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  transition: transform 0.2s;
+  text-indent: -10000px;
+}
+.workspace-summary-item .item-bottom__task-progress {
+  margin: 15px 0;
+}
+.workspace-summary-item .item-bottom__task-progress .progress-text {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.workspace-summary-item .item-bottom__task-progress .progress-text__number {
+  color: var(--mui-palette-gray-main);
+}
+.workspace-summary-item .item-bottom__info-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.workspace-summary-item .item-bottom__info-group .item__estimate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background-color: var(--mui-palette-gray6-main);
+  font-size: 12px;
+  width: -moz-fit-content;
+  width: fit-content;
+  border-radius: 40px;
+}
+.workspace-summary-item .item-bottom__info-group .item__estimate svg {
+  width: 18px;
+}
+.workspace-summary-item .item-bottom__info-group .item__avatar-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+}/*# sourceMappingURL=style.css.map */

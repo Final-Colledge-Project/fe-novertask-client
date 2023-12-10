@@ -1,0 +1,209 @@
+.signin-container {
+  padding: 0 130px;
+  display: flex;
+  gap: 136px;
+  height: 100vh;
+  max-height: 100vh;
+  align-items: center;
+}
+@media screen and (max-width: 1280px) {
+  .signin-container {
+    padding: 0px 100px;
+    gap: 100px;
+  }
+}
+@media screen and (max-width: 1080px) {
+  .signin-container {
+    padding: 0px 50px;
+    gap: 50px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .signin-container {
+    padding: 0 20px;
+  }
+}
+@media screen and (max-width: 600px) {
+  .signin-container {
+    height: 80vh;
+  }
+}
+
+.signin-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50%;
+}
+.signin-text .title {
+  font-size: 35px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.signin-text .title .logo {
+  cursor: pointer;
+  width: 160px;
+  display: inline-flex;
+  align-items: center;
+}
+.signin-text .title .logo img {
+  display: inline-block;
+  width: 100%;
+}
+@media screen and (max-width: 1280px) {
+  .signin-text .title {
+    font-size: 30px;
+  }
+}
+@media screen and (max-width: 414px) {
+  .signin-text .title {
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+}
+.signin-text .blue {
+  color: var(--mui-palette-blue-main);
+}
+.signin-text .sub-title {
+  font-size: 20px;
+}
+@media screen and (max-width: 414px) {
+  .signin-text .sub-title {
+    font-size: 15px;
+  }
+}
+.signin-text .signin-action {
+  margin-top: 70px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.signin-text .signin-action .divider {
+  display: flex;
+  color: var(--mui-palette-gray2-main);
+  align-items: center;
+  gap: 10px;
+}
+.signin-text .signin-action .divider::after {
+  content: "";
+  display: block;
+  height: 0;
+  flex: 1;
+  border-top: 1px solid var(--mui-palette-gray2-main);
+}
+.signin-text .signin-action .divider::before {
+  content: "";
+  display: block;
+  height: 0;
+  flex: 1;
+  border-top: 1px solid var(--mui-palette-gray2-main);
+}
+.signin-text .navigate-signup {
+  width: 100%;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 70px;
+}
+@media screen and (max-width: 414px) {
+  .signin-text .navigate-signup {
+    font-size: 15px;
+  }
+}
+@media screen and (max-width: 1280px) {
+  .signin-text .navigate-login {
+    margin-top: 20px;
+  }
+  .signin-text .signin-action {
+    gap: 20px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .signin-text {
+    width: 100%;
+  }
+}
+
+.signin__forgot-password {
+  text-align: right;
+  color: var(--mui-palette-blue-main);
+}
+
+.signin-image {
+  width: 40%;
+  min-width: 573px;
+  max-width: 600px;
+  padding-top: 86px;
+  position: relative;
+}
+.signin-image .main {
+  width: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+  -o-object-position: bottom;
+     object-position: bottom;
+}
+.signin-image .item {
+  opacity: 0;
+  transform: scale(0);
+  width: 25%;
+  position: absolute;
+}
+.signin-image .calendar {
+  top: 0px;
+  right: -50px;
+  animation: appear 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s 1 forwards, rotateAnim 2s linear 1s infinite;
+  transform-origin: top center;
+}
+.signin-image .clock {
+  animation: appear 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.7s 1 forwards, rotateAnim 2s linear 1.7s infinite;
+  transform-origin: top center;
+  bottom: 0px;
+  left: -50px;
+}
+@keyframes appear {
+  0% {
+    transform: rotateX(360deg) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: rotateX(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes rotateAnim {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  22% {
+    transform: rotateZ(5deg);
+  }
+  25% {
+    transform: rotateZ(5deg);
+  }
+  28% {
+    transform: rotateZ(5deg);
+  }
+  50% {
+    transform: rotateZ(0deg);
+  }
+  72% {
+    transform: rotateZ(-5deg);
+  }
+  75% {
+    transform: rotateZ(-5deg);
+  }
+  78% {
+    transform: rotateZ(-5deg);
+  }
+  100% {
+    transform: rotateZ(0deg);
+  }
+}/*# sourceMappingURL=style.css.map */
