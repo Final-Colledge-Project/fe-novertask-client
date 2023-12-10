@@ -5,13 +5,9 @@ import LoadingSkelelton from '~/pages/Home/components/LoadingSkeleton'
 
 const Data = () => {
   const { boards } = useSelector((state: StoreType) => state.board)
-
   return boards ? (
     <>
-      {boards?.workspaceHasBoards.map((workspace) => (
-        <WorkSpaceSummary data={workspace} key={workspace._id} />
-      ))}
-      {boards?.workspaceWithNoBoard.map((workspace) => (
+      {boards?.map((workspace) => (
         <WorkSpaceSummary data={workspace} key={workspace._id} />
       ))}
     </>

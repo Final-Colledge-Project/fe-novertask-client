@@ -17,15 +17,12 @@ const WorkSpaceDetails = () => {
 
   const joinWorkspacesName = () => {
     const {
-      boards: { workspaceHasBoards, workspaceWithNoBoard }
+      boards
     } = allBoardInfoOfCurrentUser
-    const result = workspaceHasBoards.map((w) => ({
+    const result = boards.map((w) => ({
       _id: w._id,
       name: w.name
     }))
-    result.push(
-      ...workspaceWithNoBoard.map((w) => ({ _id: w._id, name: w.name }))
-    )
     return result
   }
 
