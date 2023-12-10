@@ -16,3 +16,15 @@ export interface ISignUpBody {
   birthDate: string
   address: string
 }
+
+export interface IUploadAvatarBody {
+  avatar: File
+}
+
+export interface IUpdateUserBody {
+  phone: string
+  firstName: string
+  lastName: string
+  birthDate: string
+  address: string
+}

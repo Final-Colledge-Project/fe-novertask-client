@@ -3,8 +3,10 @@ import './style.scss'
 import clsx from 'clsx'
 import { useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
+import { useNavigate } from 'react-router-dom'
 const UserBadge = ({ fullVisible }: { fullVisible: boolean }) => {
   const { userInfo } = useSelector((state: StoreType) => state.auth)
+  const navigate = useNavigate()
 
   return (
     userInfo && (
@@ -13,6 +15,7 @@ const UserBadge = ({ fullVisible }: { fullVisible: boolean }) => {
           'badge-container',
           fullVisible ? '' : 'badge-container--short'
         )}
+        onClick={() => navigate('/u/profile')}
       >
         <Avatar
           alt={userInfo.firstName}

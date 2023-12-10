@@ -7,7 +7,13 @@ import {
   IGetCurrentUserResponse
 } from './resTypes'
 import requests from './requests'
-import { ISendOTP, ISignUpBody, IVerifyOTP } from './reqTypes'
+import {
+  ISendOTP,
+  ISignUpBody,
+  IUpdateUserBody,
+  IUploadAvatarBody,
+  IVerifyOTP
+} from './reqTypes'
 import { AxiosError } from 'axios'
 
 export const sendOTP = async (body: ISendOTP) => {
@@ -111,11 +117,51 @@ export const getCurrentUser = async () => {
 
 export const signOut = async () => {
   try {
-
     // response is nothing
     await axiosInstance.get(requests.signOut)
-
   } catch (error) {
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const updateAvatar = async (data: IUploadAvatarBody) => {
+  try {
+    const res = await axiosInstance.patchForm(requests.uploadImage, data)
+    if (res && res.status === 200) return res.data
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    // file is not an image file
+    if (status && status === 400) {
+      throw new Error('Not an image! Please upload only images.')
+    }
+
+    if (status && status === 500) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      // file is too large
+      if (errorData.message === 'File too large') {
+        throw new Error(`File too large. Please choose a smaller one`)
+      }
+    }
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const updateUser = async (data: IUpdateUserBody) => {
+  try {
+    const res = await axiosInstance.patch(requests.updateUser, data)
+    if (res && res.status === 200) return res.data
+  } catch (error) {
+
+    const status = (error as AxiosError).response?.status
+    if (status && status === 400) {
+      throw new Error('Your data is invalid! Please check it.')
+    }
 
     // general error
     throw new Error('Something went wrong! Please try later.')

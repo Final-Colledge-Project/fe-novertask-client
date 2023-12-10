@@ -8,6 +8,7 @@ import AddPJPopup from './components/AddPJPopup'
 import Dashboard from './Dashboard'
 import InvitePeoplePopup from './components/InvitePeoplePopup'
 import BoardDetail from './BoardDetail'
+import Profile from './Profile'
 
 const Home = () => {
   return (
@@ -20,6 +21,7 @@ const Home = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />
             <Route path="boards/:id/*" element={<BoardDetail />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
       </div>

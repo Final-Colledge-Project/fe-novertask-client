@@ -3,6 +3,8 @@ const requests = {
   verifyOTP: `/email-verification/verify`,
   signUp: `/users`,
   getCurrentUser: '/auth',
-  signOut: '/auth/logout'
+  signOut: '/auth/logout',
+  uploadImage: '/users/upload-avatar',
+  updateUser: '/users'
 }
 export default requests

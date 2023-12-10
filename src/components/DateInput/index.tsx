@@ -1,6 +1,6 @@
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import IInputProps from '../IInputProps'
-const DateInput = ({ label, disableFuture, error, field }: IInputProps) => {
+const DateInput = ({ label, disableFuture, error, field, sx }: IInputProps) => {
   return (
     <DatePicker
       {...field}
@@ -12,7 +12,8 @@ const DateInput = ({ label, disableFuture, error, field }: IInputProps) => {
         backgroundColor: (theme) => theme.palette.white.main,
         '& .MuiOutlinedInput-root': {
           height: '100%'
-        }
+        },
+        ...sx
       }}
       disableFuture={disableFuture}
       views={['year', 'month', 'day']}

@@ -16,6 +16,7 @@ interface IInputProps {
   autofocus?: boolean
   sx?: SxProps
   multiple?: boolean
-  row?: number 
+  row?: number
+  disabled?: boolean
 }
 export default IInputProps

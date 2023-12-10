@@ -1,5 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { getCurrentUser, signIn, signOut } from './actions'
+import {
+  getCurrentUser,
+  signIn,
+  signOut,
+  updateUser,
+  uploadAvatar
+} from './actions'
 import { IUser } from '~/services/types'
 
 // get the token from local storage
@@ -113,8 +119,39 @@ const authSlice = createSlice({
         state.error = payload as string
         state.success = false
       })
+      .addCase(uploadAvatar.pending, (state) => {
+        state.loading = true
+        state.error = undefined
+        state.success = false
+      })
+      .addCase(uploadAvatar.fulfilled, (state, { payload }) => {
+        state.loading = false
+        state.userInfo = payload
+        state.success = true
+      })
+      .addCase(uploadAvatar.rejected, (state, { payload }) => {
+        state.loading = false
+        state.success = false
+        state.error = payload as string
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true
+        state.error = undefined
+        state.success = false
+      })
+      .addCase(updateUser.fulfilled, (state, { payload }) => {
+        state.loading = false
+        state.userInfo = payload
+        state.success = true
+      })
+      .addCase(updateUser.rejected, (state, { payload }) => {
+        state.loading = false
+        state.success = false
+        state.error = payload as string
+      })
   }
 })
 
 export default authSlice.reducer
-export const { setOTP, setToken, setReSign, setEmail, setIsRefreshingToken } = authSlice.actions
+export const { setOTP, setToken, setReSign, setEmail, setIsRefreshingToken } =
+  authSlice.actions

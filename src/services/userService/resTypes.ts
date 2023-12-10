@@ -25,3 +25,13 @@ export interface IGetCurrentUserResponse {
   data: IUser
   message: string
 }
+
+export interface IUpdateAvatarResponse {
+  data: IUser
+  message: string
+}
+
+export interface IUpdateUserResponse {
+  data: IUser
+  message: string
+}

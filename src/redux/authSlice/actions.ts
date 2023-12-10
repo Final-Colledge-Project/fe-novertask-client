@@ -1,6 +1,10 @@
 import { ISignInBody } from '~/services/authService'
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { authService, userService } from '~/services'
+import {
+  IUpdateUserBody,
+  IUploadAvatarBody
+} from '~/services/userService/reqTypes'
 
 export const signIn = createAsyncThunk(
   'auth/signIn',
@@ -31,7 +35,7 @@ export const signIn = createAsyncThunk(
 
 export const refreshToken = createAsyncThunk(
   'auth/refreshToken',
-  async (data, thunkApi) => {
+  async (_data, thunkApi) => {
     try {
       // refresh the token
       const res = await authService.refreshToken()
@@ -57,7 +61,6 @@ export const getCurrentUser = createAsyncThunk(
     try {
       // sign in
       const res = await userService.getCurrentUser()
-      console.log('res: ', res)
       if (res && res.data) {
         // return token for reducer
         return res.data
@@ -75,6 +78,38 @@ export const signOut = createAsyncThunk(
       // sign out
       await userService.signOut()
       return ''
+    } catch (err) {
+      return thunkApi.rejectWithValue((err as Error).message as string)
+    }
+  }
+)
+
+export const uploadAvatar = createAsyncThunk(
+  'auth/uploadAvatar',
+  async (data: IUploadAvatarBody, thunkApi) => {
+    try {
+      // update avatar
+      const res = await userService.updateAvatar(data)
+      if (res && res.data) {
+        // return updated user for store
+        return res.data
+      }
+    } catch (err) {
+      return thunkApi.rejectWithValue((err as Error).message as string)
+    }
+  }
+)
+
+export const updateUser = createAsyncThunk(
+  'auth/updateUser',
+  async (data: IUpdateUserBody, thunkApi) => {
+    try {
+      // update avatar
+      const res = await userService.updateUser(data)
+      if (res && res.data) {
+        // return updated user for store
+        return res.data
+      }
     } catch (err) {
       return thunkApi.rejectWithValue((err as Error).message as string)
     }

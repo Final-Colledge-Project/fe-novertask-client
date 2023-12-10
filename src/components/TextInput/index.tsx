@@ -19,7 +19,9 @@ const TextInput = ({
   field,
   autofocus,
   multiple,
-  row
+  row,
+  sx,
+  disabled
 }: IInputProps) => {
   const inputRef = useRef<HTMLElement | null>(null)
 
@@ -32,10 +34,12 @@ const TextInput = ({
   return (
     <FormControl
       fullWidth
+      disabled={disabled}
       sx={{
-        m: 0,
         height: multiple ? 'unset' : '50px',
-        backgroundColor: (theme) => theme.palette.white.main,
+        m: 0,
+        backgroundColor: (theme) =>
+          disabled ? theme.palette.gray6.main : theme.palette.white.main,
         label: {
           color: (theme) =>
             error ? theme.palette.error.main : theme.palette.primary.main,
@@ -43,7 +47,8 @@ const TextInput = ({
             color: (theme) =>
               error ? theme.palette.error.main : theme.palette.primary.main
           }
-        }
+        },
+        ...sx
       }}
     >
       <InputLabel htmlFor={'outlined-adornment-amount' + label}>

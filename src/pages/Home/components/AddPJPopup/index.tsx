@@ -26,9 +26,11 @@ import { hideLoading, showLoading } from '~/redux/progressSlice'
 import { createBoard } from '~/services/boardService'
 import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setShouldReloadAllBoard } from '~/redux/boardSlice'
+import { useNavigate } from 'react-router-dom'
 
 const AddPJPopup = () => {
   const dispatch = useDispatch<StoreDispatchType>()
+  const navigate = useNavigate()
 
   const { PopupAddPJ } = useSelector((state: StoreType) => state.popup)
   const { boards } = useSelector((state: StoreType) => state.board)
@@ -91,6 +93,7 @@ const AddPJPopup = () => {
         enqueueSnackbar(`Create successfully board ${data.PJName}.`, {
           variant: 'success'
         })
+        navigate(`/u/boards/${res.data._id}`)
         handleClose()
       }
     } catch (err) {
