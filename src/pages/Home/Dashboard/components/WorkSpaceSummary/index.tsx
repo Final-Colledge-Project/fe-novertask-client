@@ -57,7 +57,7 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
         // ignore errors
       }
     }
-    ;(!data.board || data.board?.length === 0) && getMember()
+    ;(!data.boards || data.boards?.length === 0) && getMember()
   })
 
   return (
@@ -69,7 +69,7 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
           </p>
           <p className="header-text-count">
             {' '}
-            • {data.board?.length || 0} projects
+            • {data.boards?.length || 0} projects
           </p>
         </div>
         <div className="header-divider"></div>
@@ -78,9 +78,9 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
         </div>
       </div>
       <div className="workspace-summary-outlet">
-        {data.board && data.board.length > 0 ? (
+        {data.boards && data.boards.length > 0 ? (
           <div className="outlet-items-list">
-            {data.board?.map((project) => (
+            {data.boards?.map((project) => (
               <WorkSpaceItem data={project} key={project._id} />
             ))}
           </div>

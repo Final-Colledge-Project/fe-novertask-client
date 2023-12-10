@@ -1,0 +1,105 @@
+.add-ws-popup {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+  background-color: rgba(142, 142, 147, 0.5);
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scale: 1;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+.add-ws-popup--hidden {
+  scale: 0;
+  opacity: 0;
+}
+.add-ws-popup-container {
+  box-shadow: 0 0 7px 1px var(--mui-palette-gray1-main);
+  border: 1px solid var(--mui-palette-gray1-main);
+  display: flex;
+  gap: 32px;
+  flex-direction: row;
+  align-items: flex-end;
+}
+.add-ws-popup-picture {
+  position: relative;
+  z-index: 1;
+  width: 360px;
+  height: 410px;
+  background-color: var(--mui-palette-white-main);
+  border-radius: 20px 20px 0px 0px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow-x: visible;
+}
+.add-ws-popup-picture .inner {
+  max-height: 100%;
+  overflow-x: visible;
+}
+.add-ws-popup-picture img {
+  display: block;
+  width: 700px;
+  height: 400px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  -o-object-position: center center;
+     object-position: center center;
+}
+.add-ws-popup-picture .outlined-div {
+  width: 160px;
+  height: 160px;
+  border: 3px solid var(--mui-palette-white-main);
+  position: absolute;
+  top: -192px;
+  border-radius: 20px;
+  right: 0;
+}
+.add-ws-popup-picture .filled-div {
+  width: 80px;
+  height: 80px;
+  background-color: var(--mui-palette-white-main);
+  border-radius: 20px;
+  position: absolute;
+  top: -232px;
+  right: 180px;
+}
+.add-ws-popup-form {
+  background-color: var(--mui-palette-white-main);
+  position: relative;
+  width: 500px;
+  height: 650px;
+  padding: 100px 20px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.add-ws-popup-title {
+  color: var(--mui-palette-black-main);
+  margin-bottom: 50px;
+}
+.add-ws-popup-subtitle {
+  color: var(--mui-palette-gray-main);
+  text-align: center;
+  margin-top: 20px;
+}
+.add-ws-popup-actions {
+  display: flex;
+  align-self: flex-end;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+.add-ws-popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}/*# sourceMappingURL=style.css.map */
