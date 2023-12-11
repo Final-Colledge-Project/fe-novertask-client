@@ -1,16 +1,12 @@
 import {
   IAllMemberInBoard,
   IBoard,
-  IWorkspaceWithBoard,
-  IWorkspaceWithoutBoard
+  IGeneralWorkspace,
 } from '../types'
 
 export interface IGetAllByUserIdResponse {
   length: number
-  data: {
-    workspaceHasBoards: IWorkspaceWithBoard[]
-    workspaceWithNoBoard: IWorkspaceWithoutBoard[]
-  }
+  data: IGeneralWorkspace[];
   message: string
 }
 
