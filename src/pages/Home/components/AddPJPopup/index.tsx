@@ -39,14 +39,10 @@ const AddPJPopup = () => {
 
   const getWorkspaces = () => {
     if (boards) {
-      const { workspaceHasBoards, workspaceWithNoBoard } = boards
-      const result = workspaceHasBoards.map((w) => ({
+      const result = boards?.map((w) => ({
         _id: w._id,
         name: w.name
       }))
-      result.push(
-        ...workspaceWithNoBoard.map((w) => ({ _id: w._id, name: w.name }))
-      )
       return result
     }
   }

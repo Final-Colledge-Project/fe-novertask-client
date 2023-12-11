@@ -1,4 +1,4 @@
-import { IAllBoardOfCurrentUser } from '~/services/types'
+import { IGeneralWorkspace } from '~/services/types'
 import { createSlice } from '@reduxjs/toolkit'
 import { getAllByUserId } from './actions'
 
@@ -8,7 +8,7 @@ const initialState: {
     error: string | undefined
     success: boolean
   }
-  boards: IAllBoardOfCurrentUser
+  boards: IGeneralWorkspace[]
   shouldRefreshAllBoard: boolean
   creatingBoard: {
     loading: boolean
@@ -23,10 +23,7 @@ const initialState: {
     error: undefined,
     success: false
   },
-  boards: {
-    workspaceHasBoards: [],
-    workspaceWithNoBoard: []
-  },
+  boards: [],
   shouldRefreshAllBoard: false,
   creatingBoard: {
     loading: false,
@@ -68,7 +65,7 @@ const boardSlice = createSlice({
         state.getAllBoard.loading = false
         state.getAllBoard.error = undefined
         state.getAllBoard.success = true
-        state.boards = payload as IAllBoardOfCurrentUser
+        state.boards = payload as IGeneralWorkspace[]
       })
       .addCase(getAllByUserId.rejected, (state, { payload }) => {
         state.getAllBoard.loading = false

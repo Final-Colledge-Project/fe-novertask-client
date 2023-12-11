@@ -100,15 +100,14 @@ export interface IWorkspaceWithBoard {
   createdAt: string
 }
 export interface IGeneralWorkspace {
-  board?: IBoard[]
+  boards?: IBoard[]
   _id: string
   name: string
   createdAt: string
 }
 
 export interface IAllBoardOfCurrentUser {
-  workspaceWithNoBoard: IWorkspaceWithoutBoard[]
-  workspaceHasBoards: IWorkspaceWithBoard[]
+  workspaces: IGeneralWorkspace[]
 }
 
 export interface IAllMemberInBoard {
