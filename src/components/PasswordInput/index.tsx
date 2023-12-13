@@ -16,7 +16,8 @@ const PasswordInput = ({
   onChange,
   error = false,
   field,
-  value
+  value,
+  sx
 }: IInputProps) => {
   const [showPassword, setShowPassword] = useState(false)
 
@@ -42,7 +43,8 @@ const PasswordInput = ({
             color: (theme) =>
               error ? theme.palette.error.main : theme.palette.primary.main
           }
-        }
+        },
+        ...sx
       }}
     >
       <InputLabel htmlFor={`outlined-adornment-${label}`}>{label}</InputLabel>
