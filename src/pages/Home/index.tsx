@@ -21,7 +21,7 @@ const Home = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />
             <Route path="boards/:id/*" element={<BoardDetail />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="profile/*" element={<Profile />} />
           </Route>
         </Routes>
       </div>

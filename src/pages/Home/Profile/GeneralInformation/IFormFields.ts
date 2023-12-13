@@ -4,6 +4,6 @@ export default interface IFormFields extends FieldValues {
   phone: string
   firstName: string
   lastName: string
-  birthDate: Date
+  birthDate: string
   address: string
 }

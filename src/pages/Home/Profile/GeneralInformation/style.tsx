@@ -5,6 +5,15 @@ export const UpdateAvatarSection = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 30px;
+
+  & > .label {
+    width: 100%;
+    text-align: left;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--mui-palette-black-main);
+    margin-bottom: -20px;
+  }
 `
 
 export const InfoSection = styled.div`
@@ -14,15 +23,16 @@ export const InfoSection = styled.div`
   flex-direction: column;
   gap: 30px;
 
-  & > .info-section_title {
+  & > .info-section__title {
     font-size: 24px;
     font-weight: 700;
     line-height: normal;
     padding-bottom: 5px;
     width: 100%;
     border-bottom: 1px solid var(--mui-palette-divider);
+    color: var(--mui-palette-blue-main);
   }
-  & > .info-section_form-group {
+  & > .info-section__form-group {
     display: flex;
     justify-content: space-between;
     padding-right: 70px;

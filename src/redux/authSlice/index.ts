@@ -27,6 +27,10 @@ const initialState: {
   isSigningOut: boolean
   emailToVerify: string | undefined
   isRefreshingToken: boolean
+  updateUser: {
+    error: undefined | string
+    success: boolean
+  }
 } = {
   userToken,
   userInfo: undefined,
@@ -37,7 +41,11 @@ const initialState: {
   shouldReSign: false,
   isSigningOut: false,
   emailToVerify: undefined,
-  isRefreshingToken: false
+  isRefreshingToken: false,
+  updateUser: {
+    error: undefined,
+    success: false
+  }
 }
 
 const authSlice = createSlice({
@@ -62,6 +70,12 @@ const authSlice = createSlice({
     },
     setIsRefreshingToken: (state, action) => {
       state.isRefreshingToken = action.payload
+    },
+    resetUpdateUser: (state) => {
+      state.updateUser = {
+        error: undefined,
+        success: false
+      }
     }
   },
   extraReducers: (builder) => {
@@ -136,22 +150,28 @@ const authSlice = createSlice({
       })
       .addCase(updateUser.pending, (state) => {
         state.loading = true
-        state.error = undefined
-        state.success = false
+        state.updateUser.error = undefined
+        state.updateUser.success = false
       })
       .addCase(updateUser.fulfilled, (state, { payload }) => {
         state.loading = false
         state.userInfo = payload
-        state.success = true
+        state.updateUser.success = true
       })
       .addCase(updateUser.rejected, (state, { payload }) => {
         state.loading = false
-        state.success = false
-        state.error = payload as string
+        state.updateUser.success = false
+        state.updateUser.error = payload as string
       })
   }
 })
 
 export default authSlice.reducer
-export const { setOTP, setToken, setReSign, setEmail, setIsRefreshingToken } =
-  authSlice.actions
+export const {
+  setOTP,
+  setToken,
+  setReSign,
+  setEmail,
+  setIsRefreshingToken,
+  resetUpdateUser
+} = authSlice.actions
