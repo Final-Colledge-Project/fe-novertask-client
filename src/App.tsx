@@ -11,6 +11,7 @@ import ForgotPassword from './pages/ResetPassword'
 import ProgressModal from './components/ProgressModal'
 import { lazy, Suspense } from 'react'
 import Loading from './components/Loading'
+import SingInSuccess from './pages/SignIn/components/SignInSuccess'
 const Home = lazy(() => import('./pages/Home'))
 const Invitation = lazy(() => import('./pages/Invitation'))
 
@@ -29,6 +30,7 @@ function App() {
             <Route element={<SignUp />} path="sign-up/*" />
             <Route element={<VerifyEmail />} path="verify-email/*" />
             <Route element={<ForgotPassword />} path="reset-password" />
+            <Route element={<SingInSuccess />} path='login-success/:userId/:tokenLogin'/>
           </Route>
 
           {/* protected routes */}

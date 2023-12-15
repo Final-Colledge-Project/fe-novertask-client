@@ -1,4 +1,4 @@
-import { ISignInBody } from '~/services/authService'
+import { ILoginSuccessBody, ISignInBody } from '~/services/authService'
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { authService, userService } from '~/services'
 import {
@@ -111,6 +111,33 @@ export const updateUser = createAsyncThunk(
         return res.data
       }
     } catch (err) {
+      return thunkApi.rejectWithValue((err as Error).message as string)
+    }
+  }
+)
+
+export const loginSuccess = createAsyncThunk(
+  'auth/loginSuccess',
+  async (data: ILoginSuccessBody, thunkApi) => {
+    try {
+      const res = await authService.loginSuccess(data)
+      if (res && res.data) {
+        // persist the token
+        localStorage.setItem(
+          import.meta.env.VITE_USER_TOKEN_KEY,
+          res.data as string
+        )
+
+        const userRes = await userService.getCurrentUser()
+        if (userRes && userRes.data)
+          // return token for reducer
+          return {
+            userToken: res.data,
+            userInfo: userRes.data
+          }
+      }
+    }
+    catch (err) { 
       return thunkApi.rejectWithValue((err as Error).message as string)
     }
   }

@@ -19,6 +19,8 @@ import './style.scss'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { signIn } from '~/redux/authSlice/actions'
+import LoginType from './components/LoginType'
+import { GOOGLE_IMAGE_ICON } from '~/utils/constant'
 
 const SignIn = () => {
   const navigateTo = useNavigate()
@@ -39,6 +41,7 @@ const SignIn = () => {
     await dispatch(signIn(formData))
   }
 
+  console.log('import.meta.env.GOOGLE_IMAGE_ICON', GOOGLE_IMAGE_ICON)
   return (
     <div className="signin-container">
       <div className="signin-text">
@@ -111,6 +114,11 @@ const SignIn = () => {
               'Sign In'
             )}
           </Button>
+          <div className="line"></div>
+          <div className="loginGroup">
+            {/* <LoginType src={FACEBOOK_IMAGE_ICON} type="facebook" /> */}
+            <LoginType src={GOOGLE_IMAGE_ICON} type="google" />
+          </div>
           <p className="navigate-signup">
             Not a member?
             <Button

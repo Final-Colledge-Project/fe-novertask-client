@@ -4,7 +4,8 @@ import {
   signIn,
   signOut,
   updateUser,
-  uploadAvatar
+  uploadAvatar,
+  loginSuccess
 } from './actions'
 import { IUser } from '~/services/types'
 
@@ -162,6 +163,22 @@ const authSlice = createSlice({
         state.loading = false
         state.updateUser.success = false
         state.updateUser.error = payload as string
+      })
+      .addCase(loginSuccess.pending, (state) => {
+        state.loading = true
+        state.error =undefined
+        state.success = false
+      })
+      .addCase(loginSuccess.fulfilled, (state, { payload }) => {
+        state.loading = false
+        state.success = true
+        state.userToken = payload?.userToken
+        state.userInfo = payload?.userInfo
+      })
+      .addCase(loginSuccess.rejected, (state, { payload }) => {
+        state.loading = false
+        state.success = false
+        state.error = payload as string
       })
   }
 })

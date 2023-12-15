@@ -206,4 +206,23 @@
   100% {
     transform: rotateZ(0deg);
   }
+}
+
+.line {
+  position: relative;
+  height: 1px;
+  width: 100%;
+  margin: 26px 0 0 0;
+  background-color: #bfbfbf;
+}
+
+.line::before {
+  content: "or continue with";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  color: #b3b3b3;
+  padding: 0 15px;
 }/*# sourceMappingURL=style.css.map */

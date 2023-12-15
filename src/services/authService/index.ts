@@ -8,6 +8,7 @@ import {
 } from './resTypes'
 import {
   IForgotPasswordBody,
+  ILoginSuccessBody,
   IResetPasswordBody,
   ISignInBody
 } from './reqTypes'
@@ -119,6 +120,18 @@ export const refreshToken = async () => {
     }
 
     // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const loginSuccess = async (body: ILoginSuccessBody) => {
+  try {
+    const res = await axiosInstance.post<ILoginResponse>(requests.loginSuccess, body)
+    if (res.status === 200) {
+      return res.data
+    }
+  }
+  catch (error) {
     throw new Error('Something went wrong! Please try later.')
   }
 }
