@@ -57,7 +57,11 @@ export interface IBoard {
   columnOrderIds?: Array<string>
   type: 'private' | 'public'
   teamWorkspaceId: string
-  ownerIds: Array<string>
+  ownerIds: {
+    user: string
+    role: string
+    _id: string
+  }[]
   memberIds: Array<string>
   dueDate?: string
   isActive?: boolean
@@ -112,7 +116,7 @@ export interface IAllBoardOfCurrentUser {
 
 export interface IAllMemberInBoard {
   boardId: string
-  oweners: IMemberInBoard[]
+  oweners: { user: IMemberInBoard }[]
   members: IMemberInBoard[]
 }
 

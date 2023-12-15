@@ -190,7 +190,7 @@ const OverviewSection = () => {
     (board: IBoard) => {
       if (board.type === 'public') return true
       const { ownerIds, memberIds } = board
-      const members = [...ownerIds, ...memberIds]
+      const members = [...ownerIds.map((item) => item._id), ...memberIds]
       return members.includes(currentUser.userInfo?._id as string)
     },
     [currentUser]
@@ -223,6 +223,10 @@ const OverviewSection = () => {
         (m) => m.role === 'superAdmin'
       )
     }
+  }
+
+  const checkIsCurrentUserAnSuperAdmin = () => {
+    return superAdmin()?.user?._id === currentUser?.userInfo?._id
   }
 
   return (
@@ -324,7 +328,7 @@ const OverviewSection = () => {
                   </MemberAvatarGroup>
                 </MemberPart>
               </Members>
-              {checkIsUserAnAdmin() && (
+              {checkIsCurrentUserAnSuperAdmin() && (
                 <Button
                   fullWidth
                   variant="contained"

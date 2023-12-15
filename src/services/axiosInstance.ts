@@ -14,13 +14,23 @@ const axiosInstance = axios.create({
   withCredentials: true
 })
 
+const checkShouldAttachToken = (url: string, method: string) => {
+  if (guestRequest.includes(url)) {
+
+    if (url === '/auth' && method === 'get') return true
+    else if (url === '/users' && method === 'patch') return true
+    else return false
+
+  }
+
+  return true
+}
+
 axiosInstance.interceptors.request.use(
   (req) => {
     // request to url requiring auth
-    if (
-      !guestRequest.includes(req.url as string) ||
-      (req.url === '/auth' && req.method === 'GET')
-    ) {
+    if (checkShouldAttachToken(req.url as string, req.method as string)) {
+
       // get token from local storage
       const accessToken = localStorage.getItem(
         import.meta.env.VITE_USER_TOKEN_KEY

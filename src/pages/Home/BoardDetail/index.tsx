@@ -233,8 +233,10 @@ const BoardDetail = () => {
     }
   }, [shouldRefreshBoardDetail])
 
-  const isUserAnAdmin = useCallback(() => {
-    return !!members?.oweners.find((owner) => owner._id === currentUser?._id)
+  const isUserTheBoardLead = useCallback(() => {
+    return !!members?.oweners.find(
+      (owner) => owner.user._id === currentUser?._id
+    )
   }, [members, currentUser])
 
   const handleShowAddMemberPopup = () => {
@@ -389,7 +391,7 @@ const BoardDetail = () => {
     const { active } = e
 
     // only admin can drag column
-    if (!isUserAnAdmin() && !active.data.current?.columnId) return
+    if (!isUserTheBoardLead() && !active.data.current?.columnId) return
 
     setActiveItemID(active.id)
     setActiveItemData(active.data.current as ICard | IColumn)
@@ -686,7 +688,7 @@ const BoardDetail = () => {
             <p className="description">{board?.description}</p>
           </div>
           <div className="right-block">
-            <AddMenu items={items} />
+            <AddMenu items={isUserTheBoardLead() ? items : items.slice(0, 1)} />
             <SearchBox label="" sx={{ height: '35px' }} />
             <IconButton>
               <RiMore2Fill />
@@ -714,19 +716,29 @@ const BoardDetail = () => {
             </Button>
             <MemberAvatarGroup>
               {members?.oweners &&
-                members.oweners.map((mem) => (
-                  <YellowTooltip title={'Owner | ' + mem.firstName}>
-                    <Avatar alt={mem.firstName} src={mem.avatar} />
+                members.oweners.map(({ user }) => (
+                  <YellowTooltip title={'Owner | ' + user.firstName}>
+                    <Avatar
+                      alt={user.firstName}
+                      src={user.avatar}
+                      sx={{
+                        '&.MuiAvatar-root': {
+                          // order: 2,
+                          border: (theme) =>
+                            `3px solid ${theme.palette.yellow.main} !important`
+                        }
+                      }}
+                    />
                   </YellowTooltip>
                 ))}
               {members?.members &&
-                members.members.map((mem) => (
-                  <Tooltip title={mem.firstName}>
-                    <Avatar alt={mem.firstName} src={mem.avatar} />
+                members.members.map((user) => (
+                  <Tooltip title={user.firstName}>
+                    <Avatar alt={user.firstName} src={user.avatar} />
                   </Tooltip>
                 ))}
             </MemberAvatarGroup>
-            {isUserAnAdmin() && (
+            {isUserTheBoardLead() && (
               <Button
                 color="primary"
                 variant="contained"
@@ -769,11 +781,13 @@ const BoardDetail = () => {
               />
             )}
           </DragOverlay>
-          <AddColumnButton
-            addingColumn={addingColumn}
-            setFocus={handleAddingColumn}
-            boardId={board?._id as string}
-          />
+          {isUserTheBoardLead() && (
+            <AddColumnButton
+              addingColumn={addingColumn}
+              setFocus={handleAddingColumn}
+              boardId={board?._id as string}
+            />
+          )}
         </Body>
         <AddMemberPopup />
       </BoardDetailContainer>

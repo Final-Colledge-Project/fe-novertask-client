@@ -130,8 +130,8 @@ export default function AddMemberPopup() {
   const isMemberInBoard = (id: string) => {
     if (!id || !boardMembers) return
     return (
-      !!boardMembers?.oweners?.find((mem) => mem._id === id) ||
-      !!boardMembers?.members?.find((mem) => mem._id === id)
+      !!boardMembers?.oweners?.find(({ user }) => user._id === id) ||
+      !!boardMembers?.members?.find((user) => user._id === id)
     )
   }
 
@@ -226,7 +226,7 @@ export default function AddMemberPopup() {
       <Modal onClick={(e) => e.stopPropagation()}>
         <Header>
           <div className="title">
-            <p>Add member</p>
+            <p>Add member to board</p>
           </div>
           <IconButton onClick={handleClose}>
             <RiCloseFill />
@@ -264,7 +264,7 @@ export default function AddMemberPopup() {
               }
               label="Select all"
             />
-            <p className="note">Role in wokspace</p>
+            <p className="note">State</p>
           </MemberSectionTitle>
 
           {cleanedWSMembers?.map((member) => (
@@ -293,9 +293,9 @@ export default function AddMemberPopup() {
                 <div className="name-role-group">
                   <div className="name">{member?.user?.fullName}</div>
                   <div className={clsx('role', member?.role)}>
-                    {member?.role === 'superAdmin' && 'Super admin'}
-                    {member?.role === 'admin' && 'Admin'}
-                    {!member?.role && 'Member'}
+                    {member?.role === 'superAdmin' && 'Workspace lead'}
+                    {member?.role === 'admin' && 'Workspace Admin'}
+                    {!member?.role && 'Workspace member'}
                   </div>
                 </div>
                 <div className="email">{member?.user?.email}</div>

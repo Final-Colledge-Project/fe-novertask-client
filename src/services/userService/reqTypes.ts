@@ -28,3 +28,8 @@ export interface IUpdateUserBody {
   birthDate: string
   address: string
 }
+
+export interface IChangePasswordRequest{
+  currentPassword: string
+  newPassword: string
+}

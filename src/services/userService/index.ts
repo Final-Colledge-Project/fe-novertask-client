@@ -8,6 +8,7 @@ import {
 } from './resTypes'
 import requests from './requests'
 import {
+  IChangePasswordRequest,
   ISendOTP,
   ISignUpBody,
   IUpdateUserBody,
@@ -155,14 +156,39 @@ export const updateAvatar = async (data: IUploadAvatarBody) => {
 export const updateUser = async (data: IUpdateUserBody) => {
   try {
     const res = await axiosInstance.patch(requests.updateUser, data)
+
     if (res && res.status === 200) return res.data
   } catch (error) {
+    const errorMessage: IErrorResponse = (error as AxiosError).response
+      ?.data as IErrorResponse
 
     const status = (error as AxiosError).response?.status
+
+    if (errorMessage.message === 'Phone is used by another user') {
+      // should not use this alert
+      // just ignore this error
+    }
+
     if (status && status === 400) {
       throw new Error('Your data is invalid! Please check it.')
     }
 
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const changePassword = async (data: IChangePasswordRequest) => {
+  try {
+    const res = await axiosInstance.patch(requests.changePassword, data)
+
+    if (res && res.status === 200) return res.data
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    if (status && status === 400) {
+      throw new Error('Old password is not correct!')
+    }
     // general error
     throw new Error('Something went wrong! Please try later.')
   }

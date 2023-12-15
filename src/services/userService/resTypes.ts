@@ -35,3 +35,7 @@ export interface IUpdateUserResponse {
   data: IUser
   message: string
 }
+export interface IChangePasswordResponse {
+  data: IUser
+  message: string
+}

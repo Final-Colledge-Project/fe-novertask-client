@@ -23,11 +23,12 @@ export const Body = styled.div`
   gap: 20px;
 `
 
-export const UserGeneralInfo = styled.div`
+export const User = styled.div`
   width: 100%;
   min-height: 50px;
   display: flex;
   gap: 20px;
+  margin-bottom: 20px;
 `
 
 export const UserDetailInfo = styled.div`
@@ -194,6 +195,28 @@ export const UploadActions = styled.div`
 
 export const Menu = styled.ul`
   list-style-type: none;
-`
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
 
-export const MenuItem = styled.li``
+  .item {
+    padding: 8px 20px;
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--mui-palette-black-main);
+
+    &--active {
+      background-color: var(--mui-palette-gray6-main);
+    }
+
+    &.item--active:hover {
+      background-color: var(--mui-palette-gray4-main);
+    }
+
+    &:hover {
+      background-color: var(--mui-palette-gray6-main);
+    }
+  }
+`

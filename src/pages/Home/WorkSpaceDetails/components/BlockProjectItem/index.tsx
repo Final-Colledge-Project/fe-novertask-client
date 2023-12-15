@@ -15,7 +15,10 @@ import IWSItemProps from './IWSItemProps'
 
 const WorkSpaceItem = ({ data }: IWSItemProps) => {
   // clean up members list -> avoid dupicates
-  const count = [...data.memberIds, ...data.ownerIds].filter(
+  const count = [
+    ...data.memberIds,
+    ...data.ownerIds.map((item) => item._id)
+  ].filter(
     (member, index, all) => index === all.findIndex((obj) => obj === member)
   ).length
 

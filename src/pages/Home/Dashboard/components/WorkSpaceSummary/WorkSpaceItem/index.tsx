@@ -32,23 +32,8 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
       </div>
       <div className="item__cover">
         <img src={cover || '/img/item-cover.jpg'} alt="" />
-        {/* <div className="item__cover-fallback"></div> */}
       </div>
       <div className="item-bottom">
-        {/* <div className="item-bottom__task-progress">
-          <div className="progress-text">
-            <p className="progress-text__title">Task progress</p>
-            <p className="progress-text__number">
-              {completeTask}/{totalTask}
-            </p>
-          </div>
-          <div className="progress__bar">
-            <BorderLinearProgress
-              variant="determinate"
-              value={(completeTask / totalTask) * 100}
-            />
-          </div>
-        </div> */}
         <div className="item-bottom__info-group">
           {dueDate ? (
             <div className="item__estimate">
