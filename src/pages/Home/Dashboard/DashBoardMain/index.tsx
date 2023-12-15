@@ -40,10 +40,6 @@ const DashBoardMain = () => {
           })
         )
       }
-    },
-    {
-      title: 'Add task',
-      onChoose: () => {}
     }
   ]
 

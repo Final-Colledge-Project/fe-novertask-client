@@ -64,24 +64,21 @@ const LineMemberItem = ({ data, superAdminId }: IWSItemProps) => {
         <Badge className={role}>{roleString(role)}</Badge>
       </div>
       <ActionGroup className="section">
-        <Tooltip title="Nominate as an Admin">
-          <IconButton
-            color="primary"
-            onClick={() => handleAssignAdmin()}
-            disabled={!(role === 'member' && checkIsUserASuperAdmin())}
-          >
-            <RiUserStarLine />
-          </IconButton>
-        </Tooltip>
+        {checkIsUserASuperAdmin() && currentUser?._id !== user?._id && (
+          <>
+            <Tooltip title="Nominate as an Admin">
+              <IconButton color="primary" onClick={() => handleAssignAdmin()}>
+                <RiUserStarLine />
+              </IconButton>
+            </Tooltip>
 
-        <Tooltip title="Leave this workspace">
-          <IconButton
-            color="error"
-            disabled={!(role === 'member' && user?._id === currentUser?._id)}
-          >
-            <RiLogoutBoxRLine />
-          </IconButton>
-        </Tooltip>
+            <Tooltip title="Leave this workspace">
+              <IconButton color="error">
+                <RiLogoutBoxRLine />
+              </IconButton>
+            </Tooltip>
+          </>
+        )}
       </ActionGroup>
     </Item>
   )

@@ -19,44 +19,6 @@ import { getAllMembers } from '~/redux/teamWSSlice/actions'
 import { resetAssignAdmin } from '~/redux/teamWSSlice'
 
 const MemberSection = () => {
-  // const [viewState, setViewState] = useState<{
-  //   pageSize: number
-  //   page: number
-  //   sortBy: string | undefined
-  //   isAsc: boolean
-  // }>({
-  //   pageSize: 5,
-  //   page: 1,
-  //   sortBy: undefined,
-  //   isAsc: true
-  // })
-
-  // const handleChangeSort = (toSortBy: string) => {
-  //   const fromSortBy = viewState.sortBy
-  //   const fromSortType = viewState.isAsc
-  //   setViewState((prev) => {
-  //     const newState = { ...prev }
-  //     newState.sortBy = toSortBy
-  //     if (fromSortBy !== toSortBy) {
-  //       newState.isAsc = true
-  //     } else {
-  //       if (!fromSortType) {
-  //         newState.isAsc = false
-  //       }
-  //       newState.isAsc = !fromSortType
-  //     }
-  //     return newState
-  //   })
-  // }
-
-  // const boardColumnTitles = [
-  //   { title: '', shouldSort: false },
-  //   { title: 'Member', shouldSort: true },
-  //   { title: 'Email', shouldSort: true },
-  //   { title: 'Role', shouldSort: false },
-  //   { title: 'Action', shouldSort: false }
-  // ]
-
   const tabHeaderTitle = [
     {
       value: 'all',
@@ -85,6 +47,8 @@ const MemberSection = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch<StoreDispatchType>()
   const [tab, setTab] = useState('all')
+
+  const { userInfo } = useSelector((state: StoreType) => state.auth)
 
   useEffect(() => {
     const getMembers = async () => {
@@ -129,6 +93,10 @@ const MemberSection = () => {
     )
   }
 
+  const checkIsCurrentUserAnSuperAdmin = () => {
+    return superAdmin()?.user?._id === userInfo?._id
+  }
+
   return (
     <Container>
       <Header>
@@ -139,14 +107,16 @@ const MemberSection = () => {
             </IconButton>
             <p className="text">Members in this workspace</p>
           </div>
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={handleShowPopupInvite}
-          >
-            Invite more people
-          </Button>
+          {checkIsCurrentUserAnSuperAdmin() && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={handleShowPopupInvite}
+            >
+              Invite more people
+            </Button>
+          )}
         </Title>
         <p className="describe">
           Workspace member can see all <b>public</b> projects. Only those who
@@ -154,25 +124,6 @@ const MemberSection = () => {
         </p>
       </Header>
       <Board>
-        {/* <BoardHeader>
-          {boardColumnTitles.map((c, i) => (
-            <BoardHeaderItem
-              key={c.title + i}
-              active={viewState.sortBy === c.title}
-              isAsc={viewState.sortBy === c.title ? viewState.isAsc : true}
-              onClick={() => c.shouldSort && handleChangeSort(c.title)}
-            >
-              <p>{c.title}</p>
-              {c.shouldSort && (
-                <div className="icon">
-                  <IconButton aria-label="sort">
-                    <RiArrowUpSLine />
-                  </IconButton>
-                </div>
-              )}
-            </BoardHeaderItem>
-          ))}
-        </BoardHeader> */}
         <TabHeader>
           {tabHeaderTitle.map((item) => (
             <div

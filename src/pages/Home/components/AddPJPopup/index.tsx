@@ -155,7 +155,7 @@ const AddPJPopup = () => {
             <WithController control={control} name="PJName">
               <TextInput
                 autofocus={isFirstFocus.current}
-                label="Name of the new workspace"
+                label="Name of the new project"
                 placeHolder="Some example names..."
               />
             </WithController>
@@ -165,7 +165,10 @@ const AddPJPopup = () => {
               <WSSelectBox workspaces={workspaceNameList() || []} />
             </WithController>
           </div>
-          <div className="add-pj-popup__input-row">
+          <div
+            className="add-pj-popup__input-row"
+            onClickCapture={(e) => console.log(e.target)}
+          >
             <WithController name="description" control={control}>
               <TextInput label="Description" multiple row={3} />
             </WithController>
