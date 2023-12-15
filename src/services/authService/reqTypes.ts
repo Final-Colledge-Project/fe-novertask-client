@@ -12,3 +12,8 @@ export interface IResetPasswordBody {
   otp: string
   newPassword: string
 }
+
+export interface ILoginSuccessBody {
+  userId: string,
+  tokenLogin: string
+}
