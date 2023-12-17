@@ -78,6 +78,7 @@ import {
   updateTwoColumnsConcurrentLy
 } from '~/services/columnService'
 import { updateCard } from '~/services/cardService'
+import BoardMenu from './BoardMenu'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -118,6 +119,8 @@ const BoardDetail = () => {
   const [activeItemID, setActiveItemID] = useState<UniqueIdentifier>()
   const [activeItemData, setActiveItemData] = useState<ICard | IColumn>()
   const [originColumn, setOriginColumn] = useState<IColumn>()
+  const [shouldShowBoardMenu, setShouldShowBoardMenu] = useState<boolean>(false)
+
   const lastOverId = useRef<UniqueIdentifier | null>(null)
   const newChangesWithDiffColumn = useRef<IChangeColumn[]>()
   // const originColumnsBeforeUpdate = useRef<IChangeColumn[]>()
@@ -250,6 +253,10 @@ const BoardDetail = () => {
         }
       })
     )
+  }
+
+  const handleCloseBoardMenu = () => {
+    setShouldShowBoardMenu(false)
   }
 
   const updateBoardColumnsOrder = async (newOrder: string[]) => {
@@ -690,7 +697,7 @@ const BoardDetail = () => {
           <div className="right-block">
             <AddMenu items={isUserTheBoardLead() ? items : items.slice(0, 1)} />
             <SearchBox label="" sx={{ height: '35px' }} />
-            <IconButton>
+            <IconButton onClick={() => setShouldShowBoardMenu(true)}>
               <RiMore2Fill />
             </IconButton>
           </div>
@@ -791,6 +798,13 @@ const BoardDetail = () => {
         </Body>
         <AddMemberPopup />
       </BoardDetailContainer>
+      {board && (
+        <BoardMenu
+          onClose={handleCloseBoardMenu}
+          shouldShow={shouldShowBoardMenu}
+          board={board}
+        />
+      )}
     </DndContext>
   )
 }

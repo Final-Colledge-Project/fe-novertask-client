@@ -9,7 +9,8 @@ export const BoardDetailContainer = styled.div`
   flex-direction: column;
   height: 100vh;
   overflow-x: hidden;
-  /* overflow-y: auto; */
+  overflow-y: hidden;
+  position: relative;
   &::-webkit-scrollbar {
     background-color: var(--mui-palette-gray5-main);
   }
@@ -20,7 +21,6 @@ export const BoardDetailContainer = styled.div`
 export const Header = styled.div<{ $img: string }>`
   /* width: calc(100% - 0px); */
   height: 100px;
-  border-radius: 0 0 20px 20px;
   background-image: url(${(props) => props.$img}), url('/img/item-cover.jpg'),
     linear-gradient(191deg, #ff6482 23.33%, #d20f44 107.81%);
   background-position: center;
