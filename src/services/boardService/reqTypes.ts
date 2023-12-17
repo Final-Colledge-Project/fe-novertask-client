@@ -38,6 +38,7 @@ interface IUpdatableBoard {
   title?: string
   description?: string
   type?: string
+  dueDate?: string | undefined | null
 }
 
 export interface IUpdateBoardBody {

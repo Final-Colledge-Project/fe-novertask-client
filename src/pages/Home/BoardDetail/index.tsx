@@ -33,7 +33,13 @@ import AddMemberPopup from './AddMemberPopup'
 import Card from './Column/Card'
 
 // services
-import { IAllMemberInBoard, IBoard, ICard, IColumn } from '~/services/types'
+import {
+  IAllMemberInBoard,
+  IBoard,
+  ICard,
+  IColumn,
+  IMemberInBoard
+} from '~/services/types'
 import {
   getAllMemberInBoard,
   getBoardDetail,
@@ -78,6 +84,7 @@ import {
   updateTwoColumnsConcurrentLy
 } from '~/services/columnService'
 import { updateCard } from '~/services/cardService'
+import BoardMenu from './BoardMenu'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -118,6 +125,8 @@ const BoardDetail = () => {
   const [activeItemID, setActiveItemID] = useState<UniqueIdentifier>()
   const [activeItemData, setActiveItemData] = useState<ICard | IColumn>()
   const [originColumn, setOriginColumn] = useState<IColumn>()
+  const [shouldShowBoardMenu, setShouldShowBoardMenu] = useState<boolean>(false)
+
   const lastOverId = useRef<UniqueIdentifier | null>(null)
   const newChangesWithDiffColumn = useRef<IChangeColumn[]>()
   // const originColumnsBeforeUpdate = useRef<IChangeColumn[]>()
@@ -233,11 +242,16 @@ const BoardDetail = () => {
     }
   }, [shouldRefreshBoardDetail])
 
+  const boardLeader = useCallback(() => {
+    const leadId = board?.ownerIds.find(
+      (owner) => owner.role === 'boardLead'
+    )?.user
+    return members?.oweners.find((owner) => owner.user._id === leadId)?.user
+  }, [members, board])
+
   const isUserTheBoardLead = useCallback(() => {
-    return !!members?.oweners.find(
-      (owner) => owner.user._id === currentUser?._id
-    )
-  }, [members, currentUser])
+    return boardLeader()?._id === currentUser?._id
+  }, [boardLeader, currentUser])
 
   const handleShowAddMemberPopup = () => {
     dispatch(
@@ -250,6 +264,10 @@ const BoardDetail = () => {
         }
       })
     )
+  }
+
+  const handleCloseBoardMenu = () => {
+    setShouldShowBoardMenu(false)
   }
 
   const updateBoardColumnsOrder = async (newOrder: string[]) => {
@@ -690,7 +708,7 @@ const BoardDetail = () => {
           <div className="right-block">
             <AddMenu items={isUserTheBoardLead() ? items : items.slice(0, 1)} />
             <SearchBox label="" sx={{ height: '35px' }} />
-            <IconButton>
+            <IconButton onClick={() => setShouldShowBoardMenu(true)}>
               <RiMore2Fill />
             </IconButton>
           </div>
@@ -791,6 +809,14 @@ const BoardDetail = () => {
         </Body>
         <AddMemberPopup />
       </BoardDetailContainer>
+      {board && members && (
+        <BoardMenu
+          onClose={handleCloseBoardMenu}
+          shouldShow={shouldShowBoardMenu}
+          board={board}
+          owner={boardLeader() as IMemberInBoard}
+        />
+      )}
     </DndContext>
   )
 }
