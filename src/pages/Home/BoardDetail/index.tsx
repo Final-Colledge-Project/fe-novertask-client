@@ -33,7 +33,13 @@ import AddMemberPopup from './AddMemberPopup'
 import Card from './Column/Card'
 
 // services
-import { IAllMemberInBoard, IBoard, ICard, IColumn } from '~/services/types'
+import {
+  IAllMemberInBoard,
+  IBoard,
+  ICard,
+  IColumn,
+  IMemberInBoard
+} from '~/services/types'
 import {
   getAllMemberInBoard,
   getBoardDetail,
@@ -236,11 +242,16 @@ const BoardDetail = () => {
     }
   }, [shouldRefreshBoardDetail])
 
+  const boardLeader = useCallback(() => {
+    const leadId = board?.ownerIds.find(
+      (owner) => owner.role === 'boardLead'
+    )?.user
+    return members?.oweners.find((owner) => owner.user._id === leadId)?.user
+  }, [members, board])
+
   const isUserTheBoardLead = useCallback(() => {
-    return !!members?.oweners.find(
-      (owner) => owner.user._id === currentUser?._id
-    )
-  }, [members, currentUser])
+    return boardLeader()?._id === currentUser?._id
+  }, [boardLeader, currentUser])
 
   const handleShowAddMemberPopup = () => {
     dispatch(
@@ -798,11 +809,12 @@ const BoardDetail = () => {
         </Body>
         <AddMemberPopup />
       </BoardDetailContainer>
-      {board && (
+      {board && members && (
         <BoardMenu
           onClose={handleCloseBoardMenu}
           shouldShow={shouldShowBoardMenu}
           board={board}
+          owner={boardLeader() as IMemberInBoard}
         />
       )}
     </DndContext>

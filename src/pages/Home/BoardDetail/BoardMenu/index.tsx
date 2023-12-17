@@ -30,7 +30,7 @@ import TextInput from '~/components/TextInput'
 import DateTimeInput from '~/components/DateTimeInput'
 
 // services
-import { IBoard, IGeneralWorkspace } from '~/services/types'
+import { IBoard, IGeneralWorkspace, IMemberInBoard } from '~/services/types'
 import { StoreDispatchType, StoreType } from '~/redux'
 import IFormFields from './IFormField'
 import schema from './schema'
@@ -43,11 +43,13 @@ const DATE_FORMAT = 'YYYY-MM-DD HH:mm'
 export default function BoardMenu({
   board,
   onClose,
-  shouldShow
+  shouldShow,
+  owner
 }: {
   board: IBoard
   onClose: () => void
   shouldShow: boolean
+  owner: IMemberInBoard
 }) {
   const [enableEditDueDate, setEnableEditDueDate] = useState<boolean>(
     board.dueDate ? true : false
@@ -90,6 +92,10 @@ export default function BoardMenu({
     resolver: yupResolver(schema),
     reValidateMode: 'onBlur'
   })
+
+  const isCurrentUSerOwner = () => {
+    return owner._id === currentUserInfo?._id
+  }
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     if (dayjs(dueDateString).isBefore(dayjs(board.createdAt))) return
@@ -226,7 +232,11 @@ export default function BoardMenu({
               <Input>
                 <p className="label">Name</p>
                 <WithController control={control} name="title">
-                  <TextInput label="" sx={{ height: '35px', border: '0' }} />
+                  <TextInput
+                    label=""
+                    sx={{ height: '35px', border: '0' }}
+                    disabled={!isCurrentUSerOwner()}
+                  />
                 </WithController>
               </Input>
 
@@ -244,6 +254,7 @@ export default function BoardMenu({
                 <div className="label label--one-line">
                   <p>Due date</p>
                   <Switch
+                    disabled={!isCurrentUSerOwner()}
                     size="small"
                     id="enable-edit-date-time"
                     checked={enableEditDueDate}
@@ -254,7 +265,7 @@ export default function BoardMenu({
                 <DateTimeInput
                   format={DATE_FORMAT}
                   value={dayjs(dueDateString)}
-                  disabled={!enableEditDueDate}
+                  disabled={!enableEditDueDate || !isCurrentUSerOwner()}
                   minDateTime={dayjs(board.createdAt)}
                   sx={{
                     opacity: enableEditDueDate ? 1 : 0.5
@@ -284,6 +295,7 @@ export default function BoardMenu({
               <Input className="one-line">
                 <p className="label">Public</p>
                 <Switch
+                disabled={!isCurrentUSerOwner()}
                   checked={boardAccessibility === 'public'}
                   onChange={handleToggleBoardAccessibility}
                   id="is-project-public"
@@ -294,11 +306,11 @@ export default function BoardMenu({
               <Input>
                 <p className="label">Description</p>
                 <WithController control={control} name="description">
-                  <TextInput label="" multiple={true} row={3} />
+                  <TextInput label="" multiple={true} row={3} disabled={!isCurrentUSerOwner()}/>
                 </WithController>
               </Input>
 
-              {formState.isDirty && (
+              {isCurrentUSerOwner() && formState.isDirty && (
                 <FormActionsGroup>
                   <Button
                     color="error"
@@ -321,11 +333,11 @@ export default function BoardMenu({
                 <p className="label">Owner</p>
                 <User>
                   <GeneralAvatar>
-                    <img src={currentUserInfo?.avatar} alt="" />
+                    <img src={owner?.avatar} alt="" />
                   </GeneralAvatar>
                   <GeneralInfo>
-                    <p className="name">{`${currentUserInfo?.firstName} ${currentUserInfo?.lastName}`}</p>
-                    <p className="email">{`${currentUserInfo?.email}`}</p>
+                    <p className="name">{`${owner?.firstName} ${owner?.lastName}`}</p>
+                    <p className="email">{`${owner?.email}`}</p>
                   </GeneralInfo>
                 </User>
               </Input>

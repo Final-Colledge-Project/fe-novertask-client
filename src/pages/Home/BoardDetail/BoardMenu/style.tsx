@@ -52,7 +52,6 @@ export const MenuBody = styled.div`
 export const Accordion = muiStyled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(() => ({
-  // border: `1px solid ${theme.palette.divider}`,
   width: '100%',
   '&:not(:last-child)': {},
   '&:before': {
@@ -126,6 +125,20 @@ export const Input = styled.div`
   &.one-line {
     flex-direction: row;
     align-items: center;
+  }
+
+  & .MuiFormControl-root .MuiInputBase-root.Mui-disabled {
+    background-color: var(--mui-palette-white-main);
+    color: var(--mui-palette-black-main);
+  }
+
+  & .MuiFormControl-root .MuiInputBase-input.Mui-disabled {
+    color: var(--mui-palette-black-main);
+  }
+  
+  & .MuiFormControl-root .MuiInputBase-input.Mui-disabled {
+    color: var(--mui-palette-black-main);
+    -webkit-text-fill-color: var(--mui-palette-black-main);
   }
 `
 export const InputGroup = styled.div`
