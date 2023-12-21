@@ -32,12 +32,14 @@ import './style.scss'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setCurrentNavItem } from '~/redux/navSlice'
+import NotificationBadge from '../../Notifications/components/NotificationBadge'
+import { setPopupNotification } from '~/redux/popupSlice'
 
 const Navigation = () => {
   const [fullVisible, setFullVisible] = useState(false)
   const [pinNav, setPinNav] = useState(false)
   const { current } = useSelector((state: StoreType) => state.nav)
-
+  const { PopupNotification } = useSelector((state: StoreType) => state.popup)
   // hover to nav bar
   const handleMouseHover = async () => {
     if (pinNav) return
@@ -46,6 +48,7 @@ const Navigation = () => {
   const handleMouseLeave = () => {
     if (pinNav) return
     setFullVisible(false)
+    dispatch(setPopupNotification(false))
   }
 
   const navigate = useNavigate()
@@ -82,6 +85,16 @@ const Navigation = () => {
       return result
     }
   }
+
+  const handleNotificationPopup = () => {
+    dispatch(setPopupNotification(!PopupNotification))
+    if (PopupNotification === false && pinNav === true) setPinNav(true)
+    else setPinNav((prev) => !prev)
+  }
+
+  useEffect(() => {
+    if (!fullVisible) dispatch(setPopupNotification(false))
+  }, [fullVisible])
 
   return (
     <div
@@ -209,6 +222,14 @@ const Navigation = () => {
           <NavItem
             title="FAQs"
             startIcon={<RiQuestionLine />}
+            fullVisible={fullVisible}
+          />
+        </li>
+        <li className="item">
+          <NavItem
+            onClick={handleNotificationPopup}
+            title="Notifications"
+            startIcon={<NotificationBadge />}
             fullVisible={fullVisible}
           />
         </li>

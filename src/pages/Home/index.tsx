@@ -9,7 +9,7 @@ import Dashboard from './Dashboard'
 import InvitePeoplePopup from './components/InvitePeoplePopup'
 import BoardDetail from './BoardDetail'
 import Profile from './Profile'
-
+import Notification from '~/pages/Home/Notifications'
 const Home = () => {
   return (
     <div className="home-container">
@@ -28,6 +28,7 @@ const Home = () => {
       <AddWSPopup />
       <AddPJPopup />
       <InvitePeoplePopup />
+      <Notification />
     </div>
   )
 }
