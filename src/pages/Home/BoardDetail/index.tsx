@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { Outlet, useNavigate, useParams } from 'react-router-dom'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { AxiosError } from 'axios'
@@ -190,7 +190,10 @@ const BoardDetail = () => {
                 priority: '',
                 isDone: false,
                 isOverdue: false,
-                label: { _id: '', name: '', color: '' }
+                label: { _id: '', name: '', color: '' },
+                isActive: false,
+                attachments: [],
+                reporter: { _id: '', avatar: '', fullName: '' }
               })
               column.cardOrderIds = column.cards.map((c) => c._id)
             }
@@ -610,7 +613,9 @@ const BoardDetail = () => {
               priority: '',
               isDone: false,
               isOverdue: false,
-              label: { _id: '', name: '', color: '' }
+              label: { _id: '', name: '', color: '' },
+              reporter: { _id: '', fullName: '', avatar: '' },
+              isActive: false
             }
           ]
         }
@@ -817,6 +822,7 @@ const BoardDetail = () => {
           owner={boardLeader() as IMemberInBoard}
         />
       )}
+      <Outlet />
     </DndContext>
   )
 }

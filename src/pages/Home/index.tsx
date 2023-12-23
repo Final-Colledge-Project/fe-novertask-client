@@ -9,6 +9,7 @@ import Dashboard from './Dashboard'
 import InvitePeoplePopup from './components/InvitePeoplePopup'
 import BoardDetail from './BoardDetail'
 import Profile from './Profile'
+import CardDetail from './CardDetail'
 
 const Home = () => {
   return (
@@ -20,7 +21,12 @@ const Home = () => {
             <Route element={<Dashboard />} index />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />
-            <Route path="boards/:id/*" element={<BoardDetail />} />
+            <Route path="boards/:id/*" element={<BoardDetail />}>
+              <Route
+                path="cards/:selectedCardId/*"
+                element={<CardDetail />}
+              />
+            </Route>
             <Route path="profile/*" element={<Profile />} />
           </Route>
         </Routes>
