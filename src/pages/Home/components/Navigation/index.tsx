@@ -34,12 +34,19 @@ import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setCurrentNavItem } from '~/redux/navSlice'
 import NotificationBadge from '../../Notifications/components/NotificationBadge'
 import { setPopupNotification } from '~/redux/popupSlice'
+import { getNotificationByUserId } from '~/redux/notiSlice/actions'
+import socketIoClient from 'socket.io-client'
+import { getCurrentUser } from '~/redux/userSlice/actions'
 
 const Navigation = () => {
   const [fullVisible, setFullVisible] = useState(false)
   const [pinNav, setPinNav] = useState(false)
   const { current } = useSelector((state: StoreType) => state.nav)
   const { PopupNotification } = useSelector((state: StoreType) => state.popup)
+  
+  const { notifications } = useSelector(
+    (state: StoreType) => state.notification
+  )
   // hover to nav bar
   const handleMouseHover = async () => {
     if (pinNav) return
@@ -58,6 +65,10 @@ const Navigation = () => {
     getAllBoard: { error }
   } = useSelector((state: StoreType) => state.board)
   const dispatch = useDispatch<StoreDispatchType>()
+
+  useEffect(() => {
+    dispatch(getCurrentUser())
+  }, [dispatch])
 
   useEffect(() => {
     const getData = async () => {
@@ -95,6 +106,20 @@ const Navigation = () => {
   useEffect(() => {
     if (!fullVisible) dispatch(setPopupNotification(false))
   }, [fullVisible])
+
+  // useEffect(() => {
+  //   // const getDirectMess = async () => {
+  //   //   await
+  //   // }
+  //   // getDirectMess()
+  //   const socket = socketIoClient('ws://localhost:5000')
+  //   socket.on('directMessage', (data) => {
+  //     console.log('🚀 ~ file: index.tsx:113 ~ socket.on ~ data:', data)
+  //     if (data?.message === 'fetchNotification') {
+  //       dispatch(getNotificationByUserId())
+  //     }
+  //   })
+  // }, [])
 
   return (
     <div

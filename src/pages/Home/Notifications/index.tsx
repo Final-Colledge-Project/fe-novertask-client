@@ -3,16 +3,33 @@ import { StoreDispatchType, StoreType } from '~/redux'
 import './style.scss'
 import { Box, Tab, Tabs } from '@mui/material'
 import CustomTabPanel from './components/NotificationItem/CustomTabPanel'
-import { SyntheticEvent, useState } from 'react'
+import { SyntheticEvent, useEffect, useState } from 'react'
 import NotificationItem from './components/NotificationItem'
+import { UseSelector } from 'react-redux/es/hooks/useSelector'
+import { INotification } from '~/services/types'
+import { getNotificationByUserId } from '~/redux/notiSlice/actions'
 
 const Notification = () => {
-  const dispatch = useDispatch<StoreDispatchType>()
   const { PopupNotification } = useSelector((state: StoreType) => state.popup)
   const [value, setValue] = useState(1)
+  const dispatch = useDispatch<StoreDispatchType>()
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
+  useEffect(() => {
+    const getNotification = async () => {
+      try {
+        await dispatch(getNotificationByUserId())
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    getNotification()
+  }, [])
+  const { notifications } = useSelector(
+    (state: StoreType) => state.notification
+  )
+  const { data } = notifications
   return (
     PopupNotification && (
       <div className="notification">
@@ -62,16 +79,9 @@ const Notification = () => {
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={1}>
-            <NotificationItem />
-            <NotificationItem />
-            <NotificationItem />
-            <NotificationItem />
-            <NotificationItem />
-            <NotificationItem />
-            <NotificationItem />
-            <NotificationItem />
-            <NotificationItem />
-            <NotificationItem />
+            {data.map((noti: INotification) => (
+              <NotificationItem {...noti} />
+            ))}
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             Item Two

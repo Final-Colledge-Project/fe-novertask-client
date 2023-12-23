@@ -1,29 +1,50 @@
 import { Avatar, Chip } from '@mui/material'
 import './style.scss'
-const NotificationItem = () => {
+import { INotification } from '~/services/types'
+import dayjs from 'dayjs'
+import { getRecordTime } from '~/utils/helper'
+import clsx from 'clsx'
+import { Navigate } from 'react-router-dom'
+const NotificationItem = (props: INotification) => {
+  const {
+    sender,
+    type,
+    message,
+    targetType,
+    contextUrl,
+    isRead,
+    createAt,
+    updatedAt
+  } = props
+  const createdDate = dayjs(createAt)
+  const updatedDate = dayjs(updatedAt)
+  const timeNoti =
+    updatedDate.diff(createdDate, 'hour') > 0 ? updatedAt : createAt
+  const displayTime = getRecordTime(timeNoti)
+  const handleOnClick =() => {
+    window.open(contextUrl, '_self')
+  }
   return (
-    <div className="noti-item">
+    
+    <div className={clsx('noti-item', !isRead && 'noti-item-unread')} onClick={handleOnClick}>
       <div className="noti-avatar">
-        <Avatar
-          alt="User"
-          src="https://firebasestorage.googleapis.com/v0/b/nover-task-b511e.appspot.com/o/files%2FAnnie.jpg?alt=media&token=eaa049a5-7928-466d-b882-f0764a87dbf3"
-        />
+        <Avatar alt={sender.fullName} src={sender.avatar} />
       </div>
       <div className="noti-body">
         <div className="noti-content">
           <span>
-            Annie has assigned you to task <b>Task 1</b>
+            <b>{sender.fullName}</b> {message} <b>{targetType}</b>
           </span>
-          <div className='noti-unreadDot'></div>
+          <div className="noti-unreadDot"></div>
         </div>
         <div className="noti-footer">
-          <div className="noti-time">2 hours ago</div>
+          <div className="noti-time">{displayTime}</div>
           <div className="noti-dot"></div>
-          <div className="noti-type">Board Name</div>
+          <div className="noti-type">{type.name}</div>
         </div>
         <div className="noti-tag">
           <Chip
-            label="Board"
+            label={type.category}
             variant="outlined"
             sx={{
               height: '20px',

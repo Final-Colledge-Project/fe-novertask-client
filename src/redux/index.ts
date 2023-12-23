@@ -7,6 +7,7 @@ import progressReducer from './progressSlice'
 import popupReducer from './popupSlice'
 import boardReducer from './boardSlice'
 import navReducer from './navSlice'
+import notiReducer from './notiSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -16,7 +17,8 @@ const store = configureStore({
     progress: progressReducer,
     popup: popupReducer,
     board: boardReducer,
-    nav: navReducer
+    nav: navReducer,
+    notification: notiReducer
   }
 })
 

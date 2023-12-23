@@ -10,7 +10,32 @@ import InvitePeoplePopup from './components/InvitePeoplePopup'
 import BoardDetail from './BoardDetail'
 import Profile from './Profile'
 import Notification from '~/pages/Home/Notifications'
+import { StoreDispatchType, StoreType } from '~/redux'
+import { useEffect } from 'react'
+import socketIoClient from 'socket.io-client'
+import { useDispatch, useSelector } from 'react-redux'
+import { getNotificationByUserId } from '~/redux/notiSlice/actions'
 const Home = () => {
+  const serverUrl = import.meta.env.VITE_SERVER_URL
+  const { user } = useSelector((state: StoreType) => state.user)
+  const dispatch = useDispatch<StoreDispatchType>()
+  useEffect(() => {
+    const socket = socketIoClient(serverUrl)
+    socket.on('connect', async function () {
+      console.log('~~~~~~~~~~~>Login')
+      socket.emit('login', { userId: user?._id })
+      // <-- this works
+      socket.on('message', function (data) {
+        console.log('Received message:', data)
+      })
+    })
+    socket.on('directMessage', (data) => {
+      console.log('🚀 ~ file: index.tsx:113 ~ socket.on ~ data:', data)
+      if (data?.message === 'fetchNotification') {
+        dispatch(getNotificationByUserId())
+      }
+    })
+  }, [user])
   return (
     <div className="home-container">
       <Navigation />

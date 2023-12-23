@@ -1,10 +1,22 @@
 import Badge from '@mui/material/Badge'
-import { RiNotificationFill } from 'react-icons/ri'
+import { useEffect, useState } from 'react'
+import { RiNotification2Line } from 'react-icons/ri'
+import { useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
 const NotificationBadge = () => {
+  const { notifications } = useSelector(
+    (state: StoreType) => state.notification
+  )
+  const { unRead } = notifications
+  const [unReadNoti, setUnReadNoti] = useState(unRead || 0)
+  useEffect(() => {
+    setUnReadNoti(unRead)
+  }, [unRead])
+
   return (
     <div>
       <Badge
-        badgeContent="1"
+        badgeContent={unReadNoti}
         color="error"
         sx={{
           '& .MuiBadge-badge': {
@@ -14,7 +26,7 @@ const NotificationBadge = () => {
           }
         }}
       >
-        <RiNotificationFill />
+        <RiNotification2Line />
       </Badge>
     </div>
   )
