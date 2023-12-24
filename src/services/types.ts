@@ -149,7 +149,7 @@ export interface IUpdatableCard {
   description?: string
   cover?: string
   dueDate?: string
-  labelId?: string
+  labelId?: string | null
   priorityId?: string
   isDone?: false
   columnId?: string
@@ -203,4 +203,26 @@ export interface ISubtask {
   createdAt: string
   updatedAt?: string
   assignedTo?: IMemberInBoard
+}
+
+export interface ILabel {
+  _id: string
+  name: string
+  color: string
+  boardId: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface IUpdatableLabel {
+  name?: string
+  color?: string
+}
+
+export const PRIORITIES = {
+  lowest: 'lowest',
+  low: 'low',
+  medium: 'medium',
+  high: 'high',
+  highest: 'highest'
 }

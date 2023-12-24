@@ -1,4 +1,6 @@
 import styled from '@emotion/styled'
+import { PRIORITY_COLOR } from '~/utils/constant'
+
 import {
   Button,
   ButtonProps,
@@ -32,6 +34,7 @@ export const Modal = styled.div`
   min-width: 1080px;
   position: relative;
   overflow-y: auto;
+  overflow-x: visible;
 
   & .breadcrumb__item {
     text-decoration: none;
@@ -450,14 +453,20 @@ export const PriorityItem = styled.div`
   border-radius: 5px;
   width: 100%;
 
+  &.highest {
+    background-color: ${PRIORITY_COLOR.highest};
+  }
   &.high {
-    background-color: var(--mui-palette-pink-main);
+    background-color: ${PRIORITY_COLOR.hight};
   }
   &.medium {
-    background-color: var(--mui-palette-orange-main);
+    background-color: ${PRIORITY_COLOR.medium};
   }
   &.low {
-    background-color: var(--mui-palette-blue-main);
+    background-color: ${PRIORITY_COLOR.low};
+  }
+  &.lowest {
+    background-color: ${PRIORITY_COLOR.lowest};
   }
 `
 

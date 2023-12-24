@@ -74,7 +74,9 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
       <CardHeader>
         <div className="badges">
           <p className="card-id">{card.cardId}</p>
-          <Priority $priority={card.priority}>{card.priority}</Priority>
+          <Priority $priority={card.priority} className={card.priority}>
+            {card.priority}
+          </Priority>
         </div>
         <IconButton size="small">
           <RiMore2Fill />

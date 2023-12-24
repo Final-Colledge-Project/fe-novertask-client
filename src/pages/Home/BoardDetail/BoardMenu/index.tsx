@@ -37,8 +37,7 @@ import schema from './schema'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import { updateBoard } from '~/services/boardService'
-
-const DATE_FORMAT = 'YYYY-MM-DD HH:mm'
+import { DATE_FORMAT } from '~/utils/constant'
 
 export default function BoardMenu({
   board,

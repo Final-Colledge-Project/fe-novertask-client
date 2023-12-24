@@ -1,11 +1,12 @@
 import dayjs, { Dayjs } from 'dayjs'
 import { isEmpty } from 'lodash'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import isTomorrow from 'dayjs/plugin/isTomorrow'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { forOwn } from 'lodash'
 
 // component libraries
 import {
@@ -17,7 +18,6 @@ import {
   IconButton
 } from '@mui/material'
 import { RiCheckLine, RiCloseLine, RiLinkM } from 'react-icons/ri'
-
 
 // components
 import {
@@ -53,6 +53,7 @@ import DescriptionInput from './components/DescriptionInput'
 import AssignMemberMenu from './components/AssignMemberMenu'
 import Menu from './components/Menu'
 import TitleInput from './components/TitleInput'
+import AddLabelMenu from './components/AddLabelMenu'
 
 // services
 import { IBoard, ICard, ISubtask } from '~/services/types'
@@ -66,8 +67,12 @@ import {
 import { getBoardDetail } from '~/services/boardService'
 import { getAllSubTaskInCard } from '~/services/subtaskService'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
-import isFileValid from '~/utils/isFileValid'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
+import { StoreType } from '~/redux'
+import { PRIORITIES } from '~/services/types'
+
+import isFileValid from '~/utils/isFileValid'
+import { DATE_FORMAT } from '~/utils/constant'
 
 const UPDATING_FIELDS = {
   description: 'description',
@@ -75,13 +80,22 @@ const UPDATING_FIELDS = {
   dueDate: 'dueDate'
 }
 
-const DATE_FORMAT = 'YYYY-MM-DD HH:mm'
-
 export default function CardDetail() {
+  const priorityList = useMemo(() => {
+    type TPriority = keyof typeof PRIORITIES
+    const list: { priority: TPriority }[] = []
+    forOwn(PRIORITIES, (value: TPriority, _key: string) => {
+      list.push({ priority: value })
+    })
+    return list
+  }, [])
+
   dayjs.extend(isTomorrow)
   const { selectedCardId, id: boardId } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
+
+  const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
 
   const [card, setCard] = useState<ICard>()
   const [board, setBoard] = useState<IBoard>()
@@ -169,6 +183,7 @@ export default function CardDetail() {
     description?: string
     priority?: string
     dueDate?: string
+    labelId?: string | null
   }) => {
     try {
       if (isEmpty(changes)) return
@@ -214,6 +229,24 @@ export default function CardDetail() {
     })
     setUpdatingField('')
     setDueDateDirty(false)
+  }
+
+  const handleUpdateLabel = async (
+    labelId: string,
+    action: 'add' | 'remove'
+  ) => {
+    try {
+      if (action === 'add') {
+        await handleUpdateCard({ labelId })
+        return
+      }
+      if (action === 'remove') {
+        await handleUpdateCard({ labelId: null })
+        return
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    }
   }
 
   const getCard = async () => {
@@ -264,6 +297,10 @@ export default function CardDetail() {
     }
   }
 
+  const refreshCard = async () => {
+    await getCard()
+  }
+
   const assignMember = async (memberId: string) => {
     try {
       const res = await assignMemberToCard({
@@ -287,12 +324,14 @@ export default function CardDetail() {
       getMemberInCard()
       getSubtask()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCardId])
 
   useEffect(() => {
     if (boardId) {
       getBoard()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardId])
 
   const handleCancel = () => {
@@ -347,6 +386,13 @@ export default function CardDetail() {
     setCurrentDueDate(dayjs(card?.dueDate))
   }
 
+  const isAdminOrSuperAdminOfBoard: () => boolean = () => {
+    if (board) {
+      return !!board?.ownerIds.find((owner) => owner.user === currentUser?._id)
+    }
+    return false
+  }
+
   return (
     <Container onClick={() => navigate(`/u/boards/${boardId}`)}>
       <Modal onClick={(e) => e.stopPropagation()}>
@@ -376,7 +422,10 @@ export default function CardDetail() {
                 </div>
               </Breadcrumbs>
               <Menu items={menuItems} />
-              <IconButton size="small" onClick={() => navigate(`/u/boards/${boardId}`)}>
+              <IconButton
+                size="small"
+                onClick={() => navigate(`/u/boards/${boardId}`)}
+              >
                 <RiCloseLine />
               </IconButton>
             </CardHeader>
@@ -509,11 +558,13 @@ export default function CardDetail() {
                 <Section>
                   <div className="section__header">
                     <p className="section__title">Assignee</p>
-                    <AssignMemberMenu
-                      currentMembers={cardMembers!}
-                      boardId={card.boardId}
-                      onChoose={assignMember}
-                    />
+                    {isAdminOrSuperAdminOfBoard() && (
+                      <AssignMemberMenu
+                        currentMembers={cardMembers!}
+                        boardId={card.boardId}
+                        onChoose={assignMember}
+                      />
+                    )}
                   </div>
                   <AvatarGroup>
                     {cardMembers?.map((member) => {
@@ -594,25 +645,34 @@ export default function CardDetail() {
                     }}
                     onChange={(e) => handleUpdatePriority(e.target.value)}
                   >
-                    <MenuItem value={'high'}>
-                      <PriorityItem className="high">High</PriorityItem>
-                    </MenuItem>
-                    <MenuItem value={'medium'}>
-                      <PriorityItem className="medium">Medium</PriorityItem>
-                    </MenuItem>
-                    <MenuItem value={'low'}>
-                      <PriorityItem className="low">Low</PriorityItem>
-                    </MenuItem>
+                    {priorityList.map((item) => (
+                      <MenuItem
+                        value={item.priority as string}
+                        key={item.priority as string}
+                      >
+                        <PriorityItem className={item.priority}>
+                          {item.priority as string}
+                        </PriorityItem>
+                      </MenuItem>
+                    ))}
                   </MuiSelect>
                 </Section>
                 <div className="part__divider"></div>
                 <Section>
                   <div className="section__header">
                     <p className="section__title">Labels</p>
-                    <AddItemButton />
+                    <AddLabelMenu
+                      boardId={boardId as string}
+                      onChoose={handleUpdateLabel}
+                      card={card}
+                      refreshCard={refreshCard}
+                      isAdmin={isAdminOrSuperAdminOfBoard() as boolean}
+                    />
                   </div>
                   <LabelContainer>
-                    <Label $color={card.label?.color}>{card.label?.name}</Label>
+                    <Label $color={card?.label?.color as string}>
+                      {card?.label?.name}
+                    </Label>
                   </LabelContainer>
                 </Section>
               </CardInfoPart>

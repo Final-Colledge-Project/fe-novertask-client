@@ -1,12 +1,8 @@
 import styled from '@emotion/styled'
 import { AvatarGroup } from '@mui/material'
 import { ReactNode } from 'react'
+import { PRIORITY_COLOR } from '~/utils/constant'
 
-const COLOR: { [key: string]: string } = {
-  medium: 'var(--mui-palette-orange-mainChannel)',
-  high: 'var(--mui-palette-pink-mainChannel)',
-  low: 'var(--mui-palette-blue-mainChannel)'
-}
 
 export const CardContainer = styled.div`
   cursor: pointer;
@@ -128,10 +124,12 @@ export const DueDate = styled.div<{
   color: ${(props) => props.$isOverDue && 'var(--mui-palette-pink-main)'};
   background-color: rgba(var(--mui-palette-gray-mainChannel) / 0.1);
   background-color: rgba(
-    ${(props) => props.$isCloseToDue && 'var(--mui-palette-orange-mainChannel) / 0.1'}
+    ${(props) =>
+      props.$isCloseToDue && 'var(--mui-palette-orange-mainChannel) / 0.1'}
   );
   background-color: rgba(
-    ${(props) => props.$isOverDue && 'var(--mui-palette-pink-mainChannel) / 0.1'}
+    ${(props) =>
+      props.$isOverDue && 'var(--mui-palette-pink-mainChannel) / 0.1'}
   );
 
   padding: 0px 8px;
@@ -141,9 +139,25 @@ export const DueDate = styled.div<{
 export const Priority = styled.div<{ $priority: string }>`
   padding: 0px 8px;
   border-radius: 5px;
-  background-color: rgba(${(props) => COLOR[props.$priority]});
+  background-color: var(--mui-palette-gray-main);
   color: var(--mui-palette-white-main);
   font-size: 12px;
+
+  &.highest {
+    background-color: ${PRIORITY_COLOR.highest};
+  }
+  &.high {
+    background-color: ${PRIORITY_COLOR.hight};
+  }
+  &.medium {
+    background-color: ${PRIORITY_COLOR.medium};
+  }
+  &.low {
+    background-color: ${PRIORITY_COLOR.low};
+  }
+  &.lowest {
+    background-color: ${PRIORITY_COLOR.lowest};
+  }
 `
 
 export const MemberAvatarGroup = ({ children }: { children: ReactNode }) => (
