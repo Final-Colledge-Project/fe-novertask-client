@@ -166,6 +166,7 @@ export interface ICard {
   dueDate: string
   priority: string
   isDone: undefined | boolean
+  description: string
   isOverdue: boolean
   memberIds: {
     _id: string
@@ -182,6 +183,26 @@ export interface ICard {
   createdAt?: string
   updatedAt?: string
   FE_ONLY_PLACEHOLDER?: boolean
+  isActive: boolean
+  attachments?: []
+  reporter: {
+    _id: string
+    avatar: string
+    fullName: string
+  }
+}
+
+export interface ISubtask {
+  _id: string
+  cardId: string
+  subCardId: string
+  name: string
+  status: string
+  dueDate?: string
+  isActive: boolean
+  createdAt: string
+  updatedAt?: string
+  assignedTo?: IMemberInBoard
 }
 
 export interface ISender {

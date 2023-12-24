@@ -1,4 +1,4 @@
-import { SxProps } from '@mui/material'
+import { OutlinedInputProps, SxProps } from '@mui/material'
 import { ChangeEventHandler, ReactElement } from 'react'
 
 interface IInputProps {

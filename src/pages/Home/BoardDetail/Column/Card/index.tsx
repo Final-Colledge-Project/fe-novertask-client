@@ -28,6 +28,7 @@ import convertDate from '~/utils/convertDate'
 // Dnd specific
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useNavigate } from 'react-router-dom'
 
 const Card = ({ card, className }: { card: ICard; className?: string }) => {
   dayjs.extend(isTomorrow)
@@ -45,9 +46,14 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
     opacity: isDragging ? 0.5 : undefined
   }
 
+  const navigate = useNavigate()
+
   return (
     <CardContainer
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        navigate('cards/' + card._id)
+        e.stopPropagation()
+      }}
       ref={setNodeRef}
       {...listeners}
       {...attributes}

@@ -28,7 +28,8 @@ const ClientProtectRoute = ({
 
     getUser()
 
-  }, [userInfo])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userInfo, userToken])
 
   // token is not found || refresh token is invalid -> sign in again
   return !userToken || shouldReSign ? (

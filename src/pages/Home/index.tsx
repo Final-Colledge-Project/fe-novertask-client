@@ -15,6 +15,8 @@ import { useEffect } from 'react'
 import socketIoClient from 'socket.io-client'
 import { useDispatch, useSelector } from 'react-redux'
 import { getNotificationByUserId } from '~/redux/notiSlice/actions'
+import CardDetail from './CardDetail'
+
 const Home = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL
   const { user } = useSelector((state: StoreType) => state.user)
@@ -22,15 +24,12 @@ const Home = () => {
   useEffect(() => {
     const socket = socketIoClient(serverUrl)
     socket.on('connect', async function () {
-      console.log('~~~~~~~~~~~>Login')
       socket.emit('login', { userId: user?._id })
-      // <-- this works
       socket.on('message', function (data) {
         console.log('Received message:', data)
       })
     })
     socket.on('directMessage', (data) => {
-      console.log('🚀 ~ file: index.tsx:113 ~ socket.on ~ data:', data)
       if (data?.message === 'fetchNotification') {
         dispatch(getNotificationByUserId())
       }
@@ -45,7 +44,9 @@ const Home = () => {
             <Route element={<Dashboard />} index />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />
-            <Route path="boards/:id/*" element={<BoardDetail />} />
+            <Route path="boards/:id/*" element={<BoardDetail />}>
+              <Route path="cards/:selectedCardId/*" element={<CardDetail />} />
+            </Route>
             <Route path="profile/*" element={<Profile />} />
           </Route>
         </Routes>

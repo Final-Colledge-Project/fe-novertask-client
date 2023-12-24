@@ -2,7 +2,8 @@ import {
   FormControl,
   InputAdornment,
   InputLabel,
-  OutlinedInput
+  OutlinedInput,
+  OutlinedInputProps
 } from '@mui/material'
 import IInputProps from '../IInputProps'
 import { useEffect, useRef, useState } from 'react'
@@ -22,7 +23,7 @@ const TextInput = ({
   row,
   sx,
   disabled
-}: IInputProps) => {
+}: IInputProps & OutlinedInputProps) => {
   const inputRef = useRef<HTMLElement | null>(null)
 
   const [firstRender, setFirstRender] = useState(true)

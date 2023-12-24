@@ -13,3 +13,21 @@ export interface IUpdateCardBody {
   cardId: string
   changes: IUpdatableCard
 }
+
+export interface IGetCardBody {
+  cardId: string
+}
+
+export interface IGetCardMembersBody {
+  cardId: string
+}
+
+export interface IUpdateCoverBody {
+  cardId: string
+  file: File
+}
+
+export interface IAssignMemberToCardBody{
+  cardId: string
+  memberId: string
+}

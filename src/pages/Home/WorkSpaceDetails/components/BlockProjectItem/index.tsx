@@ -12,6 +12,7 @@ import { Item, ItemCover } from './styles'
 
 // services
 import IWSItemProps from './IWSItemProps'
+import dayjs from 'dayjs'
 
 const WorkSpaceItem = ({ data }: IWSItemProps) => {
   // clean up members list -> avoid dupicates
@@ -49,14 +50,13 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
           </IconButton>
         </div>
         <img src={data.cover} alt="" />
-        {/* <div className="item__cover-fallback"></div> */}
       </ItemCover>
       <div className="item-bottom">
         <div className="item-bottom__info-group">
           {data.dueDate ? (
             <div className="item__estimate">
               <RiFlagLine />
-              <p>{data.dueDate}</p>
+              <p>{dayjs(data.dueDate).format('YYYY-DD-MM')}</p>
             </div>
           ) : (
             <div></div>
