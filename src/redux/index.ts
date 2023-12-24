@@ -8,6 +8,7 @@ import popupReducer from './popupSlice'
 import boardReducer from './boardSlice'
 import navReducer from './navSlice'
 import notiReducer from './notiSlice'
+import cardReducer from './cardSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -18,7 +19,8 @@ const store = configureStore({
     popup: popupReducer,
     board: boardReducer,
     nav: navReducer,
-    notification: notiReducer
+    notification: notiReducer,
+    card: cardReducer
   }
 })
 

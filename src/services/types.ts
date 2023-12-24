@@ -190,6 +190,7 @@ export interface ICard {
     avatar: string
     fullName: string
   }
+  FE_ONLY_MATCHING_SEARCH?: boolean
 }
 
 export interface ISubtask {
@@ -233,7 +234,7 @@ export interface ISender {
 }
 
 export interface IType {
-  category: string,
+  category: string
   name: string
 }
 
@@ -256,4 +257,3 @@ export interface INotificationItem {
   unRead: number
   data: INotification[]
 }
-

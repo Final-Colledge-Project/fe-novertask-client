@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useParams } from 'react-router-dom'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
@@ -85,6 +85,9 @@ import {
 } from '~/services/columnService'
 import { updateCard } from '~/services/cardService'
 import BoardMenu from './BoardMenu'
+import { setSearchString } from '~/redux/cardSlice'
+import FilterMenu from './FilterMenu'
+import CurrentFilters from './CurrentFilters'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -199,7 +202,8 @@ const BoardDetail = () => {
                 label: { _id: '', name: '', color: '' },
                 isActive: false,
                 attachments: [],
-                reporter: { _id: '', avatar: '', fullName: '' }
+                reporter: { _id: '', avatar: '', fullName: '' },
+                description: ''
               })
               column.cardOrderIds = column.cards.map((c) => c._id)
             }
@@ -621,7 +625,8 @@ const BoardDetail = () => {
               isOverdue: false,
               label: { _id: '', name: '', color: '' },
               reporter: { _id: '', fullName: '', avatar: '' },
-              isActive: false
+              isActive: false,
+              description: ''
             }
           ]
         }
@@ -685,6 +690,14 @@ const BoardDetail = () => {
 
   // #endregion
 
+  const searchString = useSelector(
+    (state: StoreType) => state.card.searchString
+  )
+
+  const handleChangeSearchString = (event: ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchString(event.target.value as string))
+  }
+
   return (
     <DndContext
       onDragStart={handleDragStart}
@@ -718,7 +731,12 @@ const BoardDetail = () => {
           </div>
           <div className="right-block">
             <AddMenu items={isUserTheBoardLead() ? items : items.slice(0, 1)} />
-            <SearchBox label="" sx={{ height: '35px' }} />
+            <SearchBox
+              label=""
+              sx={{ height: '35px' }}
+              onChange={handleChangeSearchString}
+              value={searchString}
+            />
             <IconButton onClick={() => setShouldShowBoardMenu(true)}>
               <RiMore2Fill />
             </IconButton>
@@ -736,13 +754,8 @@ const BoardDetail = () => {
             ))}
           </TypeMenu>
           <Members>
-            <Button
-              color="primary"
-              variant="text"
-              startIcon={<RiFilter3Fill />}
-            >
-              Filter
-            </Button>
+            <CurrentFilters />
+            <FilterMenu />
             <MemberAvatarGroup>
               {members?.oweners &&
                 members.oweners.map(({ user }) => (

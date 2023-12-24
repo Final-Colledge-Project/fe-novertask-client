@@ -1,4 +1,11 @@
-import * as React from 'react'
+import {
+  useState,
+  ChangeEvent,
+  SyntheticEvent,
+  useRef,
+  KeyboardEvent,
+  useEffect
+} from 'react'
 
 // component libraries
 import Button from '@mui/material/Button'
@@ -10,17 +17,25 @@ import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
 
 // component props
-import IProps from './IProps'
+import { RiFilter3Fill } from 'react-icons/ri'
+import { ItemContainer } from './style'
+import { Badge, Switch, Typography } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import { setFilter } from '~/redux/cardSlice'
 
-export default function AddMenu({ items }: IProps) {
-  const [open, setOpen] = React.useState(false)
-  const anchorRef = React.useRef<HTMLButtonElement>(null)
+export default function FilterMenu() {
+  const [open, setOpen] = useState(false)
+  const anchorRef = useRef<HTMLButtonElement>(null)
+
+  const filter = useSelector((state: StoreType) => state.card.filter)
+  const dispatch = useDispatch()
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen)
   }
 
-  const handleClose = (event: Event | React.SyntheticEvent) => {
+  const handleClose = (event: Event | SyntheticEvent) => {
     if (
       anchorRef.current &&
       anchorRef.current.contains(event.target as HTMLElement)
@@ -31,7 +46,7 @@ export default function AddMenu({ items }: IProps) {
     setOpen(false)
   }
 
-  function handleListKeyDown(event: React.KeyboardEvent) {
+  function handleListKeyDown(event: KeyboardEvent) {
     if (event.key === 'Tab') {
       event.preventDefault()
       setOpen(false)
@@ -41,8 +56,8 @@ export default function AddMenu({ items }: IProps) {
   }
 
   // return focus to the button when we transitioned from !open -> open
-  const prevOpen = React.useRef(open)
-  React.useEffect(() => {
+  const prevOpen = useRef(open)
+  useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current!.focus()
     }
@@ -50,26 +65,38 @@ export default function AddMenu({ items }: IProps) {
     prevOpen.current = open
   }, [open])
 
+  const handleToggleAssignToMe = (e: ChangeEvent<HTMLInputElement>) => {
+    dispatch(setFilter({ assignToMe: e.target.checked }))
+  }
+
+  const countFilterIsOn = () => {
+    let total = 0
+    if (filter.assignToMe) total++
+    return total
+  }
+
   return (
     <div>
-      <Button
-        variant="contained"
-        ref={anchorRef}
-        id="composition-button"
-        aria-controls={open ? 'composition-menu' : undefined}
-        aria-expanded={open ? 'true' : undefined}
-        aria-haspopup="true"
-        onClick={handleToggle}
-        className="glass-effect"
-        sx={{
-          height: '35px',
-          width: '35px',
-          padding: '0',
-          minWidth: '0'
-        }}
-      >
-        +
-      </Button>
+      <Badge badgeContent={countFilterIsOn()} color="error">
+        <Button
+          variant="outlined"
+          ref={anchorRef}
+          id="composition-button"
+          aria-controls={open ? 'composition-menu' : undefined}
+          aria-expanded={open ? 'true' : undefined}
+          aria-haspopup="true"
+          onClick={handleToggle}
+          className="glass-effect"
+          sx={{
+            height: '35px',
+            padding: '5px 10px',
+            minWidth: '0'
+          }}
+          startIcon={<RiFilter3Fill />}
+        >
+          Filter
+        </Button>
+      </Badge>
       <Popper
         open={open}
         anchorEl={anchorRef.current}
@@ -99,17 +126,15 @@ export default function AddMenu({ items }: IProps) {
                   onKeyDown={handleListKeyDown}
                   sx={{ borderRadius: '8px' }}
                 >
-                  {items?.map((item) => (
-                    <MenuItem
-                      key={item.title}
-                      onClick={(e) => {
-                        item.onChoose()
-                        handleClose(e)
-                      }}
-                    >
-                      {item.title}
-                    </MenuItem>
-                  ))}
+                  <MenuItem>
+                    <ItemContainer>
+                      <Typography>Assign to me</Typography>
+                      <Switch
+                        checked={filter.assignToMe}
+                        onChange={handleToggleAssignToMe}
+                      />
+                    </ItemContainer>
+                  </MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>

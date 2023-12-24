@@ -3,7 +3,6 @@ import { AvatarGroup } from '@mui/material'
 import { ReactNode } from 'react'
 import { PRIORITY_COLOR } from '~/utils/constant'
 
-
 export const CardContainer = styled.div`
   cursor: pointer;
   flex: 0 0;
@@ -29,6 +28,19 @@ export const CardContainer = styled.div`
   &.fe-only {
     display: none;
     margin-bottom: -10px;
+  }
+
+  &.matched-search {
+    background-color: rgba(var(--mui-palette-blue-mainChannel) / 0.1);
+    border: 1px solid var(--mui-palette-blue-main);
+  }
+
+  &.un-matched-search {
+    opacity: 0.4;
+  }
+
+  &.unassigned-to-me {
+    display: none;
   }
 `
 
@@ -77,6 +89,10 @@ export const CardHeader = styled.div`
   & .card-id {
     width: fit-content;
     color: var(--mui-palette-blue-main);
+
+    & span.highlight {
+      background-color: var(--mui-palette-yellow-main);
+    }
   }
 `
 
@@ -89,6 +105,10 @@ export const Title = styled.div`
   -webkit-line-clamp: 2;
   white-space: pre-wrap;
   -webkit-box-orient: vertical;
+
+  & span.highlight {
+    background-color: var(--mui-palette-yellow-main);
+  }
 `
 
 export const Divider = styled.div`

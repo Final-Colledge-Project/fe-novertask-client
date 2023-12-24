@@ -81,12 +81,13 @@ const UPDATING_FIELDS = {
   dueDate: 'dueDate'
 }
 
+type TPriority = keyof typeof PRIORITIES
+
 export default function CardDetail() {
   const priorityList = useMemo(() => {
-    type TPriority = keyof typeof PRIORITIES
     const list: { priority: TPriority }[] = []
-    forOwn(PRIORITIES, (value: TPriority, _key: string) => {
-      list.push({ priority: value })
+    forOwn(PRIORITIES, (value: string, _key: string) => {
+      list.push({ priority: value as TPriority })
     })
     return list
   }, [])
@@ -306,7 +307,7 @@ export default function CardDetail() {
     const socket = socketIoClient(import.meta.env.VITE_SERVER_URL)
     socket.emit('assignMemberToCard', memberId)
   }
-  
+
   const assignMember = async (memberId: string) => {
     try {
       const res = await assignMemberToCard({

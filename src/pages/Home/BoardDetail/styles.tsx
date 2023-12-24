@@ -142,7 +142,7 @@ export const TypeItem = styled.div`
 export const Members = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
 `
 
 export const MemberAvatarGroup = ({ children }: { children: ReactNode }) => (

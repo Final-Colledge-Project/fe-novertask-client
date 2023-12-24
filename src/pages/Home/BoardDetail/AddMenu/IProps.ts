@@ -1,5 +1,5 @@
 export default interface IProps {
-  items: {
+  items?: {
     title: string
     onChoose: () => void
   }[]
