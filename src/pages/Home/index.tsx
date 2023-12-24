@@ -9,9 +9,32 @@ import Dashboard from './Dashboard'
 import InvitePeoplePopup from './components/InvitePeoplePopup'
 import BoardDetail from './BoardDetail'
 import Profile from './Profile'
+import Notification from '~/pages/Home/Notifications'
+import { StoreDispatchType, StoreType } from '~/redux'
+import { useEffect } from 'react'
+import socketIoClient from 'socket.io-client'
+import { useDispatch, useSelector } from 'react-redux'
+import { getNotificationByUserId } from '~/redux/notiSlice/actions'
 import CardDetail from './CardDetail'
 
 const Home = () => {
+  const serverUrl = import.meta.env.VITE_SERVER_URL
+  const { user } = useSelector((state: StoreType) => state.user)
+  const dispatch = useDispatch<StoreDispatchType>()
+  useEffect(() => {
+    const socket = socketIoClient(serverUrl)
+    socket.on('connect', async function () {
+      socket.emit('login', { userId: user?._id })
+      socket.on('message', function (data) {
+        console.log('Received message:', data)
+      })
+    })
+    socket.on('directMessage', (data) => {
+      if (data?.message === 'fetchNotification') {
+        dispatch(getNotificationByUserId())
+      }
+    })
+  }, [user])
   return (
     <div className="home-container">
       <Navigation />
@@ -22,10 +45,7 @@ const Home = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />
             <Route path="boards/:id/*" element={<BoardDetail />}>
-              <Route
-                path="cards/:selectedCardId/*"
-                element={<CardDetail />}
-              />
+              <Route path="cards/:selectedCardId/*" element={<CardDetail />} />
             </Route>
             <Route path="profile/*" element={<Profile />} />
           </Route>
@@ -34,6 +54,7 @@ const Home = () => {
       <AddWSPopup />
       <AddPJPopup />
       <InvitePeoplePopup />
+      <Notification />
     </div>
   )
 }

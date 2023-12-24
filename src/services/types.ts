@@ -226,3 +226,34 @@ export const PRIORITIES = {
   high: 'high',
   highest: 'highest'
 }
+export interface ISender {
+  _id: string
+  fullName: string
+  avatar: string
+}
+
+export interface IType {
+  category: string,
+  name: string
+}
+
+export interface INotification {
+  _id: string
+  sender: ISender
+  type: IType
+  message: string
+  targetType: string
+  contextUrl: string
+  receiverId: string
+  isRead: boolean
+  isTrash: boolean
+  createAt: string
+  updatedAt: string
+}
+
+export interface INotificationItem {
+  all: number
+  unRead: number
+  data: INotification[]
+}
+

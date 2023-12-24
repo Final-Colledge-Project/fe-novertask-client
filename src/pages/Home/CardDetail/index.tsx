@@ -74,6 +74,7 @@ import { PRIORITIES } from '~/services/types'
 import isFileValid from '~/utils/isFileValid'
 import { DATE_FORMAT } from '~/utils/constant'
 
+import socketIoClient from 'socket.io-client'
 const UPDATING_FIELDS = {
   description: 'description',
   priority: 'priority',
@@ -301,6 +302,11 @@ export default function CardDetail() {
     await getCard()
   }
 
+  const handleSocketAssign = (memberId: string) => {
+    const socket = socketIoClient(import.meta.env.VITE_SERVER_URL)
+    socket.emit('assignMemberToCard', memberId)
+  }
+  
   const assignMember = async (memberId: string) => {
     try {
       const res = await assignMemberToCard({
@@ -312,6 +318,7 @@ export default function CardDetail() {
         dispatch(setShouldRefreshBoardDetail(true))
         getMemberInCard()
         await getCard()
+        handleSocketAssign(memberId)
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })

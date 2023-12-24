@@ -1,0 +1,47 @@
+.notification {
+  position: fixed;
+  top: 50%;
+  left: 310px;
+  width: 400px;
+  height: 95vh;
+  background-color: #fff;
+  z-index: 50;
+  animation: fadeIn 0.2s linear;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  transform: translate(0, -50%);
+  border-radius: 5px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0.05;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.notification-markAll {
+  font-size: 13px;
+  cursor: pointer;
+  &:hover {
+    color: #0b84ff;
+  }
+}
+
+.notification-tabs {
+  & .MuiButtonBase-root {
+    text-transform: 'none !important'
+  }
+}
