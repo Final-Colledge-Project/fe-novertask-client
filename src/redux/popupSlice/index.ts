@@ -26,7 +26,8 @@ const popupSlice = createSlice({
         wsID: undefined as undefined | string,
         members: undefined as IBoardMembers | undefined
       }
-    }
+    },
+    PopupNotification: false
   },
   reducers: {
     setPopupAddWS: (state, action) => {
@@ -46,6 +47,9 @@ const popupSlice = createSlice({
     },
     setPopupAddMemberToBoard: (state, action) => {
       state.PopupAddMemberToBoard = action.payload
+    },
+    setPopupNotification: (state, action) => {
+      state.PopupNotification = action.payload
     }
   }
 })
@@ -56,5 +60,6 @@ export const {
   setPopupAddPJ,
   setPopupAddTask,
   setPopupInvitePeople,
-  setPopupAddMemberToBoard
+  setPopupAddMemberToBoard,
+  setPopupNotification
 } = popupSlice.actions

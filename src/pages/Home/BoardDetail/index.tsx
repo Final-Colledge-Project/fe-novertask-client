@@ -96,11 +96,13 @@ interface IChangeColumn {
   changes: { cardOrderIds: string[] }
 }
 
+// import socketIoClient from 'socket.io-client'
+
 const BoardDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-
+  // const socket = socketIoClient('http://localhost:5000')
   const [viewType, setViewType] = useState('Kanban')
   const [board, setBoard] = useState<IBoard | undefined>(undefined)
   const [members, setMembers] = useState<IAllMemberInBoard | undefined>(
@@ -118,8 +120,11 @@ const BoardDetail = () => {
     setShouldShowHeader((prev) => !prev)
   }
 
-  // #region state for handle DnD
+  // useEffect(() => {
+  //   const joinBoard = () => socket.emit('join_board', { board: id })
+  // }, [])
 
+  // #region state for handle DnD
   const [orderedColumns, setOrderedColumns] = useState<IColumn[]>([])
   const [activeItem, setActiveItem] = useState<string>()
   const [activeItemID, setActiveItemID] = useState<UniqueIdentifier>()
@@ -129,6 +134,7 @@ const BoardDetail = () => {
 
   const lastOverId = useRef<UniqueIdentifier | null>(null)
   const newChangesWithDiffColumn = useRef<IChangeColumn[]>()
+
   // const originColumnsBeforeUpdate = useRef<IChangeColumn[]>()
 
   // #endregion

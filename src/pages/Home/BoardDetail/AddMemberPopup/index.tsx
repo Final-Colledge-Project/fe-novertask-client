@@ -34,14 +34,12 @@ import { getMembers } from '~/services/workspaceService'
 import { addMember, getAllMemberInBoard } from '~/services/boardService'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
-
+import socketIoClient from 'socket.io-client'
 export default function AddMemberPopup() {
   const dispatch = useDispatch()
-
   const popup = useSelector(
     (state: StoreType) => state.popup.PopupAddMemberToBoard
   )
-
   const [searchString, setSearchString] = useState('')
   const [WSMembers, setWSMembers] = useState<IBoardMembers | undefined>()
   const [boardMembers, setBoardMembers] = useState<
@@ -50,6 +48,11 @@ export default function AddMemberPopup() {
   const [chosenList, setChosenList] = useState<{ _id: string; name: string }[]>(
     []
   )
+
+  const handleSocket = (memberIds : string[]) => {
+    const socket = socketIoClient('http://localhost:5000')
+    socket.emit('add_boardMembers', memberIds)
+  }
 
   const handleClose = () => {
     setChosenList([])
@@ -161,9 +164,10 @@ export default function AddMemberPopup() {
     if (popup.data && chosenList?.length > 0)
       try {
         dispatch(showLoading())
+        const memberIds = chosenList.map((mem) => mem._id)
         const res = await addMember({
           boardId: popup.data.currentBoardID as string,
-          memberIds: chosenList.map((mem) => mem._id)
+          memberIds
         })
         if (res && res.data) {
           dispatch(setShouldRefreshBoardDetail(true))
@@ -171,6 +175,7 @@ export default function AddMemberPopup() {
           setSearchString('')
           // dispatch(setShouldRefreshMemberInBoard(true))
           await getMemberInBoard()
+          handleSocket(memberIds)
           enqueueSnackbar('Add member successfully', { variant: 'success' })
         }
       } catch (err) {

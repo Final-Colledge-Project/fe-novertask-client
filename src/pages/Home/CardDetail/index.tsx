@@ -68,7 +68,7 @@ import { getAllSubTaskInCard } from '~/services/subtaskService'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import isFileValid from '~/utils/isFileValid'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
-
+import socketIoClient from 'socket.io-client'
 const UPDATING_FIELDS = {
   description: 'description',
   priority: 'priority',
@@ -264,6 +264,11 @@ export default function CardDetail() {
     }
   }
 
+  const handleSocketAssign = (memberId: string) => {
+    const socket = socketIoClient(import.meta.env.VITE_SERVER_URL)
+    socket.emit('assignMemberToCard', memberId)
+  }
+  
   const assignMember = async (memberId: string) => {
     try {
       const res = await assignMemberToCard({
@@ -275,6 +280,7 @@ export default function CardDetail() {
         dispatch(setShouldRefreshBoardDetail(true))
         getMemberInCard()
         await getCard()
+        handleSocketAssign(memberId)
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })

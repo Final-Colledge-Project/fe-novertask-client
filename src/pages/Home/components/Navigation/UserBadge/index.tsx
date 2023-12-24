@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom'
 const UserBadge = ({ fullVisible }: { fullVisible: boolean }) => {
   const { userInfo } = useSelector((state: StoreType) => state.auth)
   const navigate = useNavigate()
-
   return (
     userInfo && (
       <div
