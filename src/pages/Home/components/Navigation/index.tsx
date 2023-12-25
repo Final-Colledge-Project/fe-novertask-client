@@ -44,9 +44,6 @@ const Navigation = () => {
   const { current } = useSelector((state: StoreType) => state.nav)
   const { PopupNotification } = useSelector((state: StoreType) => state.popup)
   
-  const { notifications } = useSelector(
-    (state: StoreType) => state.notification
-  )
   // hover to nav bar
   const handleMouseHover = async () => {
     if (pinNav) return
@@ -107,19 +104,6 @@ const Navigation = () => {
     if (!fullVisible) dispatch(setPopupNotification(false))
   }, [fullVisible])
 
-  // useEffect(() => {
-  //   // const getDirectMess = async () => {
-  //   //   await
-  //   // }
-  //   // getDirectMess()
-  //   const socket = socketIoClient('ws://localhost:5000')
-  //   socket.on('directMessage', (data) => {
-  //     console.log('🚀 ~ file: index.tsx:113 ~ socket.on ~ data:', data)
-  //     if (data?.message === 'fetchNotification') {
-  //       dispatch(getNotificationByUserId())
-  //     }
-  //   })
-  // }, [])
 
   return (
     <div
@@ -216,6 +200,7 @@ const Navigation = () => {
           <li className="item">
             <NavItem
               onClick={() => {
+                navigate('/u/my-tasks/')
                 dispatch(setCurrentNavItem('myspace'))
               }}
               isIndex={current === 'myspace'}

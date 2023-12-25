@@ -1,4 +1,4 @@
-import { ICard } from '../types'
+import { IAssignedCard, ICard } from '../types'
 
 export interface ICreateCardResponse {
   data: ICard
@@ -32,5 +32,10 @@ export interface IUpdateCoverResponse {
 }
 
 export interface IAssignMemberToCardReponse {
+  message: string
+}
+
+export interface IAssignedToMeResponse {
+  data: IAssignedCard[],
   message: string
 }

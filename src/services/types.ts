@@ -257,3 +257,25 @@ export interface INotificationItem {
   unRead: number
   data: INotification[]
 }
+export interface IAssignedCard {
+  _id: string,
+  cardId: string,
+  title: string,
+  dueDate: string,
+  priority: string,
+  startDate: string,
+  description: string,
+  labels: [{
+    _id: string,
+    name: string,
+    color: string
+  }],
+  board: {
+    _id: string,
+    title: string
+  },
+  column: {
+    _id: string, 
+    title: string
+  }
+}
