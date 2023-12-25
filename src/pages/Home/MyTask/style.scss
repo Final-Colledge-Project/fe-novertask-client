@@ -1,0 +1,48 @@
+.myTask-container {
+  background-color: var(--mui-palette-gray6-main);
+  width: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.myTask-header {
+  color: var(--mui-palette-blue-main);
+  font-weight: 700;
+  font-size: 32px;
+}
+
+.myTask-calendar {
+  background-color: #fff;
+  border-radius: 5px;
+  margin-top: 15px;
+  padding: 12px;
+  & .ant-picker-calendar {
+    width: 90%;
+    margin: auto;
+  }
+}
+
+.event-personal {
+  display: flex;
+  align-items: center;
+  & .event-dot {
+    background-color: var(--mui-palette-blue-main);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+}
+
+.myTask-masterCalendar {
+  display: flex;
+  align-items: center;
+  color: var(--mui-palette-gray2-main);
+  font-size: 20px;
+}
+
+.myTask-masterCalendar__icon {
+  margin-right: 5px;
+}

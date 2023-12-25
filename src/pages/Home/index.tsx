@@ -16,6 +16,7 @@ import socketIoClient from 'socket.io-client'
 import { useDispatch, useSelector } from 'react-redux'
 import { getNotificationByUserId } from '~/redux/notiSlice/actions'
 import CardDetail from './CardDetail'
+import MyTask from './MyTask'
 
 const Home = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL
@@ -25,11 +26,13 @@ const Home = () => {
     const socket = socketIoClient(serverUrl)
     socket.on('connect', async function () {
       socket.emit('login', { userId: user?._id })
-      socket.on('message', function (data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      socket.on('message', function (data: any) {
         console.log('Received message:', data)
       })
     })
-    socket.on('directMessage', (data) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    socket.on('directMessage', (data: any) => {
       if (data?.message === 'fetchNotification') {
         dispatch(getNotificationByUserId())
       }
@@ -48,6 +51,7 @@ const Home = () => {
               <Route path="cards/:selectedCardId/*" element={<CardDetail />} />
             </Route>
             <Route path="profile/*" element={<Profile />} />
+            <Route path="my-tasks" element={<MyTask />} />
           </Route>
         </Routes>
       </div>

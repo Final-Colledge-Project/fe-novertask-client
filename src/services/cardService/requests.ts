@@ -5,6 +5,7 @@ const requests = {
   getMemberInCard: (id: string) => `/cards/${id}/members`,
   updateCover: (id: string) => `/cards/${id}/upload-cover`,
   assignMember: (cardId: string, memberId: string) =>
-    `/cards/${cardId}/assign-member/${memberId}`
+    `/cards/${cardId}/assign-member/${memberId}`,
+  assignedToMe: '/cards/assigned-me'
 }
 export default requests

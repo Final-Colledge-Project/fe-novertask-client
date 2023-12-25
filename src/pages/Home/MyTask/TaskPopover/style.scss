@@ -1,0 +1,19 @@
+.taskPop-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.taskPop-button {
+  margin-left: auto;
+  cursor: pointer;
+  color: var(--mui-palette-gray2-main);
+  &:hover {
+    color: var(--mui-palette-blue-main);
+    text-decoration: underline;
+  }
+}
+
+.taskPop-info {
+  text-overflow: ellipsis;
+}

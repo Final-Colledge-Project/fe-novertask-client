@@ -11,6 +11,7 @@ import {
 import requests from './requests'
 import {
   IAssignMemberToCardReponse,
+  IAssignedToMeResponse,
   IGetMemberInCardResponse,
   IUpdateCoverResponse
 } from './resTypes'
@@ -134,6 +135,20 @@ export const assignMemberToCard = async (body: IAssignMemberToCardBody) => {
     }
 
     // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const cardAssignToMe = async () => {
+  try {
+    const res = await axiosInstance.get<IAssignedToMeResponse>(requests.assignedToMe)
+    console.log('~~~~~~~~~~>KhiemLd')
+    if (res && res.status === 200 && res.data) {
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>Test')
+      return res.data
+    }
+  }
+  catch(error) {
     throw new Error('Something went wrong! Please try later.')
   }
 }
