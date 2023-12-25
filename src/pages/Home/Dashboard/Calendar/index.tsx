@@ -98,13 +98,14 @@ const Calendar = () => {
                 navigate(`/u/boards/${task.board._id}/cards/${task._id}`)
               }
               key={task._id}
+              className={task.priority}
             >
               <Priority className={task.priority}>{task.priority}</Priority>
               <div className="item__title">{task.title}</div>
               <div className="item__due-date">
                 {task.dueDate && dayjs(task.dueDate).format('LLL')}
               </div>
-              <div className="item__board-name">{task.board.title}</div>
+              <div className="item__board-name">Board: {task.board.title}</div>
             </TaskItem>
           ))}
       </TasksContainer>

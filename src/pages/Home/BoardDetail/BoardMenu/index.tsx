@@ -32,7 +32,7 @@ export default function BoardMenu({
       </MenuHeader>
       <MenuBody>
         <GeneralInfo board={board} owner={owner} />
-        <MembersInfo />
+        {/* <MembersInfo /> */}
       </MenuBody>
     </BoardMenuContainer>
   )

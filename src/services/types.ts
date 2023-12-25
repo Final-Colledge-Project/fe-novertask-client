@@ -258,24 +258,33 @@ export interface INotificationItem {
   data: INotification[]
 }
 export interface IAssignedCard {
-  _id: string,
-  cardId: string,
-  title: string,
-  dueDate: string,
-  priority: string,
-  startDate: string,
-  description: string,
-  labels: [{
-    _id: string,
-    name: string,
-    color: string
-  }],
+  _id: string
+  cardId: string
+  title: string
+  dueDate: string
+  priority: string
+  startDate: string
+  description: string
+  labels: [
+    {
+      _id: string
+      name: string
+      color: string
+    }
+  ]
   board: {
-    _id: string,
-    title: string
-  },
-  column: {
-    _id: string, 
+    _id: string
     title: string
   }
+  column: {
+    _id: string
+    title: string
+  }
+}
+
+export const SUBTASK_STATUS = {
+  todo: 'todo',
+  inprogress: 'inprogress',
+  completed: 'completed',
+  cancel: 'cancel'
 }

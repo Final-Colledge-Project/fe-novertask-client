@@ -498,3 +498,27 @@ export const DateTimeContainer = styled.div`
   position: relative;
   width: 100%;
 `
+
+export const SubtaskStatus = styled.div`
+  padding: 0px 12px;
+  text-align: center;
+  font-size: 12px;
+  background-color: var(--mui-palette-gray-main);
+  color: var(--mui-palette-white-main);
+  /* width: fit-content; */
+  border-radius: 5px;
+  width: 100%;
+
+  &.todo {
+    background-color: ${PRIORITY_COLOR.low};
+  }
+  &.inprogress {
+    background-color: ${PRIORITY_COLOR.hight};
+  }
+  &.completed {
+    background-color: ${PRIORITY_COLOR.medium};
+  }
+  &.cancel {
+    background-color: ${PRIORITY_COLOR.highest};
+  }
+`

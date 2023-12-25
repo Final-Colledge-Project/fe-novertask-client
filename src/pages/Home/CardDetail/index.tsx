@@ -45,7 +45,8 @@ import {
   CardHeader,
   Loading,
   ActionGroup,
-  Error
+  Error,
+  SubtaskStatus
 } from './style'
 import DateTimeInput from '~/components/DateTimeInput'
 import GeneralLoading from '../components/GeneralLoading'
@@ -69,7 +70,7 @@ import { getAllSubTaskInCard } from '~/services/subtaskService'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
 import { StoreType } from '~/redux'
-import { PRIORITIES } from '~/services/types'
+import { PRIORITIES, SUBTASK_STATUS } from '~/services/types'
 
 import isFileValid from '~/utils/isFileValid'
 import { DATE_FORMAT } from '~/utils/constant'
@@ -82,12 +83,20 @@ const UPDATING_FIELDS = {
 }
 
 type TPriority = keyof typeof PRIORITIES
+type TSubtaskStatus = keyof typeof SUBTASK_STATUS
 
 export default function CardDetail() {
   const priorityList = useMemo(() => {
     const list: { priority: TPriority }[] = []
     forOwn(PRIORITIES, (value: string, _key: string) => {
       list.push({ priority: value as TPriority })
+    })
+    return list
+  }, [])
+  const statusList = useMemo(() => {
+    const list: { status: TSubtaskStatus }[] = []
+    forOwn(SUBTASK_STATUS, (value: string, _key: string) => {
+      list.push({ status: value as TSubtaskStatus })
     })
     return list
   }, [])
@@ -519,7 +528,7 @@ export default function CardDetail() {
                   <SubTaskContainer>
                     <div className="section__header">
                       <p className="section__title">Sub tasks</p>
-                      <p>TOTAL_COUNT</p>
+                      <p>{subtasks && subtasks.length}</p>
                       <AddItemButton />
                     </div>
                   </SubTaskContainer>
@@ -571,8 +580,32 @@ export default function CardDetail() {
                             </MenuItem>
                           ))}
                         </MuiSelect>
-                        <p className="section">Due date</p>
-                        <p className="section">Status</p>
+                        <p className="section">
+                          {subtask.dueDate &&
+                            dayjs(subtask.dueDate).format('YYYY/MM/DD')}
+                        </p>
+                        <p className="section">
+                          <MuiSelect
+                            value={subtask.status}
+                            sx={{
+                              height: '30px',
+                              '& .MuiList-root': {
+                                flexDirection: 'column'
+                              }
+                            }}
+                          >
+                            {statusList.map((item) => (
+                              <MenuItem
+                                value={item.status as string}
+                                key={item.status as string}
+                              >
+                                <SubtaskStatus className={item.status}>
+                                  {item.status as string}
+                                </SubtaskStatus>
+                              </MenuItem>
+                            ))}
+                          </MuiSelect>
+                        </p>
                       </SubTaskItemBody>
                     </SubTaskItem>
                   ))}

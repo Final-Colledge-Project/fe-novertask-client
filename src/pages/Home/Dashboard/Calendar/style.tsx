@@ -44,15 +44,43 @@ export const TaskItem = styled.div`
   border-radius: 8px;
   padding: 10px;
   background-color: var(--mui-palette-gray6-main);
+  border: 1px solid transparent;
   width: 100%;
   cursor: pointer;
 
+  &.highest {
+    background-color: var(${PRIORITY_COLOR.highest}+ '20');
+    border-color: ${PRIORITY_COLOR.highest};
+  }
+  &.high {
+    background-color: ${PRIORITY_COLOR.hight + '20'};
+    border-color: ${PRIORITY_COLOR.hight};
+  }
+  &.medium {
+    background-color: ${PRIORITY_COLOR.medium + '20'};
+    border-color: ${PRIORITY_COLOR.medium};
+  }
+  &.low {
+    background-color: ${PRIORITY_COLOR.low + '20'};
+    border-color: ${PRIORITY_COLOR.low};
+  }
+  &.lowest {
+    background-color: ${PRIORITY_COLOR.lowest + '20'};
+    border-color: ${PRIORITY_COLOR.lowest};
+  }
+
   & .item__title {
     font-weight: 700;
+    margin: 5px 0;
   }
   & .item__board-name {
     font-size: 14px;
-    color: var(--mui-palette-gray-main);
+    color: var(--mui-palette-black-main);
+  }
+
+  & .item__due-date {
+    font-size: 14px;
+    color: var(--mui-palette-black-main);
   }
 `
 

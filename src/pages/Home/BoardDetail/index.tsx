@@ -103,11 +103,13 @@ interface IChangeColumn {
 // import socketIoClient from 'socket.io-client'
 
 const BoardDetail = () => {
+  const viewList = ['Kanban', 'List', 'Member']
+
   const { id } = useParams()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   // const socket = socketIoClient('http://localhost:5000')
-  const [viewType, setViewType] = useState('Kanban')
+  const [viewType, setViewType] = useState(viewList[0])
   const [board, setBoard] = useState<IBoard | undefined>(undefined)
   const [members, setMembers] = useState<IAllMemberInBoard | undefined>(
     undefined
@@ -153,7 +155,6 @@ const BoardDetail = () => {
   )
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
 
-  const viewList = ['Kanban', 'List']
   const items = [
     {
       title: 'Add task',
@@ -749,6 +750,7 @@ const BoardDetail = () => {
               <TypeItem
                 className={clsx(viewType === type && 'index')}
                 onClick={() => setViewType(type)}
+                key={type}
               >
                 {type}
               </TypeItem>
