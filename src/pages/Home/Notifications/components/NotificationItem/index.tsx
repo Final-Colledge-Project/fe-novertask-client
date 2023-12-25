@@ -4,9 +4,12 @@ import { INotification } from '~/services/types'
 import dayjs from 'dayjs'
 import { getRecordTime } from '~/utils/helper'
 import clsx from 'clsx'
-import { Navigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { StoreDispatchType } from '~/redux'
+import { getMarkReadNotification } from '~/redux/notiSlice/actions'
 const NotificationItem = (props: INotification) => {
   const {
+    _id,
     sender,
     type,
     message,
@@ -21,12 +24,16 @@ const NotificationItem = (props: INotification) => {
   const timeNoti =
     updatedDate.diff(createdDate, 'hour') > 0 ? updatedAt : createAt
   const displayTime = getRecordTime(timeNoti)
-  const handleOnClick =() => {
+  const dispatch = useDispatch<StoreDispatchType>()
+  const handleOnClick = () => {
+    dispatch(getMarkReadNotification(_id))
     window.open(contextUrl, '_self')
   }
   return (
-    
-    <div className={clsx('noti-item', !isRead && 'noti-item-unread')} onClick={handleOnClick}>
+    <div
+      className={clsx('noti-item', !isRead && 'noti-item-unread')}
+      onClick={handleOnClick}
+    >
       <div className="noti-avatar">
         <Avatar alt={sender.fullName} src={sender.avatar} />
       </div>
@@ -35,7 +42,7 @@ const NotificationItem = (props: INotification) => {
           <span>
             <b>{sender.fullName}</b> {message} <b>{targetType}</b>
           </span>
-          <div className="noti-unreadDot"></div>
+          {!isRead && <div className="noti-unreadDot"></div>}
         </div>
         <div className="noti-footer">
           <div className="noti-time">{displayTime}</div>

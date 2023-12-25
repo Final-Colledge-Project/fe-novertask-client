@@ -1,5 +1,7 @@
 const requests = {
-  getNotificationByUserId: '/notifications'
+  getNotificationByUserId: '/notifications',
+  markReadNotification: (notificationId: string) => `/notifications/${notificationId}`,
+  markReadAllNotification: '/notifications/mark-all'
 }
 
 export default requests
