@@ -10,13 +10,20 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  IconButton
+  IconButton,
+  Tooltip
 } from '@mui/material'
-import { RiCloseFill } from 'react-icons/ri'
+import {
+  RiCloseFill,
+  RiCloseLine,
+  RiUserStarLine,
+  RiUserUnfollowLine
+} from 'react-icons/ri'
 
 // components
 import TextInput from '~/components/TextInput'
 import {
+  ActionButtonsGroup,
   Container,
   Footer,
   Header,
@@ -31,10 +38,22 @@ import { StoreType } from '~/redux'
 import { setPopupAddMemberToBoard } from '~/redux/popupSlice'
 import { IAllMemberInBoard, IBoardMembers } from '~/services/types'
 import { getMembers } from '~/services/workspaceService'
-import { addMember, getAllMemberInBoard } from '~/services/boardService'
+import {
+  addMember,
+  assignMemberToAdmin,
+  getAllMemberInBoard,
+  revokeAdmin as revokeAdminInBoard
+} from '~/services/boardService'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import socketIoClient from 'socket.io-client'
+
+const ROLES = {
+  member: 'member',
+  leader: 'boardLead',
+  admin: 'boardAdmin'
+}
+
 export default function AddMemberPopup() {
   const dispatch = useDispatch()
   const popup = useSelector(
@@ -49,7 +68,9 @@ export default function AddMemberPopup() {
     []
   )
 
-  const handleSocket = (memberIds : string[]) => {
+  const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+
+  const handleSocket = (memberIds: string[]) => {
     const socket = socketIoClient('http://localhost:5000')
     socket.emit('add_boardMembers', memberIds)
   }
@@ -138,6 +159,18 @@ export default function AddMemberPopup() {
     )
   }
 
+  const roleInBoard = (id: string) => {
+    if (!id || !boardMembers) return
+    const foundUser = boardMembers?.oweners?.find(({ user }) => user._id === id)
+    if (!foundUser) return ROLES.member
+    else if (foundUser.role === ROLES.leader) return ROLES.leader
+    else return ROLES.admin
+  }
+
+  const isAdminOrLeader = (id: string) => {
+    return roleInBoard(id) === ROLES.admin || roleInBoard(id) === ROLES.leader
+  }
+
   useEffect(() => {
     if (popup.show) getWSMembers()
   }, [popup.data.currentWsID])
@@ -191,6 +224,50 @@ export default function AddMemberPopup() {
     )
   }
 
+  const assignMember = async (id: string) => {
+    dispatch(showLoading())
+    try {
+      const res = await assignMemberToAdmin({
+        boardId: popup.data.currentBoardID as string,
+        memberId: id
+      })
+
+      if (res) {
+        dispatch(setShouldRefreshBoardDetail(true))
+        setChosenList([])
+        setSearchString('')
+        // dispatch(setShouldRefreshMemberInBoard(true))
+        await getMemberInBoard()
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    } finally {
+      dispatch(hideLoading())
+    }
+  }
+
+  const revokeAdmin = async (id: string) => {
+    dispatch(showLoading())
+    try {
+      const res = await revokeAdminInBoard({
+        boardId: popup.data.currentBoardID as string,
+        memberId: id
+      })
+
+      if (res) {
+        dispatch(setShouldRefreshBoardDetail(true))
+        setChosenList([])
+        setSearchString('')
+        // dispatch(setShouldRefreshMemberInBoard(true))
+        await getMemberInBoard()
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    } finally {
+      dispatch(hideLoading())
+    }
+  }
+
   const handleChooseAll = () => {
     if (chosenList.length === availableToChooseList()?.length) {
       // have chosen all
@@ -217,14 +294,18 @@ export default function AddMemberPopup() {
     })
   }
 
-  // wait for a while to trigger the callback
-  // const typewatch = (function () {
-  //   let timer = 0
-  //   return function (callback: () => void, ms: number) {
-  //     clearTimeout(timer)
-  //     timer = setTimeout(callback, ms) as unknown as number
-  //   }
-  // })()
+  const shouldShowAssignButton = (memberId: string) => {
+    if (!isAdminOrLeader(currentUser?._id as string)) return false
+    if (roleInBoard(memberId) !== ROLES.member) return false
+    return true
+  }
+
+  const shouldShowRevokeButton = (memberId: string) => {
+    if (roleInBoard(memberId) !== ROLES.admin) return false
+    if (roleInBoard(currentUser?._id as string) !== ROLES.leader) return false
+
+    return true
+  }
 
   return (
     <Container className={clsx(!popup.show && 'hidden')} onClick={handleClose}>
@@ -269,12 +350,17 @@ export default function AddMemberPopup() {
               }
               label="Select all"
             />
-            <p className="note">State</p>
+            <p className="note">Action</p>
           </MemberSectionTitle>
 
           {cleanedWSMembers?.map((member) => (
             <MemberItem key={member?.user?._id}>
               <Checkbox
+                style={{
+                  opacity: !isMemberInBoard(member?.user?._id as string)
+                    ? '1'
+                    : '0'
+                }}
                 checked={checkIsChosen(member?.user?._id as string)}
                 disabled={isMemberInBoard(member?.user?._id as string)}
                 onChange={() =>
@@ -284,6 +370,7 @@ export default function AddMemberPopup() {
                   )
                 }
               />
+
               <div className="image">
                 <Avatar
                   src={member?.user?.avatar}
@@ -297,17 +384,61 @@ export default function AddMemberPopup() {
               <div className="info">
                 <div className="name-role-group">
                   <div className="name">{member?.user?.fullName}</div>
-                  <div className={clsx('role', member?.role)}>
-                    {member?.role === 'superAdmin' && 'Workspace lead'}
-                    {member?.role === 'admin' && 'Workspace Admin'}
-                    {!member?.role && 'Workspace member'}
+                  <div
+                    className={clsx(
+                      'role',
+                      roleInBoard(member?.user?._id as string)
+                    )}
+                  >
+                    {roleInBoard(member?.user?._id as string) ===
+                      ROLES.leader && 'Lead'}
+                    {roleInBoard(member?.user?._id as string) === ROLES.admin &&
+                      'Admin'}
+                    {roleInBoard(member?.user?._id as string) ===
+                      ROLES.member && 'Member'}
                   </div>
                 </div>
                 <div className="email">{member?.user?.email}</div>
               </div>
-              {isMemberInBoard(member?.user?._id as string) && (
+              {/* {isMemberInBoard(member?.user?._id as string) && (
                 <p className="plaintext">Already in board</p>
-              )}
+              )} */}
+              {isAdminOrLeader(currentUser?._id as string) &&
+                isMemberInBoard(member?.user?._id as string) && (
+                  <ActionButtonsGroup>
+                    {shouldShowAssignButton(member?.user?._id as string) && (
+                      <Tooltip title="Assign to be admin">
+                        <IconButton
+                          color="info"
+                          onClick={() =>
+                            assignMember(member?.user?._id as string)
+                          }
+                        >
+                          <RiUserStarLine />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {shouldShowRevokeButton(member?.user?._id as string) && (
+                      <Tooltip title="Revoke admin role">
+                        <IconButton
+                          color="error"
+                          onClick={() =>
+                            revokeAdmin(member?.user?._id as string)
+                          }
+                        >
+                          <RiUserUnfollowLine />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {currentUser?._id !== member?.user?._id && (
+                      <Tooltip title="Delete from board">
+                        <IconButton color="error">
+                          <RiCloseLine />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </ActionButtonsGroup>
+                )}
             </MemberItem>
           ))}
           {(!cleanedWSMembers || cleanedWSMembers?.length === 0) && (

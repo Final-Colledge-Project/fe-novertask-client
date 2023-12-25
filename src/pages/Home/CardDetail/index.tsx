@@ -401,6 +401,20 @@ export default function CardDetail() {
     return false
   }
 
+  const handleAddToClipBoard = async (valueToRemember: string) => {
+    if ('clipboard' in navigator) {
+      try {
+        const baseURL = window.location.origin
+        await navigator.clipboard.writeText(baseURL + valueToRemember)
+        enqueueSnackbar('Copied to clipboard!', { variant: 'success' })
+      } catch (err) {
+        // do nothing
+      }
+    } else {
+      return
+    }
+  }
+
   return (
     <Container onClick={() => navigate(`/u/boards/${boardId}`)}>
       <Modal onClick={(e) => e.stopPropagation()}>
@@ -424,7 +438,15 @@ export default function CardDetail() {
                 >
                   {columnOfCurrentCard()?.title}
                 </Link>
-                <div color="text.primary" className="breadcrumb__current-item">
+                <div
+                  color="text.primary"
+                  className="breadcrumb__current-item"
+                  onClick={() =>
+                    handleAddToClipBoard(
+                      `/u/boards/${card.boardId}/cards/${card._id}`
+                    )
+                  }
+                >
                   <p>{card.cardId}</p>
                   <RiLinkM />
                 </div>
@@ -504,7 +526,14 @@ export default function CardDetail() {
                   {subtasks?.map((subtask) => (
                     <SubTaskItem>
                       <SubTaskItemHeader>
-                        <p className="item__id">
+                        <p
+                          className="item__id"
+                          onClick={() =>
+                            handleAddToClipBoard(
+                              `/u/boards/${card.boardId}/cards/${card._id}`
+                            )
+                          }
+                        >
                           <span>{subtask.subCardId}</span>
                           <RiLinkM />
                         </p>

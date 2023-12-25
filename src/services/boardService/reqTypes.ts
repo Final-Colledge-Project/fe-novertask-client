@@ -45,3 +45,13 @@ export interface IUpdateBoardBody {
   boardId: string
   changes: IUpdatableBoard
 }
+
+export interface IAssignAdminBody {
+  boardId: string
+  memberId: string
+}
+
+export interface IRevokeAdminBody {
+  boardId: string
+  memberId: string
+}

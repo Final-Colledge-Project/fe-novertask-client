@@ -9,10 +9,12 @@ import {
 import requests from './requests'
 import {
   IAddMemberToBoardBody,
+  IAssignAdminBody,
   ICreateBoardBody,
   IGetAllByWSIdBody,
   IGetBoardDetailBody,
   IGetMemberInBoardBody,
+  IRevokeAdminBody,
   IUpdateBoardBody
 } from './reqTypes'
 import { AxiosError } from 'axios'
@@ -177,6 +179,50 @@ export const updateBoard = async (body: IUpdateBoardBody) => {
       if (errorData.message === 'Board not updated') {
         throw new Error('Board not updated')
       }
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const assignMemberToAdmin = async (body: IAssignAdminBody) => {
+  try {
+    const res = await axiosInstance.patch(
+      requests.assignAdmin(body.boardId, body.memberId)
+    )
+
+    if (res && res.status) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    if ((status && status === 409) || status === 403) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      throw new Error(errorData.message as string)
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const revokeAdmin = async (body: IRevokeAdminBody) => {
+  try {
+    const res = await axiosInstance.delete(
+      requests.revokeAdmin(body.boardId, body.memberId)
+    )
+
+    if (res && res.status) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    if ((status && status === 409) || status === 403) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      throw new Error(errorData.message as string)
     }
     // general error
     throw new Error('Something went wrong! Please try later.')

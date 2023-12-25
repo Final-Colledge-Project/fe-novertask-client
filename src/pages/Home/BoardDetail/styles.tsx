@@ -211,6 +211,20 @@ export const YellowTooltip = styled(({ className, ...props }: TooltipProps) => (
     }
   }
 `
+export const OrangeTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))`
+  & .MuiTooltip-tooltip {
+    background: #FF9500;
+  }
+
+  & .MuiTooltip-arrow {
+    /* top: -10px !important; */
+    &::before {
+      background: #FF9500;
+    }
+  }
+`
 
 export const ProjectType = styled.div<{ $type: string }>`
   font-weight: 400;

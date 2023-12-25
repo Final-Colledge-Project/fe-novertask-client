@@ -17,6 +17,7 @@ import {
   Header,
   MemberAvatarGroup,
   Members,
+  OrangeTooltip,
   ProjectType,
   TitleHeader,
   TypeHeader,
@@ -758,21 +759,37 @@ const BoardDetail = () => {
             <FilterMenu />
             <MemberAvatarGroup>
               {members?.oweners &&
-                members.oweners.map(({ user }) => (
-                  <YellowTooltip title={'Owner | ' + user.firstName}>
-                    <Avatar
-                      alt={user.firstName}
-                      src={user.avatar}
-                      sx={{
-                        '&.MuiAvatar-root': {
-                          // order: 2,
-                          border: (theme) =>
-                            `3px solid ${theme.palette.yellow.main} !important`
-                        }
-                      }}
-                    />
-                  </YellowTooltip>
-                ))}
+                members.oweners.map(({ user, role }) =>
+                  role === 'boardLead' ? (
+                    <OrangeTooltip title={'Owner | ' + user.firstName}>
+                      <Avatar
+                        alt={user.firstName}
+                        src={user.avatar}
+                        sx={{
+                          '&.MuiAvatar-root': {
+                            // order: 2,
+                            border: (theme) =>
+                              `3px solid ${theme.palette.orange.main} !important`
+                          }
+                        }}
+                      />
+                    </OrangeTooltip>
+                  ) : (
+                    <YellowTooltip title={'Admin | ' + user.firstName}>
+                      <Avatar
+                        alt={user.firstName}
+                        src={user.avatar}
+                        sx={{
+                          '&.MuiAvatar-root': {
+                            // order: 2,
+                            border: (theme) =>
+                              `2px solid ${theme.palette.yellow.main} !important`
+                          }
+                        }}
+                      />
+                    </YellowTooltip>
+                  )
+                )}
               {members?.members &&
                 members.members.map((user) => (
                   <Tooltip title={user.firstName}>
@@ -787,7 +804,7 @@ const BoardDetail = () => {
                 startIcon={<RiUserAddLine />}
                 onClick={handleShowAddMemberPopup}
               >
-                Invite
+                Add more
               </Button>
             )}
           </Members>

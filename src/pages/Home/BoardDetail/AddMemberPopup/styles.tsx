@@ -103,11 +103,11 @@ export const MemberItem = styled.div`
     border-radius: 50px;
     color: var(--mui-palette-white-main);
 
-    &.admin {
+    &.boardAdmin {
       background-color: rgba(var(--mui-palette-yellow-mainChannel) / 0.1);
       color: var(--mui-palette-yellow-main);
     }
-    &.superAdmin {
+    &.boardLead {
       background-color: rgba(var(--mui-palette-orange-mainChannel) / 0.1);
       color: var(--mui-palette-orange-main);
     }
@@ -151,4 +151,10 @@ export const Footer = styled.div`
     justify-content: flex-end;
     gap: 10px;
   }
+`
+
+export const ActionButtonsGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
 `

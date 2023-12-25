@@ -1,12 +1,8 @@
-import {
-  IAllMemberInBoard,
-  IBoard,
-  IGeneralWorkspace,
-} from '../types'
+import { IAllMemberInBoard, IBoard, IGeneralWorkspace } from '../types'
 
 export interface IGetAllByUserIdResponse {
   length: number
-  data: IGeneralWorkspace[];
+  data: IGeneralWorkspace[]
   message: string
 }
 
@@ -37,5 +33,13 @@ export interface IAddMemberToBoardResponse {
 
 export interface IUpdateBoardResponse {
   data: IBoard
+  message: string
+}
+
+export interface IAssignAdminResponse {
+  message: string
+}
+
+export interface IRevokeAdminResponse {
   message: string
 }

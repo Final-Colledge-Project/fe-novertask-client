@@ -116,7 +116,7 @@ export interface IAllBoardOfCurrentUser {
 
 export interface IAllMemberInBoard {
   boardId: string
-  oweners: { user: IMemberInBoard }[]
+  oweners: { user: IMemberInBoard; role: string }[]
   members: IMemberInBoard[]
 }
 
