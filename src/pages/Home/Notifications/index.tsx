@@ -7,7 +7,7 @@ import { SyntheticEvent, useEffect, useState } from 'react'
 import NotificationItem from './components/NotificationItem'
 import { UseSelector } from 'react-redux/es/hooks/useSelector'
 import { INotification } from '~/services/types'
-import { getNotificationByUserId } from '~/redux/notiSlice/actions'
+import { getMarkReadAllNotification, getNotificationByUserId } from '~/redux/notiSlice/actions'
 
 const Notification = () => {
   const { PopupNotification } = useSelector((state: StoreType) => state.popup)
@@ -30,6 +30,12 @@ const Notification = () => {
     (state: StoreType) => state.notification
   )
   const { data } = notifications
+  const handleMarkReadAll = () => {
+    const getAllMark = async() => await dispatch(getMarkReadAllNotification())
+    getAllMark()
+    const getNotification = async () => await dispatch(getNotificationByUserId())
+    getNotification()
+  }
   return (
     PopupNotification && (
       <div className="notification">
@@ -37,7 +43,7 @@ const Notification = () => {
           <div style={{ fontSize: '20px', fontWeight: '700' }}>
             Notification
           </div>
-          <span className="notification-markAll">Mark all as read</span>
+          <span className="notification-markAll" onClick={handleMarkReadAll}>Mark all as read</span>
         </div>
         <div className="notification-list">
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
