@@ -1,0 +1,39 @@
+.upcomingTask {
+  background-color: #fff;
+  width: 100%;
+  height: fit-content;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  border-radius: 5px;
+  padding:12px;
+  min-height: 30vh;
+}
+
+.upcomingTask-header {
+  display: flex;
+  align-items: center;
+  color: #FF9F0B;
+  font-size: 20px;
+  & .upcomingTask-header__icon {
+    margin-right: 5px;
+    font-weight: 600;
+  }
+  & span {
+    font-weight: 600;
+  }
+}
+
+.upcomingTask-body {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.upcomingTask-listCards{ 
+  margin-top: 15px;;
+  width: 100%;
+  & .assigned-loading {
+    margin-top: 10px;
+  }
+}
+

@@ -13,36 +13,16 @@
   font-size: 32px;
 }
 
-.myTask-calendar {
-  background-color: #fff;
-  border-radius: 5px;
+.myTask-body {
+  display: flex;
+  justify-content: space-between;
   margin-top: 15px;
-  padding: 12px;
-  & .ant-picker-calendar {
-    width: 90%;
-    margin: auto;
-  }
 }
 
-.event-personal {
-  display: flex;
-  align-items: center;
-  & .event-dot {
-    background-color: var(--mui-palette-blue-main);
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    margin-right: 10px;
-  }
+.myTask-left {
+  width: 60%;
 }
 
-.myTask-masterCalendar {
-  display: flex;
-  align-items: center;
-  color: var(--mui-palette-gray2-main);
-  font-size: 20px;
-}
-
-.myTask-masterCalendar__icon {
-  margin-right: 5px;
+.myTask-right {
+  width: 38%;
 }

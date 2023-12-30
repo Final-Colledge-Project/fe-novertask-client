@@ -8,3 +8,15 @@ export const getRecordTime = (date: string) => {
       : dayjs().diff(convertDate, 'minute') + ' minutes ago'
     : dayjs().diff(convertDate, 'day') + ' days ago'
 }
+
+export const isDateInCountNextDays = (
+  targetDate: string,
+  countNextDays: number
+) => {
+  const currentDate = dayjs()
+  const sevenDaysLater = currentDate.add(countNextDays, 'day')
+  return (
+    dayjs(targetDate).isAfter(currentDate.startOf('day')) &&
+    dayjs(targetDate).isBefore(sevenDaysLater.endOf('day'))
+  )
+}
