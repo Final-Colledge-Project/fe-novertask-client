@@ -120,3 +120,28 @@ export const Priority = styled.div`
     background-color: ${PRIORITY_COLOR.lowest};
   }
 `
+
+export const TaskOfDatePlaceholder = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-direction: column;
+  max-height: 350px;
+
+  img {
+    max-height: 220px;
+    object-fit: contain;
+    object-position: center;
+    width: 100%;
+    height: 100%;
+  }
+`
+
+export const RedFlag = styled.div`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--mui-palette-red-main);
+  margin-right: 5px;
+`

@@ -246,6 +246,7 @@ export default function GeneralInfo({
               />
             </div>
             <DateTimeInput
+              disableOpenPicker={false}
               format={DATE_FORMAT}
               value={dayjs(dueDateString)}
               disabled={!enableEditDueDate || !isCurrentUSerOwner()}

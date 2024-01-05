@@ -27,9 +27,6 @@ import {
   Modal,
   SquareButton,
   SubTaskContainer,
-  SubTaskItem,
-  SubTaskItemBody,
-  SubTaskItemHeader,
   CardInfo,
   CardInfoPartDivider,
   Owner,
@@ -39,14 +36,10 @@ import {
   AvatarGroup,
   Label,
   LabelContainer,
-  AddItemButton,
   PriorityItem,
   VisuallyHiddenInput,
   CardHeader,
-  Loading,
-  ActionGroup,
-  Error,
-  SubtaskStatus
+  Loading
 } from './style'
 import DateTimeInput from '~/components/DateTimeInput'
 import GeneralLoading from '../components/GeneralLoading'
@@ -55,6 +48,8 @@ import AssignMemberMenu from './components/AssignMemberMenu'
 import Menu from './components/Menu'
 import TitleInput from './components/TitleInput'
 import AddLabelMenu from './components/AddLabelMenu'
+import Subtask from './components/Subtask'
+import AddSubtask from './components/AddSubtask'
 
 // services
 import { IBoard, ICard, ISubtask } from '~/services/types'
@@ -70,12 +65,13 @@ import { getAllSubTaskInCard } from '~/services/subtaskService'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
 import { StoreType } from '~/redux'
-import { PRIORITIES, SUBTASK_STATUS } from '~/services/types'
+import { PRIORITIES } from '~/services/types'
+import socketIoClient from 'socket.io-client'
+import copy from '~/utils/copy'
 
 import isFileValid from '~/utils/isFileValid'
 import { DATE_FORMAT } from '~/utils/constant'
 
-import socketIoClient from 'socket.io-client'
 const UPDATING_FIELDS = {
   description: 'description',
   priority: 'priority',
@@ -83,20 +79,12 @@ const UPDATING_FIELDS = {
 }
 
 type TPriority = keyof typeof PRIORITIES
-type TSubtaskStatus = keyof typeof SUBTASK_STATUS
 
 export default function CardDetail() {
   const priorityList = useMemo(() => {
     const list: { priority: TPriority }[] = []
     forOwn(PRIORITIES, (value: string, _key: string) => {
       list.push({ priority: value as TPriority })
-    })
-    return list
-  }, [])
-  const statusList = useMemo(() => {
-    const list: { status: TSubtaskStatus }[] = []
-    forOwn(SUBTASK_STATUS, (value: string, _key: string) => {
-      list.push({ status: value as TSubtaskStatus })
     })
     return list
   }, [])
@@ -119,8 +107,7 @@ export default function CardDetail() {
   const [updatingField, setUpdatingField] = useState<string>()
 
   const [dueDateError, setDueDateError] = useState<string>()
-  const [dueDateDirty, setDueDateDirty] = useState<boolean>(false)
-  const [currentDueDate, setCurrentDueDate] = useState<Date | Dayjs>()
+  const [currentDueDate, setCurrentDueDate] = useState<Date | Dayjs | null>()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -232,14 +219,24 @@ export default function CardDetail() {
     setUpdatingField('')
   }
 
-  const handleUpdateDueDate = async () => {
+  const handleUpdateDueDate = async (dueDate: string) => {
     if (dueDateError) return
     setUpdatingField(UPDATING_FIELDS.dueDate)
-    await handleUpdateCard({
-      dueDate: dayjs(currentDueDate).format(DATE_FORMAT).toString()
-    })
+    await handleUpdateCard({ dueDate })
     setUpdatingField('')
-    setDueDateDirty(false)
+    setCurrentDueDate(dueDate ? dayjs(dueDate) : null)
+  }
+
+  const handleSubmitDueDate = async (e: Dayjs | Date | null) => {
+    // delete due date
+    if (e === null) {
+      await handleUpdateDueDate('')
+      return
+    }
+    const newDate = dayjs(e).format(DATE_FORMAT).toString()
+    if (newDate === 'Invalid Date' || newDate === 'minDate') return
+    await handleUpdateDueDate(dayjs(e).format(DATE_FORMAT))
+    setDueDateError(undefined)
   }
 
   const handleUpdateLabel = async (
@@ -312,6 +309,10 @@ export default function CardDetail() {
     await getCard()
   }
 
+  const refreshSubtask = async () => {
+    await getSubtask()
+  }
+
   const handleSocketAssign = (memberId: string) => {
     const socket = socketIoClient(import.meta.env.VITE_SERVER_URL)
     socket.emit('assignMemberToCard', memberId)
@@ -378,31 +379,6 @@ export default function CardDetail() {
     }
   ]
 
-  const handleChangeDate = (e: Date | Dayjs | null) => {
-    setCurrentDueDate(e as Date | Dayjs)
-    if (card) {
-      const initDate = dayjs(card.dueDate).format(DATE_FORMAT).toString()
-      const newDate = dayjs(e).format(DATE_FORMAT).toString()
-
-      if (newDate === 'Invalid Date' || newDate === 'minDate') {
-        if (newDate === 'Invalid Date' && !card.dueDate) {
-          setDueDateDirty(false)
-        }
-        setDueDateDirty(true)
-      } else if (initDate !== newDate) {
-        setDueDateDirty(true)
-      } else {
-        setDueDateDirty(false)
-      }
-    }
-  }
-
-  const handleResetDate = () => {
-    setDueDateDirty(false)
-    setDueDateError(undefined)
-    setCurrentDueDate(dayjs(card?.dueDate))
-  }
-
   const isAdminOrSuperAdminOfBoard: () => boolean = () => {
     if (board) {
       return !!board?.ownerIds.find((owner) => owner.user === currentUser?._id)
@@ -411,17 +387,9 @@ export default function CardDetail() {
   }
 
   const handleAddToClipBoard = async (valueToRemember: string) => {
-    if ('clipboard' in navigator) {
-      try {
-        const baseURL = window.location.origin
-        await navigator.clipboard.writeText(baseURL + valueToRemember)
-        enqueueSnackbar('Copied to clipboard!', { variant: 'success' })
-      } catch (err) {
-        // do nothing
-      }
-    } else {
-      return
-    }
+    const baseURL = window.location.origin
+    await copy(baseURL + valueToRemember)
+    enqueueSnackbar('Copied to clipboard!', { variant: 'success' })
   }
 
   return (
@@ -529,86 +497,18 @@ export default function CardDetail() {
                     <div className="section__header">
                       <p className="section__title">Sub tasks</p>
                       <p>{subtasks && subtasks.length}</p>
-                      <AddItemButton />
+                      <AddSubtask cardId={card._id} onRefresh={refreshSubtask} />
                     </div>
+                    {subtasks?.map((subtask) => (
+                      <Subtask
+                        card={card}
+                        cardMembers={cardMembers!}
+                        subtask={subtask}
+                        key={subtask._id}
+                        onRefresh={refreshSubtask}
+                      />
+                    ))}
                   </SubTaskContainer>
-                  {subtasks?.map((subtask) => (
-                    <SubTaskItem>
-                      <SubTaskItemHeader>
-                        <p
-                          className="item__id"
-                          onClick={() =>
-                            handleAddToClipBoard(
-                              `/u/boards/${card.boardId}/cards/${card._id}`
-                            )
-                          }
-                        >
-                          <span>{subtask.subCardId}</span>
-                          <RiLinkM />
-                        </p>
-                        <p className="item__title">{subtask.name}</p>
-                      </SubTaskItemHeader>
-                      <SubTaskItemBody>
-                        <MuiSelect
-                          sx={{
-                            border: 'none',
-                            padding: '0',
-                            '& .MuiList-root': {
-                              flexDirection: 'column'
-                            },
-                            '& .MuiSelect-select': {
-                              padding: '0',
-                              outline: 'none'
-                            },
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              border: 'none'
-                            }
-                          }}
-                          className="section"
-                          value={subtask.assignedTo?._id as string}
-                        >
-                          {cardMembers?.map((member) => (
-                            <MenuItem value={member._id}>
-                              <Owner>
-                                <Avatar>
-                                  <img src={member?.avatar} alt="" />
-                                </Avatar>
-                                <Info>
-                                  <p className="name">{`${member.fullName}`}</p>
-                                </Info>
-                              </Owner>
-                            </MenuItem>
-                          ))}
-                        </MuiSelect>
-                        <p className="section">
-                          {subtask.dueDate &&
-                            dayjs(subtask.dueDate).format('YYYY/MM/DD')}
-                        </p>
-                        <p className="section">
-                          <MuiSelect
-                            value={subtask.status}
-                            sx={{
-                              height: '30px',
-                              '& .MuiList-root': {
-                                flexDirection: 'column'
-                              }
-                            }}
-                          >
-                            {statusList.map((item) => (
-                              <MenuItem
-                                value={item.status as string}
-                                key={item.status as string}
-                              >
-                                <SubtaskStatus className={item.status}>
-                                  {item.status as string}
-                                </SubtaskStatus>
-                              </MenuItem>
-                            ))}
-                          </MuiSelect>
-                        </p>
-                      </SubTaskItemBody>
-                    </SubTaskItem>
-                  ))}
                 </Section>
               </CardInfoPart>
               <CardInfoPartDivider />
@@ -657,43 +557,21 @@ export default function CardDetail() {
                     </span>
                   </p>
                   <DateTimeInput
+                    disableOpenPicker={false}
                     className={
                       dayjs(card.dueDate).isTomorrow()
                         ? 'due-date--tomorrow due-date'
                         : 'due-date'
                     }
-                    format={DATE_FORMAT}
+                    format={'MMM DD YYYY, HH:mm'}
                     value={currentDueDate}
                     sx={{ width: '100%' }}
-                    disableOpenPicker={true}
                     minDateTime={dayjs(card.createdAt)}
                     onError={(e) => {
                       setDueDateError(e as string)
                     }}
-                    onChange={handleChangeDate}
-                    onAccept={() => {
-                      setDueDateError(undefined)
-                    }}
+                    onAccept={handleSubmitDueDate}
                   />
-                  {dueDateDirty && (
-                    <ActionGroup className="mr-10">
-                      <SquareButton onClick={handleResetDate}>
-                        <RiCloseLine />
-                      </SquareButton>
-                      <SquareButton
-                        color="success"
-                        onClick={handleUpdateDueDate}
-                      >
-                        <RiCheckLine />
-                      </SquareButton>
-                    </ActionGroup>
-                  )}
-                  {dueDateError === 'minDate' && (
-                    <Error>
-                      {`Should be later than created day 
-                      ${dayjs(card.startDate).format(`YYYY/DD/MM`)}`}
-                    </Error>
-                  )}
                 </Section>
                 <div className="part__divider"></div>
                 <Section>

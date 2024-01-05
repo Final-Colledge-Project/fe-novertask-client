@@ -288,3 +288,10 @@ export const SUBTASK_STATUS = {
   completed: 'completed',
   cancel: 'cancel'
 }
+
+export interface IUpdatableSubtask {
+  name?: string
+  status?: string
+  assignedTo?: string
+  dueDate?: string
+}

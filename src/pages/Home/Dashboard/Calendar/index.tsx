@@ -1,10 +1,11 @@
 import { Badge, Button, Typography } from '@mui/material'
 import {
   CalendarContainer,
-  Loading,
   Priority,
+  RedFlag,
   TaskContainerHeader,
   TaskItem,
+  TaskOfDatePlaceholder,
   TasksContainer
 } from './style'
 import { DateCalendar, PickersDay, PickersDayProps } from '@mui/x-date-pickers'
@@ -14,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { getTaskAssignedToMe } from '~/redux/cardSlice/actions'
 import { useNavigate } from 'react-router-dom'
+import CheckListSVG from '~/assets/calendar_placeholder.svg'
 
 const Calendar = () => {
   const DATE_FORMAT = 'YYYY-MM-DD'
@@ -25,31 +27,45 @@ const Calendar = () => {
     dispatch(getTaskAssignedToMe())
   }, [])
 
-  const formatedDate = (date: Dayjs | Date | string) => {
+  const formattedDate = (date: Dayjs | Date | string) => {
     return dayjs(date).format(DATE_FORMAT)
   }
 
-  const tasksDate = tasks.map((task) => formatedDate(task.dueDate))
+  const tasksDate = tasks.map((task) => formattedDate(task.dueDate))
+
+  const taskOfChoosenDate = () => {
+    return tasks.filter(
+      (task) => formattedDate(task.dueDate) === formattedDate(chosenDate)
+    )
+  }
 
   function ServerDay(
     props: PickersDayProps<Dayjs> & { highlightedDays?: number[] }
   ) {
-    const { _highlightedDays = [], day, outsideCurrentMonth, ...other } = props
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { highlightedDays = [], day, outsideCurrentMonth, ...other } = props
 
     const isSelected =
       !props.outsideCurrentMonth &&
-      tasksDate.find((td) => td === formatedDate(day))
+      tasksDate.find((td) => td === formattedDate(day))
 
     return (
       <Badge
         key={props.day.toString()}
         overlap="circular"
-        badgeContent={isSelected ? '✨' : undefined}
+        badgeContent={isSelected ? <RedFlag /> : undefined}
       >
         <PickersDay
           {...other}
           outsideCurrentMonth={outsideCurrentMonth}
           day={day}
+          sx={{
+            '&.MuiPickersDay-root': {
+              padding: '0'
+              // height: '20px',
+              // width: '20px'
+            }
+          }}
         />
       </Badge>
     )
@@ -88,11 +104,8 @@ const Calendar = () => {
             Today
           </Button>
         </TaskContainerHeader>
-        {tasks
-          .filter(
-            (task) => formatedDate(task.dueDate) === formatedDate(chosenDate)
-          )
-          .map((task) => (
+        {taskOfChoosenDate().length > 0 &&
+          taskOfChoosenDate().map((task) => (
             <TaskItem
               onClick={() =>
                 navigate(`/u/boards/${task.board._id}/cards/${task._id}`)
@@ -108,6 +121,17 @@ const Calendar = () => {
               <div className="item__board-name">Board: {task.board.title}</div>
             </TaskItem>
           ))}
+        {taskOfChoosenDate().length <= 0 && (
+          <TaskOfDatePlaceholder>
+            <img src={CheckListSVG} alt="Checklist image" />
+            <Typography
+              fontSize={16}
+              color={(theme) => theme.palette.gray.main}
+            >
+              No tasks for this day
+            </Typography>
+          </TaskOfDatePlaceholder>
+        )}
       </TasksContainer>
     </CalendarContainer>
   )
