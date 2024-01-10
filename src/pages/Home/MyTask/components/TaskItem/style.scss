@@ -51,9 +51,15 @@
       }
     }
   }
-  & .card-content {
-    font-size: 13px;
-    color: var(--mui-palette-gray2-main);
-    
+
+  & .card-body {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    & .card-content {
+      font-size: 13px;
+      color: var(--mui-palette-gray2-main);
+    }
   }
+  
 }
