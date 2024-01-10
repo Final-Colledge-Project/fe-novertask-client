@@ -28,9 +28,10 @@ export const Container = styled.div`
 export const Modal = styled.div`
   background-color: var(--mui-palette-white-main);
   border-radius: 8px;
-  padding: 20px;
+  padding: 10px 20px;
   max-width: 1080px;
   min-height: 90%;
+  max-height: 90%;
   min-width: 1080px;
   position: relative;
   overflow-y: auto;
@@ -77,7 +78,7 @@ export const CardHeader = styled.div`
 
 export const CardInfo = styled.div`
   display: flex;
-  margin-top: 20px;
+  margin-top: 10px;
   gap: 20px;
 `
 export const CardInfoPartDivider = styled.div`
@@ -152,7 +153,7 @@ export const Section = styled.div`
     align-items: center;
   }
 
-  .due-date {
+  /* .due-date {
     & input {
       color: var(--mui-palette-black-main);
       border: none;
@@ -163,7 +164,7 @@ export const Section = styled.div`
     & .MuiOutlinedInput-notchedOutline {
       border: none;
     }
-  }
+  } */
 
   .due-date--tomorrow {
     background-color: rgba(var(--mui-palette-orange-mainChannel) / 0.1);
@@ -327,63 +328,6 @@ export const SubTaskContainer = styled.div`
   }
 `
 
-export const SubTaskItem = styled.div`
-  padding: 5px 10px;
-  /* box-shadow: 0px 0px 7px 1px var(--mui-palette-gray5-main); */
-  border-radius: 8px;
-  border: 1px solid var(--mui-palette-divider);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-
-export const SubTaskItemHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  & > .item__id {
-    width: fit-content;
-    color: var(--mui-palette-black-main);
-    padding: 0px 4px;
-    border-radius: 5px;
-    background-color: var(--mui-palette-gray5-main);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: var(--mui-palette-gray3-main);
-    }
-
-    &:active {
-      background-color: var(--mui-palette-gray2-main);
-    }
-  }
-
-  & > .item__title {
-    max-width: 55%;
-    display: -webkit-box;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -webkit-line-clamp: 1;
-    white-space: pre-line;
-    -webkit-box-orient: vertical;
-  }
-`
-
-export const SubTaskItemBody = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-
-  & > .section {
-    flex: 1 0 70px;
-  }
-`
 
 export const Owner = styled.div`
   width: 100%;
@@ -497,28 +441,4 @@ export const Loading = muiStyled((props: CircularProgressProps) => (
 export const DateTimeContainer = styled.div`
   position: relative;
   width: 100%;
-`
-
-export const SubtaskStatus = styled.div`
-  padding: 0px 12px;
-  text-align: center;
-  font-size: 12px;
-  background-color: var(--mui-palette-gray-main);
-  color: var(--mui-palette-white-main);
-  /* width: fit-content; */
-  border-radius: 5px;
-  width: 100%;
-
-  &.todo {
-    background-color: ${PRIORITY_COLOR.low};
-  }
-  &.inprogress {
-    background-color: ${PRIORITY_COLOR.hight};
-  }
-  &.completed {
-    background-color: ${PRIORITY_COLOR.medium};
-  }
-  &.cancel {
-    background-color: ${PRIORITY_COLOR.highest};
-  }
 `

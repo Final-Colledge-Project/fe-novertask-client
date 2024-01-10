@@ -1,5 +1,5 @@
 import TextInput from '~/components/TextInput'
-import { ActionGroup, Form, SquareButton } from './style'
+import { ActionGroup, Form, InputContainer, SquareButton } from './style'
 import { RiCheckLine, RiCloseLine } from 'react-icons/ri'
 import { Container } from './style'
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -22,12 +22,13 @@ export default function DescriptionInput({
     control,
     handleSubmit,
     reset,
-    formState: { isDirty }
+    formState: { isDirty },
+    watch
   } = useForm<IFormFields>({
     defaultValues: { description: card.description || '' },
-    mode: 'onSubmit',
+    mode: 'onBlur',
     resolver: yupResolver(schema),
-    reValidateMode: 'onBlur'
+    reValidateMode: 'onChange'
   })
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
@@ -42,19 +43,24 @@ export default function DescriptionInput({
   return (
     <Container>
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <WithController control={control} name="description">
-          <TextInput
-            label=""
-            placeHolder="Add description..."
-            sx={{
-              maxHeight: '300px',
-              backgroundColor: (theme) => theme.palette.gray6.main
-            }}
-            multiple
-            maxRows={4}
-            row={2}
-          />
-        </WithController>
+        <InputContainer>
+          <WithController control={control} name="description">
+            <TextInput
+              label=""
+              placeHolder="Add description..."
+              sx={{
+                maxHeight: '300px',
+                backgroundColor: (theme) => theme.palette.gray6.main
+              }}
+              multiple
+              maxRows={4}
+              row={3}
+            />
+          </WithController>
+          {isDirty && (
+            <div className="limit">{watch('description').length}/200</div>
+          )}
+        </InputContainer>
 
         {isDirty && (
           <ActionGroup>

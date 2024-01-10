@@ -8,10 +8,10 @@ export const Container = styled.div`
 
 export const ActionGroup = styled.div`
   position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 10px;
-  transform: translateY(25%);
+  top: -5px;
+  /* bottom: -5px; */
+  right: 0px;
+  transform: translateY(-100%);
   display: flex;
   align-items: flex-start;
   gap: 5px;
@@ -45,4 +45,17 @@ export const SquareButton = muiStyled((props: ButtonProps) => (
 export const Form = styled.form`
   position: relative;
   z-index: 1;
+`
+
+export const InputContainer = styled.div`
+  position: relative;
+
+  .limit {
+    position: absolute;
+    bottom: 0px;
+    right: 10px;
+    color: var(--mui-palette-gray-main);
+    font-size: 14px;
+    z-index: 1;
+  }
 `
