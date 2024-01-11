@@ -74,7 +74,7 @@ export default function AddMenu({ items }: IProps) {
         open={open}
         anchorEl={anchorRef.current}
         role={undefined}
-        placement="bottom-start"
+        placement="bottom-end"
         transition
         disablePortal
         sx={{
@@ -87,7 +87,7 @@ export default function AddMenu({ items }: IProps) {
             {...TransitionProps}
             style={{
               transformOrigin:
-                placement === 'bottom-start' ? 'left top' : 'left bottom'
+                placement === 'bottom-end' ? 'right top' : 'left bottom'
             }}
           >
             <Paper sx={{ borderRadius: '8px' }}>

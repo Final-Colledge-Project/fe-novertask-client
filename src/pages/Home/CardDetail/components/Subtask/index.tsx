@@ -268,7 +268,7 @@ export default function Subtask({
               format="MMM DD YYYY, HH:mm"
               value={dueDate}
               onAccept={handleSubmitDueDate}
-              minDateTime={card.dueDate ? dayjs(card.dueDate) : undefined}
+              minDateTime={card.createdAt ? dayjs(card.createdAt) : undefined}
             />
           </div>
 

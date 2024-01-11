@@ -22,6 +22,8 @@ export const ColumnContainer = styled.div`
 
 export const Header = styled.div`
   width: 100%;
+  height: 44px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -44,6 +46,7 @@ export const Header = styled.div`
     flex: 1;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 10px;
 
     & > .cards-count {

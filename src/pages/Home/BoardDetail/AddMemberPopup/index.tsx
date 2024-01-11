@@ -430,13 +430,13 @@ export default function AddMemberPopup() {
                         </IconButton>
                       </Tooltip>
                     )}
-                    {currentUser?._id !== member?.user?._id && (
+                    {/* {currentUser?._id !== member?.user?._id && (
                       <Tooltip title="Delete from board">
                         <IconButton color="error">
                           <RiCloseLine />
                         </IconButton>
                       </Tooltip>
-                    )}
+                    )} */}
                   </ActionButtonsGroup>
                 )}
             </MemberItem>

@@ -103,7 +103,8 @@ interface IChangeColumn {
 // import socketIoClient from 'socket.io-client'
 
 const BoardDetail = () => {
-  const viewList = ['Kanban', 'List', 'Member']
+  // const viewList = ['Kanban', 'List', 'Member']
+  const viewList = ['Kanban']
 
   const { id } = useParams()
   const navigate = useNavigate()
@@ -156,10 +157,6 @@ const BoardDetail = () => {
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
 
   const items = [
-    {
-      title: 'Add task',
-      onChoose: () => {}
-    },
     {
       title: 'Add column',
       onChoose: () => {
@@ -264,9 +261,21 @@ const BoardDetail = () => {
     return members?.oweners.find((owner) => owner.user._id === leadId)?.user
   }, [members, board])
 
+  const boardAdminAndLead = useCallback(() => {
+    return members?.oweners.filter(
+      (owner) => owner.role === 'boardLead' || owner.role === 'boardAdmin'
+    )
+  }, [members])
+
   const isUserTheBoardLead = useCallback(() => {
     return boardLeader()?._id === currentUser?._id
   }, [boardLeader, currentUser])
+
+  const isUserLeadOrAdmin = useCallback(() => {
+    return boardAdminAndLead()?.find(
+      (admin) => admin.user._id === currentUser?._id
+    )
+  }, [boardAdminAndLead, currentUser])
 
   const handleShowAddMemberPopup = () => {
     dispatch(
@@ -424,7 +433,7 @@ const BoardDetail = () => {
     const { active } = e
 
     // only admin can drag column
-    if (!isUserTheBoardLead() && !active.data.current?.columnId) return
+    if (!isUserLeadOrAdmin() && !active.data.current?.columnId) return
 
     setActiveItemID(active.id)
     setActiveItemData(active.data.current as ICard | IColumn)
@@ -716,9 +725,9 @@ const BoardDetail = () => {
           $img={board?.cover || ''}
           className={clsx(!shouldShowHeader && 'hidden')}
         >
-          <div className="show-header" onClick={handleToggleCover}>
+          {/* <div className="show-header" onClick={handleToggleCover}>
             {shouldShowHeader ? 'Hide cover' : 'Show cover'}
-          </div>
+          </div> */}
         </Header>
 
         <TitleHeader>
@@ -732,16 +741,22 @@ const BoardDetail = () => {
             <p className="description">{board?.description}</p>
           </div>
           <div className="right-block">
-            <AddMenu items={isUserTheBoardLead() ? items : items.slice(0, 1)} />
+            {isUserLeadOrAdmin() && (
+              <AddMenu
+                items={isUserLeadOrAdmin() ? items : items.slice(0, 1)}
+              />
+            )}
             <SearchBox
               label=""
               sx={{ height: '35px' }}
               onChange={handleChangeSearchString}
               value={searchString}
             />
-            <IconButton onClick={() => setShouldShowBoardMenu(true)}>
-              <RiMore2Fill />
-            </IconButton>
+            {isUserTheBoardLead() && (
+              <IconButton onClick={() => setShouldShowBoardMenu(true)}>
+                <RiMore2Fill />
+              </IconButton>
+            )}
           </div>
         </TitleHeader>
         <TypeHeader>
@@ -799,7 +814,7 @@ const BoardDetail = () => {
                   </Tooltip>
                 ))}
             </MemberAvatarGroup>
-            {isUserTheBoardLead() && (
+            {isUserLeadOrAdmin() && (
               <Button
                 color="primary"
                 variant="contained"
@@ -842,7 +857,7 @@ const BoardDetail = () => {
               />
             )}
           </DragOverlay>
-          {isUserTheBoardLead() && (
+          {isUserLeadOrAdmin() && (
             <AddColumnButton
               addingColumn={addingColumn}
               setFocus={handleAddingColumn}

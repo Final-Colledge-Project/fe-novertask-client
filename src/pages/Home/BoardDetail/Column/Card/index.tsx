@@ -190,9 +190,9 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
             {card.priority}
           </Priority>
         </div>
-        <IconButton size="small">
+        {/* <IconButton size="small">
           <RiMore2Fill />
-        </IconButton>
+        </IconButton> */}
       </CardHeader>
       <Title ref={titleRef} />
       <Info>

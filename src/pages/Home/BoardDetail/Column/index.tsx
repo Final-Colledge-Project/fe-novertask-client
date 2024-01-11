@@ -200,13 +200,13 @@ const Column = ({
             <p className="cards-count">
               {column.cards?.filter((c) => !c.FE_ONLY_PLACEHOLDER).length}
             </p>
-            <div className="add-task-button">
+            {/* <div className="add-task-button">
               <RiAddFill />
-            </div>
+            </div> */}
           </div>
-          <IconButton>
+          {/* <IconButton>
             <RiMore2Fill />
-          </IconButton>
+          </IconButton> */}
         </Header>
         {column.cards && (
           <CardsContainer>

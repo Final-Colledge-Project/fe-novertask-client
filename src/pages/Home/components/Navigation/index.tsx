@@ -221,7 +221,7 @@ const Navigation = () => {
           <UserBadge fullVisible={fullVisible} />
         </li>
         <li className="divider"></li>
-        <li className="item">
+        {/* <li className="item">
           <NavItem
             title="Settings"
             startIcon={<RiSettings2Line />}
@@ -234,7 +234,7 @@ const Navigation = () => {
             startIcon={<RiQuestionLine />}
             fullVisible={fullVisible}
           />
-        </li>
+        </li> */}
         <li className="item">
           <NavItem
             onClick={handleNotificationPopup}
