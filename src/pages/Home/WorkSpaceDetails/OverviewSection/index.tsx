@@ -371,12 +371,12 @@ const OverviewSection = () => {
                 )}
             </div>
             <FilterSection>
-              <SearchBox
+              {/* <SearchBox
                 label=""
                 sx={{ height: '35px', width: 'auto' }}
                 placeHolder="Search"
-              />
-              {viewType === 'list' && <ColumnMenu />}
+              /> */}
+              {/* {viewType === 'list' && <ColumnMenu />} */}
               <ToggleViewButton onChange={handleChangeViewType} />
             </FilterSection>
           </Title>

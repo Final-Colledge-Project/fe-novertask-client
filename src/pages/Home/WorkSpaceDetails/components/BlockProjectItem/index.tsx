@@ -39,7 +39,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
             </Tooltip>
             <p>{data.title}</p>
           </div>
-          <IconButton
+          {/* <IconButton
             aria-label="more"
             sx={{
               p: '2px',
@@ -47,7 +47,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
             }}
           >
             <RiMore2Fill />
-          </IconButton>
+          </IconButton> */}
         </div>
         <img src={data.cover} alt="" />
       </ItemCover>

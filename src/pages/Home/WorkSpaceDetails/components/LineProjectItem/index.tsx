@@ -67,9 +67,9 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
       )}
 
       <MoreButton className="section">
-        <IconButton>
+        {/* <IconButton>
           <RiMore2Fill />
-        </IconButton>
+        </IconButton> */}
       </MoreButton>
     </Item>
   )

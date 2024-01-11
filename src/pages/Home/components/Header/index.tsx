@@ -7,14 +7,14 @@ const Header = ({ title }: { title: string }) => {
   return (
     <StyledHeader className="header">
       <h2 className="name">{title}</h2>
-      <div className="search-box">
+      {/* <div className="search-box">
         <SearchBox label="" />
       </div>
       <div className="more-icon">
         <IconButton aria-label="">
           <RiMoreFill />
         </IconButton>
-      </div>
+      </div> */}
     </StyledHeader>
   )
 }
