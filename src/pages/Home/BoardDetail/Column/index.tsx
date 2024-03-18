@@ -48,16 +48,17 @@ const Column = ({
 }) => {
   const [showModal, setShowModal] = useState(false)
   const [isMouseDowing, setIsMouseDowning] = useState(false)
-  const handleChangeMouseGrabing = (
-    event: React.MouseEvent<HTMLParagraphElement>
-  ) => {
-    event.currentTarget.style.cursor = 'grabbing'
-  }
-  const handleChangeMouseGrab = (
-    event: React.MouseEvent<HTMLParagraphElement>
-  ) => {
-    event.currentTarget.style.cursor = 'grab'
-  }
+
+  // const handleChangeMouseGrabing = (
+  //   event: React.MouseEvent<HTMLParagraphElement>
+  // ) => {
+  //   event.currentTarget.style.cursor = 'grabbing'
+  // }
+  // const handleChangeMouseGrab = (
+  //   event: React.MouseEvent<HTMLParagraphElement>
+  // ) => {
+  //   event.currentTarget.style.cursor = 'grab'
+  // }
 
   const handleFocus = (target: HTMLInputElement) => {
     target.select()
@@ -133,11 +134,7 @@ const Column = ({
         className={clsx(isColumnEmpty() && 'collapse-space', className)}
       >
         <Header>
-          <p
-            className="icon"
-            onMouseDown={handleChangeMouseGrabing}
-            onMouseUp={handleChangeMouseGrab}
-          >
+          <p className="icon">
             <RiDraggable />
           </p>
           <div className="title">
@@ -200,13 +197,13 @@ const Column = ({
             <p className="cards-count">
               {column.cards?.filter((c) => !c.FE_ONLY_PLACEHOLDER).length}
             </p>
-            {/* <div className="add-task-button">
+            <div className="add-task-button">
               <RiAddFill />
-            </div> */}
+            </div>
           </div>
-          {/* <IconButton>
+          <IconButton>
             <RiMore2Fill />
-          </IconButton> */}
+          </IconButton>
         </Header>
         {column.cards && (
           <CardsContainer>

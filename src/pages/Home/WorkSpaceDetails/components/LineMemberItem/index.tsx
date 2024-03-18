@@ -44,7 +44,7 @@ const LineMemberItem = ({ data, superAdminId }: IWSItemProps) => {
       )
       dispatch(hideLoading())
     } catch (err) {
-      console.log('✨ ~ file: index.tsx:36 ~ handleAssignAdmin ~ err:', err)
+      // console.log('✨ ~ file: index.tsx:36 ~ handleAssignAdmin ~ err:', err)
     }
   }
 

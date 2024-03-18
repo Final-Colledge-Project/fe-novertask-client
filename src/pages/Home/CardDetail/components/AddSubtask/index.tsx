@@ -64,9 +64,8 @@ export default function AddSubtask({
     setIsSubmitting(true)
     try {
       const res = await createSubtask({ name: data.title, cardId })
-      console.log(res)
+      // console.log(res)
       if (res && res.data) {
-        console.log(true)
         setOpen(false)
         handleReset()
         onRefresh()

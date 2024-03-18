@@ -173,7 +173,7 @@ export interface ICard {
     avatar: string
     fullName: string
   }[]
-  label: {
+  label?: {
     _id: string
     name: string
     color: string
@@ -190,7 +190,8 @@ export interface ICard {
     avatar: string
     fullName: string
   }
-  FE_ONLY_MATCHING_SEARCH?: boolean
+  FE_ONLY_MATCHING_SEARCH?: boolean,
+  FE_ONLY_CREATING?: boolean
 }
 
 export interface ISubtask {

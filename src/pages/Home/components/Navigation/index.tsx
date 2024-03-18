@@ -34,16 +34,16 @@ import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setCurrentNavItem } from '~/redux/navSlice'
 import NotificationBadge from '../../Notifications/components/NotificationBadge'
 import { setPopupNotification } from '~/redux/popupSlice'
-import { getNotificationByUserId } from '~/redux/notiSlice/actions'
-import socketIoClient from 'socket.io-client'
 import { getCurrentUser } from '~/redux/userSlice/actions'
 
 const Navigation = () => {
   const [fullVisible, setFullVisible] = useState(false)
   const [pinNav, setPinNav] = useState(false)
   const { current } = useSelector((state: StoreType) => state.nav)
-  const { PopupNotification } = useSelector((state: StoreType) => state.popup)
-  
+  const { PopupNotification, eventSource } = useSelector(
+    (state: StoreType) => state.popup
+  )
+
   // hover to nav bar
   const handleMouseHover = async () => {
     if (pinNav) return
@@ -52,7 +52,6 @@ const Navigation = () => {
   const handleMouseLeave = () => {
     if (pinNav) return
     setFullVisible(false)
-    dispatch(setPopupNotification(false))
   }
 
   const navigate = useNavigate()
@@ -72,7 +71,7 @@ const Navigation = () => {
       try {
         await dispatch(getAllByUserId())
       } catch (err) {
-        console.log(err)
+        // console.log(err)
       }
     }
     getData()
@@ -95,15 +94,22 @@ const Navigation = () => {
   }
 
   const handleNotificationPopup = () => {
-    dispatch(setPopupNotification(!PopupNotification))
+    dispatch(
+      setPopupNotification({
+        PopupNotification: !PopupNotification,
+        eventSource: 'menu'
+      })
+    )
     if (PopupNotification === false && pinNav === true) setPinNav(true)
     else setPinNav((prev) => !prev)
   }
 
   useEffect(() => {
-    if (!fullVisible) dispatch(setPopupNotification(false))
-  }, [fullVisible])
-
+    if (eventSource === 'outside') {
+      setPinNav(false)
+      setFullVisible(false)
+    }
+  }, [eventSource])
 
   return (
     <div
@@ -145,55 +151,57 @@ const Navigation = () => {
               startIcon={<MdWorkspacesOutline />}
               endIcon={<MdKeyboardArrowDown />}
             >
-              <LevelMenu>
-                {getWorkspaces() ? (
-                  getWorkspaces()?.map((data) => (
-                    <LevelMenuItem key={data._id} isIndex>
-                      <NavItem
-                        isThin
-                        onClick={() => {
-                          dispatch(setCurrentNavItem(data._id))
-                          navigate('/u/workspaces/' + data._id)
-                        }}
-                        fullVisible={fullVisible}
-                        title={data.name}
-                        isIndex={current === data._id}
-                        startIcon={<RiSettings2Line />}
-                      ></NavItem>
-                      {current === data._id && (
-                        <div className="part-group">
-                          <Tooltip title={'Overview'}>
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              onClick={() => {
-                                navigate('/u/workspaces/' + data._id)
-                              }}
-                            >
-                              <RiDashboardLine />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title={'Members'}>
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              onClick={() => {
-                                navigate(
-                                  '/u/workspaces/' + data._id + '/members'
-                                )
-                              }}
-                            >
-                              <RiGroupLine />
-                            </IconButton>
-                          </Tooltip>
-                        </div>
-                      )}
-                    </LevelMenuItem>
-                  ))
-                ) : (
-                  <></>
-                )}
-              </LevelMenu>
+              {getWorkspaces() && getWorkspaces()!.length > 0 && (
+                <LevelMenu>
+                  {getWorkspaces() && getWorkspaces()?.length ? (
+                    getWorkspaces()?.map((data) => (
+                      <LevelMenuItem key={data._id} isIndex>
+                        <NavItem
+                          isThin
+                          onClick={() => {
+                            dispatch(setCurrentNavItem(data._id))
+                            navigate('/u/workspaces/' + data._id)
+                          }}
+                          fullVisible={fullVisible}
+                          title={data.name}
+                          isIndex={current === data._id}
+                          startIcon={<RiSettings2Line />}
+                        ></NavItem>
+                        {current === data._id && (
+                          <div className="part-group">
+                            <Tooltip title={'Overview'}>
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => {
+                                  navigate('/u/workspaces/' + data._id)
+                                }}
+                              >
+                                <RiDashboardLine />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title={'Members'}>
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => {
+                                  navigate(
+                                    '/u/workspaces/' + data._id + '/members'
+                                  )
+                                }}
+                              >
+                                <RiGroupLine />
+                              </IconButton>
+                            </Tooltip>
+                          </div>
+                        )}
+                      </LevelMenuItem>
+                    ))
+                  ) : (
+                    <></>
+                  )}
+                </LevelMenu>
+              )}
             </NavItem>
           </li>
           <li className="divider"></li>
@@ -237,6 +245,7 @@ const Navigation = () => {
         </li> */}
         <li className="item">
           <NavItem
+            id="notification-button"
             onClick={handleNotificationPopup}
             title="Notifications"
             startIcon={<NotificationBadge />}

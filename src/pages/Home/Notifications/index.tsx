@@ -3,13 +3,23 @@ import { StoreDispatchType, StoreType } from '~/redux'
 import './style.scss'
 import { Box, Tab, Tabs } from '@mui/material'
 import CustomTabPanel from './components/NotificationItem/CustomTabPanel'
-import { SyntheticEvent, useEffect, useState } from 'react'
+import {
+  SyntheticEvent,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 import NotificationItem from './components/NotificationItem'
-import { UseSelector } from 'react-redux/es/hooks/useSelector'
 import { INotification } from '~/services/types'
-import { getMarkReadAllNotification, getNotificationByUserId } from '~/redux/notiSlice/actions'
+import {
+  getMarkReadAllNotification,
+  getNotificationByUserId
+} from '~/redux/notiSlice/actions'
+import { setPopupNotification } from '~/redux/popupSlice'
+import { useOnClickOutside } from 'usehooks-ts'
 
 const Notification = () => {
+  const popupRef = useRef(null)
   const { PopupNotification } = useSelector((state: StoreType) => state.popup)
   const [value, setValue] = useState(1)
   const dispatch = useDispatch<StoreDispatchType>()
@@ -21,7 +31,7 @@ const Notification = () => {
       try {
         await dispatch(getNotificationByUserId())
       } catch (err) {
-        console.log(err)
+        // console.log(err)
       }
     }
     getNotification()
@@ -29,21 +39,61 @@ const Notification = () => {
   const { notifications } = useSelector(
     (state: StoreType) => state.notification
   )
+  const { eventSource } = useSelector((state: StoreType) => state.popup)
   const { data } = notifications
   const handleMarkReadAll = () => {
-    const getAllMark = async() => await dispatch(getMarkReadAllNotification())
+    const getAllMark = async () => await dispatch(getMarkReadAllNotification())
     getAllMark()
-    const getNotification = async () => await dispatch(getNotificationByUserId())
+    const getNotification = async () =>
+      await dispatch(getNotificationByUserId())
     getNotification()
   }
+
+  // handle click outside the notification popup
+  const handleClickOutSide = (event: MouseEvent) => {
+    const el = event.target as HTMLElement
+    if (!el) return
+    // check if the clicked element is the notification button
+    if (el.id === 'notification-button' || el.closest('#notification-button')) {
+      return // do nothing
+    } else {
+      dispatch(
+        setPopupNotification({
+          PopupNotification: PopupNotification,
+          eventSource: 'outside'
+        })
+      )
+    }
+  }
+
+  // open/close the notification popup
+  const handleTogglePopup = () => {
+    dispatch(
+      setPopupNotification({
+        PopupNotification: !PopupNotification,
+        eventSource: 'menu'
+      })
+    )
+  }
+
+  useOnClickOutside(popupRef, handleClickOutSide)
+
+  useEffect(() => {
+    if (eventSource === 'outside') {
+      handleTogglePopup()
+    }
+  }, [eventSource])
+
   return (
     PopupNotification && (
-      <div className="notification">
+      <div className="notification" ref={popupRef}>
         <div className="notification-header">
           <div style={{ fontSize: '20px', fontWeight: '700' }}>
             Notification
           </div>
-          <span className="notification-markAll" onClick={handleMarkReadAll}>Mark all as read</span>
+          <span className="notification-markAll" onClick={handleMarkReadAll}>
+            Mark all as read
+          </span>
         </div>
         <div className="notification-list">
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

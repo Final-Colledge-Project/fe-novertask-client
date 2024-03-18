@@ -169,7 +169,8 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
         className,
         isMatchedSearch && 'matched-search',
         isUnMatchedSearch && 'un-matched-search',
-        !isAssignToCurrentUser() && filter.assignToMe && 'unassigned-to-me'
+        !isAssignToCurrentUser() && filter.assignToMe && 'unassigned-to-me',
+        card.FE_ONLY_CREATING && 'creating'
       )}
     >
       {card.cover && (
@@ -190,9 +191,9 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
             {card.priority}
           </Priority>
         </div>
-        {/* <IconButton size="small">
+        <IconButton size="small">
           <RiMore2Fill />
-        </IconButton> */}
+        </IconButton>
       </CardHeader>
       <Title ref={titleRef} />
       <Info>

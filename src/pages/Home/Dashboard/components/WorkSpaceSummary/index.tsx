@@ -96,7 +96,7 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
             </Button>
           </div>
         ) : (
-          <p className="placeholder">There is no projects here</p>
+          <p className="placeholder">This workspace is empty</p>
         )}
       </div>
     </div>

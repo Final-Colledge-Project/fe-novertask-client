@@ -15,6 +15,12 @@ const initialState: {
     success: boolean
   }
   cardsAssignedToMe: IAssignedCard[]
+  creatingCard: {
+    showFakeCard: boolean
+    title: string
+    columnId: string
+    readyToHide: boolean
+  }
 } = {
   searchString: undefined,
   filter: {
@@ -25,7 +31,13 @@ const initialState: {
     error: undefined,
     success: false
   },
-  cardsAssignedToMe: []
+  cardsAssignedToMe: [],
+  creatingCard: {
+    showFakeCard: false,
+    title: '',
+    columnId: '',
+    readyToHide: false
+  }
 }
 
 const cardSlice = createSlice({
@@ -37,6 +49,9 @@ const cardSlice = createSlice({
     },
     setFilter: (state, { payload }: { payload: IFilterOptions }) => {
       state.filter = { ...payload }
+    },
+    setCreatingCard: (state, { payload }) => {
+      state.creatingCard = { ...payload }
     }
   },
   extraReducers: (builder) => {
@@ -60,4 +75,4 @@ const cardSlice = createSlice({
 })
 
 export default cardSlice.reducer
-export const { setSearchString, setFilter } = cardSlice.actions
+export const { setSearchString, setFilter, setCreatingCard } = cardSlice.actions

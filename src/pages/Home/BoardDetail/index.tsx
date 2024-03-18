@@ -86,9 +86,10 @@ import {
 } from '~/services/columnService'
 import { updateCard } from '~/services/cardService'
 import BoardMenu from './BoardMenu'
-import { setSearchString } from '~/redux/cardSlice'
+import { setCreatingCard, setSearchString } from '~/redux/cardSlice'
 import FilterMenu from './FilterMenu'
 import CurrentFilters from './CurrentFilters'
+import { setFakeColumn } from '~/redux/columnSlice'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -99,6 +100,9 @@ interface IChangeColumn {
   id: string
   changes: { cardOrderIds: string[] }
 }
+
+const FAKE_COLUMN_KEY = 'fake-column-id'
+const FAKE_CARD_KEY = 'fake-card-id'
 
 // import socketIoClient from 'socket.io-client'
 
@@ -148,13 +152,15 @@ const BoardDetail = () => {
 
   // #region selector
 
-  const { success } = useSelector(
+  const { success, error } = useSelector(
     (state: StoreType) => state.board.creatingBoard
   )
   const { shouldRefreshBoardDetail } = useSelector(
     (state: StoreType) => state.board
   )
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+  const columnStore = useSelector((state: StoreType) => state.column)
+  const cardStore = useSelector((state: StoreType) => state.card)
 
   const items = [
     {
@@ -208,6 +214,7 @@ const BoardDetail = () => {
             }
           })
           setOrderedColumns(mapOrder(columns, columnOrderIds, '_id'))
+          // console.log(mapOrder(columns, columnOrderIds, '_id'))
         }
         setBoard(board)
       }
@@ -248,11 +255,108 @@ const BoardDetail = () => {
   }, [success])
 
   useEffect(() => {
+    if (error) {
+      getBoard()
+      dispatch(setCreateColumn({ error: false }))
+    }
+  }, [error])
+
+  useEffect(() => {
     if (shouldRefreshBoardDetail) {
       getBoard()
       dispatch(setShouldRefreshBoardDetail(false))
     }
   }, [shouldRefreshBoardDetail])
+
+  useEffect(() => {
+    if (columnStore.fakeColumn.show) {
+      setBoard((prev) => {
+        const newBoard = cloneDeep(prev)
+        newBoard?.columns?.push({
+          _id: FAKE_COLUMN_KEY,
+          boardId: '',
+          cardOrderIds: [],
+          title: columnStore.fakeColumn.title,
+          cards: [],
+          createdAt: '',
+          updatedAt: ''
+        })
+
+        newBoard?.columnOrderIds?.push(FAKE_COLUMN_KEY)
+        setOrderedColumns(
+          mapOrder(
+            newBoard?.columns || [],
+            newBoard?.columnOrderIds || [],
+            '_id'
+          )
+        )
+        dispatch(
+          setFakeColumn({
+            title: '',
+            show: false,
+            readyToHide: true
+          })
+        )
+        return newBoard
+      })
+    }
+  }, [columnStore.fakeColumn.show])
+
+  useEffect(() => {
+    if (cardStore.creatingCard.showFakeCard) {
+      setBoard((prevBoard) => {
+        const newBoard = cloneDeep(prevBoard)
+        if (!newBoard) return prevBoard
+
+        const addingColumn = newBoard?.columns?.find(
+          (c: IColumn) => c._id === cardStore.creatingCard.columnId
+        )
+        if (!addingColumn) return prevBoard
+
+        const fakeCard: ICard = {
+          _id: FAKE_CARD_KEY,
+          cardId:
+            (board?.title.substring(0, 3).toUpperCase() as string) + '...',
+          title: cardStore.creatingCard.title,
+          boardId: '',
+          columnId: cardStore.creatingCard.columnId,
+          cover: undefined,
+          memberIds: [],
+          comments: [],
+          startDate: '',
+          dueDate: '',
+          priority: 'medium',
+          isDone: false,
+          isOverdue: false,
+          reporter: { _id: '', fullName: '', avatar: '' },
+          isActive: false,
+          description: '',
+          FE_ONLY_CREATING: true
+        }
+        addingColumn.cards?.push(fakeCard)
+        addingColumn.cardOrderIds?.push(fakeCard._id)
+        newBoard.columns = newBoard?.columns?.map((col) =>
+          col._id === cardStore.creatingCard.columnId ? addingColumn : col
+        )
+        setOrderedColumns(
+          mapOrder(
+            newBoard?.columns || [],
+            newBoard?.columnOrderIds || [],
+            '_id'
+          )
+        )
+        dispatch(
+          setCreatingCard({
+            showFakeCard: false,
+            title: '',
+            columnId: '',
+            readyToHide: true
+          })
+        )
+        return newBoard
+      })
+    }
+  }, [cardStore.creatingCard.showFakeCard])
 
   const boardLeader = useCallback(() => {
     const leadId = board?.ownerIds.find(
@@ -303,7 +407,7 @@ const BoardDetail = () => {
         }
       })
       if (res && res.data) {
-        console.log('Update all columns order successfully')
+        // console.log('Update all columns order successfully')
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -317,14 +421,15 @@ const BoardDetail = () => {
   ) => {
     try {
       const [toColumnChange, fromColumnChange] = changes
+      // console.log('Changes >>>>>:', changes)
       if (fromColumnChange) {
         await updateTwoColumnsConcurrentLy([fromColumnChange, toColumnChange])
         await updateMovedCard(cardId as string, toColumnChange.id)
-        console.log('Update card orders in 2 column successfully')
+        // console.log('Update card orders in 2 column successfully')
       } else {
         const res = await updateColumn(toColumnChange)
         if (res && res.data) {
-          console.log('Update card order in 1 column successfully')
+          // console.log('Update card order in 1 column successfully')
         }
       }
     } catch (err) {
@@ -340,7 +445,7 @@ const BoardDetail = () => {
         changes: { columnId: newColumnId }
       })
       if (res && res.data) {
-        console.log('Update card successfully')
+        // console.log('Update card successfully')
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -428,7 +533,7 @@ const BoardDetail = () => {
   }
 
   const handleDragStart = (e: DragStartEvent) => {
-    console.log('handleDragStart')
+    // console.log('handleDragStart')
     // active: đối tượng bắt đầu kéo thả, bao gồm data được bind
     const { active } = e
 
@@ -475,7 +580,7 @@ const BoardDetail = () => {
   }
 
   const handleDragEnd = (e: DragEndEvent) => {
-    console.log('handleDragEnd')
+    // console.log('handleDragEnd')
     const { active, over } = e
     if (!over) return
 
@@ -840,6 +945,13 @@ const BoardDetail = () => {
                 ))}
             </SortableContext>
           )}
+          {/* {columnStore.fakeColumn.show && (
+            <Column
+              column={{ title: columnStore.fakeColumn.title } as IColumn}
+              key={FAKE_COLUMN_KEY}
+            />
+          )} */}
+
           <DragOverlay dropAnimation={dropAnimation}>
             {!activeItemID && null}
             {activeItem === ACTIVE_ITEM_TYPE.COLUMN && (

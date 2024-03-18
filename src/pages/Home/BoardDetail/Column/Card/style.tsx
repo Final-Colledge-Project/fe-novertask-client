@@ -42,6 +42,10 @@ export const CardContainer = styled.div`
   &.unassigned-to-me {
     display: none;
   }
+
+  &.creating {
+    opacity: 0.4;
+  }
 `
 
 export const Cover = styled.div`
