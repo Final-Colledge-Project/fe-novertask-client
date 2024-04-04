@@ -7,13 +7,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { IAssignedCard } from '~/services/types'
 const MyTask = () => {
-  const dispatch = useDispatch<StoreDispatchType>()
-  useEffect(() => {
-    const fetchAssignedTask = async () => {
-      await dispatch(getTaskAssignedToMe())
-    }
-    fetchAssignedTask()
-  }, [dispatch])
+  // const dispatch = useDispatch<StoreDispatchType>()
+  // useEffect(() => {
+  //   const fetchAssignedTask = async () => {
+  //     await dispatch(getTaskAssignedToMe())
+  //   }
+  //   fetchAssignedTask()
+  // }, [dispatch])
   return (
     <div className="myTask-container">
       <header className="myTask-header">My task</header>

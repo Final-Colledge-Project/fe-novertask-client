@@ -295,3 +295,18 @@ export interface IUpdatableSubtask {
   assignedTo?: string
   dueDate?: string
 }
+
+export interface ITaskEvent {
+  id: string
+  title: string
+}
+
+export interface EventItem {
+  start: Date
+  end: Date
+  data?: {
+    assignedTask?: ITaskEvent
+  }
+  // title: string
+  isDraggable?: boolean
+}

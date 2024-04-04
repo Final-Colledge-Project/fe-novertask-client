@@ -1,93 +1,103 @@
-import dayjs, { Dayjs } from 'dayjs'
 import './style.scss'
-import type { CalendarProps } from 'antd'
-import { Calendar, Popover } from 'antd'
-import { useSelector } from 'react-redux'
-import {  StoreType } from '~/redux'
-import { useEffect, useState } from 'react'
-import { IAssignedCard } from '~/services/types'
-import TaskPopover from '../components/TaskPopover'
 import { RiCalendarEventLine } from 'react-icons/ri'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import { Calendar, dayjsLocalizer, Event } from 'react-big-calendar'
+import withDragAndDrop, {
+  withDragAndDropProps
+} from 'react-big-calendar/lib/addons/dragAndDrop'
+import dayjs from 'dayjs'
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import { useQuery } from '@tanstack/react-query'
+import { DATE_FORMAT, QUERY_KEY } from '~/utils/constant'
+import { cardAssignToMe } from '~/services/cardService'
+import { EventItem } from '~/services/types'
+import AssignedTaskEvent from './Components/AssignedTaskEvent'
+import { useState, useEffect } from 'react'
+import { convertTaskEvent } from './helper'
+// import Calendar from './Components/Calendar'
+const localizer = dayjsLocalizer(dayjs)
+const DnDCalendar = withDragAndDrop(Calendar)
+
 const MasterCalendar = () => {
-  const { cardsAssignedToMe } = useSelector((state: StoreType) => state.card)
-  const [assignedTask, setAssignedTask] =
-    useState<IAssignedCard[]>(cardsAssignedToMe)
-  const [clicked, setClicked] = useState(false)
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null)
+  const [events, setEvents] = useState<EventItem[]>([])
+
+  // const onEventResize: withDragAndDropProps['onEventResize'] = (data) => {
+  //   const { start, end } = data
+
+  //   setEvents((currentEvents) => {
+  //     const firstEvent = {
+  //       start: new Date(start),
+  //       end: new Date(end)
+  //     }
+  //     return [...currentEvents, firstEvent]
+  //   })
+  // }
+
+  // const onEventDrop: withDragAndDropProps['onEventDrop'] = (data) => {
+  //   console.log(data)
+  // }
+
+  const components = {
+    event: ({ event }) => {
+      const data = event?.data
+      console.log('~~~~~~~~~>testEvent', event)
+      if (data?.assignedTask) {
+        console.log('~~~~~~~>data?.assignedTask', data?.assignedTask)
+        return <AssignedTaskEvent event={data?.assignedTask} />
+      }
+
+      return null
+    }
+  }
+
+  const { data: assignedTask } = useQuery({
+    queryKey: [QUERY_KEY.assigned_task],
+    queryFn: () => {
+      return cardAssignToMe()
+    },
+    refetchOnWindowFocus: false
+  })
 
   useEffect(() => {
-    setAssignedTask(cardsAssignedToMe)
-  }, [cardsAssignedToMe])
-
-  const assignedArray = assignedTask
-    .filter((item) => item.dueDate !== null)
-    .map((card) => {
-      return {
-        id: dayjs(card.dueDate).format('YYYY-MM-DD'),
-        value: card
-      }
-    })
-  const dueDateTasks = Object.assign(
-    {},
-    ...assignedArray.map((item) => ({ [item.id]: item.value }))
-  )
-  const hide = () => {
-    setClicked(false)
-  }
-
-  const dateCellRender = (value: dayjs.Dayjs): React.ReactNode => {
-    const dateString = value.format('YYYY-MM-DD')
-    const cellData = dueDateTasks[dateString]
-    const handleClickChange = (open: boolean) => {
-      setClicked(open)
+    if (assignedTask) {
+      const newEvents = assignedTask?.data.map((task) => convertTaskEvent(task))
+      console.log('~~~~~~~>newEvents', newEvents)
+      setEvents(newEvents)
     }
-    return (
-      <div>
-        {cellData ? (
-          <div className="event-personal">
-            <div className="event-dot"></div>
-            <div className="event-content">
-              <Popover
-                content={<TaskPopover task={cellData} controlHide={hide} />}
-                title={dayjs(cellData.dueDate).format('LLL')}
-                trigger="click"
-                open={
-                  dayjs(cellData.dueDate).format('YYYY-MM-DD').toString() ===
-                  dayjs(selectedDate?.toString())
-                    .format('YYYY-MM-DD')
-                    .toString()
-                }
-                onOpenChange={handleClickChange}
-              >
-                <span style={{ display: 'block', height: '100%' }}>
-                  {cellData.title}
-                </span>
-              </Popover>
-            </div>
-          </div>
-        ) : null}
-      </div>
-    )
-  }
-  const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
-    console.log(value.format('YYYY-MM-DD'), mode)
-  }
+  }, [assignedTask])
 
-  const handleDateSelect = (date: Dayjs) => {
-    setSelectedDate(date)
-    console.log('Selected Date:', date.format('YYYY-MM-DD'))
-  }
+  useEffect(() => {
+    console.log('==========>events', events)
+  }, [events])
+
+  // const events = [
+  //   {
+  //     start: dayjs('2024-04-01T10:00:00').toDate(),
+  //     end: dayjs('2024-04-01T11:00:00').toDate(),
+  //     title: 'MRI Registration'
+  //   }
+  // ]
+
   return (
     <div className="myTask-calendar">
       <div className="myTask-masterCalendar">
         <RiCalendarEventLine className="myTask-masterCalendar__icon" />
         <span className='"myTask-masterCalendar__title'>Master Calendar</span>
       </div>
-      <Calendar
-        onPanelChange={onPanelChange}
-        cellRender={dateCellRender}
-        onSelect={handleDateSelect}
+      <DnDCalendar
+        defaultView="week"
+        events={events}
+        localizer={localizer}
+        // onEventDrop={onEventDrop}
+        // onEventResize={onEventResize}
+        resizable
+        style={{ height: '100vh' }}
+        components={components}
+        // startAccessor={(event: object) => (event as Event).start as Date}
+        // endAccessor={(event: object) => (event as Event).end as Date}
       />
+      {/* <Calendar events={events} style={{ height: '100vh' }} /> */}
     </div>
   )
 }

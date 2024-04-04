@@ -142,9 +142,7 @@ export const assignMemberToCard = async (body: IAssignMemberToCardBody) => {
 export const cardAssignToMe = async () => {
   try {
     const res = await axiosInstance.get<IAssignedToMeResponse>(requests.assignedToMe)
-    console.log('~~~~~~~~~~>KhiemLd')
     if (res && res.status === 200 && res.data) {
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>Test')
       return res.data
     }
   }

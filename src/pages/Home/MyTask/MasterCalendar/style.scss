@@ -25,7 +25,7 @@
 .myTask-masterCalendar {
   display: flex;
   align-items: center;
-  color: #FF9F0B;
+  color: #ff9f0b;
   font-size: 20px;
   & .myTask-masterCalendar__icon {
     margin-right: 5px;
@@ -35,5 +35,46 @@
   }
 }
 
+.rbc-header {
+  background: #79b8e4;
+  color: white;
+  padding: 10px;
+  font-size: 12px;
+}
 
+.rbc-event {
+  padding: 0px !important;
+  border-radius: 0px !important;
+  border: none !important;
+  background-color: transparent !important;
+}
 
+.rbc-background-event {
+  padding: 0px !important;
+  border-radius: 0px !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+.rbc-time-slot {
+  background-color: #eaf3fa;
+  color: #74a4c3;
+  border-color: aqua !important;
+}
+
+.rbc-event-label {
+  display: none !important;
+}
+
+.rbc-events-container {
+  width: 100% !important;
+}
+
+.rbc-timeslot-group {
+  min-height: 120px !important;
+}
+
+.rbc-event-content {
+  background: #79b8e4 !important;
+  color: black;
+}

@@ -16,6 +16,7 @@ import store from './redux/index.ts'
 import { Slide, styled } from '@mui/material'
 
 import { MaterialDesignContent } from 'notistack'
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 
 const StyledMaterialDesignContent = styled(MaterialDesignContent)((theme) => ({
   '&.notistack-MuiContent-success': {
@@ -31,6 +32,8 @@ const StyledMaterialDesignContent = styled(MaterialDesignContent)((theme) => ({
     backgroundColor: theme.theme.palette.orange.main
   }
 }))
+
+const queryClient = new QueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -54,7 +57,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               autoHideDuration={4000}
               TransitionComponent={Slide}
             >
-              <App />
+              <QueryClientProvider client={queryClient}>
+                <App />
+              </QueryClientProvider>
             </SnackbarProvider>
           </AuthProvider>
         </LocalizationProvider>
