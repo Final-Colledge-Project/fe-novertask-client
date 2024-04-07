@@ -4,10 +4,9 @@
   border-radius: 5px;
   padding: 12px;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-  & .ant-picker-calendar {
-    width: 100%;
-    margin-right: auto;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 20;
 }
 
 .event-personal {
@@ -35,13 +34,33 @@
   }
 }
 
-.rbc-header {
-  background: #79b8e4;
-  color: white;
-  padding: 10px;
-  font-size: 12px;
+.rbc-time-view,
+.rbc-month-view {
+  border-radius: 8px;
 }
 
+.rbc-header {
+  background: transparent;
+  color: var(--mui-palette-gray2-main);
+  padding: 10px;
+  font-size: 12px;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.rbc-month-header {
+  .rbc-header {
+    font-weight: normal;
+  }
+}
+
+// .rbc-allday-cell {
+//   display: none !important;
+// }
+
+.rbc-time-header-cell .rbc-today {
+  color: var(--mui-palette-gray1-main);
+}
 .rbc-event {
   padding: 0px !important;
   border-radius: 0px !important;
@@ -56,10 +75,25 @@
   background-color: transparent !important;
 }
 
+.rbc-time-content {
+  border-top: 0.25px solid var(--mui-palette-gray5-main) !important;
+  // border-color: var(--mui-palette-gray4-main) !important;
+}
+
+.rbc-time-gutter {
+  .rbc-timeslot-group {
+    border: none !important;
+  }
+}
+
 .rbc-time-slot {
-  background-color: #eaf3fa;
-  color: #74a4c3;
-  border-color: aqua !important;
+  background-color: #fff;
+  color: var(--mui-palette-gray2-main);
+  font-size: 12px;
+  border-top: 0.25px solid var(--mui-palette-gray5-main) !important;
+  border-left: none !important;
+  border-top: none !important;
+  z-index: 1;
 }
 
 .rbc-event-label {
@@ -71,7 +105,8 @@
 }
 
 .rbc-timeslot-group {
-  min-height: 120px !important;
+  min-height: 50px !important;
+  border: 0.25px solid var(--mui-palette-gray5-main) !important;
 }
 
 .rbc-event-content {

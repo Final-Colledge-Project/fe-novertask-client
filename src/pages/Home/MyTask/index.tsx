@@ -21,9 +21,9 @@ const MyTask = () => {
         <div className="myTask-left">
           <MasterCalendar />
         </div>
-        <div className="myTask-right">
+        {/* <div className="myTask-right">
           <UpcomingTask />
-        </div>
+        </div> */}
       </div>
     </div>
   )

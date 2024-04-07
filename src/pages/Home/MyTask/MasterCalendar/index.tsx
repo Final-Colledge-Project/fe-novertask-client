@@ -15,6 +15,8 @@ import { EventItem } from '~/services/types'
 import AssignedTaskEvent from './Components/AssignedTaskEvent'
 import { useState, useEffect } from 'react'
 import { convertTaskEvent } from './helper'
+import { getGoogleCalendar } from '~/services/scheduleService'
+import ToolbarCalendar from './Components/ToolbarCalendar'
 // import Calendar from './Components/Calendar'
 const localizer = dayjsLocalizer(dayjs)
 const DnDCalendar = withDragAndDrop(Calendar)
@@ -79,12 +81,19 @@ const MasterCalendar = () => {
   //   }
   // ]
 
+  const { data: googleCalendar } = useQuery({
+    queryKey: [QUERY_KEY.google_calendar],
+    queryFn: () => {
+      return getGoogleCalendar()
+    },
+    refetchOnWindowFocus: false
+  })
+
+  console.log('~~~~~~~~~~~>googleCalendar', googleCalendar)
+
   return (
     <div className="myTask-calendar">
-      <div className="myTask-masterCalendar">
-        <RiCalendarEventLine className="myTask-masterCalendar__icon" />
-        <span className='"myTask-masterCalendar__title'>Master Calendar</span>
-      </div>
+      <ToolbarCalendar />
       <DnDCalendar
         defaultView="week"
         events={events}
@@ -92,8 +101,9 @@ const MasterCalendar = () => {
         // onEventDrop={onEventDrop}
         // onEventResize={onEventResize}
         resizable
-        style={{ height: '100vh' }}
+        style={{ height: '100vh', marginTop: '10px' }}
         components={components}
+        toolbar={false}
         // startAccessor={(event: object) => (event as Event).start as Date}
         // endAccessor={(event: object) => (event as Event).end as Date}
       />

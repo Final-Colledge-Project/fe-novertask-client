@@ -76,5 +76,6 @@ export const PRIORITY_COLOR = {
 }
 
 export const QUERY_KEY = {
-  assigned_task: 'assigned_task'
+  assigned_task: 'assigned_task',
+  google_calendar: 'google_calendar'
 }
