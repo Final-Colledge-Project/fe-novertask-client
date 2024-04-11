@@ -1,7 +1,7 @@
 import './style.scss'
 import { RiCalendarEventLine } from 'react-icons/ri'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { Calendar, dayjsLocalizer, Event } from 'react-big-calendar'
+import { Calendar, dayjsLocalizer, Event, Views } from 'react-big-calendar'
 import withDragAndDrop, {
   withDragAndDropProps
 } from 'react-big-calendar/lib/addons/dragAndDrop'
@@ -9,21 +9,33 @@ import dayjs from 'dayjs'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useQuery } from '@tanstack/react-query'
-import { DATE_FORMAT, QUERY_KEY } from '~/utils/constant'
+import { DATE_FORMAT, OPTION_VIEWS, QUERY_KEY } from '~/utils/constant'
 import { cardAssignToMe } from '~/services/cardService'
-import { EventItem } from '~/services/types'
+import { EventItem, ITaskEvent } from '~/services/types'
 import AssignedTaskEvent from './Components/AssignedTaskEvent'
 import { useState, useEffect } from 'react'
 import { convertTaskEvent } from './helper'
 import { getGoogleCalendar } from '~/services/scheduleService'
 import ToolbarCalendar from './Components/ToolbarCalendar'
-// import Calendar from './Components/Calendar'
 const localizer = dayjsLocalizer(dayjs)
 const DnDCalendar = withDragAndDrop(Calendar)
 
-const MasterCalendar = () => {
-  const [events, setEvents] = useState<EventItem[]>([])
+type Keys = keyof typeof Views
 
+interface IMasterCalendarProps {
+  date: Date
+  setDate: (date: Date) => void
+}
+
+const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
+  const [events, setEvents] = useState<EventItem[]>([])
+  const [view, setView] = useState<(typeof Views)[Keys]>(Views.MONTH)
+  const [contextMenuInfo, setContextMenuInfo] = useState<{
+    xPosition: number,
+    yPosition: number,
+    selectedTime: string,
+    resourceId: number
+  }>()
   // const onEventResize: withDragAndDropProps['onEventResize'] = (data) => {
   //   const { start, end } = data
 
@@ -93,7 +105,12 @@ const MasterCalendar = () => {
 
   return (
     <div className="myTask-calendar">
-      <ToolbarCalendar />
+      <ToolbarCalendar
+        view={view}
+        setView={setView}
+        date={date}
+        setDate={setDate}
+      />
       <DnDCalendar
         defaultView="week"
         events={events}
@@ -104,6 +121,9 @@ const MasterCalendar = () => {
         style={{ height: '100vh', marginTop: '10px' }}
         components={components}
         toolbar={false}
+        view={view}
+        onView={setView}
+        date={date}
         // startAccessor={(event: object) => (event as Event).start as Date}
         // endAccessor={(event: object) => (event as Event).end as Date}
       />

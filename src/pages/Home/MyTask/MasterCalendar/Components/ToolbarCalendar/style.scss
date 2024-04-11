@@ -24,8 +24,8 @@
 .changeDate_btn {
   border-radius: 4px;
   &:hover {
-    color: var(--mui-palette-blue-main) !important;
-    border: 1px solid #4096ff !important;
+    color: var(--mui-palette-blue-main);
+    border: 1px solid #4096ff;
   }
   & .ant-space-item {
     display: flex;
@@ -35,7 +35,38 @@
 .toolbar_today {
   border-radius: 4px;
   &:hover {
-    color: var(--mui-palette-blue-main) !important;
-    border: 1px solid #4096ff !important;
+    color: var(--mui-palette-blue-main);
+    border: 1px solid #4096ff;
+  }
+}
+
+.toolbar-icon {
+  color: var(--mui-palette-white-main);
+  font-size: 18px;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.toolbarCalendar__right {
+  display: flex;
+  gap: 10px;
+  & .ant-btn {
+    display: flex;
+  }
+}
+
+.meeting-btn {
+  color: var(--mui-palette-gray1-main);
+  &:hover {
+    color: var(--mui-palette-blue-main);
+    border: 1px solid #4096ff;
   }
 }

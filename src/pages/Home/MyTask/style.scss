@@ -1,4 +1,4 @@
-.myTask-container {
+.schedule-container {
   background-color: var(--mui-palette-gray6-main);
   width: 100%;
   padding: 20px;
@@ -7,22 +7,23 @@
   overflow: auto;
 }
 
-.myTask-header {
+.schedule-header {
   color: var(--mui-palette-blue-main);
   font-weight: 700;
   font-size: 32px;
 }
 
-.myTask-body {
+.schedule-body {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
   margin-top: 15px;
 }
 
-.myTask-left {
-  width: 100%;
+.schedule-left {
+  width: 80%;
 }
 
-.myTask-right {
-  width: 38%;
+.schedule-right {
+  width: 25%;
 }
