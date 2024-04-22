@@ -31,9 +31,9 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
   const [events, setEvents] = useState<EventItem[]>([])
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.MONTH)
   const [contextMenuInfo, setContextMenuInfo] = useState<{
-    xPosition: number,
-    yPosition: number,
-    selectedTime: string,
+    xPosition: number
+    yPosition: number
+    selectedTime: string
     resourceId: number
   }>()
   // const onEventResize: withDragAndDropProps['onEventResize'] = (data) => {
@@ -54,14 +54,10 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
 
   const components = {
     event: ({ event }) => {
-      const data = event?.data
-      console.log('~~~~~~~~~>testEvent', event)
-      if (data?.assignedTask) {
-        console.log('~~~~~~~>data?.assignedTask', data?.assignedTask)
-        return <AssignedTaskEvent event={data?.assignedTask} />
+      if (event) {
+        return <AssignedTaskEvent event={event} />
       }
-
-      return null
+      // return null
     }
   }
 
@@ -76,7 +72,7 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
   useEffect(() => {
     if (assignedTask) {
       const newEvents = assignedTask?.data.map((task) => convertTaskEvent(task))
-      console.log('~~~~~~~>newEvents', newEvents)
+      console.log('🚀 ~ useEffect ~ newEvents:', newEvents)
       setEvents(newEvents)
     }
   }, [assignedTask])
@@ -93,15 +89,13 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
   //   }
   // ]
 
-  const { data: googleCalendar } = useQuery({
-    queryKey: [QUERY_KEY.google_calendar],
-    queryFn: () => {
-      return getGoogleCalendar()
-    },
-    refetchOnWindowFocus: false
-  })
-
-  console.log('~~~~~~~~~~~>googleCalendar', googleCalendar)
+  // const { data: googleCalendar } = useQuery({
+  //   queryKey: [QUERY_KEY.google_calendar],
+  //   queryFn: () => {
+  //     return getGoogleCalendar()
+  //   },
+  //   refetchOnWindowFocus: false
+  // })
 
   return (
     <div className="myTask-calendar">
@@ -111,19 +105,20 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
         date={date}
         setDate={setDate}
       />
-      <DnDCalendar
+      <Calendar
         defaultView="week"
         events={events}
         localizer={localizer}
         // onEventDrop={onEventDrop}
         // onEventResize={onEventResize}
-        resizable
-        style={{ height: '100vh', marginTop: '10px' }}
+        // resizable
+        style={{ height: '80vh', marginTop: '10px' }}
         components={components}
         toolbar={false}
         view={view}
         onView={setView}
         date={date}
+        popup
         // startAccessor={(event: object) => (event as Event).start as Date}
         // endAccessor={(event: object) => (event as Event).end as Date}
       />

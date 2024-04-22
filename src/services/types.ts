@@ -310,3 +310,11 @@ export interface EventItem {
   // title: string
   isDraggable?: boolean
 }
+
+export interface IGoogleEvent {
+  id: string
+  start: string
+  end: string
+  summary: string
+  htmlLink: string
+}
