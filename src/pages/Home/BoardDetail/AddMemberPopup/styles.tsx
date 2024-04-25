@@ -158,3 +158,9 @@ export const ActionButtonsGroup = styled.div`
   align-items: center;
   gap: 5px;
 `
+export const Placeholder = styled.div`
+  width: 100%;
+  color: var(--mui-palette-gray-main);
+  padding: 50px 0;
+  text-align: center;
+`

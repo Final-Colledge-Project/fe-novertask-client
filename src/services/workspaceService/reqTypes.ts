@@ -10,3 +10,7 @@ export interface IAssignAdminBody {
   emailUser: string
   wsID: string
 }
+
+export interface IDeleteWorkspaceBody {
+  id: string
+}

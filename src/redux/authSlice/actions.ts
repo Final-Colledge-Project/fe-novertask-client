@@ -136,8 +136,7 @@ export const loginSuccess = createAsyncThunk(
             userInfo: userRes.data
           }
       }
-    }
-    catch (err) { 
+    } catch (err) {
       return thunkApi.rejectWithValue((err as Error).message as string)
     }
   }

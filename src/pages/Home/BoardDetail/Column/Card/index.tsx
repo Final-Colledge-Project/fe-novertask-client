@@ -3,12 +3,12 @@ import isTomorrow from 'dayjs/plugin/isTomorrow'
 import clsx from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import html from 'sanitize-html'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 // component libraries
-import { Avatar, IconButton, Tooltip } from '@mui/material'
-import { RiMore2Fill, RiTimerLine } from 'react-icons/ri'
+import { Avatar, Tooltip } from '@mui/material'
+import { RiTimerLine } from 'react-icons/ri'
 
 // components
 import {
@@ -28,11 +28,18 @@ import {
 //services
 import { ICard } from '~/services/types'
 import convertDate from '~/utils/convertDate'
-import { StoreType } from '~/redux'
+import { StoreDispatchType, StoreType } from '~/redux'
 
 // Dnd specific
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import CardMenu from './CardMenu'
+import ConfirmDialog from '~/components/dialog/ConfirmDialog'
+import { enqueueSnackbar } from 'notistack'
+import { deleteCard as deleteCardService } from '~/services/cardService'
+// import { setDeletingCard } from '~/redux/cardSlice' /* 22-04-2024 unused */
+import { setCreateColumn } from '~/redux/boardSlice'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
 
 const Card = ({ card, className }: { card: ICard; className?: string }) => {
   dayjs.extend(isTomorrow)
@@ -51,10 +58,12 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
   }
 
   const navigate = useNavigate()
+  const dispatch = useDispatch<StoreDispatchType>()
   const titleRef = useRef<HTMLDivElement>(null)
   const cardIdRef = useRef<HTMLParagraphElement>(null)
   const [isMatchedSearch, setIsMatchedSearch] = useState<boolean>(false)
   const [isUnMatchedSearch, setIsUnMatchedSearch] = useState<boolean>(false)
+  const [openConfirmDialog, setOpenConfirmDialog] = useState<boolean>(false)
 
   const searchString = useSelector(
     (state: StoreType) => state.card.searchString
@@ -123,6 +132,37 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
     return indexes
   }
 
+  const toggleConfirmDialog = () => {
+    setOpenConfirmDialog((prev) => !prev)
+  }
+
+  const onDeleteCard = async () => {
+    dispatch(showLoading())
+    try {
+      const res = await deleteCardService({ cardId: card._id })
+      if (res) {
+        enqueueSnackbar('Card was moved to trash.', { variant: 'success' })
+        dispatch(
+          setCreateColumn({ loading: false, success: true, error: undefined })
+        )
+      }
+    } catch (err) {
+      const message = (err as Error).message
+      enqueueSnackbar(message, { variant: 'error' })
+      dispatch(
+        setCreateColumn({ loading: false, success: false, error: message })
+      )
+    }
+    dispatch(hideLoading())
+  }
+
+  const menuItems = [
+    {
+      title: 'Move to trash',
+      onChoose: onDeleteCard
+    }
+  ]
+
   const highlightedString = (
     baseString: string,
     searchString: string,
@@ -155,70 +195,73 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
   }, [card.memberIds, currentUser?._id])
 
   return (
-    <CardContainer
-      onClick={(e) => {
-        navigate('cards/' + card._id)
-        e.stopPropagation()
-      }}
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      style={style}
-      className={clsx(
-        card.FE_ONLY_PLACEHOLDER && 'fe-only',
-        className,
-        isMatchedSearch && 'matched-search',
-        isUnMatchedSearch && 'un-matched-search',
-        !isAssignToCurrentUser() && filter.assignToMe && 'unassigned-to-me',
-        card.FE_ONLY_CREATING && 'creating'
-      )}
-    >
-      {card.cover && (
-        <Cover>
-          <img src={card.cover} alt="" />
-        </Cover>
-      )}
-      {card.label && (
-        <LabelContainer>
-          <Label $color={card.label.color}>{card.label.name}</Label>
-        </LabelContainer>
-      )}
-      {card.label && <Divider />}
-      <CardHeader>
-        <div className="badges">
-          <p ref={cardIdRef} className={clsx('card-id')}></p>
-          <Priority $priority={card.priority} className={card.priority}>
-            {card.priority}
-          </Priority>
-        </div>
-        <IconButton size="small">
-          <RiMore2Fill />
-        </IconButton>
-      </CardHeader>
-      <Title ref={titleRef} />
-      <Info>
-        <div className="info-section">
-          {convertDate(card.dueDate) ? (
-            <DueDate
-              $isOverDue={card.isOverdue}
-              $isCloseToDue={dayjs(card.dueDate).isTomorrow()}
-            >
-              <RiTimerLine />
-              <p>{convertDate(card.dueDate)}</p>
-            </DueDate>
-          ) : (
-            <div></div>
-          )}
-          <MemberAvatarGroup>
-            {card.memberIds.map((mem) => (
-              <Tooltip key={mem._id} title={mem.fullName}>
-                <Avatar src={mem.avatar} />
-              </Tooltip>
-            ))}
-          </MemberAvatarGroup>
-        </div>
-      </Info>
-    </CardContainer>
+    <>
+      <CardContainer
+        onClick={(e) => {
+          navigate('cards/' + card._id)
+          e.stopPropagation()
+        }}
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        style={style}
+        className={clsx(
+          card.FE_ONLY_PLACEHOLDER && 'fe-only',
+          className,
+          isMatchedSearch && 'matched-search',
+          isUnMatchedSearch && 'un-matched-search',
+          !isAssignToCurrentUser() && filter.assignToMe && 'unassigned-to-me',
+          card.FE_ONLY_CREATING && 'creating'
+        )}>
+        {card.cover && (
+          <Cover>
+            <img src={card.cover} alt="" />
+          </Cover>
+        )}
+        {card.label && (
+          <LabelContainer>
+            <Label $color={card.label.color}>{card.label.name}</Label>
+          </LabelContainer>
+        )}
+        {card.label && <Divider />}
+        <CardHeader>
+          <div className="badges">
+            <p ref={cardIdRef} className={clsx('card-id')}></p>
+            <Priority $priority={card.priority} className={card.priority}>
+              {card.priority}
+            </Priority>
+          </div>
+          <CardMenu items={menuItems} />
+        </CardHeader>
+        <Title ref={titleRef} />
+        <Info>
+          <div className="info-section">
+            {convertDate(card.dueDate) ? (
+              <DueDate
+                $isOverDue={card.isOverdue}
+                $isCloseToDue={dayjs(card.dueDate).isTomorrow()}>
+                <RiTimerLine />
+                <p>{convertDate(card.dueDate)}</p>
+              </DueDate>
+            ) : (
+              <div></div>
+            )}
+            <MemberAvatarGroup>
+              {card.memberIds.map((mem) => (
+                <Tooltip key={mem._id} title={mem.fullName}>
+                  <Avatar src={mem.avatar} />
+                </Tooltip>
+              ))}
+            </MemberAvatarGroup>
+          </div>
+        </Info>
+      </CardContainer>
+      <ConfirmDialog
+        open={openConfirmDialog}
+        onClose={toggleConfirmDialog}
+        onConfirm={onDeleteCard}
+      />
+    </>
   )
 }
 

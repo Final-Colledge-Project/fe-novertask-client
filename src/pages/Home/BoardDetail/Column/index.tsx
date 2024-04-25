@@ -129,7 +129,13 @@ const Column = ({
   }, [column])
 
   return (
-    <DnDContainer ref={setNodeRef} {...attributes} style={style} {...listeners}>
+    <DnDContainer
+      ref={setNodeRef}
+      {...attributes}
+      style={style}
+      {...listeners}
+      className="test-scale"
+    >
       <ColumnContainer
         className={clsx(isColumnEmpty() && 'collapse-space', className)}
       >
@@ -201,7 +207,7 @@ const Column = ({
               <RiAddFill />
             </div>
           </div>
-          <IconButton>
+          <IconButton size="small">
             <RiMore2Fill />
           </IconButton>
         </Header>

@@ -21,6 +21,11 @@ const initialState: {
     columnId: string
     readyToHide: boolean
   }
+  deletingCard: {
+    loading: boolean
+    error: string | undefined
+    success: boolean
+  }
 } = {
   searchString: undefined,
   filter: {
@@ -37,6 +42,11 @@ const initialState: {
     title: '',
     columnId: '',
     readyToHide: false
+  },
+  deletingCard: {
+    loading: false,
+    error: undefined,
+    success: false
   }
 }
 
@@ -52,6 +62,9 @@ const cardSlice = createSlice({
     },
     setCreatingCard: (state, { payload }) => {
       state.creatingCard = { ...payload }
+    },
+    setDeletingCard: (state, { payload }) => {
+      state.deletingCard = { ...payload }
     }
   },
   extraReducers: (builder) => {
@@ -75,4 +88,4 @@ const cardSlice = createSlice({
 })
 
 export default cardSlice.reducer
-export const { setSearchString, setFilter, setCreatingCard } = cardSlice.actions
+export const { setSearchString, setFilter, setCreatingCard, setDeletingCard } = cardSlice.actions

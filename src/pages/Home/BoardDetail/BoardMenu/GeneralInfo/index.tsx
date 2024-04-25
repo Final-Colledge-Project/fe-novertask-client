@@ -70,7 +70,6 @@ export default function GeneralInfo({
     reset,
     setValue,
     formState,
-    getValues,
     setError
   } = useForm<IFormFields>({
     defaultValues: {

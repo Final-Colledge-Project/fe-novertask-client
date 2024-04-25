@@ -27,7 +27,7 @@ export interface IUser {
 }
 
 export interface IMockUser {
-  avatar: string
+  avatar?: string
   fullName: string
   _id: string
 }

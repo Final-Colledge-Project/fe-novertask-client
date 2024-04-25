@@ -12,6 +12,9 @@ const requests = {
   assignAdmin: (boardId: string, memberId: string) =>
     `/boards/grand-ba/${boardId}/members/${memberId}`,
   revokeAdmin: (boardId: string, memberId: string) =>
-    `/boards/revoke-ba/${boardId}/members/${memberId}`
+    `/boards/revoke-ba/${boardId}/members/${memberId}`,
+  deleteBoard: (boardId: string) => `/boards/${boardId}`,
+  deleteMember: (boardId: string, memberId: string) =>
+    `/boards/${boardId}/members/${memberId}`
 }
 export default requests

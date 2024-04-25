@@ -100,6 +100,7 @@ const ColumnFooter = ({ columnId }: { columnId: string }) => {
     } catch (err) {
       const message = (err as AxiosError).message
       enqueueSnackbar(message, { variant: 'error' })
+      dispatch(setCreateColumn({ errorr: true }))
     }
   }
 

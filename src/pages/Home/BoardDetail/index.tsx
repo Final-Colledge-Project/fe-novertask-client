@@ -1,4 +1,14 @@
-import { Outlet, useNavigate, useParams } from 'react-router-dom'
+import {
+  Link,
+  Outlet,
+  Route,
+  Routes,
+  generatePath,
+  matchPath,
+  useLocation,
+  useNavigate,
+  useParams
+} from 'react-router-dom'
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { AxiosError } from 'axios'
@@ -7,23 +17,19 @@ import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep, isEmpty } from 'lodash'
 
 // component libraries
-import { Avatar, Button, IconButton, Tooltip } from '@mui/material'
-import { RiFilter3Fill, RiMore2Fill, RiUserAddLine } from 'react-icons/ri'
+import { Breadcrumbs, IconButton } from '@mui/material'
+import { RiMore2Fill } from 'react-icons/ri'
 
 // components
 import {
   BoardDetailContainer,
   Body,
-  Header,
-  MemberAvatarGroup,
-  Members,
-  OrangeTooltip,
+  Divider,
   ProjectType,
   TitleHeader,
   TypeHeader,
   TypeItem,
-  TypeMenu,
-  YellowTooltip
+  TypeMenu
 } from './styles'
 import SearchBox from '~/components/SearchBox'
 import Column from './Column'
@@ -51,7 +57,7 @@ import {
   setCreateColumn,
   setShouldRefreshBoardDetail
 } from '~/redux/boardSlice'
-import { setPopupAddMemberToBoard } from '~/redux/popupSlice'
+// import { setPopupAddMemberToBoard } from '~/redux/popupSlice' 22-04-2024 move to Header.tsx
 
 // Dnd specific
 import {
@@ -90,6 +96,12 @@ import { setCreatingCard, setSearchString } from '~/redux/cardSlice'
 import FilterMenu from './FilterMenu'
 import CurrentFilters from './CurrentFilters'
 import { setFakeColumn } from '~/redux/columnSlice'
+import BoardViewMenu from './BoardViewMenu'
+import allRoutes from '~/utils/routes'
+import BoardViewLayout from '~/layouts/BoardViewLayout'
+import BoardMember from './BoardMember'
+import BoardOverview from './BoardOverview'
+import BoardSettings from './BoardSettings'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -107,11 +119,11 @@ const FAKE_CARD_KEY = 'fake-card-id'
 // import socketIoClient from 'socket.io-client'
 
 const BoardDetail = () => {
-  // const viewList = ['Kanban', 'List', 'Member']
   const viewList = ['Kanban']
 
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const dispatch = useDispatch()
   // const socket = socketIoClient('http://localhost:5000')
   const [viewType, setViewType] = useState(viewList[0])
@@ -119,16 +131,11 @@ const BoardDetail = () => {
   const [members, setMembers] = useState<IAllMemberInBoard | undefined>(
     undefined
   )
-  const [shouldShowHeader, setShouldShowHeader] = useState(true)
   const [addingColumn, setAddingColumn] = useState(false)
 
   // change state of adding column process
   const handleAddingColumn = (nextState: boolean) => {
     setAddingColumn(nextState)
-  }
-
-  const handleToggleCover = () => {
-    setShouldShowHeader((prev) => !prev)
   }
 
   // useEffect(() => {
@@ -161,6 +168,7 @@ const BoardDetail = () => {
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
   const columnStore = useSelector((state: StoreType) => state.column)
   const cardStore = useSelector((state: StoreType) => state.card)
+  const { boards } = useSelector((state: StoreType) => state.board)
 
   const items = [
     {
@@ -381,18 +389,19 @@ const BoardDetail = () => {
     )
   }, [boardAdminAndLead, currentUser])
 
-  const handleShowAddMemberPopup = () => {
-    dispatch(
-      setPopupAddMemberToBoard({
-        show: true,
-        data: {
-          currentWsID: board?.teamWorkspaceId,
-          currentBoardID: board?._id,
-          currentMembers: members
-        }
-      })
-    )
-  }
+  // 22-04-2024 move to Header.tsx
+  // const handleShowAddMemberPopup = () => {
+  //   dispatch(
+  //     setPopupAddMemberToBoard({
+  //       show: true,
+  //       data: {
+  //         currentWsID: board?.teamWorkspaceId,
+  //         currentBoardID: board?._id,
+  //         currentMembers: members
+  //       }
+  //     })
+  //   )
+  // }
 
   const handleCloseBoardMenu = () => {
     setShouldShowBoardMenu(false)
@@ -637,7 +646,7 @@ const BoardDetail = () => {
             const nextOrderColumns = cloneDeep(prevColumns)
             const targetColumn: IColumn = nextOrderColumns.find(
               (c: IColumn) => c._id === originColumn._id
-            )
+            ) as IColumn
             targetColumn.cards = nextOrderedCards
             targetColumn.cardOrderIds = nextOrderedCards.map((card) => card._id)
             // console.log('[Move card in the same column] > ', nextOrderColumns)
@@ -710,10 +719,10 @@ const BoardDetail = () => {
       const nextOrderColumns = cloneDeep(prevColumns)
       const nextActiveColumn: IColumn = nextOrderColumns.find(
         (c: IColumn) => c._id === activeColumn._id
-      )
+      ) as IColumn
       const nextOverColumn: IColumn = nextOrderColumns.find(
         (c: IColumn) => c._id === overColumn._id
-      )
+      ) as IColumn
       // active -> cũ, nextActiveColumn -> column cũ khi kéo
       if (nextActiveColumn) {
         // Tính toán lại cards mới sau khi kéo một cục card ra khỏi column đó má
@@ -814,6 +823,31 @@ const BoardDetail = () => {
     dispatch(setSearchString(event.target.value as string))
   }
 
+  const getWSName = () => {
+    if (!board) return
+    const currentWS = boards.find((ws) => ws._id === board.teamWorkspaceId)
+    return currentWS?.name || ''
+  }
+
+  const isTaskView = () =>
+    matchPath(allRoutes.home.board.boardDetail.path, location.pathname)
+  const isMemberView = () =>
+    matchPath(allRoutes.home.board.boardMember.path, location.pathname)
+  const isOverviewView = () =>
+    matchPath(allRoutes.home.board.boardOverView.path, location.pathname)
+  const isSettingsView = () =>
+    matchPath(allRoutes.home.board.boardSettings.path, location.pathname)
+
+  /*
+    Render title breadcrumb for each view
+  */
+  const renderBreadcrumbTitle = () => {
+    if (isTaskView()) return allRoutes.home.board.boardDetail.segment
+    else if (isMemberView()) return allRoutes.home.board.boardMember.segment
+    else if (isOverviewView()) return allRoutes.home.board.boardOverView.segment
+    else if (isSettingsView()) return allRoutes.home.board.boardSettings.segment
+  }
+
   return (
     <DndContext
       onDragStart={handleDragStart}
@@ -823,40 +857,46 @@ const BoardDetail = () => {
       // Thuật toán xử lý va chạm
       // Cần dùng loại closest-corners thì card bự mới move được
       // https://docs.dndkit.com/api-documentation/context-provider/collision-detection-algorithms
-      collisionDetection={collisionDetectionStrategy}
-    >
+      collisionDetection={collisionDetectionStrategy}>
       <BoardDetailContainer>
-        <Header
-          $img={board?.cover || ''}
-          className={clsx(!shouldShowHeader && 'hidden')}
-        >
-          {/* <div className="show-header" onClick={handleToggleCover}>
-            {shouldShowHeader ? 'Hide cover' : 'Show cover'}
-          </div> */}
-        </Header>
-
-        <TitleHeader>
+        <TitleHeader $img={board?.cover}>
           <div className="left-block">
-            <div className="title">
-              {board?.title}{' '}
-              <ProjectType $type={(board?.type as string) || 'public'}>
-                {board?.type}
-              </ProjectType>
-            </div>
-            <p className="description">{board?.description}</p>
+            <Breadcrumbs aria-label="breadcrumb" sx={{ width: '100%' }}>
+              {/* Workspace */}
+              <Link
+                to={`/u/workspaces/${board?.teamWorkspaceId}`}
+                color="inherit"
+                className="breadcrumb__item">
+                {getWSName()}
+              </Link>
+
+              {/* Current board */}
+              <div
+                className="board-info"
+                onClick={() =>
+                  navigate(
+                    generatePath(allRoutes.home.board.boardDetail.path, {
+                      boardId: id as string
+                    })
+                  )
+                }>
+                <div className="board-avatar"></div>
+                <div className="title-container">
+                  <span className="title">{board?.title}</span>
+                  <ProjectType $type={(board?.type as string) || 'public'}>
+                    {board?.type}
+                  </ProjectType>
+                  {/* <p className="description">{board?.description}</p> */}
+                </div>
+              </div>
+              {renderBreadcrumbTitle() && <div>{renderBreadcrumbTitle()}</div>}
+            </Breadcrumbs>
           </div>
+
           <div className="right-block">
-            {isUserLeadOrAdmin() && (
-              <AddMenu
-                items={isUserLeadOrAdmin() ? items : items.slice(0, 1)}
-              />
-            )}
-            <SearchBox
-              label=""
-              sx={{ height: '35px' }}
-              onChange={handleChangeSearchString}
-              value={searchString}
-            />
+            {/* Change view */}
+            <BoardViewMenu />
+
             {isUserTheBoardLead() && (
               <IconButton onClick={() => setShouldShowBoardMenu(true)}>
                 <RiMore2Fill />
@@ -864,121 +904,125 @@ const BoardDetail = () => {
             )}
           </div>
         </TitleHeader>
-        <TypeHeader>
-          <TypeMenu>
-            {viewList.map((type) => (
-              <TypeItem
-                className={clsx(viewType === type && 'index')}
-                onClick={() => setViewType(type)}
-                key={type}
-              >
-                {type}
-              </TypeItem>
-            ))}
-          </TypeMenu>
-          <Members>
-            <CurrentFilters />
-            <FilterMenu />
-            <MemberAvatarGroup>
-              {members?.oweners &&
-                members.oweners.map(({ user, role }) =>
-                  role === 'boardLead' ? (
-                    <OrangeTooltip title={'Owner | ' + user.firstName}>
-                      <Avatar
-                        alt={user.firstName}
-                        src={user.avatar}
-                        sx={{
-                          '&.MuiAvatar-root': {
-                            // order: 2,
-                            border: (theme) =>
-                              `3px solid ${theme.palette.orange.main} !important`
-                          }
-                        }}
-                      />
-                    </OrangeTooltip>
-                  ) : (
-                    <YellowTooltip title={'Admin | ' + user.firstName}>
-                      <Avatar
-                        alt={user.firstName}
-                        src={user.avatar}
-                        sx={{
-                          '&.MuiAvatar-root': {
-                            // order: 2,
-                            border: (theme) =>
-                              `2px solid ${theme.palette.yellow.main} !important`
-                          }
-                        }}
-                      />
-                    </YellowTooltip>
-                  )
-                )}
-              {members?.members &&
-                members.members.map((user) => (
-                  <Tooltip title={user.firstName}>
-                    <Avatar alt={user.firstName} src={user.avatar} />
-                  </Tooltip>
-                ))}
-            </MemberAvatarGroup>
-            {isUserLeadOrAdmin() && (
-              <Button
-                color="primary"
-                variant="contained"
-                startIcon={<RiUserAddLine />}
-                onClick={handleShowAddMemberPopup}
-              >
-                Add more
-              </Button>
-            )}
-          </Members>
-        </TypeHeader>
-        <Body>
-          {!board?.columns && <BoardDetailLoading />}
-          {orderedColumns && (
-            <SortableContext
-              items={orderedColumns.map((c) => c._id) as string[]}
-              strategy={horizontalListSortingStrategy}
-              id={board?._id}
-            >
-              {orderedColumns &&
-                orderedColumns.map((column) => (
-                  <Column column={column} key={column._id} />
-                ))}
-            </SortableContext>
-          )}
-          {/* {columnStore.fakeColumn.show && (
-            <Column
-              column={{ title: columnStore.fakeColumn.title } as IColumn}
-              key={FAKE_COLUMN_KEY}
-            />
-          )} */}
 
-          <DragOverlay dropAnimation={dropAnimation}>
-            {!activeItemID && null}
-            {activeItem === ACTIVE_ITEM_TYPE.COLUMN && (
-              <Column
-                column={activeItemData as IColumn}
-                key={activeItemID}
-                className="drag-over-column"
+        <Divider></Divider>
+
+        {/* Header for specific board view */}
+
+        {/* TASK */}
+        {isTaskView() && (
+          <TypeHeader>
+            <TypeMenu>
+              {viewList.map((type) => (
+                <TypeItem
+                  className={clsx(viewType === type && 'index')}
+                  onClick={() => setViewType(type)}
+                  key={type}>
+                  {type}
+                </TypeItem>
+              ))}
+            </TypeMenu>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {/* current chosen filter option */}
+              <CurrentFilters />
+
+              {/* Filter task option list*/}
+              <FilterMenu />
+
+              {/* Add column or add card */}
+              {isUserLeadOrAdmin() && (
+                <AddMenu
+                  items={isUserLeadOrAdmin() ? items : items.slice(0, 1)}
+                />
+              )}
+
+              {/* Search card */}
+              <SearchBox
+                label=""
+                sx={{ height: '35px' }}
+                onChange={handleChangeSearchString}
+                value={searchString}
               />
-            )}
-            {activeItem === ACTIVE_ITEM_TYPE.CARD && (
-              <Card
-                card={activeItemData as ICard}
-                key={activeItemID}
-                className="drag-over-card"
-              />
-            )}
-          </DragOverlay>
-          {isUserLeadOrAdmin() && (
-            <AddColumnButton
-              addingColumn={addingColumn}
-              setFocus={handleAddingColumn}
-              boardId={board?._id as string}
+            </div>
+          </TypeHeader>
+        )}
+
+        {
+          // TASK VIEW
+          isTaskView() && (
+            <Body>
+              {!board?.columns && <BoardDetailLoading />}
+
+              {orderedColumns && (
+                <SortableContext
+                  items={orderedColumns.map((c) => c._id) as string[]}
+                  strategy={horizontalListSortingStrategy}
+                  id={board?._id}>
+                  {orderedColumns &&
+                    orderedColumns.map((column) => (
+                      <Column column={column} key={column._id} />
+                    ))}
+                </SortableContext>
+              )}
+
+              <DragOverlay dropAnimation={dropAnimation}>
+                {!activeItemID && null}
+
+                {activeItem === ACTIVE_ITEM_TYPE.COLUMN && (
+                  <Column
+                    column={activeItemData as IColumn}
+                    key={activeItemID}
+                    className="drag-over-column"
+                  />
+                )}
+
+                {activeItem === ACTIVE_ITEM_TYPE.CARD && (
+                  <Card
+                    card={activeItemData as ICard}
+                    key={activeItemID}
+                    className="drag-over-card"
+                  />
+                )}
+              </DragOverlay>
+
+              {isUserLeadOrAdmin() && (
+                <AddColumnButton
+                  addingColumn={addingColumn}
+                  setFocus={handleAddingColumn}
+                  boardId={board?._id as string}
+                />
+              )}
+            </Body>
+          )
+        }
+
+        <Routes>
+          <Route element={<BoardViewLayout />} path="*">
+            <Route
+              path={allRoutes.home.board.boardOverView.segment}
+              element={<BoardOverview />}
             />
-          )}
-        </Body>
+            <Route
+              path={allRoutes.home.board.boardMember.segment}
+              element={
+                <BoardMember
+                  members={members}
+                  leaderId={boardLeader()?._id}
+                  board={board}
+                />
+              }
+            />
+            <Route
+              path={allRoutes.home.board.boardSettings.segment}
+              element={<BoardSettings />}
+            />
+          </Route>
+        </Routes>
+
         <AddMemberPopup />
       </BoardDetailContainer>
+
       {board && members && (
         <BoardMenu
           onClose={handleCloseBoardMenu}
@@ -987,6 +1031,7 @@ const BoardDetail = () => {
           owner={boardLeader() as IMemberInBoard}
         />
       )}
+
       <Outlet />
     </DndContext>
   )

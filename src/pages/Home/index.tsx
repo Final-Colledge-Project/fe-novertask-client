@@ -27,7 +27,7 @@ const Home = () => {
     socket.on('connect', async function () {
       socket.emit('login', { userId: user?._id })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      socket.on('message', function (data: any) {
+      socket.on('message', function (_data: any) {
         // console.log('Received message:', data)
       })
     })

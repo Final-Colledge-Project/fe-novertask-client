@@ -14,7 +14,7 @@ export const BoardMenuContainer = styled.div`
   width: 400px;
   transition: min-width 0.3s, width 0.3s;
   border-left: 1px solid var(--mui-palette-divider);
-  overflow-y: auto;
+  /* overflow-y: auto; */
 
   &.hide {
     min-width: 0px;
@@ -30,9 +30,9 @@ export const MenuHeader = styled.div`
   justify-content: space-between;
   padding: 5px 0;
   border-bottom: 1px solid var(--mui-palette-divider);
-  position: sticky;
+  /* position: sticky; */
   top: 0px;
-  z-index: 100;
+  z-index: 1;
   background-color: rgba(var(--mui-palette-white-mainChannel) / 0.8);
   backdrop-filter: blur(4px);
 
@@ -43,10 +43,12 @@ export const MenuHeader = styled.div`
 
 export const MenuBody = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  /* align-items: center; */
+  justify-content: space-between;
   flex-direction: column;
   margin-top: 20px;
+  /* height: 90%; */
+  overflow-y: auto;
 `
 
 export const Accordion = muiStyled((props: AccordionProps) => (
@@ -135,7 +137,7 @@ export const Input = styled.div`
   & .MuiFormControl-root .MuiInputBase-input.Mui-disabled {
     color: var(--mui-palette-black-main);
   }
-  
+
   & .MuiFormControl-root .MuiInputBase-input.Mui-disabled {
     color: var(--mui-palette-black-main);
     -webkit-text-fill-color: var(--mui-palette-black-main);

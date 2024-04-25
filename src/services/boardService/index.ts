@@ -11,6 +11,8 @@ import {
   IAddMemberToBoardBody,
   IAssignAdminBody,
   ICreateBoardBody,
+  IDeleteBoardBody,
+  IDeleteMemberBody,
   IGetAllByWSIdBody,
   IGetBoardDetailBody,
   IGetMemberInBoardBody,
@@ -73,7 +75,9 @@ export const createBoard = async (body: ICreateBoardBody) => {
 
     // user is not allowed to
     if (status && status === 409) {
-      throw new Error(`UNAUTHORIZED`)
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+      throw new Error(errorData.message as string)
     }
     // general error
     throw new Error('Something went wrong! Please try later.')
@@ -211,6 +215,48 @@ export const revokeAdmin = async (body: IRevokeAdminBody) => {
   try {
     const res = await axiosInstance.delete(
       requests.revokeAdmin(body.boardId, body.memberId)
+    )
+
+    if (res && res.status) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    if ((status && status === 409) || status === 403) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      throw new Error(errorData.message as string)
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const deleteBoard = async (body: IDeleteBoardBody) => {
+  try {
+    const res = await axiosInstance.delete(requests.deleteBoard(body.boardId))
+
+    if (res && res.status) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    if ((status && status === 409) || status === 403) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+
+      throw new Error(errorData.message as string)
+    }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const deleteMember = async (body: IDeleteMemberBody) => {
+  try {
+    const res = await axiosInstance.delete(
+      requests.deleteMember(body.boardId, body.memberId)
     )
 
     if (res && res.status) {

@@ -32,7 +32,7 @@ export const AddZone = styled.div`
 `
 
 export const Input = styled.input`
-  margin-right: 5px;
+  /* margin-right: 5px; */
   width: 280px;
   min-width: 280px;
   height: 44px;

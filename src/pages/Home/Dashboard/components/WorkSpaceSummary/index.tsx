@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // component libraries
 import { RiAddLine } from 'react-icons/ri'
@@ -17,7 +17,6 @@ import { setCurrentNavItem } from '~/redux/navSlice'
 import { setPopupAddPJ } from '~/redux/popupSlice'
 import { getMembers } from '~/services/workspaceService'
 import { StoreType } from '~/redux'
-import { useEffectOnce } from 'usehooks-ts'
 
 const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
   const navigate = useNavigate()
@@ -41,7 +40,7 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
     )
   }
 
-  useEffectOnce(() => {
+  useEffect(() => {
     const getMember = async () => {
       try {
         const res = await getMembers({ id: data._id })
@@ -58,7 +57,7 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
       }
     }
     ;(!data.boards || data.boards?.length === 0) && getMember()
-  })
+  }, [])
 
   return (
     <div className="workspace-summary">

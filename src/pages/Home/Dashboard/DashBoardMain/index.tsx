@@ -1,6 +1,5 @@
-import { lazy, useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { enqueueSnackbar } from 'notistack'
+import { lazy } from 'react'
+import { useDispatch } from 'react-redux'
 
 // component libraries
 
@@ -10,14 +9,14 @@ import MenuPopup from './MenuPopup'
 import './style.scss'
 
 // services
-import { StoreType } from '~/redux'
+// import { StoreType } from '~/redux' /* 22-04-2024 unused */
 import { setPopupAddPJ, setPopupAddWS } from '~/redux/popupSlice'
 const Data = lazy(() => import('./Data'))
 
 const DashBoardMain = () => {
-  const {
-    createWS: { error }
-  } = useSelector((state: StoreType) => state.teamWorkspace)
+  // const {
+  //   createWS: { error }
+  // } = useSelector((state: StoreType) => state.teamWorkspace)
 
   const dispatch = useDispatch()
 
@@ -43,11 +42,12 @@ const DashBoardMain = () => {
     }
   ]
 
-  useEffect(() => {
-    if (error) {
-      enqueueSnackbar(error, { variant: 'error' })
-    }
-  }, [error])
+  /* 22-04-2024 unused */
+  // useEffect(() => {
+  //   if (error) {
+  //     enqueueSnackbar(error, { variant: 'error' })
+  //   }
+  // }, [error])
 
   return (
     <div className="dashboard-main-container">

@@ -3,6 +3,6 @@ const requests = {
   forgotPassword: '/auth/forgot-password',
   resetPassword: '/auth/reset-password',
   refreshToken: '/auth/refresh-token',
-  loginSuccess: '/auth/login-success',
+  loginSuccess: '/auth/login-success'
 }
 export default requests

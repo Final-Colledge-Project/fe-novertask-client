@@ -27,7 +27,11 @@ export interface IUpdateCoverBody {
   file: File
 }
 
-export interface IAssignMemberToCardBody{
+export interface IAssignMemberToCardBody {
   cardId: string
   memberId: string
+}
+
+export interface IDeleteCard {
+  cardId: string
 }

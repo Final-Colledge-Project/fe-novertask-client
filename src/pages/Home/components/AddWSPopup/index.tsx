@@ -54,6 +54,7 @@ const AddWSPopup = () => {
   useEffect(() => {
     if (error) {
       enqueueSnackbar(error, { variant: 'error' })
+      dispatch(resetCreateWS())
     }
   }, [error])
 
@@ -67,7 +68,6 @@ const AddWSPopup = () => {
       handleClose()
     }
   }, [success])
-
 
   return (
     <div

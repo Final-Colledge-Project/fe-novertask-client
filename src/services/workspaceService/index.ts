@@ -109,3 +109,24 @@ export const assignAdmin = async (body: IAssignAdminBody) => {
     throw new Error('Something went wrong! Please try later.')
   }
 }
+
+export const deleteWorkspace = async (body: { id: string }) => {
+  try {
+    const res = await axiosInstance.delete(requests.deleteWorkspace(body.id))
+
+    // delete workspace successfully
+    if (res.status === 200) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    // 409: throw the error form api
+    if (status && status === 409) {
+      throw new Error(`UNAUTHORIZED`)
+    }
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}

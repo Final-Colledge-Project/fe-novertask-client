@@ -15,7 +15,7 @@ import { StoreDispatchType, StoreType } from '~/redux'
 import { assignAdmin } from '~/redux/teamWSSlice/actions'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 
-const LineMemberItem = ({ data, superAdminId }: IWSItemProps) => {
+const LineMemberItem = ({ data, superAdminId, onDelete }: IWSItemProps) => {
   const { user, role } = data
   const currentUser = useSelector((state: StoreType) => state.auth).userInfo
   const dispatch = useDispatch<StoreDispatchType>()
@@ -66,14 +66,16 @@ const LineMemberItem = ({ data, superAdminId }: IWSItemProps) => {
       <ActionGroup className="section">
         {checkIsUserASuperAdmin() && currentUser?._id !== user?._id && (
           <>
-            <Tooltip title="Nominate as an Admin">
+            <Tooltip title="Switch to admin permission">
               <IconButton color="primary" onClick={() => handleAssignAdmin()}>
                 <RiUserStarLine />
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Leave this workspace">
-              <IconButton color="error">
+            <Tooltip title="Remove from this workspace">
+              <IconButton
+                color="error"
+                onClick={() => onDelete(user?._id as string)}>
                 <RiLogoutBoxRLine />
               </IconButton>
             </Tooltip>

@@ -56,7 +56,8 @@ export const Accordion = muiStyled((props: AccordionProps) => (
   '&:not(:last-child)': {},
   '&:before': {
     display: 'none'
-  }
+  },
+  marginBottom: '10px'
 }))
 
 export const AccordionSummary = muiStyled((props: AccordionSummaryProps) => (
@@ -135,7 +136,7 @@ export const Input = styled.div`
   & .MuiFormControl-root .MuiInputBase-input.Mui-disabled {
     color: var(--mui-palette-black-main);
   }
-  
+
   & .MuiFormControl-root .MuiInputBase-input.Mui-disabled {
     color: var(--mui-palette-black-main);
     -webkit-text-fill-color: var(--mui-palette-black-main);

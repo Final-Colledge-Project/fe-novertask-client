@@ -206,8 +206,7 @@ export const MemberAvatarGroup = ({ children }: { children: ReactNode }) => (
       '& .MuiAvatar-root:last-child': {
         ml: '-8px'
       }
-    }}
-  >
+    }}>
     {children}
   </AvatarGroup>
 )

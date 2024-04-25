@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, ChangeEvent } from 'react'
 import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
 
@@ -9,16 +10,11 @@ import {
   Avatar,
   Button,
   Checkbox,
+  CircularProgress,
   FormControlLabel,
-  IconButton,
-  Tooltip
+  IconButton
 } from '@mui/material'
-import {
-  RiCloseFill,
-  RiCloseLine,
-  RiUserStarLine,
-  RiUserUnfollowLine
-} from 'react-icons/ri'
+import { RiCloseFill } from 'react-icons/ri'
 
 // components
 import TextInput from '~/components/TextInput'
@@ -30,7 +26,8 @@ import {
   MemberItem,
   MemberSectionTitle,
   Members,
-  Modal
+  Modal,
+  Placeholder
 } from './styles'
 
 // services
@@ -41,12 +38,14 @@ import { getMembers } from '~/services/workspaceService'
 import {
   addMember,
   assignMemberToAdmin,
+  deleteMember,
   getAllMemberInBoard,
   revokeAdmin as revokeAdminInBoard
 } from '~/services/boardService'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import socketIoClient from 'socket.io-client'
+import { useDebounceCallback } from 'usehooks-ts'
 
 const ROLES = {
   member: 'member',
@@ -67,6 +66,7 @@ export default function AddMemberPopup() {
   const [chosenList, setChosenList] = useState<{ _id: string; name: string }[]>(
     []
   )
+  const [startSearch, setStartSearch] = useState<boolean>(false)
 
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
 
@@ -113,6 +113,31 @@ export default function AddMemberPopup() {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
     }
   }
+  /*
+  22-04-2024: Unused in this component, moved to BoardMember/index.tsx
+  */
+  // const deleteUserFromBoard = async (id: string) => {
+  //   dispatch(showLoading())
+  //   try {
+  //     const res = await deleteMember({
+  //       boardId: popup.data.currentBoardID as string,
+  //       memberId: id
+  //     })
+
+  //     if (res) {
+  //       dispatch(setShouldRefreshBoardDetail(true))
+  //       setChosenList([])
+  //       setSearchString('')
+  //       // dispatch(setShouldRefreshMemberInBoard(true))
+  //       await getMemberInBoard()
+  //       enqueueSnackbar('Delete member successfully', { variant: 'success' })
+  //     }
+  //   } catch (err) {
+  //     enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+  //   } finally {
+  //     dispatch(hideLoading())
+  //   }
+  // }
 
   const cleanedWSMembers = useMemo(() => {
     if (WSMembers) {
@@ -167,26 +192,12 @@ export default function AddMemberPopup() {
     else return ROLES.admin
   }
 
-  const isAdminOrLeader = (id: string) => {
-    return roleInBoard(id) === ROLES.admin || roleInBoard(id) === ROLES.leader
-  }
-
-  useEffect(() => {
-    if (popup.show) getWSMembers()
-  }, [popup.data.currentWsID])
-
-  useEffect(() => {
-    setBoardMembers(popup.data.currentMembers)
-  }, [popup.show])
-
-  useEffect(() => {
-    // if search string change -> chosen list have to be updated
-    setChosenList((prev) => {
-      return prev.filter((item) =>
-        availableToChooseList()?.find((mem) => mem?.user?._id === item._id)
-      )
-    })
-  }, [searchString])
+  /*
+    22-04-2024: Unused in this component, related to shouldShowAssignButton()
+  */
+  // const isAdminOrLeader = (id: string) => {
+  //   return roleInBoard(id) === ROLES.admin || roleInBoard(id) === ROLES.leader
+  // }
 
   const checkIsChosen = (id: string) => {
     if (!id || chosenList.length === 0) return false
@@ -224,49 +235,55 @@ export default function AddMemberPopup() {
     )
   }
 
-  const assignMember = async (id: string) => {
-    dispatch(showLoading())
-    try {
-      const res = await assignMemberToAdmin({
-        boardId: popup.data.currentBoardID as string,
-        memberId: id
-      })
+  /*
+    22-04-2024: Unused in this component, moved to BoardMember/index.tsx
+  */
+  // const assignMember = async (id: string) => {
+  //   dispatch(showLoading())
+  //   try {
+  //     const res = await assignMemberToAdmin({
+  //       boardId: popup.data.currentBoardID as string,
+  //       memberId: id
+  //     })
 
-      if (res) {
-        dispatch(setShouldRefreshBoardDetail(true))
-        setChosenList([])
-        setSearchString('')
-        // dispatch(setShouldRefreshMemberInBoard(true))
-        await getMemberInBoard()
-      }
-    } catch (err) {
-      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
-    } finally {
-      dispatch(hideLoading())
-    }
-  }
+  //     if (res) {
+  //       dispatch(setShouldRefreshBoardDetail(true))
+  //       setChosenList([])
+  //       setSearchString('')
+  //       // dispatch(setShouldRefreshMemberInBoard(true))
+  //       await getMemberInBoard()
+  //     }
+  //   } catch (err) {
+  //     enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+  //   } finally {
+  //     dispatch(hideLoading())
+  //   }
+  // }
 
-  const revokeAdmin = async (id: string) => {
-    dispatch(showLoading())
-    try {
-      const res = await revokeAdminInBoard({
-        boardId: popup.data.currentBoardID as string,
-        memberId: id
-      })
+  /*
+    22-04-2024: Unused in this component, moved to BoardMember/index.tsx
+  */
+  // const revokeAdmin = async (id: string) => {
+  //   dispatch(showLoading())
+  //   try {
+  //     const res = await revokeAdminInBoard({
+  //       boardId: popup.data.currentBoardID as string,
+  //       memberId: id
+  //     })
 
-      if (res) {
-        dispatch(setShouldRefreshBoardDetail(true))
-        setChosenList([])
-        setSearchString('')
-        // dispatch(setShouldRefreshMemberInBoard(true))
-        await getMemberInBoard()
-      }
-    } catch (err) {
-      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
-    } finally {
-      dispatch(hideLoading())
-    }
-  }
+  //     if (res) {
+  //       dispatch(setShouldRefreshBoardDetail(true))
+  //       setChosenList([])
+  //       setSearchString('')
+  //       // dispatch(setShouldRefreshMemberInBoard(true))
+  //       await getMemberInBoard()
+  //     }
+  //   } catch (err) {
+  //     enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+  //   } finally {
+  //     dispatch(hideLoading())
+  //   }
+  // }
 
   const handleChooseAll = () => {
     if (chosenList.length === availableToChooseList()?.length) {
@@ -294,18 +311,57 @@ export default function AddMemberPopup() {
     })
   }
 
-  const shouldShowAssignButton = (memberId: string) => {
-    if (!isAdminOrLeader(currentUser?._id as string)) return false
-    if (roleInBoard(memberId) !== ROLES.member) return false
-    return true
+  /*
+    22-04-2024: Unused in this component, moved to BoardMember/index.tsx
+  */
+  // const shouldShowAssignButton = (memberId: string) => {
+  //   if (!isAdminOrLeader(currentUser?._id as string)) return false
+  //   if (roleInBoard(memberId) !== ROLES.member) return false
+  //   return true
+  // }
+
+  /*
+    22-04-2024: Unused in this component, moved to BoardMember/index.tsx
+  */
+  // const shouldShowRevokeButton = (memberId: string) => {
+  //   if (roleInBoard(memberId) !== ROLES.admin) return false
+  //   if (roleInBoard(currentUser?._id as string) !== ROLES.leader) return false
+
+  //   return true
+  // }
+
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchString(event.target.value)
+
+    setTimeout(() => {
+      setStartSearch(false)
+    }, 500)
   }
 
-  const shouldShowRevokeButton = (memberId: string) => {
-    if (roleInBoard(memberId) !== ROLES.admin) return false
-    if (roleInBoard(currentUser?._id as string) !== ROLES.leader) return false
+  const debouncedSearch = useDebounceCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      handleSearch(event)
+      setStartSearch(true)
+    },
+    500
+  )
 
-    return true
-  }
+  useEffect(() => {
+    if (popup.show) getWSMembers()
+  }, [popup.data.currentWsID])
+
+  useEffect(() => {
+    setBoardMembers(popup.data.currentMembers)
+  }, [popup.show])
+
+  useEffect(() => {
+    // if search string change -> chosen list have to be updated
+    setChosenList((prev) => {
+      return prev.filter((item) =>
+        availableToChooseList()?.find((mem) => mem?.user?._id === item._id)
+      )
+    })
+  }, [searchString])
 
   return (
     <Container className={clsx(!popup.show && 'hidden')} onClick={handleClose}>
@@ -320,12 +376,10 @@ export default function AddMemberPopup() {
         </Header>
         <TextInput
           label=""
+          size="small"
           placeHolder="Search by name or email..."
           value={searchString}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            // typewatch(() => setSearchString(e.target.value), 500)
-            setSearchString(e.target.value)
-          }}
+          onChange={debouncedSearch}
         />
         <Members>
           <MemberSectionTitle>
@@ -350,60 +404,63 @@ export default function AddMemberPopup() {
               }
               label="Select all"
             />
-            <p className="note">Action</p>
+            {/* <p className="note">Board actions</p> */}
           </MemberSectionTitle>
 
-          {cleanedWSMembers?.map((member) => (
-            <MemberItem key={member?.user?._id}>
-              <Checkbox
-                style={{
-                  opacity: !isMemberInBoard(member?.user?._id as string)
-                    ? '1'
-                    : '0'
-                }}
-                checked={checkIsChosen(member?.user?._id as string)}
-                disabled={isMemberInBoard(member?.user?._id as string)}
-                onChange={() =>
-                  handleChooseOne(
-                    member?.user?._id as string,
-                    member?.user?.fullName as string
-                  )
-                }
-              />
-
-              <div className="image">
-                <Avatar
-                  src={member?.user?.avatar}
-                  alt=""
-                  sx={{
-                    width: '30px',
-                    height: '30px'
+          {!startSearch &&
+            cleanedWSMembers?.map((member) => (
+              <MemberItem key={member?.user?._id}>
+                <Checkbox
+                  style={{
+                    opacity: !isMemberInBoard(member?.user?._id as string)
+                      ? '1'
+                      : ''
                   }}
+                  checked={
+                    checkIsChosen(member?.user?._id as string) ||
+                    isMemberInBoard(member?.user?._id as string)
+                  }
+                  disabled={isMemberInBoard(member?.user?._id as string)}
+                  onChange={() =>
+                    handleChooseOne(
+                      member?.user?._id as string,
+                      member?.user?.fullName as string
+                    )
+                  }
                 />
-              </div>
-              <div className="info">
-                <div className="name-role-group">
-                  <div className="name">{member?.user?.fullName}</div>
-                  <div
-                    className={clsx(
-                      'role',
-                      roleInBoard(member?.user?._id as string)
-                    )}
-                  >
-                    {roleInBoard(member?.user?._id as string) ===
-                      ROLES.leader && 'Lead'}
-                    {roleInBoard(member?.user?._id as string) === ROLES.admin &&
-                      'Admin'}
-                    {roleInBoard(member?.user?._id as string) ===
-                      ROLES.member && 'Member'}
-                  </div>
+
+                <div className="image">
+                  <Avatar
+                    src={member?.user?.avatar}
+                    alt=""
+                    sx={{
+                      width: '30px',
+                      height: '30px'
+                    }}
+                  />
                 </div>
-                <div className="email">{member?.user?.email}</div>
-              </div>
-              {/* {isMemberInBoard(member?.user?._id as string) && (
+                <div className="info">
+                  <div className="name-role-group">
+                    <div className="name">{member?.user?.fullName}</div>
+                    <div
+                      className={clsx(
+                        'role',
+                        roleInBoard(member?.user?._id as string)
+                      )}>
+                      {roleInBoard(member?.user?._id as string) ===
+                        ROLES.leader && 'Lead'}
+                      {roleInBoard(member?.user?._id as string) ===
+                        ROLES.admin && 'Admin'}
+                      {roleInBoard(member?.user?._id as string) ===
+                        ROLES.member && 'Member'}
+                    </div>
+                  </div>
+                  <div className="email">{member?.user?.email}</div>
+                </div>
+                {/* {isMemberInBoard(member?.user?._id as string) && (
                 <p className="plaintext">Already in board</p>
               )} */}
-              {isAdminOrLeader(currentUser?._id as string) &&
+                {/* {isAdminOrLeader(currentUser?._id as string) &&
                 isMemberInBoard(member?.user?._id as string) && (
                   <ActionButtonsGroup>
                     {shouldShowAssignButton(member?.user?._id as string) && (
@@ -430,19 +487,29 @@ export default function AddMemberPopup() {
                         </IconButton>
                       </Tooltip>
                     )}
-                    {/* {currentUser?._id !== member?.user?._id && (
-                      <Tooltip title="Delete from board">
-                        <IconButton color="error">
+                    {currentUser?._id !== member?.user?._id && (
+                      <Tooltip title="Remove from board">
+                        <IconButton
+                          color="error"
+                          onClick={() =>
+                            deleteUserFromBoard(member?.user?._id as string)
+                          }
+                        >
                           <RiCloseLine />
                         </IconButton>
                       </Tooltip>
-                    )} */}
+                    )}
                   </ActionButtonsGroup>
-                )}
-            </MemberItem>
-          ))}
-          {(!cleanedWSMembers || cleanedWSMembers?.length === 0) && (
-            <p className="placeholder">There is no one here</p>
+                )} */}
+              </MemberItem>
+            ))}
+          {(!cleanedWSMembers || cleanedWSMembers?.length === 0) &&
+            !startSearch && <Placeholder>There is no one here</Placeholder>}
+
+          {startSearch && (
+            <Placeholder>
+              <CircularProgress size={30} />
+            </Placeholder>
           )}
         </Members>
         <Footer>
@@ -460,8 +527,7 @@ export default function AddMemberPopup() {
             <Button
               variant="contained"
               disabled={chosenList.length <= 0}
-              onClick={handleAddMemberToBoard}
-            >
+              onClick={handleAddMemberToBoard}>
               Add
             </Button>
           </div>
