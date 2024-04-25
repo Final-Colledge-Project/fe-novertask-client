@@ -7,7 +7,7 @@ export const getCurrentUser = createAsyncThunk(
     try {
       // sign in
       const res = await userService.getCurrentUser()
-      console.log('res: ', res)
+      // console.log('res: ', res)
       if (res && res.data) {
         // return token for reducer
         return res.data

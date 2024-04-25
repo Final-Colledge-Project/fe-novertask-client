@@ -31,7 +31,7 @@ export const Header = styled.div`
   border-radius: 8px;
   background-color: var(--mui-palette-white-main);
   font-size: 14px;
-  margin-right: 5px;
+  /* margin-right: 5px; */
 
   & > .icon {
     cursor: grab;
@@ -78,7 +78,8 @@ export const CardsContainer = styled.div`
   align-items: center;
   justify-content: start;
   gap: 10px;
-  padding-right: 5px;
+  // if right padding = 5, when scroll bar disappears, card item will be wrong position 
+  /* padding-right: 5px; */
 
   &::-webkit-scrollbar-track {
     background-color: var(--mui-palette-gray5-main);

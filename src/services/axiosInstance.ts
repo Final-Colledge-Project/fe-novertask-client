@@ -4,6 +4,8 @@ import store from '~/redux'
 import { authService } from '.'
 import { setIsRefreshingToken, setReSign, setToken } from '~/redux/authSlice'
 import { IErrorResponse } from './types'
+import { setErrorScreen } from '~/redux/systemSlice'
+import { hideLoading } from '~/redux/progressSlice'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -16,11 +18,9 @@ const axiosInstance = axios.create({
 
 const checkShouldAttachToken = (url: string, method: string) => {
   if (guestRequest.includes(url)) {
-
     if (url === '/auth' && method === 'get') return true
     else if (url === '/users' && method === 'patch') return true
     else return false
-
   }
 
   return true
@@ -30,7 +30,6 @@ axiosInstance.interceptors.request.use(
   (req) => {
     // request to url requiring auth
     if (checkShouldAttachToken(req.url as string, req.method as string)) {
-
       // get token from local storage
       const accessToken = localStorage.getItem(
         import.meta.env.VITE_USER_TOKEN_KEY
@@ -48,13 +47,22 @@ axiosInstance.interceptors.request.use(
   }
 )
 axiosInstance.interceptors.response.use(
-  (res) => {
-    return res
-  },
+  (res) => res,
   async (err: AxiosError) => {
-    console.log('✨ ~ file: axiosInstance.ts:46 ~ err:', err)
     const baseConfig = err.config
-    const { dispatch } = store
+    const { dispatch, getState } = store
+
+    if (err.code === 'ERR_NETWORK') {
+      //  set error screen
+      dispatch(
+        setErrorScreen({
+          errorCode: 500,
+          message: 'Server is not responding. Please try later.',
+          showHomeButton: false
+        })
+      )
+      if (getState().progress.loading) dispatch(hideLoading())
+    }
 
     const errorMessage = (err.response as AxiosResponse<IErrorResponse>).data
       .message
@@ -106,6 +114,17 @@ axiosInstance.interceptors.response.use(
       }
 
       return await axiosInstance(baseConfig!)
+    }
+
+    if (err.response?.status === 500 || err.response?.status === 404) {
+      // console.log('error', err.response?.status)
+      dispatch(
+        setErrorScreen({
+          errorCode: err.response.status as number,
+          message: errorMessage
+        })
+      )
+      return Promise.reject(err)
     }
 
     // unauthorized -> token is expired -> refresh token failed -> sign in again

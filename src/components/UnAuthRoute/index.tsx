@@ -28,15 +28,6 @@ const UnAuthRoute = ({ children }: { children: ReactElement }) => {
     }
   }, [])
 
-  // access authentication page but already have token
-  useEffect(() => {
-    if (userToken) {
-      enqueueSnackbar('Switching to home...', {
-        variant: 'info'
-      })
-    }
-  }, [])
-
   // raise success message when signing in is successful
   useEffect(() => {
     if (userInfo && location.pathname === '/sign-in') {

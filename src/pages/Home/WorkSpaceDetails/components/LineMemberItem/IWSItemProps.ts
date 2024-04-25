@@ -5,5 +5,6 @@ export default interface IWSItemProps {
     user?: IMockUser & { email: string }
     role: 'admin' | 'superAdmin' | 'member'
   }
-  superAdminId: string
+  superAdminId: string,
+  onDelete?: (id: string) => void
 }

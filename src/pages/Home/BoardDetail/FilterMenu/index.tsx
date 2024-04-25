@@ -79,7 +79,7 @@ export default function FilterMenu() {
     <div>
       <Badge badgeContent={countFilterIsOn()} color="error">
         <Button
-          variant="outlined"
+          variant="text"
           ref={anchorRef}
           id="composition-button"
           aria-controls={open ? 'composition-menu' : undefined}
@@ -92,8 +92,7 @@ export default function FilterMenu() {
             padding: '5px 10px',
             minWidth: '0'
           }}
-          startIcon={<RiFilter3Fill />}
-        >
+          startIcon={<RiFilter3Fill />}>
           Filter
         </Button>
       </Badge>
@@ -107,29 +106,28 @@ export default function FilterMenu() {
         sx={{
           position: 'relative',
           zIndex: 100
-        }}
-      >
+        }}>
         {({ TransitionProps, placement }) => (
           <Grow
             {...TransitionProps}
             style={{
               transformOrigin:
-                placement === 'bottom-start' ? 'left top' : 'left bottom'
-            }}
-          >
+                placement === 'bottom-start' ? 'left top' : 'right top'
+            }}>
             <Paper sx={{ borderRadius: '8px' }}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList
+                  dense
                   autoFocusItem={open}
                   id="composition-menu"
                   aria-labelledby="composition-button"
                   onKeyDown={handleListKeyDown}
-                  sx={{ borderRadius: '8px' }}
-                >
-                  <MenuItem>
+                  sx={{ borderRadius: '8px' }}>
+                  <MenuItem dense>
                     <ItemContainer>
                       <Typography>Assign to me</Typography>
                       <Switch
+                        size="small"
                         checked={filter.assignToMe}
                         onChange={handleToggleAssignToMe}
                       />

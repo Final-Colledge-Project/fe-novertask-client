@@ -1,4 +1,4 @@
-import {INotificationItem } from '../types'
+import { INotificationItem } from '../types'
 
 export interface IGetNotificationsByUserIdResponse {
   data: INotificationItem

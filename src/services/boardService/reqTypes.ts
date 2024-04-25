@@ -55,3 +55,12 @@ export interface IRevokeAdminBody {
   boardId: string
   memberId: string
 }
+
+export interface IDeleteBoardBody {
+  boardId: string
+}
+
+export interface IDeleteMemberBody {
+  boardId: string
+  memberId: string
+}

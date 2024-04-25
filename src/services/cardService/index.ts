@@ -3,6 +3,7 @@ import axiosInstance from '../axiosInstance'
 import {
   IAssignMemberToCardBody,
   ICreateCardBody,
+  IDeleteCard,
   IGetCardBody,
   IGetCardMembersBody,
   IUpdateCardBody,
@@ -141,14 +142,31 @@ export const assignMemberToCard = async (body: IAssignMemberToCardBody) => {
 
 export const cardAssignToMe = async () => {
   try {
-    const res = await axiosInstance.get<IAssignedToMeResponse>(requests.assignedToMe)
-    console.log('~~~~~~~~~~>KhiemLd')
+    const res = await axiosInstance.get<IAssignedToMeResponse>(
+      requests.assignedToMe
+    )
     if (res && res.status === 200 && res.data) {
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>Test')
       return res.data
     }
+  } catch (error) {
+    throw new Error('Something went wrong! Please try later.')
   }
-  catch(error) {
+}
+
+export const deleteCard = async (body: IDeleteCard) => {
+  try {
+    const res = await axiosInstance.delete(requests.deleteCard(body.cardId))
+    if (res && res.status === 200 && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    if (status && status === 409) {
+      throw new Error('Delete card failed!')
+    }
+
+    // general error
     throw new Error('Something went wrong! Please try later.')
   }
 }

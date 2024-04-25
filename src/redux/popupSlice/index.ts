@@ -27,7 +27,8 @@ const popupSlice = createSlice({
         members: undefined as IBoardMembers | undefined
       }
     },
-    PopupNotification: false
+    PopupNotification: false,
+    eventSource: 'menu'
   },
   reducers: {
     setPopupAddWS: (state, action) => {
@@ -49,7 +50,8 @@ const popupSlice = createSlice({
       state.PopupAddMemberToBoard = action.payload
     },
     setPopupNotification: (state, action) => {
-      state.PopupNotification = action.payload
+      state.PopupNotification = action.payload.PopupNotification
+      state.eventSource = action.payload.eventSource
     }
   }
 })

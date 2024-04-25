@@ -70,12 +70,12 @@ const MasterCalendar = () => {
     )
   }
   const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
-    console.log(value.format('YYYY-MM-DD'), mode)
+    // console.log(value.format('YYYY-MM-DD'), mode)
   }
 
   const handleDateSelect = (date: Dayjs) => {
     setSelectedDate(date)
-    console.log('Selected Date:', date.format('YYYY-MM-DD'))
+    // console.log('Selected Date:', date.format('YYYY-MM-DD'))
   }
   return (
     <div className="myTask-calendar">

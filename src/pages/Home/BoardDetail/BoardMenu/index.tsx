@@ -9,7 +9,8 @@ import { BoardMenuContainer, MenuBody, MenuHeader } from './style'
 import { IBoard, IMemberInBoard } from '~/services/types'
 
 import GeneralInfo from './GeneralInfo'
-import MembersInfo from './MembersInfo'
+// import MembersInfo from './MembersInfo' 22-04-2024 unused
+import DeleteProjectButton from './DeleteProjectButon'
 
 export default function BoardMenu({
   board,
@@ -33,6 +34,7 @@ export default function BoardMenu({
       <MenuBody>
         <GeneralInfo board={board} owner={owner} />
         {/* <MembersInfo /> */}
+        <DeleteProjectButton projectId={board._id} board={board} />
       </MenuBody>
     </BoardMenuContainer>
   )

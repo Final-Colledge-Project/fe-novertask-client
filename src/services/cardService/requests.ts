@@ -6,6 +6,7 @@ const requests = {
   updateCover: (id: string) => `/cards/${id}/upload-cover`,
   assignMember: (cardId: string, memberId: string) =>
     `/cards/${cardId}/assign-member/${memberId}`,
-  assignedToMe: '/cards/assigned-me'
+  assignedToMe: '/cards/assigned-me',
+  deleteCard: (id: string) => `/cards/${id}`
 }
 export default requests

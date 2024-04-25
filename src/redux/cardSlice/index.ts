@@ -15,6 +15,17 @@ const initialState: {
     success: boolean
   }
   cardsAssignedToMe: IAssignedCard[]
+  creatingCard: {
+    showFakeCard: boolean
+    title: string
+    columnId: string
+    readyToHide: boolean
+  }
+  deletingCard: {
+    loading: boolean
+    error: string | undefined
+    success: boolean
+  }
 } = {
   searchString: undefined,
   filter: {
@@ -25,7 +36,18 @@ const initialState: {
     error: undefined,
     success: false
   },
-  cardsAssignedToMe: []
+  cardsAssignedToMe: [],
+  creatingCard: {
+    showFakeCard: false,
+    title: '',
+    columnId: '',
+    readyToHide: false
+  },
+  deletingCard: {
+    loading: false,
+    error: undefined,
+    success: false
+  }
 }
 
 const cardSlice = createSlice({
@@ -37,6 +59,12 @@ const cardSlice = createSlice({
     },
     setFilter: (state, { payload }: { payload: IFilterOptions }) => {
       state.filter = { ...payload }
+    },
+    setCreatingCard: (state, { payload }) => {
+      state.creatingCard = { ...payload }
+    },
+    setDeletingCard: (state, { payload }) => {
+      state.deletingCard = { ...payload }
     }
   },
   extraReducers: (builder) => {
@@ -60,4 +88,4 @@ const cardSlice = createSlice({
 })
 
 export default cardSlice.reducer
-export const { setSearchString, setFilter } = cardSlice.actions
+export const { setSearchString, setFilter, setCreatingCard, setDeletingCard } = cardSlice.actions

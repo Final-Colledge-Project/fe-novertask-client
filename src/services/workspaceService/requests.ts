@@ -1,6 +1,7 @@
 const requests = {
   createWS: '/team-workspace',
   getMembers: (id: string) => `/team-workspace/${id}/members`,
-  assignAdmin: (id: string) => `/team-workspace/${id}/assign-admin`
+  assignAdmin: (id: string) => `/team-workspace/${id}/assign-admin`,
+  deleteWorkspace: (id: string) => `/team-workspace/${id}`
 }
 export default requests

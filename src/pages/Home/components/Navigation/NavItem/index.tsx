@@ -11,7 +11,8 @@ const NavItem = ({
   children,
   fullVisible,
   onClick,
-  isThin
+  isThin,
+  id
 }: IProps) => {
   const [menuVisible, setMenuVisible] = useState(false)
 
@@ -24,6 +25,7 @@ const NavItem = ({
   return (
     <div className="nav-item-container">
       <Button
+        id={id}
         onClick={() => {
           handleToggleMenu()
           if (onClick) onClick()

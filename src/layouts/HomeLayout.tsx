@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 const HomeLayout = () => {
   return (
     // <ClientProtectRoute>
-      <Outlet />
+    <Outlet />
     // </ClientProtectRoute>
   )
 }
