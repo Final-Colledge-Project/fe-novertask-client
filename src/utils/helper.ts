@@ -20,3 +20,17 @@ export const isDateInCountNextDays = (
     dayjs(targetDate).isBefore(sevenDaysLater.endOf('day'))
   )
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const convertToGoogleEvents = (events: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return events.map((event: any) => {
+    return {
+      id: event.id,
+      title: event.summary,
+      start: dayjs(event.start.dateTime).toDate(),
+      end: dayjs(event.end.dateTime).toDate(),
+      htmlLink: event.htmlLink
+    }
+  })
+}

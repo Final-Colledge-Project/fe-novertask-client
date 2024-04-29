@@ -2,7 +2,6 @@ import { Box } from '@mui/material'
 import { EventItem } from '~/services/types'
 import './style.scss'
 const AssignedTaskEvent = ({ event }: { event: EventItem }) => {
-  console.log('🚀 ~ AssignedTaskEvent ~ event:', event)
   return (
     <Box
       className="assignTaskEvent"
@@ -21,9 +20,7 @@ const AssignedTaskEvent = ({ event }: { event: EventItem }) => {
           {event?.start?.toLocaleString()}
         </Box>
       </Box>
-      <Box>
-
-      </Box>
+      <Box></Box>
     </Box>
   )
 }

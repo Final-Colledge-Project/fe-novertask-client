@@ -6,40 +6,143 @@ import CalendarItem from './CalendarItem'
 import { GoogleOutlined } from '@ant-design/icons'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { useDispatch, useSelector } from 'react-redux'
+import { useEffect, useMemo, useState } from 'react'
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
+import axios from 'axios'
+import { updateProviderToken } from '~/services/userService'
 import { StoreDispatchType, StoreType } from '~/redux'
-import {
-  getGoogleCalendar,
-  syncGoogleEvents
-} from '~/redux/scheduleSlice/action'
-import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { setGoogleCalendarEvents } from '~/redux/scheduleSlice'
+import { convertToGoogleEvents } from '~/utils/helper'
 interface IGeneralScheduleProps {
   date: Date
   setDate: (event: Date) => void
 }
 
 const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
-  const dispatch = useDispatch<StoreDispatchType>()
-  const currentUserInfo = useSelector((state: StoreType) => state.auth.userInfo)
-  console.log("🚀 ~ GeneralSchedule ~ currentUserInfo:", currentUserInfo)
-  const [isSynced, setIsSynced] = useState(false)
-  const handleSyncGoogleEvents = async () => {
-    try {
-      await dispatch(syncGoogleEvents(currentUserInfo?._id || ''))
-      // setIsSynced(true)
-    } catch (e) {
-      console.log(e)
-    }
+  const session = useSession() //tokens, when session exist => user is logged in
+  const supabase = useSupabaseClient()
+  const currentUser = useSelector((state: StoreType) => state.auth).userInfo
+  const [isLogin, setIsLogin] = useState(false)
+  const [isRetry, setIsRetry] = useState(false)
+  const [prevLogin, setPrevLogin] = useState(false)
 
-    // await dispatch(getGoogleCalendar())
+  const dispatch = useDispatch()
+  useEffect(() => {
+    const updateToken = async () => {
+      if (session?.provider_token) {
+        await await updateProviderToken({
+          providerToken: session?.provider_token,
+          providerRefreshToken: session?.provider_refresh_token || ''
+        })
+      }
+    }
+    updateToken()
+  }, [session])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    setPrevLogin(isLogin)
+    setIsLogin(false)
   }
 
-  // useEffect(() => {
-  //   if (isSynced) {
-  //     dispatch(getGoogleCalendar())
-  //   }
-  // }, [isSynced])
+  const handleLoginGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        scopes: 'https://www.googleapis.com/auth/calendar',
+        redirectTo: 'http://localhost:5173/u/my-tasks',
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
+      }
+    })
+    if (error) {
+      console.log('~~~~>error', error)
+    }
+  }
 
+  useEffect(() => {
+    if (session?.provider_token) {
+      console.log('~~~~>Runnhere - session', session)
+      setPrevLogin(isLogin)
+      setIsLogin(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    const getGoogleCalendar = async () => {
+      try {
+        const data = await axios.get(
+          'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+          {
+            headers: {
+              Authorization: `Bearer ${
+                session?.provider_token ||
+                currentUser?.providerToken.accessToken
+              }`
+            }
+          }
+        )
+        console.log('🚀 ~ getGoogleCalendar ~ data:', data?.data?.items)
+        if (data?.data?.items) {
+          console.log('~~~~~~~~~~~>Run Hereeeeeee')
+          dispatch(
+            setGoogleCalendarEvents(convertToGoogleEvents(data.data.item))
+          )
+        }
+      } catch (err) {
+        setIsRetry(true)
+      }
+    }
+    if (session?.provider_token) {
+      getGoogleCalendar()
+    }
+  }, [])
+
+  useEffect(() => {
+    const retryGetEvents = async () => {
+      try {
+        const response = await axios.post(
+          'https://oauth2.googleapis.com/token',
+          {
+            refresh_token: `${
+              session?.provider_refresh_token ||
+              currentUser?.providerToken.refreshToken
+            }`,
+            client_id:
+              '78989143522-7i3r9h2fcik6eeu2m3q8ecgqd8b39prj.apps.googleusercontent.com',
+            client_secret: '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',
+            grant_type: 'refresh_token'
+          }
+        )
+        if (response?.data?.access_token) {
+          const retryData = await axios.get(
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+            {
+              headers: {
+                Authorization: `Bearer ${response?.data?.access_token}`
+              }
+            }
+          )
+          if (retryData?.data?.items) {
+            dispatch(
+              setGoogleCalendarEvents(
+                convertToGoogleEvents(retryData.data.items)
+              )
+            )
+          }
+        }
+      } catch (err) {
+        console.log('~~~~>SignOut')
+        handleSignOut()
+      }
+    }
+    if (isRetry) {
+      retryGetEvents()
+    }
+  }, [isRetry])
   return (
     <div>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -56,13 +159,21 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
         <CalendarItem />
       </div>
       <div>
-        <Button
-          icon={<GoogleOutlined style={{ fontSize: '18px' }} />}
-          className="addCalendar-btn"
-          onClick={handleSyncGoogleEvents}
-        >
-          Connect Calendar
-        </Button>
+        {session ? (
+          <div>
+            <span>{session.user.email}</span>
+          </div>
+        ) : (
+          <div>
+            <Button
+              icon={<GoogleOutlined style={{ fontSize: '18px' }} />}
+              className="addCalendar-btn"
+              onClick={handleLoginGoogle}
+            >
+              Connect Calendar
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

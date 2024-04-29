@@ -6,6 +6,7 @@ const requests = {
   signOut: '/auth/logout',
   uploadImage: '/users/upload-avatar',
   updateUser: '/users',
-  changePassword: '/users/change-password'
+  changePassword: '/users/change-password',
+  updateProviderToken: '/users/provider-token'
 }
 export default requests

@@ -81,21 +81,6 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
     console.log('==========>events', events)
   }, [events])
 
-  // const events = [
-  //   {
-  //     start: dayjs('2024-04-01T10:00:00').toDate(),
-  //     end: dayjs('2024-04-01T11:00:00').toDate(),
-  //     title: 'MRI Registration'
-  //   }
-  // ]
-
-  // const { data: googleCalendar } = useQuery({
-  //   queryKey: [QUERY_KEY.google_calendar],
-  //   queryFn: () => {
-  //     return getGoogleCalendar()
-  //   },
-  //   refetchOnWindowFocus: false
-  // })
 
   return (
     <div className="myTask-calendar">
@@ -109,9 +94,6 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
         defaultView="week"
         events={events}
         localizer={localizer}
-        // onEventDrop={onEventDrop}
-        // onEventResize={onEventResize}
-        // resizable
         style={{ height: '80vh', marginTop: '10px' }}
         components={components}
         toolbar={false}
@@ -119,10 +101,7 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
         onView={setView}
         date={date}
         popup
-        // startAccessor={(event: object) => (event as Event).start as Date}
-        // endAccessor={(event: object) => (event as Event).end as Date}
       />
-      {/* <Calendar events={events} style={{ height: '100vh' }} /> */}
     </div>
   )
 }

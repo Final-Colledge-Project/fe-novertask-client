@@ -24,6 +24,10 @@ export interface IUser {
   lastName: string
   phone: string
   avatar: string
+  providerToken: {
+    accessToken: string
+    refreshToken: string
+  }
 }
 
 export interface IMockUser {
@@ -313,8 +317,8 @@ export interface EventItem {
 
 export interface IGoogleEvent {
   id: string
-  start: string
-  end: string
+  start: Date
+  end: Date
   summary: string
   htmlLink: string
 }
