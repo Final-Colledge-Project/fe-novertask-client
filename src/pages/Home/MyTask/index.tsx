@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import MasterCalendar from './MasterCalendar'
 import SchedulePanel from './SchedulePanel'
 import './style.scss'
-import { EventItem } from '~/services/types'
 import dayjs from 'dayjs'
+import useInitSchedule from '~/hooks/useInitSchedule'
 const MyTask = () => {
+  useInitSchedule()
   const [date, setDate] = useState<Date>(dayjs().toDate())
   return (
     <div className="schedule-container">

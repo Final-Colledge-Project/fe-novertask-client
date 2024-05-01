@@ -85,3 +85,10 @@ export const OPTION_VIEWS = {
   week: 'week',
   month: 'month'
 }
+
+export const TYPE_EVENT = {
+  assignedTask: 'assignedTask',
+  googleEvent: 'googleEvent'
+}
+
+export const FORMAT_DATE_TIME = 'MMM D (h:mm A)'

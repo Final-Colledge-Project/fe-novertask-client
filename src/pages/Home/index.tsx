@@ -17,12 +17,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getNotificationByUserId } from '~/redux/notiSlice/actions'
 import CardDetail from './CardDetail'
 import MyTask from './MyTask'
+import useInitSchedule from '~/hooks/useInitSchedule'
+import { getSchedules } from '~/redux/scheduleSlice/actions'
 
 const Home = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL
   const { user } = useSelector((state: StoreType) => state.user)
   const dispatch = useDispatch<StoreDispatchType>()
+
   useEffect(() => {
+    dispatch(getSchedules())
     const socket = socketIoClient(serverUrl)
     socket.on('connect', async function () {
       socket.emit('login', { userId: user?._id })

@@ -1,24 +1,24 @@
 import './style.scss'
-import { RiCalendarEventLine } from 'react-icons/ri'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { Calendar, dayjsLocalizer, Event, Views } from 'react-big-calendar'
-import withDragAndDrop, {
-  withDragAndDropProps
-} from 'react-big-calendar/lib/addons/dragAndDrop'
+import { Calendar, dayjsLocalizer, Views } from 'react-big-calendar'
+// import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import dayjs from 'dayjs'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useQuery } from '@tanstack/react-query'
-import { DATE_FORMAT, OPTION_VIEWS, QUERY_KEY } from '~/utils/constant'
+import { QUERY_KEY, TYPE_EVENT } from '~/utils/constant'
 import { cardAssignToMe } from '~/services/cardService'
-import { EventItem, ITaskEvent } from '~/services/types'
+import { EventItem } from '~/services/types'
 import AssignedTaskEvent from './Components/AssignedTaskEvent'
 import { useState, useEffect } from 'react'
-import { convertTaskEvent } from './helper'
-import { getGoogleCalendar } from '~/services/scheduleService'
+import { convertGoogleEvent, convertTaskEvent } from './helper'
 import ToolbarCalendar from './Components/ToolbarCalendar'
+import { useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import { uniqBy } from 'lodash'
+import GoogleEvent from './Components/GoogleEvent'
 const localizer = dayjsLocalizer(dayjs)
-const DnDCalendar = withDragAndDrop(Calendar)
+// const DnDCalendar = withDragAndDrop(Calendar)
 
 type Keys = keyof typeof Views
 
@@ -28,36 +28,21 @@ interface IMasterCalendarProps {
 }
 
 const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
+  console.log('🚀 ~ MasterCalendar ~ date:', date)
   const [events, setEvents] = useState<EventItem[]>([])
+  console.log('🚀 ~ MasterCalendar ~ events:', events)
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.MONTH)
-  const [contextMenuInfo, setContextMenuInfo] = useState<{
-    xPosition: number
-    yPosition: number
-    selectedTime: string
-    resourceId: number
-  }>()
-  // const onEventResize: withDragAndDropProps['onEventResize'] = (data) => {
-  //   const { start, end } = data
-
-  //   setEvents((currentEvents) => {
-  //     const firstEvent = {
-  //       start: new Date(start),
-  //       end: new Date(end)
-  //     }
-  //     return [...currentEvents, firstEvent]
-  //   })
-  // }
-
-  // const onEventDrop: withDragAndDropProps['onEventDrop'] = (data) => {
-  //   console.log(data)
-  // }
-
+  const { googleEvents } = useSelector((state: StoreType) => state.schedule)
+  const [assignedEvent, setAssignedEvent] = useState<EventItem[]>([])
+  const [googleEvent, setGoogleEvent] = useState<EventItem[]>([])
   const components = {
     event: ({ event }) => {
-      if (event) {
+      if (event && event.type === TYPE_EVENT.assignedTask) {
         return <AssignedTaskEvent event={event} />
       }
-      // return null
+      if (event && event.type === TYPE_EVENT.googleEvent) {
+        return <GoogleEvent event={event} />
+      }
     }
   }
 
@@ -72,15 +57,23 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
   useEffect(() => {
     if (assignedTask) {
       const newEvents = assignedTask?.data.map((task) => convertTaskEvent(task))
-      console.log('🚀 ~ useEffect ~ newEvents:', newEvents)
-      setEvents(newEvents)
+      setAssignedEvent((prev) => uniqBy([...prev, ...newEvents], 'id'))
     }
   }, [assignedTask])
 
   useEffect(() => {
-    console.log('==========>events', events)
-  }, [events])
+    if (googleEvents) {
+      const googleTask = googleEvents.map((event) => convertGoogleEvent(event))
+      console.log('🚀 ~ useEffect ~ googleTask:', googleTask)
+      setGoogleEvent(googleTask)
+    }
+  }, [googleEvents])
 
+  useEffect(() => {
+    const newEvents = [...assignedEvent, ...googleEvent]
+    console.log('🚀 ~ useEffect ~ newEvents:', newEvents)
+    setEvents(newEvents)
+  }, [assignedEvent, googleEvent])
 
   return (
     <div className="myTask-calendar">

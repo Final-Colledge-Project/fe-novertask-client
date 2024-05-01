@@ -1,16 +1,23 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { IGoogleEvent } from '~/services/types'
+import { IGoogleEvent, ISchedule } from '~/services/types'
+import { addSchedule, getSchedules, updateScheduleReducer } from './actions'
 
 const initialState: {
   loading: boolean
-  error: undefined | string
-  success: boolean
   googleEvents: IGoogleEvent[]
+  schedules: ISchedule[]
+  isFetching: boolean
+  updateSchedule: {
+    loading: boolean
+  }
 } = {
   loading: false,
-  error: undefined,
-  success: false,
-  googleEvents: []
+  googleEvents: [],
+  schedules: [],
+  isFetching: false,
+  updateSchedule: {
+    loading: false
+  }
 }
 
 const scheduleSlice = createSlice({
@@ -18,9 +25,39 @@ const scheduleSlice = createSlice({
   initialState,
   reducers: {
     setGoogleCalendarEvents: (state, { payload }) => {
-      console.log('🚀 ~ setGoogleCalendarEvents:', action)
       state.googleEvents = payload
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(getSchedules.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(getSchedules.fulfilled, (state, { payload }) => {
+      state.loading = false
+      state.schedules = payload as ISchedule[]
+      state.isFetching = true
+    })
+    builder.addCase(getSchedules.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(addSchedule.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(addSchedule.fulfilled, (state) => {
+      state.loading = false
+    })
+    builder.addCase(addSchedule.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(updateScheduleReducer.pending, (state) => {
+      state.updateSchedule.loading = true
+    })
+    builder.addCase(updateScheduleReducer.fulfilled, (state) => {
+      state.updateSchedule.loading = false
+    })
+    builder.addCase(updateScheduleReducer.rejected, (state) => {
+      state.updateSchedule.loading = false
+    })
   }
 })
 

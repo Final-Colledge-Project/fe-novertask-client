@@ -1,59 +1,176 @@
-import { Checkbox, theme, Row, Col, Divider, ColorPicker } from 'antd'
-import type { CheckboxProps } from 'antd'
-import { generate, green, presetPalettes, red } from '@ant-design/colors'
-import type { ColorPickerProps } from 'antd'
-type Presets = Required<ColorPickerProps>['presets'][number]
 import './style.scss'
-const CalendarItem = () => {
-  const onChange: CheckboxProps['onChange'] = (e) => {
-    console.log(`checked = ${e.target.checked}`)
+import { ISchedule } from '~/services/types'
+import { useState } from 'react'
+import { CheckboxChangeEvent } from 'antd/es/checkbox/Checkbox'
+import {
+  Box,
+  IconButton,
+  Input,
+  Popover,
+  TextField,
+  Typography
+} from '@mui/material'
+import { PiEyeLight } from 'react-icons/pi'
+import { Button, ColorPicker, Modal } from 'antd'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import schema from './formSchema'
+import { StoreDispatchType, StoreType } from '~/redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { updateSchedule } from '~/services/scheduleService'
+import { updateScheduleReducer } from '~/redux/scheduleSlice/actions'
+interface ICalendarItemProps {
+  schedule: ISchedule
+}
+
+interface IFormFields {
+  name: string
+}
+const CalendarItem = ({ schedule }: ICalendarItemProps) => {
+  const [colorHex, setColorHex] = useState<string>(schedule.color)
+  const { loading } = useSelector(
+    (state: StoreType) => state.schedule
+  ).updateSchedule
+  // console.log('🚀 ~ CalendarItem ~ isFetching:', isFetching)
+  const dispatch = useDispatch<StoreDispatchType>()
+  const handleChangeColor = (_, value: string) => {
+    setColorHex(value)
+  }
+  const formName = 'scheduleForm'
+  const form = useForm<IFormFields>({
+    defaultValues: {
+      name: schedule.name
+    },
+    mode: 'onSubmit',
+    resolver: yupResolver(schema),
+    reValidateMode: 'onBlur'
+  })
+
+  const { register, handleSubmit, formState, reset } = form
+  const { errors } = formState
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const showModal = () => {
+    setIsModalOpen(true)
   }
 
-  const genPresets = (presets = presetPalettes) =>
-    Object.entries(presets).map<Presets>(([label, colors]) => ({
-      label,
-      colors
-    }))
+  const handleCancel = () => {
+    reset()
+    setColorHex(schedule.color)
+    setIsModalOpen(false)
+  }
 
-  const HorizontalLayoutDemo = () => {
-    const { token } = theme.useToken()
-
-    const presets = genPresets({
-      primary: generate(token.colorPrimary),
-      red,
-      green
-    })
-
-    const customPanelRender: ColorPickerProps['panelRender'] = (
-      _,
-      { components: { Picker, Presets } }
-    ) => (
-      <Row justify="space-between" wrap={false}>
-        <Col span={12}>
-          <Presets />
-        </Col>
-        <Divider type="vertical" style={{ height: 'auto' }} />
-        <Col flex="auto">
-          <Picker />
-        </Col>
-      </Row>
+  const onSubmit = (data: IFormFields) => {
+    const { name } = data
+    dispatch(
+      updateScheduleReducer({
+        id: schedule._id,
+        data: { name, color: colorHex }
+      })
     )
-
-    return (
-      <ColorPicker
-        defaultValue={token.colorPrimary}
-        styles={{ popupOverlayInner: { width: 400 } }}
-        presets={presets}
-        panelRender={customPanelRender}
-        size="small"
-      />
-    )
+    setIsModalOpen(false)
   }
 
   return (
-    <div className="calendarItem">
-      <Checkbox onChange={onChange}>khiemld.0204@gmail.com</Checkbox>
-      <HorizontalLayoutDemo />
+    <div>
+      <Box
+        className="calendarItem"
+        sx={{
+          display: 'flex',
+          padding: '2px 4px',
+          borderRadius: '4px',
+          '&:hover': {
+            backgroundColor: '#f5f5f5',
+            cursor: 'pointer'
+          }
+        }}
+        onClick={showModal}
+      >
+        {/* <Checkbox onChange={onChange}>{schedule.name}</Checkbox>
+      <ColorPicker
+        format="hex"
+        value={colorHex}
+        onChange={handleChangeColor}
+        size="small"
+      /> */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px'
+          }}
+        >
+          <Box
+            sx={{
+              width: '16px',
+              height: '16px',
+              aspectRatio: '1',
+              borderRadius: '4px',
+              backgroundColor: schedule.color,
+              marginRight: '5px'
+            }}
+          ></Box>
+          <span>{schedule.name}</span>
+        </Box>
+        <IconButton aria-label="visible" size="small">
+          <PiEyeLight />
+        </IconButton>
+      </Box>
+      <Modal
+        title="Calendar Detail"
+        open={isModalOpen}
+        // onOk={handleOk}
+        onCancel={handleCancel}
+        footer={[
+          <Button
+            key={2}
+            onClick={handleCancel}
+            // className={classes.controlBtn}
+          >
+            Cancel
+          </Button>,
+          <Button
+            form={formName}
+            key={1}
+            type="primary"
+            onClick={handleSubmit(onSubmit)}
+            loading={loading}
+          >
+            Save
+          </Button>
+        ]}
+        width={400}
+        confirmLoading={loading}
+      >
+        <form
+          name={formName}
+          onSubmit={handleSubmit(onSubmit)}
+          style={{ width: '100%' }}
+        >
+          <Box className="formItem">
+            <Typography>Name:</Typography>
+            <TextField
+              sx={{
+                width: '100%',
+                '& .MuiInputLabel-root': { display: 'none' }
+              }}
+              size="small"
+              {...register('name')}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            ></TextField>
+          </Box>
+          <Box className="formItem">
+            <Typography>Color:</Typography>
+            <ColorPicker
+              format="hex"
+              value={colorHex}
+              onChange={handleChangeColor}
+              size="small"
+            />
+          </Box>
+        </form>
+      </Modal>
     </div>
   )
 }

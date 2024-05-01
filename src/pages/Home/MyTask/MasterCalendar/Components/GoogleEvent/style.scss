@@ -1,4 +1,4 @@
-.assignTaskEvent {
+.googleEvent {
   margin-bottom: 4px;
   margin-left: 4px !important;
   padding: 4px;
@@ -8,12 +8,13 @@
   align-items: center;
 }
 
-.assignTaskEvent__title {
+.googleEvent__title {
   font-weight: 600;
   font-size: 14px;
 }
 
-.assignTaskEvent__time {
+.googleEvent__time {
   font-size: 12px;
   margin-top: 4px;
+  color: #6a6a6b;
 }

@@ -1,7 +1,9 @@
 import dayjs from 'dayjs'
-import { EventItem, IAssignedCard } from '~/services/types'
+import { EventItem, IAssignedCard, IGoogleEvent } from '~/services/types'
+import { TYPE_EVENT } from '~/utils/constant'
 export const convertTaskEvent = (task: IAssignedCard): EventItem => {
   return {
+    id: task._id,
     start: dayjs(task.startDate || '').toDate(),
     end: task.dueDate
       ? dayjs(task.dueDate).toDate()
@@ -11,8 +13,19 @@ export const convertTaskEvent = (task: IAssignedCard): EventItem => {
         id: task._id,
         title: task.title
       }
-    }
+    },
+    type: TYPE_EVENT.assignedTask
+  }
+}
 
-    // isDraggable: true
+export const convertGoogleEvent = (event: IGoogleEvent): EventItem => {
+  return {
+    id: event.id,
+    start: event.start,
+    end: event.end,
+    data: {
+      googleEvent: event
+    },
+    type: TYPE_EVENT.googleEvent
   }
 }

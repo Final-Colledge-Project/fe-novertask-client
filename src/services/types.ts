@@ -306,19 +306,31 @@ export interface ITaskEvent {
 }
 
 export interface EventItem {
+  id: string
   start: Date
   end: Date
   data?: {
     assignedTask?: ITaskEvent
+    googleEvent?: IGoogleEvent
   }
+  type: string
   // title: string
-  isDraggable?: boolean
+  // isDraggable?: boolean
 }
 
 export interface IGoogleEvent {
   id: string
   start: Date
   end: Date
-  summary: string
+  title: string
   htmlLink: string
+}
+
+export interface ISchedule {
+  _id: string
+  userId: string
+  name: string
+  color: string
+  type: string
+  isActive: boolean
 }

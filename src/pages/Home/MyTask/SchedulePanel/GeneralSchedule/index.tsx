@@ -6,27 +6,28 @@ import CalendarItem from './CalendarItem'
 import { GoogleOutlined } from '@ant-design/icons'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import axios from 'axios'
 import { updateProviderToken } from '~/services/userService'
-import { StoreDispatchType, StoreType } from '~/redux'
+import { StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { setGoogleCalendarEvents } from '~/redux/scheduleSlice'
 import { convertToGoogleEvents } from '~/utils/helper'
+import utc from 'dayjs/plugin/utc'
+dayjs.extend(utc)
 interface IGeneralScheduleProps {
   date: Date
   setDate: (event: Date) => void
 }
 
 const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
+  console.log('🚀 ~ GeneralSchedule ~ date:', date)
   const session = useSession() //tokens, when session exist => user is logged in
   const supabase = useSupabaseClient()
   const currentUser = useSelector((state: StoreType) => state.auth).userInfo
-  const [isLogin, setIsLogin] = useState(false)
   const [isRetry, setIsRetry] = useState(false)
-  const [prevLogin, setPrevLogin] = useState(false)
-
+  const { schedules } = useSelector((state: StoreType) => state.schedule)
   const dispatch = useDispatch()
   useEffect(() => {
     const updateToken = async () => {
@@ -42,8 +43,6 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
-    setPrevLogin(isLogin)
-    setIsLogin(false)
   }
 
   const handleLoginGoogle = async () => {
@@ -64,14 +63,6 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
   }
 
   useEffect(() => {
-    if (session?.provider_token) {
-      console.log('~~~~>Runnhere - session', session)
-      setPrevLogin(isLogin)
-      setIsLogin(true)
-    }
-  }, [])
-
-  useEffect(() => {
     const getGoogleCalendar = async () => {
       try {
         const data = await axios.get(
@@ -82,24 +73,27 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
                 session?.provider_token ||
                 currentUser?.providerToken.accessToken
               }`
+            },
+            params: {
+              timeMin: dayjs(date).subtract(34, 'day').toISOString(),
+              timeMax: dayjs(date).add(34, 'day').toISOString(),
+              singleEvents: true
             }
           }
         )
-        console.log('🚀 ~ getGoogleCalendar ~ data:', data?.data?.items)
         if (data?.data?.items) {
-          console.log('~~~~~~~~~~~>Run Hereeeeeee')
           dispatch(
-            setGoogleCalendarEvents(convertToGoogleEvents(data.data.item))
+            setGoogleCalendarEvents(convertToGoogleEvents(data.data.items))
           )
         }
       } catch (err) {
         setIsRetry(true)
       }
     }
-    if (session?.provider_token) {
+    if (session) {
       getGoogleCalendar()
     }
-  }, [])
+  }, [date])
 
   useEffect(() => {
     const retryGetEvents = async () => {
@@ -123,6 +117,11 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
             {
               headers: {
                 Authorization: `Bearer ${response?.data?.access_token}`
+              },
+              params: {
+                timeMin: dayjs(date).subtract(34, 'day').toISOString(),
+                timeMax: dayjs(date).add(34, 'day').toISOString(),
+                singleEvents: true
               }
             }
           )
@@ -135,28 +134,28 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
           }
         }
       } catch (err) {
-        console.log('~~~~>SignOut')
         handleSignOut()
       }
     }
     if (isRetry) {
       retryGetEvents()
     }
-  }, [isRetry])
+  }, [isRetry, date])
+
   return (
     <div>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateCalendar
-          value={dayjs.utc(date)}
+          value={dayjs(date)}
           onChange={(newValue) => setDate(newValue)}
         />
       </LocalizationProvider>
       <Divider style={{ margin: 0, border: '0.5px solid #E5E5EA' }} />
       <div className="myCalendar">
         <div style={{ fontSize: '16px', fontWeight: '500' }}>My Calendars</div>
-        <CalendarItem />
-        <CalendarItem />
-        <CalendarItem />
+        {(schedules || []).map((item) => (
+          <CalendarItem schedule={item} />
+        ))}
       </div>
       <div>
         {session ? (

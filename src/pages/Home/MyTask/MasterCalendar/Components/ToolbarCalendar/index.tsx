@@ -2,7 +2,7 @@ import IconButton from '@mui/material/IconButton'
 import { RiArrowLeftSLine } from 'react-icons/ri'
 import { RiArrowRightSLine } from 'react-icons/ri'
 import './style.scss'
-import { Button, Dropdown, Space } from 'antd'
+import { Dropdown, Space } from 'antd'
 import { RiArrowDownSLine } from 'react-icons/ri'
 import { RiCalendarLine } from 'react-icons/ri'
 import { RiAddCircleLine } from 'react-icons/ri'
@@ -12,6 +12,8 @@ import { capitalize } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { Views } from 'react-big-calendar'
 import dayjs from 'dayjs'
+import Button from '@mui/material/Button'
+import { MenuItem, Select } from '@mui/material'
 interface ToolbarCalendarProps {
   setView: (view: 'day' | 'week' | 'month' | 'work_week' | 'agenda') => void
   view: 'day' | 'week' | 'month' | 'work_week' | 'agenda'
@@ -71,7 +73,7 @@ const ToolbarCalendar = ({
     <div className="toolbarCalendar">
       <div className="toolbarCalendar__left">
         <div className="toolbar__views">
-          <Dropdown
+          {/* <Dropdown
             menu={{ items, selectable: true, onClick }}
             placement="bottom"
             trigger={['click']}
@@ -83,9 +85,30 @@ const ToolbarCalendar = ({
                 <RiArrowDownSLine style={{ fontSize: '16px' }} />
               </Space>
             </Button>
-          </Dropdown>
+          </Dropdown> */}
+          <Select
+            value={view}
+            onChange={(e) => {
+              setView(
+                e.target.value as
+                  | 'day'
+                  | 'week'
+                  | 'month'
+                  | 'work_week'
+                  | 'agenda'
+              )
+            }}
+            size="small"
+          >
+            {items.map((item, index) => (
+              <MenuItem key={index} value={item.key}>
+                {item.label}
+              </MenuItem>
+            ))}
+          </Select>
         </div>
         <Button
+          variant="outlined"
           className="toolbar_today"
           onClick={() => {
             setDate(dayjs().toDate())
@@ -107,17 +130,16 @@ const ToolbarCalendar = ({
       </div>
       <div className="toolbarCalendar__right">
         <Button
-          className="toolbar-btn meeting-btn"
-          icon={<RiVideoAddLine style={{ fontSize: '16px' }} />}
+          variant="outlined"
+          startIcon={<RiVideoAddLine style={{ fontSize: '16px' }} />}
         >
           <span>New Meeting</span>
         </Button>
         <Button
-          type="primary"
-          className="toolbar-btn"
-          icon={<RiAddCircleLine className="toolbar-icon" />}
+          variant="contained"
+          startIcon={<RiAddCircleLine className="toolbar-icon" />}
         >
-          <span>Add Event</span>
+          Add event
         </Button>
       </div>
     </div>
