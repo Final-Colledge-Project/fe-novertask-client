@@ -1,6 +1,6 @@
 import { DateCalendar } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
-import { Button, Divider } from 'antd'
+import { Avatar, Button, Divider } from 'antd'
 import './style.scss'
 import CalendarItem from './CalendarItem'
 import { GoogleOutlined } from '@ant-design/icons'
@@ -10,11 +10,14 @@ import { useEffect, useState } from 'react'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import axios from 'axios'
 import { updateProviderToken } from '~/services/userService'
-import { StoreType } from '~/redux'
+import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { setGoogleCalendarEvents } from '~/redux/scheduleSlice'
 import { convertToGoogleEvents } from '~/utils/helper'
 import utc from 'dayjs/plugin/utc'
+import { TYPE_EVENT } from '~/utils/constant'
+import { addSchedule } from '~/redux/scheduleSlice/actions'
+import { Chip } from '@mui/material'
 dayjs.extend(utc)
 interface IGeneralScheduleProps {
   date: Date
@@ -22,13 +25,17 @@ interface IGeneralScheduleProps {
 }
 
 const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
-  console.log('🚀 ~ GeneralSchedule ~ date:', date)
   const session = useSession() //tokens, when session exist => user is logged in
+  const { user } = session || {}
+  console.log('🚀 ~ GeneralSchedule ~ session:', session)
   const supabase = useSupabaseClient()
   const currentUser = useSelector((state: StoreType) => state.auth).userInfo
   const [isRetry, setIsRetry] = useState(false)
   const { schedules } = useSelector((state: StoreType) => state.schedule)
-  const dispatch = useDispatch()
+  const calendarSchedule = schedules?.find(
+    (itme) => itme.type === TYPE_EVENT.googleEvent
+  )
+  const dispatch = useDispatch<StoreDispatchType>()
   useEffect(() => {
     const updateToken = async () => {
       if (session?.provider_token) {
@@ -59,6 +66,15 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
     })
     if (error) {
       console.log('~~~~>error', error)
+    } else {
+      if (!calendarSchedule) {
+        dispatch(
+          addSchedule({
+            name: 'Google Calendar',
+            type: TYPE_EVENT.googleEvent
+          })
+        )
+      }
     }
   }
 
@@ -159,9 +175,13 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
       </div>
       <div>
         {session ? (
-          <div>
-            <span>{session.user.email}</span>
-          </div>
+          <Chip
+            avatar={
+              <Avatar alt="Natacha" src={user?.user_metadata?.avatar_url} />
+            }
+            label={user?.email}
+            variant="outlined"
+          />
         ) : (
           <div>
             <Button

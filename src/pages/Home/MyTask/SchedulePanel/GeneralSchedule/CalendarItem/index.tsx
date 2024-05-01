@@ -1,15 +1,7 @@
 import './style.scss'
 import { ISchedule } from '~/services/types'
 import { useState } from 'react'
-import { CheckboxChangeEvent } from 'antd/es/checkbox/Checkbox'
-import {
-  Box,
-  IconButton,
-  Input,
-  Popover,
-  TextField,
-  Typography
-} from '@mui/material'
+import { Box, IconButton, TextField, Typography } from '@mui/material'
 import { PiEyeLight } from 'react-icons/pi'
 import { Button, ColorPicker, Modal } from 'antd'
 import { useForm } from 'react-hook-form'
@@ -17,7 +9,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import schema from './formSchema'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateSchedule } from '~/services/scheduleService'
 import { updateScheduleReducer } from '~/redux/scheduleSlice/actions'
 interface ICalendarItemProps {
   schedule: ISchedule
@@ -86,13 +77,6 @@ const CalendarItem = ({ schedule }: ICalendarItemProps) => {
         }}
         onClick={showModal}
       >
-        {/* <Checkbox onChange={onChange}>{schedule.name}</Checkbox>
-      <ColorPicker
-        format="hex"
-        value={colorHex}
-        onChange={handleChangeColor}
-        size="small"
-      /> */}
         <Box
           sx={{
             display: 'flex',
