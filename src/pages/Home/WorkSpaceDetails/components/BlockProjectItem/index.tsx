@@ -2,8 +2,12 @@ import clsx from 'clsx'
 import { useNavigate } from 'react-router-dom'
 
 // component libraries
+/*
+22-04-2024 unused
 import IconButton from '@mui/material/IconButton'
 import { RiFlagLine, RiMore2Fill } from 'react-icons/ri'
+*/
+import { RiFlagLine } from 'react-icons/ri'
 import { Tooltip } from '@mui/material'
 import { BsPerson } from 'react-icons/bs'
 
@@ -32,8 +36,10 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
           <div className="item-header__title">
             <Tooltip title={'This board is ' + data.type} placement="top">
               <div
-                className={clsx('circle', data.type === 'private' && 'private')}
-              >
+                className={clsx(
+                  'circle',
+                  data.type === 'private' && 'private'
+                )}>
                 {data.type}
               </div>
             </Tooltip>

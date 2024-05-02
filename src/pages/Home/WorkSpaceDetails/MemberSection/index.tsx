@@ -5,7 +5,7 @@ import { enqueueSnackbar } from 'notistack'
 import clsx from 'clsx'
 
 // component libraries
-import { Button, IconButton } from '@mui/material'
+import { Button, IconButton, Typography } from '@mui/material'
 import { RiArrowLeftSLine } from 'react-icons/ri'
 
 // components
@@ -17,6 +17,7 @@ import { setPopupInvitePeople } from '~/redux/popupSlice'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { getAllMembers } from '~/redux/teamWSSlice/actions'
 import { resetAssignAdmin } from '~/redux/teamWSSlice'
+import ConfirmDialog from '~/components/dialog/ConfirmDialog'
 
 const MemberSection = () => {
   const tabHeaderTitle = [
@@ -47,6 +48,11 @@ const MemberSection = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch<StoreDispatchType>()
   const [tab, setTab] = useState('all')
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false)
+  const [deletedMember, setDeletedMember] = useState<{
+    id: string
+    fullname: string
+  }>({})
 
   const { userInfo } = useSelector((state: StoreType) => state.auth)
 
@@ -95,6 +101,20 @@ const MemberSection = () => {
 
   const checkIsCurrentUserAnSuperAdmin = () => {
     return superAdmin()?.user?._id === userInfo?._id
+  }
+
+  const toggleConfirmDialogDeleteMember = () => {
+    setOpenConfirmDialog((prev) => !prev)
+  }
+
+  const handleOnDeleteMember = (id: string) => {
+    const deletedMember = members?.workspaceMembers.find(
+      (m) => m.user?._id === id
+    )
+    if (deletedMember) {
+      setDeletedMember({ id: id, fullname: deletedMember.user?.fullName || '' })
+      toggleConfirmDialogDeleteMember()
+    }
   }
 
   return (
@@ -164,6 +184,7 @@ const MemberSection = () => {
                 key={mem.user?._id}
                 data={{ ...mem, role: 'member' }}
                 superAdminId={superAdmin()?.user?._id || ''}
+                onDelete={handleOnDeleteMember}
               />
             ))}
           {/* show placeholder */}
@@ -177,6 +198,23 @@ const MemberSection = () => {
           )}
         </BoardBody>
       </Board>
+      <ConfirmDialog
+        open={openConfirmDialog}
+        title="Are you sure?"
+        content={
+          <p>
+            Do you want to delete{' '}
+            <Typography display={'inline'} fontWeight={600} color="error">
+              {deletedMember.fullname}
+            </Typography>{' '}
+            from this workspace?
+          </p>
+        }
+        onConfirm={() => {
+          alert('confirm')
+        }}
+        onClose={toggleConfirmDialogDeleteMember}
+      />
     </Container>
   )
 }

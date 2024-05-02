@@ -28,8 +28,6 @@ import {
 import { RiArrowUpSLine, RiQuestionLine } from 'react-icons/ri'
 
 //component
-import SearchBox from '~/components/SearchBox'
-import ColumnMenu from '../components/ColumnMenu'
 import ToggleViewButton from '../../components/ToggleViewButton'
 import LoadingSkeleton from '../../components/LoadingSkeleton'
 import BlockItem from '../components/BlockProjectItem'
@@ -240,8 +238,7 @@ const OverviewSection = () => {
                 variant="contained"
                 color="primary"
                 sx={{ p: '2px 8px' }}
-                onClick={() => handleShowAddPJPopup()}
-              >
+                onClick={() => handleShowAddPJPopup()}>
                 Create new
               </Button>
             )}
@@ -258,8 +255,7 @@ const OverviewSection = () => {
               variant="text"
               color="primary"
               sx={{ p: '2px 8px' }}
-              onClick={() => navigate('members')}
-            >
+              onClick={() => navigate('members')}>
               See all
             </Button>
           </div>
@@ -276,8 +272,7 @@ const OverviewSection = () => {
                     <AdminTooltip
                       title={'Super admin | ' + superAdmin()?.user?.fullName}
                       arrow
-                      key={superAdmin()?.user?._id}
-                    >
+                      key={superAdmin()?.user?._id}>
                       <Avatar
                         alt={superAdmin()?.user?.fullName}
                         src={superAdmin()?.user?.avatar}
@@ -295,8 +290,7 @@ const OverviewSection = () => {
                         mem.role === 'admin' && (
                           <Tooltip
                             title={mem.user?.fullName}
-                            key={mem.user?._id}
-                          >
+                            key={mem.user?._id}>
                             <Avatar
                               key={mem.user?._id}
                               alt={mem.user?.fullName}
@@ -315,8 +309,7 @@ const OverviewSection = () => {
                         mem.user && (
                           <Tooltip
                             title={mem.user?.fullName}
-                            key={mem.user?._id}
-                          >
+                            key={mem.user?._id}>
                             <Avatar
                               key={mem.user?._id}
                               alt={mem.user?.fullName}
@@ -342,8 +335,7 @@ const OverviewSection = () => {
                       backgroundImage:
                         'linear-gradient(45deg, #0B84FF -15.23%, #0040DD 102.22%);'
                     }
-                  }}
-                >
+                  }}>
                   Invite new people
                 </Button>
               )}
@@ -362,8 +354,7 @@ const OverviewSection = () => {
                   <Tooltip
                     title={
                       'You only see the projects you have access to or public projects'
-                    }
-                  >
+                    }>
                     <div className="icon">
                       <RiQuestionLine />
                     </div>
@@ -388,8 +379,7 @@ const OverviewSection = () => {
                 <LineTitleItem
                   active={viewState.sortBy === 'name'}
                   isAsc={viewState.sortBy === 'name' ? viewState.isAsc : true}
-                  onClick={() => handleChangeSort('name')}
-                >
+                  onClick={() => handleChangeSort('name')}>
                   <p>Name</p>
                   <div className="icon">
                     <IconButton aria-label="sort">
@@ -405,8 +395,7 @@ const OverviewSection = () => {
                   isAsc={
                     viewState.sortBy === 'createdAt' ? viewState.isAsc : true
                   }
-                  onClick={() => handleChangeSort('createdAt')}
-                >
+                  onClick={() => handleChangeSort('createdAt')}>
                   <p>Created at</p>
                   <div className="icon">
                     <IconButton aria-label="sort">
@@ -420,8 +409,7 @@ const OverviewSection = () => {
                   isAsc={
                     viewState.sortBy === 'dueDate' ? viewState.isAsc : true
                   }
-                  onClick={() => handleChangeSort('dueDate')}
-                >
+                  onClick={() => handleChangeSort('dueDate')}>
                   <p>Due date</p>
                   <div className="icon">
                     <IconButton aria-label="sort">

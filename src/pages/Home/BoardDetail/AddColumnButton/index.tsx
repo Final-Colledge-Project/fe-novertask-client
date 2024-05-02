@@ -3,7 +3,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 // component libraries
 import MuiButton from '@mui/material/Button'
@@ -24,6 +24,8 @@ import IFormFields from './IFormFields'
 import schema from './formSchema'
 import { createColumn } from '~/services/columnService'
 import { setCreateColumn } from '~/redux/boardSlice'
+import { setFakeColumn } from '~/redux/columnSlice'
+import { StoreType } from '~/redux'
 
 const AddColumnButton = ({
   addingColumn,
@@ -36,8 +38,19 @@ const AddColumnButton = ({
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const dispatch = useDispatch()
+  const columnStore = useSelector((store: StoreType) => store.column)
 
   useEffect(() => {
+    focusAndScroll()
+  }, [addingColumn])
+
+  useEffect(() => {
+    if (columnStore.fakeColumn.readyToHide) {
+      focusAndScroll()
+    }
+  }, [columnStore.fakeColumn.readyToHide])
+
+  const focusAndScroll = () => {
     if (inputRef.current && addingColumn === true) {
       if (inputRef.current.parentElement?.parentElement?.parentElement) {
         const scrollElement =
@@ -51,7 +64,7 @@ const AddColumnButton = ({
       }
       inputRef.current.focus({ preventScroll: true })
     }
-  }, [addingColumn])
+  }
 
   const handleFocus = () => {
     if (inputRef.current) {
@@ -88,13 +101,20 @@ const AddColumnButton = ({
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     try {
+      dispatch(
+        setFakeColumn({
+          title: data.name,
+          show: true,
+          readyToHide: false
+        })
+      )
+      reset()
       const res = await createColumn({ title: data.name, boardId })
       if (res) {
-        // enqueueSnackbar('Add column successfully', { variant: 'success' })
         dispatch(setCreateColumn({ success: true }))
-        handleClose()
       }
     } catch (err) {
+      dispatch(setCreateColumn({ error: true }))
       const message = (err as AxiosError).message
       enqueueSnackbar(message, { variant: 'error' })
     }

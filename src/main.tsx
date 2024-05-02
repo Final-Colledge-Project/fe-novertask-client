@@ -64,8 +64,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     warning: StyledMaterialDesignContent
                   }}
                   autoHideDuration={4000}
-                  TransitionComponent={Slide}
-                >
+                  TransitionComponent={Slide}>
                   <App />
                 </SnackbarProvider>
               </SessionContextProvider>

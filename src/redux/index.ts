@@ -10,6 +10,8 @@ import navReducer from './navSlice'
 import notiReducer from './notiSlice'
 import cardReducer from './cardSlice'
 import scheduleReducer from './scheduleSlice'
+import columnReducer from './columnSlice'
+import systemReducer from './systemSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -22,7 +24,9 @@ const store = configureStore({
     nav: navReducer,
     notification: notiReducer,
     card: cardReducer,
-    schedule: scheduleReducer
+    schedule: scheduleReducer,
+    column: columnReducer,
+    system: systemReducer
   }
 })
 

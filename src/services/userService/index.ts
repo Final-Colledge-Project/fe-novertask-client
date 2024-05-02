@@ -140,6 +140,7 @@ export const updateAvatar = async (data: IUploadAvatarBody) => {
     }
 
     if (status && status === 500) {
+      return
       const errorData: IErrorResponse = (error as AxiosError).response
         ?.data as IErrorResponse
 

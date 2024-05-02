@@ -18,65 +18,65 @@ export const BoardDetailContainer = styled.div`
     background-color: var(--mui-palette-gray3-main);
   }
 `
-export const Header = styled.div<{ $img: string }>`
-  /* width: calc(100% - 0px); */
-  height: 100px;
-  background-image: url(${(props) => props.$img}), url('/img/item-cover.jpg'),
-    linear-gradient(191deg, #ff6482 23.33%, #d20f44 107.81%);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  color: var(--mui-palette-white-main);
-  position: relative;
-  transform: scaleY(1);
-  transition: transform 0.2s, height 0.2s;
-  transform-origin: top;
 
-  &.hidden {
-    height: 0px;
-    transform: scaleY(0);
-  }
-
-  & > .show-header {
-    cursor: pointer;
-    position: absolute;
-    bottom: 10px;
-    right: 20px;
-    background-color: rgba(var(--mui-palette-black-mainChannel) / 0.2);
-    padding: 4px 12px;
-    font-size: 12px;
-    border-radius: 8px;
-    transition: border 0.2s;
-    border: 1px solid rgba(var(--mui-palette-black-mainChannel) / 0.2);
-    &:hover {
-      border: 1px solid var(--mui-palette-white-main);
-    }
-  }
-`
-
-export const TitleHeader = styled.div`
+export const TitleHeader = styled.div<{ $img: string | undefined }>`
   background-color: var(--mui-palette-white-main);
   justify-content: space-between;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   padding: 10px 30px 0;
+
   /* padding-top: 10px; */
   & > .left-block {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    gap: 8px;
+
+    .breadcrumb__item {
+      color: var(--mui-palette-black-main);
+      text-decoration: none;
+      &:hover {
+        color: var(--mui-palette-blue-main);
+      }
+    }
+
+    .board-info {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .board-avatar {
+      width: 25px;
+      height: 25px;
+      border-radius: 4px;
+      background-color: var(--mui-palette-gray-main);
+      background-image: url(${(props) => props.$img}),
+        url('/img/item-cover.jpg');
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    .title-container {
+      display: flex;
+      align-items: center;
+    }
+
     .title {
       color: var(--mui-palette-blue-main);
       font-weight: 700;
-      font-size: 20px;
+      font-size: 18px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      margin-right: 8px;
     }
+
     .description {
-      font-size: 14px;
+      font-size: 12px;
       color: var(--mui-palette-gray-main);
-      height: 20px;
+      margin-top: -4px;
     }
   }
 
@@ -87,14 +87,21 @@ export const TitleHeader = styled.div`
   }
 `
 
+export const Divider = styled.div`
+  width: 100%;
+  height: 1px;
+  margin: 8px 30px;
+  background-color: var(--mui-palette-divider);
+`
+
 export const TypeHeader = styled.div`
   /* width: 100%; */
   background-color: var(--mui-palette-white-main);
   justify-content: space-between;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   border-bottom: 1px solid var(--mui-palette-divider);
-  padding: 0px 30px 10px;
+  padding: 0px 30px 8px;
 `
 export const TypeMenu = styled.div`
   display: flex;
@@ -106,6 +113,8 @@ export const TypeItem = styled.div`
   cursor: pointer;
   transition: color 0.15s;
   position: relative;
+  font-size: 14px;
+
   &::after {
     transform-origin: left;
     transition: color 0.15s, transform 0.15s;
@@ -167,11 +176,17 @@ export const MemberAvatarGroup = ({ children }: { children: ReactNode }) => (
       '& .MuiAvatar-root:last-child': {
         ml: '-8px'
       }
-    }}
-  >
+    }}>
     {children}
   </AvatarGroup>
 )
+
+export const MemberCountLabel = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+`
 
 export const Body = styled.div`
   flex: 1;
@@ -215,13 +230,13 @@ export const OrangeTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))`
   & .MuiTooltip-tooltip {
-    background: #FF9500;
+    background: #ff9500;
   }
 
   & .MuiTooltip-arrow {
     /* top: -10px !important; */
     &::before {
-      background: #FF9500;
+      background: #ff9500;
     }
   }
 `

@@ -71,7 +71,6 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
     setEvents(newEvents)
   }, [assignedEvent, googleEvent, view])
 
-
   return (
     <div className="myTask-calendar">
       <ToolbarCalendar

@@ -3,6 +3,7 @@ import { ReactElement, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { getCurrentUser } from '~/redux/authSlice/actions'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
 
 const ClientProtectRoute = ({
   children
@@ -18,17 +19,24 @@ const ClientProtectRoute = ({
   const dispatch = useDispatch<StoreDispatchType>()
 
   useEffect(() => {
-
     const getUser = async () => {
       // there is token but no info  -> get user info
       if (userToken && !userInfo) {
-        await dispatch(getCurrentUser())
+        dispatch(showLoading())
+
+        try {
+          await dispatch(getCurrentUser())
+        } catch (err) {
+          // handling error
+        } finally {
+          dispatch(hideLoading())
+        }
       }
     }
 
     getUser()
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo, userToken])
 
   // token is not found || refresh token is invalid -> sign in again

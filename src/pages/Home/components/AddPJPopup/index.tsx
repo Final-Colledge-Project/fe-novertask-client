@@ -167,7 +167,6 @@ const AddPJPopup = () => {
           </div>
           <div
             className="add-pj-popup__input-row"
-            onClickCapture={(e) => console.log(e.target)}
           >
             <WithController name="description" control={control}>
               <TextInput label="Description" multiple row={3} />

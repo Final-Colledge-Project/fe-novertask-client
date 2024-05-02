@@ -9,4 +9,5 @@ export default interface IProps {
   fullVisible: boolean
   children?: ReactNode | ReactNode[]
   onClick?: () => void
+  id?: string
 }

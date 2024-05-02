@@ -41,7 +41,7 @@ const SignIn = () => {
     await dispatch(signIn(formData))
   }
 
-  console.log('import.meta.env.GOOGLE_IMAGE_ICON', GOOGLE_IMAGE_ICON)
+  // console.log('import.meta.env.GOOGLE_IMAGE_ICON', GOOGLE_IMAGE_ICON)
   return (
     <div className="signin-container">
       <div className="signin-text">

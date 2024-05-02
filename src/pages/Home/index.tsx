@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import Navigation from './components/Navigation'
 import HomeLayout from '~/layouts/HomeLayout'
 import './style.scss'
@@ -31,8 +31,8 @@ const Home = () => {
     socket.on('connect', async function () {
       socket.emit('login', { userId: user?._id })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      socket.on('message', function (data: any) {
-        console.log('Received message:', data)
+      socket.on('message', function (_data: any) {
+        // console.log('Received message:', data)
       })
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,6 +48,10 @@ const Home = () => {
       <div className="home-outlet">
         <Routes>
           <Route element={<HomeLayout />}>
+            <Route
+              element={<Navigate to={'/error/404'} />}
+              path="*"
+            ></Route>
             <Route element={<Dashboard />} index />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />

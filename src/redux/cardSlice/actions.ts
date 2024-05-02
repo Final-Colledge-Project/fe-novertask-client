@@ -1,6 +1,5 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { cardAssignToMe } from '~/services/cardService';
-
+import { createAsyncThunk } from '@reduxjs/toolkit'
+import { cardAssignToMe } from '~/services/cardService'
 
 export const getTaskAssignedToMe = createAsyncThunk(
   'card/getTaskAssignedToMe',

@@ -1,8 +1,7 @@
-import { useEffectOnce } from 'usehooks-ts'
 import { useNavigate, useParams } from 'react-router-dom'
 import { enqueueSnackbar } from 'notistack'
 import { AxiosError } from 'axios'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useState } from 'react'
 
@@ -88,7 +87,7 @@ const Invitation = () => {
     }
   }, [currentUser?._id, invitation])
 
-  useEffectOnce(() => {
+  useEffect(() => {
     const getData = async () => {
       try {
         const res = await getDetail({ id: id as string })
@@ -108,7 +107,7 @@ const Invitation = () => {
       }
     }
     getData()
-  })
+  }, [])
 
   const handleRespondInvitation = (isAccepted: boolean) => {
     const respond = async () => {

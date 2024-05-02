@@ -10,9 +10,7 @@ export default function MembersInfo() {
       </AccordionSummary>
       <AccordionDetails>
         <ListContainer>
-          <ListHeader>
-            
-          </ListHeader>
+          <ListHeader></ListHeader>
         </ListContainer>
       </AccordionDetails>
     </Accordion>

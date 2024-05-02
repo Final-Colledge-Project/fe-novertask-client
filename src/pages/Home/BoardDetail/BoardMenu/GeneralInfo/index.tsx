@@ -70,7 +70,6 @@ export default function GeneralInfo({
     reset,
     setValue,
     formState,
-    getValues,
     setError
   } = useForm<IFormFields>({
     defaultValues: {
@@ -272,7 +271,7 @@ export default function GeneralInfo({
                 )}`}
 
               {dateError === 'invalidDate' &&
-                `Mus be in the format YYYY-MM-DD HH:mm`}
+                `Must be in the format YYYY-MM-DD HH:mm`}
             </p>
           </Input>
 
@@ -311,7 +310,6 @@ export default function GeneralInfo({
               <Button
                 variant="contained"
                 type="submit"
-                onClick={() => console.log(getValues())}
               >
                 Save
               </Button>

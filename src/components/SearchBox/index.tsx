@@ -31,8 +31,7 @@ const SearchBox = ({
           }
         },
         ...sx
-      }}
-    >
+      }}>
       <InputLabel htmlFor={`outlined-adornment-${label}`}>{label}</InputLabel>
       <OutlinedInput
         error={error}
@@ -40,6 +39,7 @@ const SearchBox = ({
         onChange={onChange}
         placeholder={placeHolder}
         id={`outlined-adornment-${label}`}
+        size='small'
         sx={{
           'input::-ms-reveal, input::-ms-clear': {
             display: 'none'
@@ -61,8 +61,7 @@ const SearchBox = ({
                 width: '100%',
                 height: '100%'
               }
-            }}
-          >
+            }}>
             <RiSearchLine />
           </InputAdornment>
         }

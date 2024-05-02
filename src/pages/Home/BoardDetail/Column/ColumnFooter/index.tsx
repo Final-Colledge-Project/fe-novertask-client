@@ -3,7 +3,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import clsx from 'clsx'
 
 // component libraries
@@ -18,11 +18,14 @@ import IFormFields from './IFormFields'
 import schema from './formSchema'
 import { setCreateColumn } from '~/redux/boardSlice'
 import { createCard } from '~/services/cardService'
+import { setCreatingCard } from '~/redux/cardSlice'
+import { StoreType } from '~/redux'
 
 const ColumnFooter = ({ columnId }: { columnId: string }) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const dispatch = useDispatch()
   const [isAddingCard, setIsAddingCard] = useState(false)
+  const cardStore = useSelector((store: StoreType) => store.card)
 
   const handleFocus = () => {
     setIsAddingCard(true)
@@ -58,19 +61,46 @@ const ColumnFooter = ({ columnId }: { columnId: string }) => {
     }
   })
 
+  /*
+    1. when creating card, add a fake card to the column to improve ux
+    2. when card create successfully, reload data (cards)
+    3. then fake card will be removed
+  */
+  useEffect(() => {
+    if (cardStore.creatingCard.readyToHide) {
+      dispatch(
+        setCreatingCard({
+          showFakeCard: false,
+          title: '',
+          columnId: '',
+          readyToHide: false
+        })
+      )
+    }
+  }, [cardStore.creatingCard.readyToHide])
+
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     try {
+      reset()
+      dispatch(
+        setCreatingCard({
+          showFakeCard: true,
+          title: data.name,
+          columnId,
+          readyToHide: false
+        })
+      )
       const res = await createCard({
         title: data.name,
         columnId: columnId
       })
       if (res) {
         dispatch(setCreateColumn({ success: true }))
-        handleClose()
       }
     } catch (err) {
       const message = (err as AxiosError).message
       enqueueSnackbar(message, { variant: 'error' })
+      dispatch(setCreateColumn({ errorr: true }))
     }
   }
 
