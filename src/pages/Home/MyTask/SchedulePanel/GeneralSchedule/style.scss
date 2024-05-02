@@ -1,6 +1,7 @@
 .myCalendar {
   width: 100%;
   margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .addCalendar-btn {
@@ -16,4 +17,8 @@
     color: var(--mui-palette-blue-main);
     border: 1px solid #4096ff;
   }
+}
+
+.connectCalendar {
+  margin-top: 16px;
 }

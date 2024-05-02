@@ -1,6 +1,6 @@
 import { DateCalendar } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
-import { Avatar, Button, Divider } from 'antd'
+import { Avatar, Button, Divider, Dropdown } from 'antd'
 import './style.scss'
 import CalendarItem from './CalendarItem'
 import { GoogleOutlined } from '@ant-design/icons'
@@ -27,7 +27,6 @@ interface IGeneralScheduleProps {
 const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
   const session = useSession() //tokens, when session exist => user is logged in
   const { user } = session || {}
-  console.log('🚀 ~ GeneralSchedule ~ session:', session)
   const supabase = useSupabaseClient()
   const currentUser = useSelector((state: StoreType) => state.auth).userInfo
   const [isRetry, setIsRetry] = useState(false)
@@ -158,6 +157,14 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
     }
   }, [isRetry, date])
 
+  const items = [
+    {
+      key: '1',
+      label: <span>Disconnect Calendar</span>,
+      onClick: handleSignOut
+    }
+  ]
+
   return (
     <div>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -173,15 +180,26 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
           <CalendarItem schedule={item} />
         ))}
       </div>
-      <div>
+      <Divider style={{ margin: 0, border: '0.5px solid #E5E5EA' }} />
+      <div className="connectCalendar">
         {session ? (
-          <Chip
-            avatar={
-              <Avatar alt="Natacha" src={user?.user_metadata?.avatar_url} />
-            }
-            label={user?.email}
-            variant="outlined"
-          />
+          <Dropdown menu={{ items }} placement="bottomLeft">
+            <Chip
+              avatar={
+                <Avatar alt="Natacha" src={user?.user_metadata?.avatar_url} />
+              }
+              label={user?.email}
+              variant="outlined"
+              sx={{
+                borderColor: '#E5E5EA',
+                color: '#000',
+                '&:hover': {
+                  backgroundColor: '#f5f5f5',
+                  cursor: 'pointer'
+                }
+              }}
+            />
+          </Dropdown>
         ) : (
           <div>
             <Button

@@ -15,9 +15,7 @@ export const getSchedules = createAsyncThunk(
   async (_, thunkApi) => {
     try {
       // get all schedules by current user
-      console.log('~~~~~~>getSchedules')
       const res = await getSchedulesByUserId()
-      console.log('🚀 ~ res:', res)
 
       if (res) return res.data
     } catch (err) {

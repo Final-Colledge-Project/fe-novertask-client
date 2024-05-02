@@ -28,9 +28,7 @@ interface IMasterCalendarProps {
 }
 
 const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
-  console.log('🚀 ~ MasterCalendar ~ date:', date)
   const [events, setEvents] = useState<EventItem[]>([])
-  console.log('🚀 ~ MasterCalendar ~ events:', events)
   const [view, setView] = useState<(typeof Views)[Keys]>(Views.MONTH)
   const { googleEvents } = useSelector((state: StoreType) => state.schedule)
   const [assignedEvent, setAssignedEvent] = useState<EventItem[]>([])
@@ -64,16 +62,15 @@ const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
   useEffect(() => {
     if (googleEvents) {
       const googleTask = googleEvents.map((event) => convertGoogleEvent(event))
-      console.log('🚀 ~ useEffect ~ googleTask:', googleTask)
       setGoogleEvent(googleTask)
     }
   }, [googleEvents])
 
   useEffect(() => {
     const newEvents = [...assignedEvent, ...googleEvent]
-    console.log('🚀 ~ useEffect ~ newEvents:', newEvents)
     setEvents(newEvents)
-  }, [assignedEvent, googleEvent])
+  }, [assignedEvent, googleEvent, view])
+
 
   return (
     <div className="myTask-calendar">

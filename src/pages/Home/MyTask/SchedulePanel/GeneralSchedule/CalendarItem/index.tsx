@@ -22,7 +22,6 @@ const CalendarItem = ({ schedule }: ICalendarItemProps) => {
   const { loading } = useSelector(
     (state: StoreType) => state.schedule
   ).updateSchedule
-  // console.log('🚀 ~ CalendarItem ~ isFetching:', isFetching)
   const dispatch = useDispatch<StoreDispatchType>()
   const handleChangeColor = (_, value: string) => {
     setColorHex(value)

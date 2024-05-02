@@ -34,6 +34,7 @@ import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setCurrentNavItem } from '~/redux/navSlice'
 import NotificationBadge from '../../Notifications/components/NotificationBadge'
 import { setPopupNotification } from '~/redux/popupSlice'
+import { LuCalendarRange } from 'react-icons/lu'
 import { getNotificationByUserId } from '~/redux/notiSlice/actions'
 import socketIoClient from 'socket.io-client'
 import { getCurrentUser } from '~/redux/userSlice/actions'
@@ -43,7 +44,7 @@ const Navigation = () => {
   const [pinNav, setPinNav] = useState(false)
   const { current } = useSelector((state: StoreType) => state.nav)
   const { PopupNotification } = useSelector((state: StoreType) => state.popup)
-  
+
   // hover to nav bar
   const handleMouseHover = async () => {
     if (pinNav) return
@@ -103,7 +104,6 @@ const Navigation = () => {
   useEffect(() => {
     if (!fullVisible) dispatch(setPopupNotification(false))
   }, [fullVisible])
-
 
   return (
     <div
@@ -204,8 +204,8 @@ const Navigation = () => {
                 dispatch(setCurrentNavItem('myspace'))
               }}
               isIndex={current === 'myspace'}
-              title="My task"
-              startIcon={<MdOutlineTaskAlt />}
+              title="Calendar"
+              startIcon={<LuCalendarRange />}
               fullVisible={fullVisible}
             />
           </li>
