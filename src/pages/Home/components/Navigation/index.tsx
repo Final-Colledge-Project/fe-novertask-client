@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 
 // component library
-import { IconButton, Tooltip } from '@mui/material'
+import { IconButton, Stack, Switch, Tooltip, Typography } from '@mui/material'
 import {
   MdWorkspacesOutline,
   MdKeyboardArrowDown,
@@ -17,7 +17,8 @@ import {
   RiPushpinLine,
   RiUnpinLine,
   RiDashboardLine,
-  RiGroupLine
+  RiGroupLine,
+  RiChat3Line
 } from 'react-icons/ri'
 
 // component
@@ -34,6 +35,7 @@ import { setCurrentNavItem } from '~/redux/navSlice'
 import NotificationBadge from '../../Notifications/components/NotificationBadge'
 import { setPopupNotification } from '~/redux/popupSlice'
 import { getCurrentUser } from '~/redux/userSlice/actions'
+import allRoutes from '~/utils/routes'
 
 const Navigation = () => {
   const [fullVisible, setFullVisible] = useState(true)
@@ -132,12 +134,12 @@ const Navigation = () => {
           <li className="item">
             <NavItem
               onClick={() => {
-                dispatch(setCurrentNavItem('dashboard'))
-                navigate('/u/dashboard')
+                dispatch(setCurrentNavItem(allRoutes.dashBoard.name))
+                navigate(allRoutes.dashBoard.path)
               }}
               title="Dashboard"
               startIcon={<RiHome6Line />}
-              isIndex={current === 'dashboard'}
+              isIndex={current === allRoutes.dashBoard.name}
               fullVisible={fullVisible}
             />
           </li>
@@ -201,16 +203,29 @@ const Navigation = () => {
           <li className="item">
             <NavItem
               onClick={() => {
-                navigate('/u/my-tasks/')
-                dispatch(setCurrentNavItem('myspace'))
+                navigate(allRoutes.myTask.path)
+                dispatch(setCurrentNavItem(allRoutes.myTask.name))
               }}
-              isIndex={current === 'myspace'}
+              isIndex={current === allRoutes.myTask.name}
               title="My task"
               startIcon={<MdOutlineTaskAlt />}
               fullVisible={fullVisible}
             />
           </li>
-          <li className="divider"></li>
+          {/* 2024-05-06 pending chat features */}
+          {/* <li className="divider"></li>
+          <li className="item">
+            <NavItem
+              onClick={() => {
+                navigate(allRoutes.inbox.path)
+                dispatch(setCurrentNavItem(allRoutes.inbox.name))
+              }}
+              isIndex={current === allRoutes.inbox.name}
+              title="Inbox"
+              startIcon={<RiChat3Line />}
+              fullVisible={fullVisible}
+            />
+          </li> */}
         </ul>
       </div>
       <ul className="nav-container-bottom">
@@ -246,13 +261,16 @@ const Navigation = () => {
           />
         </li>
       </ul>
+
       <div className="nav-toggle-size">
-        <IconButton
-          aria-label="delete"
-          size="small"
-          onClick={() => setPinNav((prev) => !prev)}>
-          {pinNav ? <RiUnpinLine /> : <RiPushpinLine />}
-        </IconButton>
+        <Tooltip title={pinNav ? 'Unpin left menu' : 'Pin left menu'}>
+          <IconButton
+            aria-label="delete"
+            size="small"
+            onClick={() => setPinNav((prev) => !prev)}>
+            {pinNav ? <RiUnpinLine /> : <RiPushpinLine />}
+          </IconButton>
+        </Tooltip>
       </div>
     </div>
   )

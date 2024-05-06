@@ -1,4 +1,37 @@
 const allRoutes = {
+  dashBoard: {
+    path: '/u/dashboard',
+    name: 'dashboard'
+  },
+  workspace: {
+    workspaceDetail: {
+      path: '/u/workspaces/:workspaceId',
+      name: 'workspaceDetail',
+      segment: ''
+    },
+    workspaceMember: {
+      path: '/u/workspaces/:workspaceId/members',
+      name: 'workspaceMember',
+      segment: 'members'
+    },
+    workspaceSettings: {
+      path: '/u/workspaces/:workspaceId/settings',
+      name: 'workspaceSettings',
+      segment: 'settings'
+    }
+  },
+  myTask: {
+    path: '/u/my-tasks',
+    name: 'myTask'
+  },
+  inbox: {
+    path: '/u/inbox',
+    name: 'inbox'
+  },
+  notifications: {
+    path: '/u/notifications',
+    name: 'notifications'
+  },
   home: {
     board: {
       boardDetail: {
