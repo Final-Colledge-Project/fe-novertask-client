@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getNotificationByUserId } from '~/redux/notiSlice/actions'
 import CardDetail from './CardDetail'
 import MyTask from './MyTask'
+import Inbox from './Inbox'
 
 const Home = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL
@@ -56,6 +57,7 @@ const Home = () => {
             </Route>
             <Route path="profile/*" element={<Profile />} />
             <Route path="my-tasks" element={<MyTask />} />
+            <Route path="inbox" element={<Inbox />} />
           </Route>
         </Routes>
       </div>

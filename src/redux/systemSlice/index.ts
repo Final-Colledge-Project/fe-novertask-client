@@ -2,7 +2,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 interface ISystemState {
   errorCode: number | undefined
-  message: string | undefined,
+  message: string | undefined
   showHomeButton?: boolean
 }
 

@@ -18,5 +18,6 @@ interface IInputProps {
   multiple?: boolean
   row?: number
   disabled?: boolean
+  [key: string]: unknown
 }
 export default IInputProps

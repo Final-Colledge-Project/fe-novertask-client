@@ -5,11 +5,21 @@ export const DEFAULT_CONFIRM_DIALOG_CONTENT =
 export const DEFAULT_CONFIRM_BUTTON = 'Yes'
 export const DEFAULT_CANCEL_BUTTON = 'No'
 
+// fall back image
+export const FALLBACK_IMAGE = '/img/item-cover.jpg'
+
 export const TITLE = {
   board: {
     boardOverView: 'Overview',
     boardDetail: 'Task',
     boardMember: 'Team',
     boardSettings: 'Settings'
+  },
+  menu: {
+    dashboard: 'Dashboard',
+    workspace: 'Workspace',
+    myTask: 'My Task',
+    inbox: 'Inbox',
+    notifications: 'Notifications'
   }
 }

@@ -12,7 +12,8 @@ const SearchBox = ({
   onChange,
   error = false,
   value,
-  sx
+  sx,
+  as
 }: IInputProps) => {
   return (
     <FormControl
@@ -31,7 +32,8 @@ const SearchBox = ({
           }
         },
         ...sx
-      }}>
+      }}
+      as={as}>
       <InputLabel htmlFor={`outlined-adornment-${label}`}>{label}</InputLabel>
       <OutlinedInput
         error={error}
@@ -39,7 +41,7 @@ const SearchBox = ({
         onChange={onChange}
         placeholder={placeHolder}
         id={`outlined-adornment-${label}`}
-        size='small'
+        size="small"
         sx={{
           'input::-ms-reveal, input::-ms-clear': {
             display: 'none'
