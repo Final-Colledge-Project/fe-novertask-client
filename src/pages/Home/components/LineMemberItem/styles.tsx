@@ -23,6 +23,7 @@ export const Item = styled.div<{ $img: string; $isMe: boolean }>`
   position: relative;
   transform: scale(1);
   font-size: 14px;
+  background-color: white;
 
   &::before {
     display: block;
