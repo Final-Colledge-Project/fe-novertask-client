@@ -13,4 +13,6 @@ const randomCover = () => {
   const randomIndex = Math.floor(Math.random() * (max - 0 + 1) + 0)
   return images[randomIndex]
 }
+
+
 export default randomCover

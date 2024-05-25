@@ -1,7 +1,10 @@
 import styled from '@emotion/styled'
 
 export const BoardMenuContainer = styled.div`
-  padding-left: 30px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
 `
 
 export const StyledHeader = styled.div`
@@ -18,6 +21,7 @@ export const ViewTypeMenu = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  padding-left: 30px;
 `
 export const ViewTypeItem = styled.div`
   color: var(--mui-palette-gray3-main);
@@ -81,7 +85,10 @@ export const MemberListTypeContainer = styled.div`
 `
 
 export const Body = styled.div`
-  padding-right: 30px;
+  padding: 0 30px;
+  overflow-y: auto;
+  height: 100%;
+  background-color: var(--mui-palette-gray6-main);
 `
 
 export const Placeholder = styled.div`

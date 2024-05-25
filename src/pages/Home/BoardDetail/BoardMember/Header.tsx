@@ -1,10 +1,13 @@
 import clsx from 'clsx'
 import { RightMenu, StyledHeader, ViewTypeItem, ViewTypeMenu } from './style'
 import { ChangeEvent, useState } from 'react'
-import { BOARD_MEMBER_ROLE_TITLES } from '~/utils/constant/board'
+import {
+  BOARD_MEMBER_ROLE_TITLES,
+  BOARD_MEMBER_VIEW_MODE
+} from '~/utils/constant/board'
 import SearchBox from '~/components/SearchBox'
 import { Button } from '@mui/material'
-import { RiUserAddLine } from 'react-icons/ri'
+import { RiSettings2Line, RiUserAddLine } from 'react-icons/ri'
 import { IHeaderProps } from './IProps'
 import { useDebounceCallback } from 'usehooks-ts'
 
@@ -15,7 +18,8 @@ export default function Header({
   setSearchTerm,
   onStartSearch,
   onOpenAddMemberPopup,
-  shouldShowAddMemberButton
+  shouldShowAddMemberButton,
+  onModeChange
 }: IHeaderProps) {
   const [viewType, setViewType] = useState<number>(0)
 
@@ -31,6 +35,12 @@ export default function Header({
   const handleChangeRole = (roleIndex: number) => {
     setViewType(roleIndex)
     onRoleChange(roleIndex)
+    onModeChange(BOARD_MEMBER_VIEW_MODE.VIEW)
+  }
+
+  const handlePermissionSettingStart = () => {
+    onModeChange(BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING)
+    setViewType(-1)
   }
 
   return (
@@ -54,6 +64,19 @@ export default function Header({
       </ViewTypeMenu>
 
       <RightMenu>
+        <div style={{ flexShrink: 0 }}>
+          {shouldShowAddMemberButton && (
+            <Button
+              color="primary"
+              size="small"
+              variant="text"
+              onClick={handlePermissionSettingStart}
+              startIcon={<RiSettings2Line />}>
+              Permission settings
+            </Button>
+          )}
+        </div>
+
         {/* Add member button */}
         <div style={{ flexShrink: 0 }}>
           {shouldShowAddMemberButton && (
@@ -63,7 +86,7 @@ export default function Header({
               variant="contained"
               onClick={onOpenAddMemberPopup}
               startIcon={<RiUserAddLine />}>
-              Add or edit member
+              Add
             </Button>
           )}
         </div>

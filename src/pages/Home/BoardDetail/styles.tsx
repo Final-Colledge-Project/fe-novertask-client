@@ -91,6 +91,7 @@ export const Divider = styled.div`
   width: 100%;
   height: 1px;
   margin: 8px 30px;
+  flex-shrink: 0;
   background-color: var(--mui-palette-divider);
 `
 
@@ -196,7 +197,7 @@ export const Body = styled.div`
   gap: 20px;
   overflow-x: auto;
   padding: 10px 30px;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   background-color: var(--mui-palette-gray6-main);
   /* overflow-y: hidden; */
 
