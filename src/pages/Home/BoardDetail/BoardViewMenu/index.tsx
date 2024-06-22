@@ -45,6 +45,10 @@ export default function BoardViewMenu() {
         path = allRoutes.home.board.boardMember.path
         title = TITLE.board.boardMember
         break
+      case allRoutes.home.board.boardReports.name:
+        path = allRoutes.home.board.boardReports.path
+        title = TITLE.board.boardReports
+        break
       case allRoutes.home.board.boardSettings.name:
         path = allRoutes.home.board.boardSettings.path
         title = TITLE.board.boardSettings
@@ -71,6 +75,9 @@ export default function BoardViewMenu() {
         break
       case allRoutes.home.board.boardSettings.segment:
         name = allRoutes.home.board.boardSettings.name
+        break
+      case allRoutes.home.board.boardReports.segment:
+        name = allRoutes.home.board.boardReports.name
         break
       default:
         name = allRoutes.home.board.boardDetail.name
@@ -101,6 +108,9 @@ export default function BoardViewMenu() {
         </MenuItem>
         <MenuItem dense value={allRoutes.home.board.boardMember.name}>
           {TITLE.board.boardMember}
+        </MenuItem>
+        <MenuItem dense value={allRoutes.home.board.boardReports.name}>
+          {TITLE.board.boardReports}
         </MenuItem>
         <MenuItem dense value={allRoutes.home.board.boardSettings.name}>
           {TITLE.board.boardSettings}
