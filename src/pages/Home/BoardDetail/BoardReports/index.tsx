@@ -1,39 +1,33 @@
-import { Box, Tab, Tabs } from '@mui/material'
+import { Box, Tab, Tabs, Tooltip, tooltipClasses } from '@mui/material'
 import './styles.scss'
 import { useState } from 'react'
+import { a11yProps, getReportTypesByTab } from './helper'
+import ReportTypeItem from './components/ReportTypeItem'
 
 interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
+  children?: React.ReactNode
+  index: number
+  value: number
 }
 
-function a11yProps(index: number) {
-  return {
-    id: `full-width-tab-${index}`,
-    'aria-controls': `full-width-tabpanel-${index}`
-  }
-}
-
-function CustomTabPanel(props: TabPanelProps) {
+const CustomTabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props
-
   return (
-    <div
+    <Box
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
+      sx={{ padding: '10px' }}
       {...other}>
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
+    </Box>
   )
 }
 
 export default function BoardOverview() {
   const [value, setValue] = useState(0)
   const onChangeTab = (event: React.SyntheticEvent, newValue: number) => {
-    console.log("🚀 ~ onChangeTab ~ newValue:", newValue)
     setValue(newValue)
   }
   return (
@@ -65,10 +59,21 @@ export default function BoardOverview() {
 
       <div className="sectionBody">
         <CustomTabPanel value={value} index={0}>
-          Item One
+          {getReportTypesByTab(0).map((item, index) => {
+            return <ReportTypeItem key={index} item={item} />
+          })}
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          Item Two
+          <Box
+            sx={{
+              display: 'flex',
+              width: '100%',
+              gap: '30px'
+            }}>
+            {getReportTypesByTab(1).map((item, index) => {
+              return <ReportTypeItem key={index} item={item} />
+            })}
+          </Box>
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
           Item Three

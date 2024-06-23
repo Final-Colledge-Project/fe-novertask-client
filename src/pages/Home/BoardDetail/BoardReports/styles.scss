@@ -17,3 +17,21 @@
   padding: 0px 30px 8px;
   color: #000;
 }
+.reportTypeItemContent {
+  font-size: 14px;
+}
+
+.sectionBody {
+  overflow-y: scroll;
+  height: 100%;
+}
+
+.multiple-line {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* Number of lines to show */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: '100%';
+  max-width: '300px'; /* Include padding in height calculation */
+}

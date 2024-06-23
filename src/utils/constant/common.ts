@@ -25,8 +25,9 @@ export const TITLE = {
   }
 }
 
-export const REPORT_TABS = {
-  analysis: 'analysis',
-  scrum: 'scrum',
-  other: 'other'
+export const REPORT_TYPE = {
+  averageAgeReport: 'averageAgeReport',
+  sprintReport: 'sprintReport',
+  sprintBurnDownReport: 'sprintBurnDownReport',
+  sprintVelocityReport: 'sprintVelocityReport'
 }
