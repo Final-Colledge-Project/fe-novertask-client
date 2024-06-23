@@ -24,6 +24,10 @@ export interface IUser {
   lastName: string
   phone: string
   avatar: string
+  providerToken: {
+    accessToken: string
+    refreshToken: string
+  }
 }
 
 export interface IMockUser {
@@ -295,4 +299,39 @@ export interface IUpdatableSubtask {
   status?: string
   assignedTo?: string
   dueDate?: string
+}
+
+export interface ITaskEvent {
+  id: string
+  title: string
+}
+
+export interface EventItem {
+  id: string
+  start: Date
+  end: Date
+  data?: {
+    assignedTask?: ITaskEvent
+    googleEvent?: IGoogleEvent
+  }
+  type: string
+  // title: string
+  // isDraggable?: boolean
+}
+
+export interface IGoogleEvent {
+  id: string
+  start: Date
+  end: Date
+  title: string
+  htmlLink: string
+}
+
+export interface ISchedule {
+  _id: string
+  userId: string
+  name: string
+  color: string
+  type: string
+  isActive: boolean
 }

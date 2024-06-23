@@ -1,4 +1,4 @@
-import { Box, Tab, Tabs, Tooltip, tooltipClasses } from '@mui/material'
+import { Box, Tab, Tabs } from '@mui/material'
 import './styles.scss'
 import { useState } from 'react'
 import { a11yProps, getReportTypesByTab } from './helper'

@@ -5,20 +5,14 @@ import clsx from 'clsx'
 import { useDispatch, useSelector } from 'react-redux'
 
 // component library
-import { IconButton, Stack, Switch, Tooltip, Typography } from '@mui/material'
-import {
-  MdWorkspacesOutline,
-  MdKeyboardArrowDown,
-  MdOutlineTaskAlt
-} from 'react-icons/md'
+import { MdWorkspacesOutline, MdKeyboardArrowDown } from 'react-icons/md'
 import {
   RiHome6Line,
   RiSettings2Line,
   RiPushpinLine,
   RiUnpinLine,
   RiDashboardLine,
-  RiGroupLine,
-  RiChat3Line
+  RiGroupLine
 } from 'react-icons/ri'
 
 // component
@@ -34,8 +28,10 @@ import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setCurrentNavItem } from '~/redux/navSlice'
 import NotificationBadge from '../../Notifications/components/NotificationBadge'
 import { setPopupNotification } from '~/redux/popupSlice'
+import { LuCalendarRange } from 'react-icons/lu'
 import { getCurrentUser } from '~/redux/userSlice/actions'
 import allRoutes from '~/utils/routes'
+import { IconButton, Tooltip } from '@mui/material'
 
 const Navigation = () => {
   const [fullVisible, setFullVisible] = useState(true)
@@ -206,9 +202,9 @@ const Navigation = () => {
                 navigate(allRoutes.myTask.path)
                 dispatch(setCurrentNavItem(allRoutes.myTask.name))
               }}
-              isIndex={current === allRoutes.myTask.name}
-              title="My task"
-              startIcon={<MdOutlineTaskAlt />}
+              isIndex={current === 'myspace'}
+              title="Calendar"
+              startIcon={<LuCalendarRange />}
               fullVisible={fullVisible}
             />
           </li>

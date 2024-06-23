@@ -1,0 +1,24 @@
+.myCalendar {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.addCalendar-btn {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 16px;
+  margin-left: auto;
+  color: var(--mui-palette-gray1-main);
+  &:hover {
+    cursor: pointer;
+    color: var(--mui-palette-blue-main);
+    border: 1px solid #4096ff;
+  }
+}
+
+.connectCalendar {
+  margin-top: 16px;
+}

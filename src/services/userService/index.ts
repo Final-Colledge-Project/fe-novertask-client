@@ -11,6 +11,7 @@ import {
   IChangePasswordRequest,
   ISendOTP,
   ISignUpBody,
+  IUpdateProviderToken,
   IUpdateUserBody,
   IUploadAvatarBody,
   IVerifyOTP
@@ -191,6 +192,14 @@ export const changePassword = async (data: IChangePasswordRequest) => {
       throw new Error('Old password is not correct!')
     }
     // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const updateProviderToken = async (data: IUpdateProviderToken) => {
+  try {
+    await axiosInstance.put(requests.updateProviderToken, data)
+  } catch (error) {
     throw new Error('Something went wrong! Please try later.')
   }
 }

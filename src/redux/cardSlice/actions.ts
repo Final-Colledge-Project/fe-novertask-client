@@ -7,7 +7,6 @@ export const getTaskAssignedToMe = createAsyncThunk(
     try {
       // get all board by current user
       const res = await cardAssignToMe()
-      // console.log("========================>🚀 ~ file: actions.ts:11 ~ res:", res)
 
       if (res) return res.data
     } catch (err) {

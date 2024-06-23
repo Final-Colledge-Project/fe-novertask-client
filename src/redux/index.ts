@@ -9,6 +9,7 @@ import boardReducer from './boardSlice'
 import navReducer from './navSlice'
 import notiReducer from './notiSlice'
 import cardReducer from './cardSlice'
+import scheduleReducer from './scheduleSlice'
 import columnReducer from './columnSlice'
 import systemReducer from './systemSlice'
 const store = configureStore({
@@ -23,6 +24,7 @@ const store = configureStore({
     nav: navReducer,
     notification: notiReducer,
     card: cardReducer,
+    schedule: scheduleReducer,
     column: columnReducer,
     system: systemReducer
   }

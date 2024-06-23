@@ -1,0 +1,19 @@
+.assignTaskEvent {
+  margin-bottom: 4px;
+  margin-left: 4px !important;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.assignTaskEvent__title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.assignTaskEvent__time {
+  font-size: 12px;
+  margin-top: 4px;
+}

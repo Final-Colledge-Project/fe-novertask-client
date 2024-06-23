@@ -1,28 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import MasterCalendar from './MasterCalendar'
-import UpcomingTask from './UpcomingTask'
+import SchedulePanel from './SchedulePanel'
 import './style.scss'
-import { getTaskAssignedToMe } from '~/redux/cardSlice/actions'
-import { useDispatch, useSelector } from 'react-redux'
-import { StoreDispatchType, StoreType } from '~/redux'
-import { IAssignedCard } from '~/services/types'
+import dayjs from 'dayjs'
+import useInitSchedule from '~/hooks/useInitSchedule'
 const MyTask = () => {
-  const dispatch = useDispatch<StoreDispatchType>()
-  useEffect(() => {
-    const fetchAssignedTask = async () => {
-      await dispatch(getTaskAssignedToMe())
-    }
-    fetchAssignedTask()
-  }, [dispatch])
+  useInitSchedule()
+  const [date, setDate] = useState<Date>(dayjs().toDate())
   return (
-    <div className="myTask-container">
-      <header className="myTask-header">My task</header>
-      <div className="myTask-body">
-        <div className="myTask-left">
-          <MasterCalendar />
+    <div className="schedule-container">
+      <header className="schedule-header">My task</header>
+      <div className="schedule-body">
+        <div className="schedule-left">
+          <MasterCalendar date={date} setDate={setDate} />
         </div>
-        <div className="myTask-right">
-          <UpcomingTask />
+        <div className="schedule-right">
+          <SchedulePanel date={date} setDate={setDate} />
         </div>
       </div>
     </div>
