@@ -12,11 +12,13 @@ import WithController from '~/components/InputWithController'
 interface IProps {
   card: ICard
   onUpdateDescription: (description: string) => void
+  disabled?: boolean
 }
 
 export default function DescriptionInput({
   card,
-  onUpdateDescription
+  onUpdateDescription,
+  disabled
 }: IProps) {
   const {
     control,
@@ -55,6 +57,7 @@ export default function DescriptionInput({
               multiple
               maxRows={4}
               row={3}
+              disabled={!!disabled}
             />
           </WithController>
           {isDirty && (

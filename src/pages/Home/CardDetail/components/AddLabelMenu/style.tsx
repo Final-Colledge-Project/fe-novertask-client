@@ -201,3 +201,10 @@ export const Loading = muiStyled((props: CircularProgressProps) => (
   />
 ))()
 
+export const PlaceHolder = styled.div`
+  width: 100%;
+  color: var(--mui-palette-gray-main);
+  padding: 50px 0;
+  text-align: center;
+  font-size: 14px;
+`

@@ -73,7 +73,7 @@ export default function ConfirmDialog({
         <Button color="error" onClick={onClose}>
           {cancelBtnText || DEFAULT_CANCEL_BUTTON}
         </Button>
-        <Button variant="contained" onClick={onConfirm}>
+        <Button variant="contained" onClick={onConfirm} autoFocus>
           {confirmBtnText || DEFAULT_CONFIRM_BUTTON}
         </Button>
       </DialogActions>

@@ -4,7 +4,7 @@ const requests = {
     wsID: string,
     option: string | undefined = '?sort=-createdAt'
   ) => `/boards/workspace/${wsID}${option}`,
-  createBoard: `/boards`,
+  createBoard: (wsId: string) => `/boards/workspace/${wsId}`,
   getBoardDetail: (id: string) => `/boards/${id}`,
   getMemberInBoard: (id: string) => `/boards/${id}/members`,
   addMemberToBoard: (boardId: string) => `/boards/${boardId}/members`,

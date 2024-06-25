@@ -7,9 +7,11 @@ export interface IGetAllSubtasksBody {
 export interface IUpdateSubtaskBody {
   subtaskId: string
   changes: IUpdatableSubtask
+  boardId: string
 }
 
 export interface ICreateSubtaskBody {
   cardId: string
   name: string
+  boardId: string
 }

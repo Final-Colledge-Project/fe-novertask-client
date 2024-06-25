@@ -39,6 +39,7 @@ import {
   MenuFooter,
   MenuGeneralContainer,
   MenuHeader,
+  PlaceHolder,
   ProvidedColorContainer,
   Section
 } from './style'
@@ -54,15 +55,14 @@ import {
 import { ILabel } from '~/services/types'
 import { COLOR } from '~/utils/constant'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
+import usePermission from '~/hooks/usePermission'
 
 export default function AddLabelMenu({
   onChoose,
   boardId,
   card,
-  refreshCard,
-  isAdmin
+  refreshCard
 }: IProps) {
-
   const MODES = {
     select: 'select',
     edit: 'edit',
@@ -84,6 +84,10 @@ export default function AddLabelMenu({
 
   const [isCustomizeColor, setIsCustomizeColor] = React.useState<boolean>(false)
   const [editedLabel, setEditedLabel] = React.useState<ILabel>()
+
+  const userPermission = usePermission()
+  const canAddLabel = () => userPermission?.label.create
+  const canUpdateLabel = () => userPermission?.label.update
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen)
@@ -222,7 +226,8 @@ export default function AddLabelMenu({
         changes: {
           name: editedLabel?.name as string,
           color: isCustomizeColor ? color.hex : chosenColor
-        }
+        },
+        boardId
       })
       if (res && res.data) {
         setLabels((prev) => {
@@ -278,36 +283,32 @@ export default function AddLabelMenu({
           fontSize: '18px',
           bgcolor: `rgba(var(--mui-palette-blue-mainChannel)/ 0.2)`,
           color: (theme) => theme.palette.blue.main
-        }}
-      >
+        }}>
         <RiEditLine />
       </IconButton>
       <Popper
         open={open}
         anchorEl={anchorRef.current}
         role={undefined}
-        placement="bottom-start"
+        placement="auto-end"
         transition
         disablePortal
         sx={{
           position: 'relative',
           zIndex: 100
-        }}
-      >
+        }}>
         {({ TransitionProps, placement }) => (
           <Grow
             {...TransitionProps}
             style={{
               transformOrigin:
-                placement === 'bottom-start' ? 'left top' : 'left bottom'
-            }}
-          >
+                placement === 'auto-end' ? 'right auto' : 'right auto'
+            }}>
             <Paper
               sx={{
                 borderRadius: '8px',
                 boxShadow: '0px 0px 8px 1px var(--mui-palette-gray2-main)'
-              }}
-            >
+              }}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuGeneralContainer>
                   <MenuHeader>
@@ -315,8 +316,7 @@ export default function AddLabelMenu({
                       {(mode === MODES.create || mode == MODES.edit) && (
                         <IconButton
                           size="small"
-                          onClick={() => setMode(MODES.select)}
-                        >
+                          onClick={() => setMode(MODES.select)}>
                           <RiArrowLeftSLine />
                         </IconButton>
                       )}
@@ -330,6 +330,7 @@ export default function AddLabelMenu({
                   <MenuBody>
                     {mode === MODES.select && (
                       <LabelSelectContainer>
+                        {/* LABELS LIST */}
                         <MenuList
                           autoFocusItem={open}
                           id="composition-menu"
@@ -342,8 +343,7 @@ export default function AddLabelMenu({
                             minWidth: '200px',
                             paddingY: '0',
                             width: '100%'
-                          }}
-                        >
+                          }}>
                           {labels?.map((label) => (
                             <MenuItem
                               key={label._id}
@@ -353,8 +353,7 @@ export default function AddLabelMenu({
                                 },
                                 p: '0',
                                 borderRadius: '0px'
-                              }}
-                            >
+                              }}>
                               <ItemContainer>
                                 <Radio
                                   onChange={handleUpdateLabelOfCard}
@@ -362,7 +361,7 @@ export default function AddLabelMenu({
                                   checked={label._id === card.label?._id}
                                 />
                                 <Label $color={label.color}>{label.name}</Label>
-                                {isAdmin && (
+                                {canUpdateLabel() && (
                                   <IconButton
                                     size="small"
                                     className="edit-icon"
@@ -373,16 +372,23 @@ export default function AddLabelMenu({
                                         return convertColor(label.color)
                                       })
                                       setChosenColor(label.color)
-                                    }}
-                                  >
+                                    }}>
                                     <RiEditLine />
                                   </IconButton>
                                 )}
                               </ItemContainer>
                             </MenuItem>
                           ))}
+
+                          {/* PLACEHOLDER IF NO LABELS */}
+
+                          {labels?.length === 0 && (
+                            <PlaceHolder>No label found</PlaceHolder>
+                          )}
                         </MenuList>
-                        {isAdmin && (
+
+                        {/* ADD LABEL BUTTON */}
+                        {canAddLabel() && (
                           <MenuFooter>
                             <Button
                               startIcon={<RiAddLine />}
@@ -390,8 +396,7 @@ export default function AddLabelMenu({
                               onClick={() => {
                                 setMode(MODES.create)
                                 setColor(convertColor(COLOR.BLUE.main))
-                              }}
-                            >
+                              }}>
                               Add more label
                             </Button>
                           </MenuFooter>
@@ -406,8 +411,7 @@ export default function AddLabelMenu({
                             <Label
                               $color={
                                 isCustomizeColor ? color.hex : chosenColor
-                              }
-                            >
+                              }>
                               {mode === MODES.edit
                                 ? editedLabel?.name
                                 : createdLabel || 'Title'}
@@ -424,8 +428,7 @@ export default function AddLabelMenu({
                               }
                               onChange={handleChangeLabelText}
                               placeHolder="Title of label"
-                              sx={{ height: '40px' }}
-                            ></TextInput>
+                              sx={{ height: '40px' }}></TextInput>
                           </Section>
                           <Section>
                             <Typography className="section__title">
@@ -463,8 +466,7 @@ export default function AddLabelMenu({
                                 <ColorBox
                                   $color={'#eee'}
                                   className={isCustomizeColor ? 'chosen' : ''}
-                                  onClick={() => setIsCustomizeColor(true)}
-                                >
+                                  onClick={() => setIsCustomizeColor(true)}>
                                   <RiAddLine />
                                 </ColorBox>
                               </ProvidedColorContainer>
@@ -486,8 +488,7 @@ export default function AddLabelMenu({
                               color="error"
                               variant="outlined"
                               disabled={isUpdating}
-                              onClick={() => setMode(MODES.select)}
-                            >
+                              onClick={() => setMode(MODES.select)}>
                               Cancel
                             </Button>
                             <Button
@@ -495,8 +496,7 @@ export default function AddLabelMenu({
                               fullWidth
                               color="primary"
                               variant="contained"
-                              onClick={handleCreateOrEditLabel}
-                            >
+                              onClick={handleCreateOrEditLabel}>
                               Save
                             </Button>
                           </Actions>

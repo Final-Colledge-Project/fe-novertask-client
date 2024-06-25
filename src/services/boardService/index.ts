@@ -64,7 +64,7 @@ export const getAllByWSId = async (body: IGetAllByWSIdBody) => {
 export const createBoard = async (body: ICreateBoardBody) => {
   try {
     const res = await axiosInstance.post<ICreateBoardResponse>(
-      requests.createBoard,
+      requests.createBoard(body.teamWorkspaceId),
       body
     )
     if (res && res.status === 201 && res.data) {
