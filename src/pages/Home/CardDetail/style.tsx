@@ -392,7 +392,7 @@ export const PriorityItem = styled.div`
   text-align: center;
   font-size: 14px;
   background-color: var(--mui-palette-gray-main);
-  color: var(--mui-palette-white-main);
+  color: var(--mui-palette-white-main) !important;
   /* width: fit-content; */
   border-radius: 5px;
   width: 100%;
@@ -441,4 +441,16 @@ export const Loading = muiStyled((props: CircularProgressProps) => (
 export const DateTimeContainer = styled.div`
   position: relative;
   width: 100%;
+`
+export const ReadOnlyInput = styled.div`
+  width: 100%;
+  min-width: 280px;
+  padding: 5px 10px;
+  padding-left: 0;
+  border-radius: 8px;
+  color: var(--mui-palette-blue-main);
+  font-size: 24px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  margin: 5px 0;
 `

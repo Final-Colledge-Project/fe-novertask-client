@@ -33,7 +33,7 @@ export const getColumnInBoard = async (body: IGetColumnsInBoardBody) => {
 export const createColumn = async (body: ICreateColumnBody) => {
   try {
     const res = await axiosInstance.post<ICreateColumnResponse>(
-      requests.createColumn,
+      requests.createColumn(body.boardId),
       body
     )
     if (res && res.status === 201 && res.data) {
@@ -68,7 +68,7 @@ export const createColumn = async (body: ICreateColumnBody) => {
 export const updateColumn = async (body: IUpdateColumnBody) => {
   try {
     const res = await axiosInstance.patch<IUpdateColumnResponse>(
-      requests.updateColumn(body.id as string),
+      requests.updateColumn(body.id, body.boardId),
       { ...body.changes }
     )
     if (res && res.status === 200 && res.data) {
@@ -102,11 +102,11 @@ export const updateTwoColumnsConcurrentLy = async (
   try {
     const responses = await axios.all([
       axiosInstance.patch<IUpdateColumnResponse>(
-        requests.updateColumn(body[0].id as string),
+        requests.updateColumn(body[0].id, body[0].boardId),
         body[0].changes
       ),
       axiosInstance.patch<IUpdateColumnResponse>(
-        requests.updateColumn(body[1].id as string),
+        requests.updateColumn(body[1].id, body[1].boardId),
         body[1].changes
       )
     ])

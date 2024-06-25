@@ -161,14 +161,14 @@ export const MoreButton = styled.div`
   justify-content: flex-end;
 `
 
-export const Badge = styled.div`
+export const Badge = styled.div<{ $color: string }>`
   /* margin: 0 auto; */
   width: fit-content;
   border-radius: 50px;
   padding: 0 12px;
   font-size: 14px;
   text-align: center;
-  background-color: var(--mui-palette-green-main);
+  background-color: ${(props) => props.$color};
   color: var(--mui-palette-white-main);
   &.boardAdmin {
     background-color: var(--mui-palette-yellow-main);

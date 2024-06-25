@@ -89,7 +89,11 @@ export default function Subtask({
 
   const handleUpdateSubtask = async (changes: IUpdatableSubtask) => {
     try {
-      const res = await updateSubtask({ subtaskId: subtask._id, changes })
+      const res = await updateSubtask({
+        subtaskId: subtask._id,
+        changes,
+        boardId: card.boardId
+      })
       if (res && res.data) {
         await onRefresh()
         dispatch(setShouldRefreshBoardDetail(true))
@@ -171,8 +175,7 @@ export default function Subtask({
           className="item__id"
           onClick={() =>
             handleAddToClipBoard(`/u/boards/${card.boardId}/cards/${card._id}`)
-          }
-        >
+          }>
           <span>{subtask.subCardId}</span>
           <RiLinkM />
         </div>
@@ -182,8 +185,7 @@ export default function Subtask({
           className={clsx(
             editingName && 'expanded',
             isFormDirty && 'fully-expanded'
-          )}
-        >
+          )}>
           <InputContainer>
             <Input
               type="text"
@@ -194,8 +196,7 @@ export default function Subtask({
               }
               {...register('title')}
               maxLength={50}
-              className={clsx(error && 'error', isDirty && 'dirty')}
-            ></Input>
+              className={clsx(error && 'error', isDirty && 'dirty')}></Input>
             {isFormDirty && (
               <div className="input-length">{watch('title').length}/50</div>
             )}
@@ -240,8 +241,7 @@ export default function Subtask({
                 (subtask.assignedTo?._id as string) ||
                 'select-member-placeholder'
               }
-              onChange={(e) => handleUpdateAssignee(e.target.value as string)}
-            >
+              onChange={(e) => handleUpdateAssignee(e.target.value as string)}>
               <MenuItem value="select-member-placeholder" disabled>
                 <Typography>Select</Typography>
               </MenuItem>
@@ -293,13 +293,11 @@ export default function Subtask({
               }}
               onChange={(e) =>
                 handleUpdateStatus(e.target.value as TSubtaskStatus)
-              }
-            >
+              }>
               {statusList.map((item) => (
                 <MenuItem
                   value={item.status as string}
-                  key={item.status as string}
-                >
+                  key={item.status as string}>
                   <SubtaskStatus className={item.status}>
                     {item.status as string}
                   </SubtaskStatus>

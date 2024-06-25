@@ -6,6 +6,7 @@ import {
   Popper,
   Stack,
   Switch,
+  Tooltip,
   Typography
 } from '@mui/material'
 import {
@@ -92,11 +93,14 @@ export default function ColorPicker({
   return (
     <div>
       <Stack spacing={2} direction="row" alignItems="center">
-        <ColorBox
-          $color={originalColor.current}
-          className="keep-hover"
-          onClick={handleOpen}></ColorBox>
+        <Tooltip title={color.hex} arrow>
+          <ColorBox
+            $color={originalColor.current}
+            className="keep-hover"
+            onClick={handleOpen}></ColorBox>
+        </Tooltip>
         <Button
+          tabIndex={-1}
           onClick={() => setOpen((prev) => !prev)}
           ref={anchorRef}
           aria-controls={open ? 'composition-menu-color-picker' : undefined}

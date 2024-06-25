@@ -173,8 +173,8 @@ export const UserDetailInfo = styled.div`
 `
 
 export const GeneralAvatar = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 100px;
   position: relative;
 
@@ -194,12 +194,12 @@ export const GeneralInfo = styled.div`
   align-items: flex-start;
   justify-content: center;
   & > .name {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
   }
   & > .email {
     color: var(--mui-palette-gray-main);
-    font-size: 14px;
+    font-size: 13px;
   }
 `
 

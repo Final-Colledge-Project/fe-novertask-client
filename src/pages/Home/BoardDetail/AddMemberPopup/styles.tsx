@@ -122,6 +122,18 @@ export const MemberItem = styled.div`
     color: var(--mui-palette-gray-main);
   }
 `
+export const Role = styled.div<{ $color: string }>`
+  display: flex;
+  width: fit-content;
+  justify-content: flex-end;
+  text-align: right;
+  font-size: 12px;
+  padding: 0px 8px;
+  border-radius: 50px;
+  background-color: ${(props) => `${props.$color}1A`};
+  color: ${(props) => props.$color};
+`
+
 export const MemberSectionTitle = styled.div`
   display: flex;
   align-items: center;

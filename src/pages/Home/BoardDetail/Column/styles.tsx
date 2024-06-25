@@ -40,6 +40,10 @@ export const Header = styled.div`
       width: 20px;
       height: 100%;
     }
+
+    &.not-allowed {
+      cursor: not-allowed;
+    }
   }
   & > .title {
     font-weight: 700;
@@ -78,7 +82,7 @@ export const CardsContainer = styled.div`
   align-items: center;
   justify-content: start;
   gap: 10px;
-  // if right padding = 5, when scroll bar disappears, card item will be wrong position 
+  // if right padding = 5, when scroll bar disappears, card item will be wrong position
   /* padding-right: 5px; */
 
   &::-webkit-scrollbar-track {
@@ -153,5 +157,20 @@ export const Error = styled.div`
 `
 
 export const DnDContainer = styled.div`
-  height: 100% !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &.opa-1-persist {
+    opacity: 1 !important;
+  }
+`
+
+export const TestDiv = styled.div`
+  height: 100%;
+`
+
+export const PreventDrag = styled.div`
+  flex: 1;
+  /* background-color: red; */
 `

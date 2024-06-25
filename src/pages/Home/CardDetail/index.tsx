@@ -39,7 +39,8 @@ import {
   PriorityItem,
   VisuallyHiddenInput,
   CardHeader,
-  Loading
+  Loading,
+  ReadOnlyInput
 } from './style'
 import DateTimeInput from '~/components/DateTimeInput'
 import GeneralLoading from '../components/GeneralLoading'
@@ -71,6 +72,7 @@ import copy from '~/utils/copy'
 
 import isFileValid from '~/utils/isFileValid'
 import { DATE_FORMAT } from '~/utils/constant'
+import usePermission from '~/hooks/usePermission'
 
 const UPDATING_FIELDS = {
   description: 'description',
@@ -95,6 +97,9 @@ export default function CardDetail() {
   const dispatch = useDispatch()
 
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+
+  const userPermission = usePermission()
+  const canUpdateCard = () => userPermission?.card.update
 
   const [card, setCard] = useState<ICard>()
   const [board, setBoard] = useState<IBoard>()
@@ -134,17 +139,27 @@ export default function CardDetail() {
   }
 
   const submitCover = async () => {
+    // check permission before updating
+    if (!canUpdateCard()) {
+      enqueueSnackbar('You do not have permission to do this action!', {
+        variant: 'error'
+      })
+      return
+    }
+
     if (file) {
       try {
         dispatch(showLoading())
 
         const res = await updateOnlyCoverCard({
           cardId: selectedCardId as string,
-          file
+          file,
+          boardId: boardId as string
         })
 
         if (res && res.data) {
           dispatch(setShouldRefreshBoardDetail(true))
+          await getCard()
         }
       } catch (err) {
         enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -158,14 +173,24 @@ export default function CardDetail() {
   }
 
   const deleteCover = async () => {
+    // check permission before updating
+    if (!canUpdateCard()) {
+      enqueueSnackbar('You do not have permission to do this action!', {
+        variant: 'error'
+      })
+      return
+    }
+
     try {
       const res = await updateCard({
         cardId: selectedCardId as string,
-        changes: { cover: '' }
+        changes: { cover: '' },
+        boardId: boardId as string
       })
 
       if (res && res.data) {
         dispatch(setShouldRefreshBoardDetail(true))
+        await getCard()
         setImageUrl('')
       }
     } catch (err) {
@@ -183,12 +208,21 @@ export default function CardDetail() {
     dueDate?: string
     labelId?: string | null
   }) => {
+    // check permission before updating
+    if (!canUpdateCard()) {
+      enqueueSnackbar('You do not have permission to do this action!', {
+        variant: 'error'
+      })
+      return
+    }
+
     try {
       if (isEmpty(changes)) return
 
       const res = await updateCard({
         cardId: selectedCardId as string,
-        changes
+        changes,
+        boardId: boardId as string
       })
 
       if (res && res.data) {
@@ -322,7 +356,8 @@ export default function CardDetail() {
     try {
       const res = await assignMemberToCard({
         cardId: selectedCardId as string,
-        memberId
+        memberId,
+        boardId: boardId as string
       })
 
       if (res) {
@@ -392,6 +427,15 @@ export default function CardDetail() {
     enqueueSnackbar('Copied to clipboard!', { variant: 'success' })
   }
 
+  // TODO: update logic + code
+  const computedMenuItems = () => {
+    if (card?.cover) {
+      return [menuItems[1]]
+    } else {
+      return menuItems
+    }
+  }
+
   return (
     <Container onClick={() => navigate(`/u/boards/${boardId}`)}>
       <Modal onClick={(e) => e.stopPropagation()}>
@@ -404,15 +448,13 @@ export default function CardDetail() {
                 <Link
                   to={`/u/boards/${boardId}`}
                   color="inherit"
-                  className="breadcrumb__item"
-                >
+                  className="breadcrumb__item">
                   {board?.title}
                 </Link>
                 <Link
                   to={`/u/boards/${boardId}`}
                   className="breadcrumb__item"
-                  color="inherit"
-                >
+                  color="inherit">
                   {columnOfCurrentCard()?.title}
                 </Link>
                 <div
@@ -422,17 +464,15 @@ export default function CardDetail() {
                     handleAddToClipBoard(
                       `/u/boards/${card.boardId}/cards/${card._id}`
                     )
-                  }
-                >
+                  }>
                   <p>{card.cardId}</p>
                   <RiLinkM />
                 </div>
               </Breadcrumbs>
-              <Menu items={menuItems} />
+              {canUpdateCard() && <Menu items={computedMenuItems()} />}
               <IconButton
                 size="small"
-                onClick={() => navigate(`/u/boards/${boardId}`)}
-              >
+                onClick={() => navigate(`/u/boards/${boardId}`)}>
                 <RiCloseLine />
               </IconButton>
             </CardHeader>
@@ -444,24 +484,25 @@ export default function CardDetail() {
                   )}
 
                   <div className="cover__edit-group">
-                    {card.cover && (
+                    {card.cover && canUpdateCard() && (
                       <Button
                         className="cover__edit-button"
-                        onClick={deleteCover}
-                      >
+                        onClick={deleteCover}>
                         Delete cover
                       </Button>
                     )}
-                    <Button className="cover__edit-button" component="label">
-                      {file && imageUrl && 'Change image'}
-                      {!file && imageUrl && 'Edit cover'}
-                      <VisuallyHiddenInput
-                        ref={fileInputRef}
-                        type="file"
-                        onChange={handleFileUpload}
-                        accept="image/*"
-                      />
-                    </Button>
+                    {canUpdateCard() && (
+                      <Button className="cover__edit-button" component="label">
+                        {file && imageUrl && 'Change image'}
+                        {!file && imageUrl && 'Edit cover'}
+                        <VisuallyHiddenInput
+                          ref={fileInputRef}
+                          type="file"
+                          onChange={handleFileUpload}
+                          accept="image/*"
+                        />
+                      </Button>
+                    )}
                     {file && (
                       <>
                         <SquareButton onClick={handleCancel}>
@@ -475,7 +516,11 @@ export default function CardDetail() {
                   </div>
                 </Cover>
                 <div className="title">
-                  <TitleInput card={card} onUpdateTitle={handleUpdateTitle} />
+                  {canUpdateCard() ? (
+                    <TitleInput card={card} onUpdateTitle={handleUpdateTitle} />
+                  ) : (
+                    <ReadOnlyInput>{card.title}</ReadOnlyInput>
+                  )}
                 </div>
                 <Section>
                   <p className="section__label">
@@ -489,6 +534,7 @@ export default function CardDetail() {
                   <DescriptionInput
                     card={card}
                     onUpdateDescription={handleUpdateDescription}
+                    disabled={!canUpdateCard()}
                   />
                 </Section>
                 <div className="part__divider"></div>
@@ -497,7 +543,13 @@ export default function CardDetail() {
                     <div className="section__header">
                       <p className="section__title">Sub tasks</p>
                       <p>{subtasks && subtasks.length}</p>
-                      <AddSubtask cardId={card._id} onRefresh={refreshSubtask} />
+                      {canUpdateCard() && (
+                        <AddSubtask
+                          cardId={card._id}
+                          onRefresh={refreshSubtask}
+                          boardId={boardId as string}
+                        />
+                      )}
                     </div>
                     {subtasks?.map((subtask) => (
                       <Subtask
@@ -528,7 +580,7 @@ export default function CardDetail() {
                 <Section>
                   <div className="section__header">
                     <p className="section__title">Assignee</p>
-                    {isAdminOrSuperAdminOfBoard() && (
+                    {canUpdateCard() && (
                       <AssignMemberMenu
                         currentMembers={cardMembers!}
                         boardId={card.boardId}
@@ -558,6 +610,7 @@ export default function CardDetail() {
                   </p>
                   <DateTimeInput
                     disableOpenPicker={false}
+                    disabled={!canUpdateCard()}
                     className={
                       dayjs(card.dueDate).isTomorrow()
                         ? 'due-date--tomorrow due-date'
@@ -585,19 +638,18 @@ export default function CardDetail() {
                   </p>
                   <MuiSelect
                     value={card.priority}
+                    disabled={!canUpdateCard()}
                     sx={{
                       height: '50px',
                       '& .MuiList-root': {
                         flexDirection: 'column'
                       }
                     }}
-                    onChange={(e) => handleUpdatePriority(e.target.value)}
-                  >
+                    onChange={(e) => handleUpdatePriority(e.target.value)}>
                     {priorityList.map((item) => (
                       <MenuItem
                         value={item.priority as string}
-                        key={item.priority as string}
-                      >
+                        key={item.priority as string}>
                         <PriorityItem className={item.priority}>
                           {item.priority as string}
                         </PriorityItem>
@@ -609,13 +661,15 @@ export default function CardDetail() {
                 <Section>
                   <div className="section__header">
                     <p className="section__title">Labels</p>
-                    <AddLabelMenu
-                      boardId={boardId as string}
-                      onChoose={handleUpdateLabel}
-                      card={card}
-                      refreshCard={refreshCard}
-                      isAdmin={isAdminOrSuperAdminOfBoard() as boolean}
-                    />
+                    {canUpdateCard() && (
+                      <AddLabelMenu
+                        boardId={boardId as string}
+                        onChoose={handleUpdateLabel}
+                        card={card}
+                        refreshCard={refreshCard}
+                        isAdmin={isAdminOrSuperAdminOfBoard() as boolean}
+                      />
+                    )}
                   </div>
                   <LabelContainer>
                     <Label $color={card?.label?.color as string}>

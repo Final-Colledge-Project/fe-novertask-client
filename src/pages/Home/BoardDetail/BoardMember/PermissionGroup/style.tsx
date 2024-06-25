@@ -15,7 +15,7 @@ export const PermissionContainer = styled.div`
 `
 
 export const ColorHeader = styled.div<{ $color: string }>`
-  height: 30px;
+  height: 36px;
   width: 100%;
   background-color: ${({ $color }) => $color};
 `
@@ -56,25 +56,37 @@ export const UserList = styled.div`
   height: 122px;
   align-content: flex-start;
   overflow-y: auto;
+  background-color: var(--mui-palette-gray6-main);
+  padding: 8px;
+  border-radius: 8px;
 `
 
 export const UserListEmptyText = styled.div`
   font-size: 12px;
   color: var(--mui-palette-gray-main);
-  margin-top: 8px;
   text-align: center;
-  line-height: 122px;
+  height: 122px;
+  background-color: var(--mui-palette-gray6-main);
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 
 export const Description = styled.div`
   font-size: 12px;
-  margin-top: 8px;
   color: var(--mui-palette-gray-main);
   /* display overflow text as eclipse, max 2 row */
   overflow: hidden;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   display: -webkit-box;
-  word-break: break-all;
+  height: 36px;
+  /* word-break: break-all; */
   margin-bottom: 8px;
+  margin-top: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  /* background-color: var(--mui-palette-gray6-main); */
 `

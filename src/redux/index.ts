@@ -11,6 +11,7 @@ import notiReducer from './notiSlice'
 import cardReducer from './cardSlice'
 import columnReducer from './columnSlice'
 import systemReducer from './systemSlice'
+import permissionReducer from './permissionSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -24,7 +25,8 @@ const store = configureStore({
     notification: notiReducer,
     card: cardReducer,
     column: columnReducer,
-    system: systemReducer
+    system: systemReducer,
+    permission: permissionReducer
   }
 })
 

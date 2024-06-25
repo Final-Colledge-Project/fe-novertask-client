@@ -27,7 +27,8 @@ import {
   MemberSectionTitle,
   Members,
   Modal,
-  Placeholder
+  Placeholder,
+  Role
 } from './styles'
 
 // services
@@ -42,7 +43,11 @@ import {
   getAllMemberInBoard,
   revokeAdmin as revokeAdminInBoard
 } from '~/services/boardService'
-import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
+import {
+  refreshMembers,
+  setMembers,
+  setShouldRefreshBoardDetail
+} from '~/redux/boardSlice'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import socketIoClient from 'socket.io-client'
 import { useDebounceCallback } from 'usehooks-ts'
@@ -69,6 +74,10 @@ export default function AddMemberPopup() {
   const [startSearch, setStartSearch] = useState<boolean>(false)
 
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+  const memberData = useSelector((state: StoreType) => state.board.members)
+  const currentPermission = useSelector(
+    (state: StoreType) => state.permission.currentBoardPermission
+  )
 
   const handleSocket = (memberIds: string[]) => {
     const socket = socketIoClient('http://localhost:5000')
@@ -103,11 +112,18 @@ export default function AddMemberPopup() {
 
   const getMemberInBoard = async () => {
     try {
+      // in case member data is already fetched
+      if (memberData) {
+        setBoardMembers(memberData)
+        return
+      }
       const res = await getAllMemberInBoard({
         id: popup.data.currentBoardID as string
       })
       if (res && res?.data) {
         setBoardMembers(res.data)
+        dispatch(refreshMembers())
+        dispatch(setMembers(res.data))
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -179,17 +195,28 @@ export default function AddMemberPopup() {
   const isMemberInBoard = (id: string) => {
     if (!id || !boardMembers) return
     return (
-      !!boardMembers?.oweners?.find(({ user }) => user._id === id) ||
+      !!boardMembers?.oweners?.find((user) => user._id === id) ||
       !!boardMembers?.members?.find((user) => user._id === id)
     )
   }
 
   const roleInBoard = (id: string) => {
     if (!id || !boardMembers) return
-    const foundUser = boardMembers?.oweners?.find(({ user }) => user._id === id)
-    if (!foundUser) return ROLES.member
-    else if (foundUser.role === ROLES.leader) return ROLES.leader
-    else return ROLES.admin
+    // 2024-06 update permission
+    // const foundUser = boardMembers?.oweners?.find((user) => user._id === id)
+    // if (!foundUser) return ROLES.member
+    const foundGroup = currentPermission?.find((group) => {
+      return group.memberIds.includes(id)
+    })
+    if (foundGroup) {
+      return { name: foundGroup.name, color: foundGroup.color }
+    }
+    // return empty value if not found
+    return { name: '', color: '' }
+    // 2024-05-26 update permission
+    // else if (foundUser.role === ROLES.leader) return ROLES.leader
+    // else return ROLES.admin
+    // 2024-05-26 update permission
   }
 
   /*
@@ -377,6 +404,7 @@ export default function AddMemberPopup() {
         <TextInput
           label=""
           size="small"
+          sx={{ height: 40 }}
           placeHolder="Search by name or email..."
           value={searchString}
           onChange={debouncedSearch}
@@ -442,18 +470,13 @@ export default function AddMemberPopup() {
                 <div className="info">
                   <div className="name-role-group">
                     <div className="name">{member?.user?.fullName}</div>
-                    <div
-                      className={clsx(
-                        'role',
+                    <Role
+                      $color={
                         roleInBoard(member?.user?._id as string)
-                      )}>
-                      {roleInBoard(member?.user?._id as string) ===
-                        ROLES.leader && 'Lead'}
-                      {roleInBoard(member?.user?._id as string) ===
-                        ROLES.admin && 'Admin'}
-                      {roleInBoard(member?.user?._id as string) ===
-                        ROLES.member && 'Member'}
-                    </div>
+                          ?.color as string
+                      }>
+                      {roleInBoard(member?.user?._id as string)?.name}
+                    </Role>
                   </div>
                   <div className="email">{member?.user?.email}</div>
                 </div>

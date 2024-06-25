@@ -5,6 +5,7 @@ export interface IGetColumnsInBoardBody {
 }
 export interface IUpdateColumnBody {
   id: string
+  boardId: string
   changes: IUpdatableColumn
 }
 export interface ICreateColumnBody {

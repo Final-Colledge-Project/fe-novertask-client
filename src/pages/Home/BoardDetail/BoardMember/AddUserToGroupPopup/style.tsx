@@ -162,14 +162,26 @@ export const ActionButtonsGroup = styled.div`
 export const Placeholder = styled.div`
   width: 100%;
   color: var(--mui-palette-gray-main);
-  padding: 50px 0;
+  padding: 20px 0;
   text-align: center;
+  font-size: 14px;
+
+  &.full-height {
+    height: 400px;
+  }
+
+  &.mt-5 {
+    margin-top: 20px;
+  }
 `
 
 export const UserTypeTitle = styled.div`
   font-size: 14px;
   color: var(--mui-palette-black-main);
   font-weight: 600;
+  background-color: var(--mui-palette-gray6-main);
+  padding: 4px 12px;
+  border-radius: 4px;
 `
 
 export const UserList = styled.div`
@@ -188,9 +200,22 @@ export const Body = styled.div`
   gap: 10px;
   align-items: center;
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
+  height: 400px;
   max-height: 400px;
   overflow-y: auto;
   padding-right: 10px;
   margin-top: 20px;
+
+  &.hidden {
+    display: none;
+  }
+`
+
+export const Controls = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+  padding-top: 10px;
 `

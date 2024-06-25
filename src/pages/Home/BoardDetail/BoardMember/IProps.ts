@@ -1,14 +1,14 @@
 import { IAllMemberInBoard, IBoard } from '~/services/types'
 
 export interface IHeaderProps {
-  onRoleChange: (newRole: number) => void
+  onRoleChange: (newRole: string) => void
   count: number
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   onStartSearch: (startSearch: boolean) => void
   onOpenAddMemberPopup: () => void
-  shouldShowAddMemberButton: boolean
   onModeChange: (newMode: number) => void
+  mode: number
 }
 
 export interface IMainProps {

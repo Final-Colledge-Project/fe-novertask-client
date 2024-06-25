@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ColorHeader,
   Content,
@@ -9,25 +9,29 @@ import {
   UserList,
   UserListEmptyText
 } from './style'
-import { BOARD_MEMBER_PERMISSIONS } from '~/utils/constant/board'
+import {
+  BOARD_MEMBER_PERMISSIONS,
+  BOARD_PERMISSIONS_POPUP_MODE
+} from '~/utils/constant/board'
 import { Avatar, Button, Tooltip } from '@mui/material'
-import randomCover from '~/utils/randomCover'
 import randomColor from '~/utils/randomColor'
 import { RiExternalLinkLine } from 'react-icons/ri'
 import PermissionGroupEdit from '../PermissionGroupEdit'
+import IProps from './IProps'
+import { useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import { cloneDeep } from 'lodash'
+import { IMemberInBoard } from '~/services/types'
+import { mapData } from '~/utils/helper'
 
-export default function PermissionGroup() {
+export default function PermissionGroup({ permission }: IProps) {
   const [viewMode, setViewMode] = useState<number>(
     BOARD_MEMBER_PERMISSIONS.VIEW
   )
-  const [count, setCount] = useState<number>(0)
+  const memberData = useSelector((state: StoreType) => state.board.members)
 
   const isViewMode = () => viewMode === BOARD_MEMBER_PERMISSIONS.VIEW
   const isEditMode = () => viewMode === BOARD_MEMBER_PERMISSIONS.EDIT
-
-  const random = () => {
-    setCount(Math.floor(Math.random() * (20 - 0 + 1) + 0))
-  }
 
   const startEdit = () => {
     setViewMode(BOARD_MEMBER_PERMISSIONS.EDIT)
@@ -37,45 +41,47 @@ export default function PermissionGroup() {
     setViewMode(BOARD_MEMBER_PERMISSIONS.VIEW)
   }
 
-  useEffect(() => {
-    random()
-  }, [])
+  const computedMembers = useMemo(() => {
+    if (memberData && permission.memberIds) {
+      const result = [
+        ...cloneDeep(memberData.members),
+        ...cloneDeep(memberData.oweners)
+      ]
+      return mapData<IMemberInBoard>(result, '_id', permission.memberIds)
+    }
+    return []
+  }, [memberData])
 
   return (
     <>
       <PermissionContainer>
-        <ColorHeader $color={randomColor()} />
+        <ColorHeader $color={permission.color} />
         <Content>
-          <Title>Title</Title>
+          <Title>{permission.name}</Title>
           <UserCount>
             <b>User: </b>
-            {count}
+            {permission.memberIds.length}
           </UserCount>
-          {count > 0 && (
+          {computedMembers.length > 0 && (
             <UserList>
-              {Array.from({ length: count }).map(() => (
-                <Tooltip arrow title="Lorem hjas diuasd aiusd aiosd asiod">
+              {computedMembers.map((mem: IMemberInBoard) => (
+                <Tooltip
+                  arrow
+                  title={mem.firstName + ' ' + mem.lastName}
+                  key={mem._id}>
                   <Avatar
                     sx={{ height: '35px', width: '35px' }}
-                    src={randomCover()}></Avatar>
+                    src={mem.avatar}></Avatar>
                 </Tooltip>
               ))}
             </UserList>
           )}
 
-          {count === 0 && <UserListEmptyText>No user</UserListEmptyText>}
-          <Tooltip
-            arrow
-            title=" Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Perspiciatis ratione maiores, fugiat illum optio magnam. Ullam,
-                alias itaque. Optio aliquam natus cupiditate reprehenderit
-                consequuntur in fugiat inventore ad ipsum vero.">
+          {computedMembers.length === 0 && <UserListEmptyText>No user</UserListEmptyText>}
+          <Tooltip arrow title={permission.description}>
             <Description>
               <b>Description: </b>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-              Perspiciatis ratione maiores, fugiat illum optio magnam. Ullam,
-              alias itaque. Optio aliquam natus cupiditate reprehenderit
-              consequuntur in fugiat inventore ad ipsum vero.
+              {permission.description}
             </Description>
           </Tooltip>
           <Button
@@ -87,7 +93,12 @@ export default function PermissionGroup() {
           </Button>
         </Content>
       </PermissionContainer>
-      <PermissionGroupEdit open={isEditMode()} closeCallback={endEdit} />
+      <PermissionGroupEdit
+        open={isEditMode()}
+        closeCallback={endEdit}
+        permissionProps={permission}
+        mode={BOARD_PERMISSIONS_POPUP_MODE.EDIT}
+      />
     </>
   )
 }

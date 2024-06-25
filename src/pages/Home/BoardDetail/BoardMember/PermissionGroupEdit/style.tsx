@@ -16,7 +16,7 @@ export const Overlay = styled.div`
   align-items: center;
 `
 
-export const Container = styled.div`
+export const Form = styled.form`
   background-color: white;
 `
 
@@ -36,6 +36,7 @@ export const Mode = styled.span`
   font-size: 16px;
   color: var(--mui-palette-gray-main);
   font-style: italic;
+  font-weight: normal;
 `
 
 export const CloseButton = styled.div`
@@ -96,6 +97,10 @@ export const Group = styled.div`
 
   &.mt-3 {
     margin-top: 12px;
+  }
+
+  &.flex-1 {
+    flex: 1;
   }
 `
 

@@ -40,6 +40,7 @@ import { deleteCard as deleteCardService } from '~/services/cardService'
 // import { setDeletingCard } from '~/redux/cardSlice' /* 22-04-2024 unused */
 import { setCreateColumn } from '~/redux/boardSlice'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
+import usePermission from '~/hooks/usePermission'
 
 const Card = ({ card, className }: { card: ICard; className?: string }) => {
   dayjs.extend(isTomorrow)
@@ -70,6 +71,9 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
   )
   const filter = useSelector((state: StoreType) => state.card.filter)
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+  const userPermission = usePermission()
+  const canUpdateCard = () => userPermission?.card.update
+  const canDeleteCard = () => userPermission?.card.delete
 
   useEffect(() => {
     if (!titleRef.current || !cardIdRef.current) return
@@ -139,7 +143,10 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
   const onDeleteCard = async () => {
     dispatch(showLoading())
     try {
-      const res = await deleteCardService({ cardId: card._id })
+      const res = await deleteCardService({
+        cardId: card._id,
+        boardId: card.boardId
+      })
       if (res) {
         enqueueSnackbar('Card was moved to trash.', { variant: 'success' })
         dispatch(
@@ -156,13 +163,16 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
     dispatch(hideLoading())
   }
 
-  const menuItems = [
-    {
-      title: 'Move to trash',
-      onChoose: onDeleteCard
+  const menuItems = () => {
+    const items = []
+    if (canDeleteCard()) {
+      items.push({
+        title: 'Move to trash',
+        onChoose: onDeleteCard
+      })
     }
-  ]
-
+    return items
+  }
   const highlightedString = (
     baseString: string,
     searchString: string,
@@ -231,7 +241,9 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
               {card.priority}
             </Priority>
           </div>
-          <CardMenu items={menuItems} />
+          {canUpdateCard() && menuItems().length && (
+            <CardMenu items={menuItems()} />
+          )}
         </CardHeader>
         <Title ref={titleRef} />
         <Info>

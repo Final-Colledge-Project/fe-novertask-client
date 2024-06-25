@@ -29,10 +29,12 @@ import { AxiosError } from 'axios'
 
 export default function AddSubtask({
   cardId,
-  onRefresh
+  onRefresh,
+  boardId
 }: {
   cardId: string
-  onRefresh: () => void
+  onRefresh: () => void,
+  boardId: string
 }) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -63,7 +65,7 @@ export default function AddSubtask({
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     setIsSubmitting(true)
     try {
-      const res = await createSubtask({ name: data.title, cardId })
+      const res = await createSubtask({ name: data.title, cardId, boardId: boardId })
       // console.log(res)
       if (res && res.data) {
         setOpen(false)

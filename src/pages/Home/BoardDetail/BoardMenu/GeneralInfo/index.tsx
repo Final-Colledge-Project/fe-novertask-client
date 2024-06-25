@@ -64,24 +64,18 @@ export default function GeneralInfo({
     )
   }, [allWorkspaces, board])
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    setValue,
-    formState,
-    setError
-  } = useForm<IFormFields>({
-    defaultValues: {
-      title: board.title,
-      description: board.description,
-      dueDate: board.dueDate || '',
-      type: board.type
-    },
-    mode: 'onChange',
-    resolver: yupResolver(schema),
-    reValidateMode: 'onBlur'
-  })
+  const { control, handleSubmit, reset, setValue, formState, setError } =
+    useForm<IFormFields>({
+      defaultValues: {
+        title: board.title,
+        description: board.description,
+        dueDate: board.dueDate || '',
+        type: board.type
+      },
+      mode: 'onChange',
+      resolver: yupResolver(schema),
+      reValidateMode: 'onBlur'
+    })
 
   const isCurrentUSerOwner = () => {
     return owner._id === currentUserInfo?._id
@@ -247,7 +241,7 @@ export default function GeneralInfo({
             <DateTimeInput
               disableOpenPicker={false}
               format={DATE_FORMAT}
-              value={dayjs(dueDateString)}
+              value={dueDateString ? dayjs(dueDateString) : null}
               disabled={!enableEditDueDate || !isCurrentUSerOwner()}
               minDateTime={dayjs(board.createdAt)}
               sx={{
@@ -278,6 +272,7 @@ export default function GeneralInfo({
           <Input className="one-line">
             <p className="label">Public</p>
             <Switch
+              size="small"
               disabled={!isCurrentUSerOwner()}
               checked={boardAccessibility === 'public'}
               onChange={handleToggleBoardAccessibility}
@@ -303,14 +298,10 @@ export default function GeneralInfo({
               <Button
                 color="error"
                 variant="outlined"
-                onClick={handleResetForm}
-              >
+                onClick={handleResetForm}>
                 Cancel
               </Button>
-              <Button
-                variant="contained"
-                type="submit"
-              >
+              <Button variant="contained" type="submit">
                 Save
               </Button>
             </FormActionsGroup>

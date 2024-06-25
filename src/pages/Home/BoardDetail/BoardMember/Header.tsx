@@ -1,27 +1,36 @@
-import clsx from 'clsx'
-import { RightMenu, StyledHeader, ViewTypeItem, ViewTypeMenu } from './style'
+import { RightMenu, StyledHeader, ViewTypeMenu } from './style'
 import { ChangeEvent, useState } from 'react'
 import {
-  BOARD_MEMBER_ROLE_TITLES,
-  BOARD_MEMBER_VIEW_MODE
+  BOARD_MEMBER_VIEW_MODE,
+  BOARD_VIEW_ALL_ROLE,
+  BOARD_VIEW_EMPTY_ROLE
 } from '~/utils/constant/board'
 import SearchBox from '~/components/SearchBox'
-import { Button } from '@mui/material'
+import { Button, MenuItem, Select } from '@mui/material'
 import { RiSettings2Line, RiUserAddLine } from 'react-icons/ri'
 import { IHeaderProps } from './IProps'
 import { useDebounceCallback } from 'usehooks-ts'
+import { useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import { IBoardPermission } from '~/services/types'
+import usePermission from '~/hooks/usePermission'
 
 export default function Header({
   onRoleChange,
-  count,
   searchTerm,
   setSearchTerm,
   onStartSearch,
   onOpenAddMemberPopup,
-  shouldShowAddMemberButton,
-  onModeChange
+  onModeChange,
+  mode
 }: IHeaderProps) {
-  const [viewType, setViewType] = useState<number>(0)
+  const currentBoardPermission = useSelector(
+    (state: StoreType) => state.permission.currentBoardPermission
+  )
+  const [selectedRole, setSelectedRole] = useState<string>(BOARD_VIEW_ALL_ROLE)
+  const userPermission = usePermission()
+  const isAdmin = () => userPermission?.isAdmin
+  const canInviteMember = () => userPermission?.member.invite
 
   const handleChangeSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value)
@@ -32,54 +41,61 @@ export default function Header({
 
   const debounced = useDebounceCallback(handleChangeSearch, 500)
 
-  const handleChangeRole = (roleIndex: number) => {
-    setViewType(roleIndex)
-    onRoleChange(roleIndex)
+  const handleChangeRole = (roleId: string) => {
+    setSelectedRole(roleId)
+    onRoleChange(roleId)
     onModeChange(BOARD_MEMBER_VIEW_MODE.VIEW)
   }
 
   const handlePermissionSettingStart = () => {
     onModeChange(BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING)
-    setViewType(-1)
+    setSelectedRole(BOARD_VIEW_EMPTY_ROLE)
   }
 
   return (
     <StyledHeader>
       {/* Role filter */}
       <ViewTypeMenu>
-        {BOARD_MEMBER_ROLE_TITLES.map((type, index) => (
-          <ViewTypeItem
-            className={clsx(viewType === index && 'index')}
-            onClick={() => handleChangeRole(index)}
-            key={type}>
-            {/* role label*/}
-            <span>{BOARD_MEMBER_ROLE_TITLES[index]}</span>
-
-            {/* role count */}
-            {viewType === index && (
-              <span className="current-item-count">{count}</span>
-            )}
-          </ViewTypeItem>
-        ))}
+        <Select
+          sx={{ height: 35 }}
+          variant="outlined"
+          value={selectedRole}
+          onChange={(e) => handleChangeRole(e.target.value)}>
+          {mode === BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING && (
+            <MenuItem dense value={BOARD_VIEW_EMPTY_ROLE}>
+              Choose role
+            </MenuItem>
+          )}
+          <MenuItem dense value={BOARD_VIEW_ALL_ROLE}>
+            All
+          </MenuItem>
+          {currentBoardPermission?.map(
+            (per: IBoardPermission, _index: number) => (
+              <MenuItem dense value={per._id} key={per._id}>
+                {per.name}
+              </MenuItem>
+            )
+          )}
+        </Select>
       </ViewTypeMenu>
 
       <RightMenu>
         <div style={{ flexShrink: 0 }}>
-          {shouldShowAddMemberButton && (
+          {isAdmin() && mode !== BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING && (
             <Button
               color="primary"
               size="small"
               variant="text"
               onClick={handlePermissionSettingStart}
               startIcon={<RiSettings2Line />}>
-              Permission settings
+              Permission
             </Button>
           )}
         </div>
 
         {/* Add member button */}
         <div style={{ flexShrink: 0 }}>
-          {shouldShowAddMemberButton && (
+          {canInviteMember() && (
             <Button
               color="primary"
               size="small"
@@ -96,6 +112,11 @@ export default function Header({
           sx={{ height: '30px' }}
           onChange={debounced}
           value={searchTerm}
+          placeHolder={
+            mode === BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING
+              ? 'Search permission...'
+              : 'Search member...'
+          }
         />
       </RightMenu>
     </StyledHeader>
