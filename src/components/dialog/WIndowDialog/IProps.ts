@@ -11,4 +11,5 @@ export default interface IProps {
   children?: ReactElement | ReactElement[] | ReactNode
   dialogTitleProp?: TypographyProps
   dialogContentProp?: DialogContentProps
+  isFullScreen?: boolean
 }

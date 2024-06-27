@@ -77,7 +77,9 @@ export const PRIORITY_COLOR = {
 
 export const QUERY_KEY = {
   assigned_task: 'assigned_task',
-  google_calendar: 'google_calendar'
+  google_calendar: 'google_calendar',
+  burndown_report: 'burndown_report',
+  velocity_report: 'velocity_report'
 }
 
 export const OPTION_VIEWS = {
@@ -92,3 +94,9 @@ export const TYPE_EVENT = {
 }
 
 export const FORMAT_DATE_TIME = 'MMM D (h:mm A)'
+export const FORMAT_DATE = 'YYYY-MM-DD'
+
+export const EXPORT_TYPE = {
+  pdf: 'pdf',
+  csv: 'csv'
+}

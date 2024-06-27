@@ -73,19 +73,6 @@ const ToolbarCalendar = ({
     <div className="toolbarCalendar">
       <div className="toolbarCalendar__left">
         <div className="toolbar__views">
-          {/* <Dropdown
-            menu={{ items, selectable: true, onClick }}
-            placement="bottom"
-            trigger={['click']}
-          >
-            <Button className="changeDate_btn">
-              <Space>
-                <RiCalendarLine style={{ fontSize: '16px' }} />
-                {capitalize(view)}
-                <RiArrowDownSLine style={{ fontSize: '16px' }} />
-              </Space>
-            </Button>
-          </Dropdown> */}
           <Select
             value={view}
             onChange={(e) => {
@@ -98,8 +85,7 @@ const ToolbarCalendar = ({
                   | 'agenda'
               )
             }}
-            size="small"
-          >
+            size="small">
             {items.map((item, index) => (
               <MenuItem key={index} value={item.key}>
                 {item.label}
@@ -112,8 +98,7 @@ const ToolbarCalendar = ({
           className="toolbar_today"
           onClick={() => {
             setDate(dayjs().toDate())
-          }}
-        >
+          }}>
           Today
         </Button>
       </div>
@@ -131,14 +116,12 @@ const ToolbarCalendar = ({
       <div className="toolbarCalendar__right">
         <Button
           variant="outlined"
-          startIcon={<RiVideoAddLine style={{ fontSize: '16px' }} />}
-        >
+          startIcon={<RiVideoAddLine style={{ fontSize: '16px' }} />}>
           <span>New Meeting</span>
         </Button>
         <Button
           variant="contained"
-          startIcon={<RiAddCircleLine className="toolbar-icon" />}
-        >
+          startIcon={<RiAddCircleLine className="toolbar-icon" />}>
           Add event
         </Button>
       </div>

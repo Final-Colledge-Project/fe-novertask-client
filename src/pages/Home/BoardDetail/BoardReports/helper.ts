@@ -56,3 +56,4 @@ export const a11yProps = (index: number) => {
     'aria-controls': `full-width-tabpanel-${index}`
   }
 }
+
