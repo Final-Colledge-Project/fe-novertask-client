@@ -1,0 +1,73 @@
+.toolbarCalendar {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--mui-palette-white-main);
+  align-items: center;
+}
+.toolbar__changeDate {
+  display: flex;
+  align-items: center;
+  gap: 8;
+}
+.currentDate {
+  font-size: 22px;
+}
+
+.toolbarCalendar__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.changeDate_btn {
+  border-radius: 4px;
+  &:hover {
+    color: var(--mui-palette-blue-main);
+    border: 1px solid #4096ff;
+  }
+  & .ant-space-item {
+    display: flex;
+  }
+}
+
+.toolbar_today {
+  border-radius: 4px;
+  &:hover {
+    color: var(--mui-palette-blue-main);
+    border: 1px solid #4096ff;
+  }
+}
+
+.toolbar-icon {
+  color: var(--mui-palette-white-main);
+  font-size: 18px;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  padding-right: 8px;
+  // border-radius: 6px;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.toolbarCalendar__right {
+  display: flex;
+  gap: 10px;
+  & .ant-btn {
+    display: flex;
+  }
+}
+
+.meeting-btn {
+  color: var(--mui-palette-gray1-main);
+  &:hover {
+    color: var(--mui-palette-blue-main);
+    border: 1px solid #4096ff;
+  }
+}

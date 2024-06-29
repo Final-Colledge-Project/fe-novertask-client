@@ -17,3 +17,9 @@ export const BOARD_PERMISSIONS_POPUP_MODE = {
   ADD: 2,
   EDIT: 3
 }
+
+export const BOARD_RESOURCES = {
+  sprint: 'sprint',
+  priority: 'priority',
+  issueType: 'issueType'
+}

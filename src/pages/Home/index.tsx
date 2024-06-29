@@ -18,12 +18,15 @@ import { getNotificationByUserId } from '~/redux/notiSlice/actions'
 import CardDetail from './CardDetail'
 import MyTask from './MyTask'
 import Inbox from './Inbox'
+import { getSchedules } from '~/redux/scheduleSlice/actions'
 
 const Home = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL
   const { user } = useSelector((state: StoreType) => state.user)
   const dispatch = useDispatch<StoreDispatchType>()
+
   useEffect(() => {
+    dispatch(getSchedules())
     const socket = socketIoClient(serverUrl)
     socket.on('connect', async function () {
       socket.emit('login', { userId: user?._id })
@@ -45,10 +48,7 @@ const Home = () => {
       <div className="home-outlet">
         <Routes>
           <Route element={<HomeLayout />}>
-            <Route
-              element={<Navigate to={'/error/404'} />}
-              path="*"
-            ></Route>
+            <Route element={<Navigate to={'/error/404'} />} path="*"></Route>
             <Route element={<Dashboard />} index />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="workspaces/:id/*" element={<WorkSpaceDetails />} />

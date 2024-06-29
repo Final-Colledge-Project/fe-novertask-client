@@ -29,15 +29,17 @@ export default function WindowDialog({
   onClose,
   children,
   dialogTitleProp,
-  dialogContentProp
+  dialogContentProp,
+  isFullScreen = false
 }: IProps) {
   return (
     <Dialog
+      fullScreen={isFullScreen}
       open={open}
       TransitionComponent={Transition}
       PaperProps={{
         sx: {
-          borderRadius: '20px',
+          borderRadius: isFullScreen ? '20px 20px 0 0' : '20px',
           padding: '12px',
           boxShadow: 'none',
           overflow: 'visible',
@@ -56,7 +58,7 @@ export default function WindowDialog({
         {children}
       </DialogContent>
 
-      <CloseButton>
+      <CloseButton $isFullScreen={isFullScreen}>
         <IconButton size="small" color="inherit" onClick={onClose}>
           <RiCloseLine />
         </IconButton>

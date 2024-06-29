@@ -24,6 +24,10 @@ export interface IUser {
   lastName: string
   phone: string
   avatar: string
+  providerToken: {
+    accessToken: string
+    refreshToken: string
+  }
 }
 
 export interface IMockUser {
@@ -343,4 +347,82 @@ export interface IUpdatableBoardPermission {
   issueType?: { create?: boolean; update?: boolean; delete?: boolean }
   priority?: { create?: boolean; update?: boolean; delete?: boolean }
   label?: { create?: boolean; update?: boolean; delete?: boolean }
+export interface ITaskEvent {
+  id: string
+  title: string
+}
+
+export interface EventItem {
+  id: string
+  start: Date
+  end: Date
+  data?: {
+    assignedTask?: ITaskEvent
+    googleEvent?: IGoogleEvent
+  }
+  type: string
+  // title: string
+  // isDraggable?: boolean
+}
+
+export interface IGoogleEvent {
+  id: string
+  start: Date
+  end: Date
+  title: string
+  htmlLink: string
+}
+
+export interface ISchedule {
+  _id: string
+  userId: string
+  name: string
+  color: string
+  type: string
+  isActive: boolean
+}
+
+export interface ISprint {
+  _id: string
+  boardId: string
+  name: string
+  cardOrderIds: string[]
+  duration: string
+  creatorId: string
+  startDate: Date
+  endDate: Date
+  goal: string
+  status: string
+  dailyStoryPoints: IDailyStoryPoint[]
+  createdAt: Date
+  updatedAt: Date
+  isActive: boolean
+  totalStoryPoint?: number
+}
+export interface IDailyStoryPoint {
+  date?: Date
+  storyPoints: number
+}
+
+export interface IPriority {
+  _id: string
+  boardId: string
+  name: string
+  description: string
+  color: string
+  createdAt: Date
+  updatedAt: Date
+  isActive: boolean
+}
+
+export interface IIssueType {
+  _id: string
+  boardId: string
+  name: string
+  description: string
+  icon: string
+  createdAt: Date
+  updatedAt: Date
+  isActive: boolean
+  hierarchy: number
 }

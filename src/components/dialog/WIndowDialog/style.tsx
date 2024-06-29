@@ -1,9 +1,9 @@
 import styled from '@emotion/styled'
 
-export const CloseButton = styled.div`
+export const CloseButton = styled.div<{ $isFullScreen: boolean }>`
   position: absolute;
-  top: -10px;
-  right: -10px;
+  top: ${(props) => (props.$isFullScreen ? '10px' : '-10px')};
+  right: ${(props) => (props.$isFullScreen ? '10px' : '-10px')};
   color: var(--mui-palette-gray-main);
   background-color: var(--mui-palette-white-main);
   width: fit-content;

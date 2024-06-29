@@ -1,0 +1,35 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 70vh;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sprintInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.sprintItemGroup {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+}
+
+.sprintItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  & .itemLabel {
+    font-weight: 600;
+  }
+}

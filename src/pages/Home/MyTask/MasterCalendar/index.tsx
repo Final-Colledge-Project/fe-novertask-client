@@ -1,92 +1,95 @@
-import dayjs, { Dayjs } from 'dayjs'
 import './style.scss'
-import type { CalendarProps } from 'antd'
-import { Calendar, Popover } from 'antd'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import { Calendar, dayjsLocalizer, Views } from 'react-big-calendar'
+// import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
+import dayjs from 'dayjs'
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import { useQuery } from '@tanstack/react-query'
+import { QUERY_KEY, TYPE_EVENT } from '~/utils/constant'
+import { cardAssignToMe } from '~/services/cardService'
+import { EventItem } from '~/services/types'
+import AssignedTaskEvent from './Components/AssignedTaskEvent'
+import { useState, useEffect } from 'react'
+import { convertGoogleEvent, convertTaskEvent } from './helper'
+import ToolbarCalendar from './Components/ToolbarCalendar'
 import { useSelector } from 'react-redux'
-import {  StoreType } from '~/redux'
-import { useEffect, useState } from 'react'
-import { IAssignedCard } from '~/services/types'
-import TaskPopover from '../components/TaskPopover'
-import { RiCalendarEventLine } from 'react-icons/ri'
-const MasterCalendar = () => {
-  const { cardsAssignedToMe } = useSelector((state: StoreType) => state.card)
-  const [assignedTask, setAssignedTask] =
-    useState<IAssignedCard[]>(cardsAssignedToMe)
-  const [clicked, setClicked] = useState(false)
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null)
+import { StoreType } from '~/redux'
+import { uniqBy } from 'lodash'
+import GoogleEvent from './Components/GoogleEvent'
+const localizer = dayjsLocalizer(dayjs)
+// const DnDCalendar = withDragAndDrop(Calendar)
+
+type Keys = keyof typeof Views
+
+interface IMasterCalendarProps {
+  date: Date
+  setDate: (date: Date) => void
+}
+
+const MasterCalendar = ({ date, setDate }: IMasterCalendarProps) => {
+  const [events, setEvents] = useState<EventItem[]>([])
+  const [view, setView] = useState<(typeof Views)[Keys]>(Views.MONTH)
+  const { googleEvents } = useSelector((state: StoreType) => state.schedule)
+  const [assignedEvent, setAssignedEvent] = useState<EventItem[]>([])
+  const [googleEvent, setGoogleEvent] = useState<EventItem[]>([])
+  const components = {
+    event: ({ event }) => {
+      if (event && event.type === TYPE_EVENT.assignedTask) {
+        return <AssignedTaskEvent event={event} />
+      }
+      if (event && event.type === TYPE_EVENT.googleEvent) {
+        return <GoogleEvent event={event} />
+      }
+    }
+  }
+
+  const { data: assignedTask } = useQuery({
+    queryKey: [QUERY_KEY.assigned_task],
+    queryFn: () => {
+      return cardAssignToMe()
+    },
+    refetchOnWindowFocus: false
+  })
 
   useEffect(() => {
-    setAssignedTask(cardsAssignedToMe)
-  }, [cardsAssignedToMe])
-
-  const assignedArray = assignedTask
-    .filter((item) => item.dueDate !== null)
-    .map((card) => {
-      return {
-        id: dayjs(card.dueDate).format('YYYY-MM-DD'),
-        value: card
-      }
-    })
-  const dueDateTasks = Object.assign(
-    {},
-    ...assignedArray.map((item) => ({ [item.id]: item.value }))
-  )
-  const hide = () => {
-    setClicked(false)
-  }
-
-  const dateCellRender = (value: dayjs.Dayjs): React.ReactNode => {
-    const dateString = value.format('YYYY-MM-DD')
-    const cellData = dueDateTasks[dateString]
-    const handleClickChange = (open: boolean) => {
-      setClicked(open)
+    if (assignedTask) {
+      const newEvents = assignedTask?.data.map((task) => convertTaskEvent(task))
+      setAssignedEvent((prev) => uniqBy([...prev, ...newEvents], 'id'))
     }
-    return (
-      <div>
-        {cellData ? (
-          <div className="event-personal">
-            <div className="event-dot"></div>
-            <div className="event-content">
-              <Popover
-                content={<TaskPopover task={cellData} controlHide={hide} />}
-                title={dayjs(cellData.dueDate).format('LLL')}
-                trigger="click"
-                open={
-                  dayjs(cellData.dueDate).format('YYYY-MM-DD').toString() ===
-                  dayjs(selectedDate?.toString())
-                    .format('YYYY-MM-DD')
-                    .toString()
-                }
-                onOpenChange={handleClickChange}
-              >
-                <span style={{ display: 'block', height: '100%' }}>
-                  {cellData.title}
-                </span>
-              </Popover>
-            </div>
-          </div>
-        ) : null}
-      </div>
-    )
-  }
-  const onPanelChange = (value: Dayjs, mode: CalendarProps<Dayjs>['mode']) => {
-    // console.log(value.format('YYYY-MM-DD'), mode)
-  }
+  }, [assignedTask])
 
-  const handleDateSelect = (date: Dayjs) => {
-    setSelectedDate(date)
-    // console.log('Selected Date:', date.format('YYYY-MM-DD'))
-  }
+  useEffect(() => {
+    if (googleEvents) {
+      const googleTask = googleEvents.map((event) => convertGoogleEvent(event))
+      setGoogleEvent(googleTask)
+    }
+  }, [googleEvents])
+
+  useEffect(() => {
+    const newEvents = [...assignedEvent, ...googleEvent]
+    setEvents(newEvents)
+  }, [assignedEvent, googleEvent, view])
+
   return (
     <div className="myTask-calendar">
-      <div className="myTask-masterCalendar">
-        <RiCalendarEventLine className="myTask-masterCalendar__icon" />
-        <span className='"myTask-masterCalendar__title'>Master Calendar</span>
-      </div>
+      <ToolbarCalendar
+        view={view}
+        setView={setView}
+        date={date}
+        setDate={setDate}
+      />
       <Calendar
-        onPanelChange={onPanelChange}
-        cellRender={dateCellRender}
-        onSelect={handleDateSelect}
+        defaultView="week"
+        events={events}
+        localizer={localizer}
+        style={{ height: '80vh', marginTop: '10px' }}
+        components={components}
+        toolbar={false}
+        view={view}
+        onView={setView}
+        date={date}
+        popup
       />
     </div>
   )

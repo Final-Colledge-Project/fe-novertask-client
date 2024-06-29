@@ -78,7 +78,7 @@ export default function GeneralInfo({
     })
 
   const isCurrentUSerOwner = () => {
-    return owner._id === currentUserInfo?._id
+    return owner?._id === currentUserInfo?._id
   }
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {

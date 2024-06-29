@@ -9,9 +9,13 @@ import boardReducer from './boardSlice'
 import navReducer from './navSlice'
 import notiReducer from './notiSlice'
 import cardReducer from './cardSlice'
+import scheduleReducer from './scheduleSlice'
 import columnReducer from './columnSlice'
 import systemReducer from './systemSlice'
 import permissionReducer from './permissionSlice'
+import sprintReducer from './sprintSlice'
+import priorityReducer from './prioritySlice'
+import issueTypeReducer from './issueTypeSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -24,9 +28,13 @@ const store = configureStore({
     nav: navReducer,
     notification: notiReducer,
     card: cardReducer,
+    schedule: scheduleReducer,
     column: columnReducer,
     system: systemReducer,
-    permission: permissionReducer
+    permission: permissionReducer,
+    sprint: sprintReducer,
+    priority: priorityReducer,
+    issueType: issueTypeReducer
   }
 })
 
