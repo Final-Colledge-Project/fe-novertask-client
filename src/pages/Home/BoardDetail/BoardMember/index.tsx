@@ -14,6 +14,8 @@ import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { setPopupAddMemberToBoard } from '~/redux/popupSlice'
 import { IMainProps } from './IProps'
+import { BOARD_MEMBER_VIEW_MODE } from '~/utils/constant/board'
+import PermissionSetting from './PermissionSetting'
 
 export default function BoardMember({ members, leaderId, board }: IMainProps) {
   const dispatch = useDispatch<StoreDispatchType>()
@@ -22,7 +24,10 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
   const [currentRole, setCurrentRole] = useState<number>(0)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [startSearch, setStartSearch] = useState<boolean>(false)
-
+  // 0: see, 1: edit
+  const [currentViewMode, setCurrentViewMode] = useState<number>(
+    BOARD_MEMBER_VIEW_MODE.VIEW
+  )
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
 
   // #region group members by role
@@ -68,6 +73,7 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
     }))
   }
 
+  // generate list of members to render
   const generateRenderList = () => {
     const list = []
 
@@ -100,7 +106,7 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
   const onRoleListChange = (newRole: number) => {
     setCurrentRole(newRole)
   }
-  const onSearch = <T, >(list: Array<T>) => {
+  const onSearch = <T,>(list: Array<T>) => {
     const filteredMembers = list.filter((member: T) => {
       if (member) {
         const fullNameMatch = (
@@ -119,6 +125,18 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
       }
     })
     return filteredMembers
+  }
+
+  const isViewMode = () => {
+    return currentViewMode === BOARD_MEMBER_VIEW_MODE.VIEW
+  }
+
+  const isPermissionSettingMode = () => {
+    return currentViewMode === BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING
+  }
+
+  const setViewMode = (newMode: number) => {
+    setCurrentViewMode(newMode)
   }
 
   const onSearchTermChange = (newSearchTerm: string) => {
@@ -167,46 +185,35 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
         onStartSearch={setStartSearch}
         onOpenAddMemberPopup={handleShowAddMemberPopup}
         shouldShowAddMemberButton={isUserAdminOrLead()}
+        onModeChange={setViewMode}
       />
 
       <Body>
         {/* View team member as list */}
-        <MemberListTypeContainer>
-          {generateRenderList()?.length !== 0 &&
-            !startSearch &&
-            generateRenderList()?.map((member) => (
-              <LineMemberItem
-                key={member?.user._id}
-                superAdminId={leaderId as string}
-                data={member as { role: 'member' | 'boardAdmin' | 'boardLead' }}
-              />
-            ))}
-          {generateRenderList()?.length === 0 && !startSearch && (
-            <Placeholder>There is no one here</Placeholder>
-          )}
-          {startSearch && (
-            <Placeholder>
-              <CircularProgress size={30} />
-            </Placeholder>
-          )}
-        </MemberListTypeContainer>
-        {/* <Members>
-            <MemberCountLabel>
-              <RiUserLine />{' '}
-              {(members?.members.length ?? 0) + (members?.oweners.length ?? 0)}
-            </MemberCountLabel>
-            {isUserLeadOrAdmin() && (
-              <Button
-                color="primary"
-                size="small"
-                variant="outlined"
-                startIcon={<RiUserAddLine />}
-                onClick={handleShowAddMemberPopup}
-              >
-                Add or edit member
-              </Button>
+        {isViewMode() && (
+          <MemberListTypeContainer>
+            {generateRenderList()?.length !== 0 &&
+              !startSearch &&
+              generateRenderList()?.map((member) => (
+                <LineMemberItem
+                  key={member?.user._id}
+                  superAdminId={leaderId as string}
+                  data={
+                    member as { role: 'member' | 'boardAdmin' | 'boardLead' }
+                  }
+                />
+              ))}
+            {generateRenderList()?.length === 0 && !startSearch && (
+              <Placeholder>There is no one here</Placeholder>
             )}
-          </Members> */}
+            {startSearch && (
+              <Placeholder>
+                <CircularProgress size={30} />
+              </Placeholder>
+            )}
+          </MemberListTypeContainer>
+        )}
+        {isPermissionSettingMode() && <PermissionSetting />}
       </Body>
 
       <AddMemberPopup />

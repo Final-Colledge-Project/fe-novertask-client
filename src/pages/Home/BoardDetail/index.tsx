@@ -102,6 +102,7 @@ import BoardViewLayout from '~/layouts/BoardViewLayout'
 import BoardMember from './BoardMember'
 import BoardOverview from './BoardOverview'
 import BoardSettings from './BoardSettings'
+import BoardReports from './BoardReports'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -370,7 +371,7 @@ const BoardDetail = () => {
     const leadId = board?.ownerIds.find(
       (owner) => owner.role === 'boardLead'
     )?.user
-    return members?.oweners.find((owner) => owner.user._id === leadId)?.user
+    return members?.oweners.find((owner) => owner?.user?._id === leadId)?.user
   }, [members, board])
 
   const boardAdminAndLead = useCallback(() => {
@@ -837,6 +838,9 @@ const BoardDetail = () => {
     matchPath(allRoutes.home.board.boardOverView.path, location.pathname)
   const isSettingsView = () =>
     matchPath(allRoutes.home.board.boardSettings.path, location.pathname)
+  const isReportView = () => {
+    return matchPath(allRoutes.home.board.boardReports.path, location.pathname)
+  }
 
   /*
     Render title breadcrumb for each view
@@ -846,6 +850,7 @@ const BoardDetail = () => {
     else if (isMemberView()) return allRoutes.home.board.boardMember.segment
     else if (isOverviewView()) return allRoutes.home.board.boardOverView.segment
     else if (isSettingsView()) return allRoutes.home.board.boardSettings.segment
+    else if (isReportView()) return allRoutes.home.board.boardReports.segment
   }
 
   return (
@@ -1012,6 +1017,10 @@ const BoardDetail = () => {
                   board={board}
                 />
               }
+            />
+            <Route
+              path={allRoutes.home.board.boardReports.segment}
+              element={<BoardReports />}
             />
             <Route
               path={allRoutes.home.board.boardSettings.segment}

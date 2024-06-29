@@ -13,6 +13,7 @@ export const TITLE = {
     boardOverView: 'Overview',
     boardDetail: 'Task',
     boardMember: 'Team',
+    boardReports: 'Reports',
     boardSettings: 'Settings'
   },
   menu: {
@@ -22,4 +23,11 @@ export const TITLE = {
     inbox: 'Inbox',
     notifications: 'Notifications'
   }
+}
+
+export const REPORT_TYPE = {
+  averageAgeReport: 'averageAgeReport',
+  sprintReport: 'sprintReport',
+  sprintBurnDownReport: 'sprintBurnDownReport',
+  sprintVelocityReport: 'sprintVelocityReport'
 }

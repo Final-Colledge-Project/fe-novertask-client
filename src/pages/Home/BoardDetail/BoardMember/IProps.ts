@@ -8,6 +8,7 @@ export interface IHeaderProps {
   onStartSearch: (startSearch: boolean) => void
   onOpenAddMemberPopup: () => void
   shouldShowAddMemberButton: boolean
+  onModeChange: (newMode: number) => void
 }
 
 export interface IMainProps {

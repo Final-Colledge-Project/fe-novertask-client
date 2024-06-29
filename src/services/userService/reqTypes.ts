@@ -29,7 +29,12 @@ export interface IUpdateUserBody {
   address: string
 }
 
-export interface IChangePasswordRequest{
+export interface IChangePasswordRequest {
   currentPassword: string
   newPassword: string
+}
+
+export interface IUpdateProviderToken {
+  providerToken: string
+  providerRefreshToken: string
 }

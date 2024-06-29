@@ -53,6 +53,11 @@ const allRoutes = {
         path: '/u/boards/:boardId/settings',
         name: 'boardSettings',
         segment: 'settings'
+      },
+      boardReports: {
+        path: '/u/boards/:boardId/reports',
+        name: 'boardReports',
+        segment: 'reports'
       }
     },
     card: {
