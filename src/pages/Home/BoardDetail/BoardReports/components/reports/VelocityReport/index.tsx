@@ -3,12 +3,14 @@ import { getVelocityReport } from '~/services/reportService'
 import { QUERY_KEY } from '~/utils/constant'
 import { IDataChart, IVelocityReportProps, chartOptions } from './helper'
 import Loading from '~/components/Loading'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './styles.scss'
 import BarChart from '~/components/Charts/BarChart'
-const SprintBurnDownReport = (props: IVelocityReportProps) => {
-  const { boardId, chartRef } = props
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+import { exportChartPdf } from '../../ModalDetailReport/helper'
+import dayjs from 'dayjs'
+const VelocityReport = (props: IVelocityReportProps) => {
+  const { boardId, setExportFn } = props
+  const chartRef = useRef<unknown>(null)
   const [dataChart, setDataChart] = useState<IDataChart>({
     sprintName: [],
     totalStoryPoint: [],
@@ -21,6 +23,13 @@ const SprintBurnDownReport = (props: IVelocityReportProps) => {
     },
     refetchOnWindowFocus: false
   })
+
+  useEffect(() => {
+    setExportFn(() => () => {
+      const fileName = `velocity-report-${dayjs().unix()}`
+      exportChartPdf(chartRef, fileName)
+    })
+  }, [])
 
   useEffect(() => {
     if (sprintData) {
@@ -43,12 +52,16 @@ const SprintBurnDownReport = (props: IVelocityReportProps) => {
       {
         label: 'Total Story Point',
         data: dataChart.totalStoryPoint,
-        backgroundColor: '#FF9500'
+        backgroundColor: 'rgba(255, 149, 0, 0.4)',
+        borderColor: 'rgba(255, 149, 0, 1 )',
+        borderWidth: 2
       },
       {
         label: 'Commitment Story Point',
         data: dataChart.completedStoryPoint,
-        backgroundColor: '#007AFF'
+        backgroundColor: 'rgba(0, 122, 255, 0.4)',
+        borderColor: 'rgba(0, 122, 255, 1)',
+        borderWidth: 2
       }
     ]
   }
@@ -72,4 +85,4 @@ const SprintBurnDownReport = (props: IVelocityReportProps) => {
   )
 }
 
-export default SprintBurnDownReport
+export default VelocityReport

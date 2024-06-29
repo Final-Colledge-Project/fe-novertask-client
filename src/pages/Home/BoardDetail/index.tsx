@@ -371,7 +371,6 @@ const BoardDetail = () => {
     const leadId = board?.ownerIds.find(
       (owner) => owner.role === 'boardLead'
     )?.user
-    console.log('~~~~~~~~~>members', members)
     return members?.oweners.find((owner) => owner?.user?._id === leadId)?.user
   }, [members, board])
 

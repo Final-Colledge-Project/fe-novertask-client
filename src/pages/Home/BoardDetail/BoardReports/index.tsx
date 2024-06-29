@@ -3,6 +3,8 @@ import './styles.scss'
 import { useState } from 'react'
 import { a11yProps, getReportTypesByTab } from './helper'
 import ReportTypeItem from './components/ReportTypeItem'
+import { AVERAGE_AGE_PERIOD } from '~/utils/constant'
+import { Select } from 'antd'
 
 interface TabPanelProps {
   children?: React.ReactNode

@@ -4,13 +4,15 @@ import { FORMAT_DATE, QUERY_KEY } from '~/utils/constant'
 import { IDataChart, ISprintBurnDownProps, chartOptions } from './helper'
 import Loading from '~/components/Loading'
 import { MenuItem, Select } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './styles.scss'
 import LineChart from '~/components/Charts/LineChart'
 import dayjs from 'dayjs'
+import { exportChartPdf } from '../../ModalDetailReport/helper'
 const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
-  const { boardId, chartRef } = props
+  const { boardId, setExportFn } = props
   const sprintId = '6676e0392f533b91b738031d'
+  const chartRef = useRef<unknown>(null)
   const [selectedSprint, setSelectedSprint] = useState<string>('Sprint 1')
   const [estimationField, setEstimationField] = useState<string>('Story Points')
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,6 +28,13 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
     },
     refetchOnWindowFocus: false
   })
+
+  useEffect(() => {
+    setExportFn(() => () => {
+      const fileName = `sprint-burn-down-${dayjs().unix()}`
+      exportChartPdf(chartRef, fileName)
+    })
+  }, [])
 
   useEffect(() => {
     if (sprintData) {
@@ -53,14 +62,16 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
         label: 'Actual Burn Down',
         data: dataChart.actualBurnDown,
         fill: false,
-        borderColor: '#FF9500',
+        backgroundColor: 'rgba(255, 149, 0, 0.2)',
+        borderColor: 'rgba(255, 149, 0, 1 )',
         tension: 0.1
       },
       {
         label: 'Ideal Burn Down',
         data: dataChart.idealBurnDown,
         fill: false,
-        borderColor: '#007AFF',
+        backgroundColor: 'rgba(0, 122, 255, 0.2)',
+        borderColor: 'rgba(0, 122, 255, 1)',
         tension: 0.1
       }
     ]

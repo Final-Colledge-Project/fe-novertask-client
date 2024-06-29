@@ -6,8 +6,7 @@ export interface IDataChart {
 
 export interface IVelocityReportProps {
   boardId: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  chartRef?: any
+  setExportFn: (fn: () => void) => void
 }
 
 export const chartOptions = {

@@ -7,7 +7,6 @@ export const getAllByUserId = createAsyncThunk(
     try {
       // get all board by current user
       const res = await getAll()
-
       if (res) return res.data
     } catch (err) {
       return thunkApi.rejectWithValue((err as Error).message as string)

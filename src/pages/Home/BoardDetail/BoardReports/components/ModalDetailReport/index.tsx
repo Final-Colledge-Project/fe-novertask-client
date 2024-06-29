@@ -1,48 +1,43 @@
 import WindowDialog from '~/components/dialog/WIndowDialog'
-import { IModalDetailReportProps, ITypeExport, exportChartPdf } from './helper'
+import { IModalDetailReportProps } from './helper'
 import './styles.scss'
-import { ReactElement, useRef, useState } from 'react'
+import { ReactElement, useState } from 'react'
 import { REPORT_TYPE } from '~/utils/constant/common'
 import SprintBurnDown from '../reports/SprintBurnDown'
 import { useParams } from 'react-router-dom'
-import { Button, MenuItem, Popover } from '@mui/material'
+import { Button } from '@mui/material'
 import { RiDownloadLine } from 'react-icons/ri'
-import dayjs from 'dayjs'
-import { EXPORT_TYPE } from '~/utils/constant'
 import VelocityReport from '../reports/VelocityReport'
+import SprintReport from '../reports/SprintReport'
+import AverageAgeReport from '../reports/AverageAgeReport'
 const ModalDetailReport = (props: IModalDetailReportProps) => {
   const { visible, setVisible, reportType } = props
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
-  const openPop = Boolean(anchorEl)
-  let itemExport: ITypeExport[] = []
-  const idPop = openPop ? 'export-popover' : undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const chartRef = useRef<any>(null)
   const { id } = useParams()
+  const [exportFn, setExportFn] = useState<() => void>(() => () => {})
   let ReportDetail: ReactElement = <></>
   switch (reportType.type) {
     case REPORT_TYPE.sprintBurnDownReport: {
-      const fileName = `sprint-burn-down-${dayjs().unix()}`
-      itemExport = [
-        {
-          type: EXPORT_TYPE.pdf,
-          label: 'Export PDF',
-          exportFunc: () => exportChartPdf(chartRef, fileName)
-        }
-      ]
-      ReportDetail = <SprintBurnDown boardId={id || ''} chartRef={chartRef} />
+      ReportDetail = (
+        <SprintBurnDown boardId={id || ''} setExportFn={setExportFn} />
+      )
       break
     }
     case REPORT_TYPE.sprintVelocityReport: {
-      const fileName = `velocity-report-${dayjs().unix()}`
-      itemExport = [
-        {
-          type: EXPORT_TYPE.pdf,
-          label: 'Export PDF',
-          exportFunc: () => exportChartPdf(chartRef, fileName)
-        }
-      ]
-      ReportDetail = <VelocityReport boardId={id || ''} chartRef={chartRef} />
+      ReportDetail = (
+        <VelocityReport boardId={id || ''} setExportFn={setExportFn} />
+      )
+      break
+    }
+    case REPORT_TYPE.sprintReport: {
+      ReportDetail = (
+        <SprintReport boardId={id || ''} setExportFn={setExportFn} />
+      )
+      break
+    }
+    case REPORT_TYPE.averageAgeReport: {
+      ReportDetail = (
+        <AverageAgeReport boardId={id || ''} setExportFn={setExportFn} />
+      )
       break
     }
   }
@@ -61,31 +56,11 @@ const ModalDetailReport = (props: IModalDetailReportProps) => {
         <div className="modalDetail">{ReportDetail}</div>
         <div className="modalFooter">
           <Button
-            aria-describedby={idPop}
             variant="contained"
             startIcon={<RiDownloadLine />}
-            onClick={(event) => setAnchorEl(event.currentTarget)}>
-            Export
+            onClick={exportFn}>
+            Export PDF
           </Button>
-          <Popover
-            id={idPop}
-            open={openPop}
-            anchorEl={anchorEl}
-            onClose={() => setAnchorEl(null)}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'center'
-            }}
-            transformOrigin={{
-              vertical: 'bottom',
-              horizontal: 'center'
-            }}>
-            {itemExport.map((item, index) => (
-              <MenuItem key={index} onClick={item.exportFunc}>
-                {item.label}
-              </MenuItem>
-            ))}
-          </Popover>
         </div>
       </div>
     </WindowDialog>

@@ -194,7 +194,7 @@ export interface ICard {
     avatar: string
     fullName: string
   }
-  FE_ONLY_MATCHING_SEARCH?: boolean,
+  FE_ONLY_MATCHING_SEARCH?: boolean
   FE_ONLY_CREATING?: boolean
 }
 
@@ -334,4 +334,49 @@ export interface ISchedule {
   color: string
   type: string
   isActive: boolean
+}
+
+export interface ISprint {
+  _id: string
+  boardId: string
+  name: string
+  cardOrderIds: string[]
+  duration: string
+  creatorId: string
+  startDate: Date
+  endDate: Date
+  goal: string
+  status: string
+  dailyStoryPoints: IDailyStoryPoint[]
+  createdAt: Date
+  updatedAt: Date
+  isActive: boolean
+  totalStoryPoint?: number
+}
+export interface IDailyStoryPoint {
+  date?: Date
+  storyPoints: number
+}
+
+export interface IPriority {
+  _id: string
+  boardId: string
+  name: string
+  description: string
+  color: string
+  createdAt: Date
+  updatedAt: Date
+  isActive: boolean
+}
+
+export interface IIssueType {
+  _id: string
+  boardId: string
+  name: string
+  description: string
+  icon: string
+  createdAt: Date
+  updatedAt: Date
+  isActive: boolean
+  hierarchy: number
 }

@@ -1,7 +1,6 @@
 export interface ISprintBurnDownProps {
   boardId: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  chartRef?: any
+  setExportFn: (fn: () => void) => void
 }
 
 export interface IDataChart {

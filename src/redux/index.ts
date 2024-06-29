@@ -12,6 +12,9 @@ import cardReducer from './cardSlice'
 import scheduleReducer from './scheduleSlice'
 import columnReducer from './columnSlice'
 import systemReducer from './systemSlice'
+import sprintReducer from './sprintSlice'
+import priorityReducer from './prioritySlice'
+import issueTypeReducer from './issueTypeSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -26,7 +29,10 @@ const store = configureStore({
     card: cardReducer,
     schedule: scheduleReducer,
     column: columnReducer,
-    system: systemReducer
+    system: systemReducer,
+    sprint: sprintReducer,
+    priority: priorityReducer,
+    issueType: issueTypeReducer
   }
 })
 

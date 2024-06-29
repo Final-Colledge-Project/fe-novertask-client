@@ -10,3 +10,9 @@ export const BOARD_MEMBER_PERMISSIONS = {
   EDIT: 1,
   DELETE: 2
 }
+
+export const BOARD_RESOURCES = {
+  sprint: 'sprint',
+  priority: 'priority',
+  issueType: 'issueType'
+}

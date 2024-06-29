@@ -63,3 +63,8 @@ export const formatDateTime = (date: string) => {
 export const formatDate = (date: string) => {
   return dayjs(date).isValid() ? dayjs(date).format('MMM D') : ''
 }
+
+export const upperCaseFirstLetter = (str: string) => {
+  if (!str) return str
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
