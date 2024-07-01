@@ -1,10 +1,35 @@
 .filterGroup {
   display: flex;
   align-items: center;
-  width: 100%;
   margin-bottom: 20px;
-  & .input-item {
-    width: fit-content;
-  }
   gap: 40px;
+}
+
+.wrapper {
+  margin-top: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.sprintTable {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wrapperHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
 }

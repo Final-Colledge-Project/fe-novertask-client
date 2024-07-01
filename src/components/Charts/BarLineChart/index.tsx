@@ -9,7 +9,7 @@ import {
   Legend
 } from 'chart.js'
 import { Chart } from 'react-chartjs-2'
-import { ICombinedChartProps } from './helper'
+import { IBarLineChartProps } from './helper'
 
 ChartJS.register(
   CategoryScale,
@@ -21,9 +21,9 @@ ChartJS.register(
   Legend
 )
 
-const CombinedChart = (props: ICombinedChartProps) => {
+const BarLineChart = (props: IBarLineChartProps) => {
   const { data, options = {}, chartRef } = props
   return <Chart type="bar" data={data} options={options} ref={chartRef} />
 }
 
-export default CombinedChart
+export default BarLineChart

@@ -14,5 +14,6 @@ export const BOARD_MEMBER_PERMISSIONS = {
 export const BOARD_RESOURCES = {
   sprint: 'sprint',
   priority: 'priority',
-  issueType: 'issueType'
+  issueType: 'issueType',
+  column: 'column'
 }

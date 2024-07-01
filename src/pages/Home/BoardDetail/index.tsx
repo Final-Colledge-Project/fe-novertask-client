@@ -103,6 +103,8 @@ import BoardMember from './BoardMember'
 import BoardOverview from './BoardOverview'
 import BoardSettings from './BoardSettings'
 import BoardReports from './BoardReports'
+import useFetchBoardData from '~/hooks/useFetchBoardData'
+import { BOARD_RESOURCES } from '~/utils/constant/board'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -170,6 +172,11 @@ const BoardDetail = () => {
   const columnStore = useSelector((state: StoreType) => state.column)
   const cardStore = useSelector((state: StoreType) => state.card)
   const { boards } = useSelector((state: StoreType) => state.board)
+
+  useFetchBoardData({ key: BOARD_RESOURCES.sprint, boardId: id || '' })
+  useFetchBoardData({ key: BOARD_RESOURCES.priority, boardId: id || '' })
+  useFetchBoardData({ key: BOARD_RESOURCES.issueType, boardId: id || '' })
+  useFetchBoardData({ key: BOARD_RESOURCES.column, boardId: id || '' })
 
   const items = [
     {

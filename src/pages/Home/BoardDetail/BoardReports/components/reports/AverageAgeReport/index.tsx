@@ -1,8 +1,8 @@
-import Loading from '~/components/Loading'
 import {
   IAverageAgeReport,
   IAverageAgeReportProps,
   chartOptions,
+  exportChartPdf,
   preProcessData
 } from './helper'
 import { AVERAGE_AGE_PERIOD } from '~/utils/constant'
@@ -20,10 +20,15 @@ import {
 import { upperCaseFirstLetter } from '~/utils/helper'
 import './styles.scss'
 import { enqueueSnackbar } from 'notistack'
-import { AxiosError } from 'axios'
-import CombinedChart from '~/components/Charts/CombinedChart'
+import CombinedChart from '~/components/Charts/BarLineChart'
+import { ChartData } from 'chart.js'
+import AverageAgeTable from './AverageAgeTable'
+import dayjs from 'dayjs'
+import { RiDownloadLine } from 'react-icons/ri'
+import { LoadingOutlined } from '@ant-design/icons'
+import { Empty } from 'antd'
 const AverageAgeReport = (props: IAverageAgeReportProps) => {
-  const { boardId, setExportFn } = props
+  const { boardId, reportType } = props
   const [periodOption, setPeriodOption] = useState<string>(
     AVERAGE_AGE_PERIOD.daily
   )
@@ -31,39 +36,52 @@ const AverageAgeReport = (props: IAverageAgeReportProps) => {
   const [previousDay, setPreviousDay] = useState<number>(7)
   const [errorNumber, setErrorNumber] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isExport, setIsExport] = useState<boolean>(false)
   const [sprintData, setSprintData] = useState<IAverageAgeReport>(
     {} as IAverageAgeReport
   )
   const { dates, totalAges, averageAges } = preProcessData(
     sprintData.averageEachTask
   )
-  console.log('~~~~> sprintData', sprintData)
   const averageLineData = new Array(dates.length).fill(sprintData.averageAge)
 
-  const dataSet: ChartData<'bar' | 'line'> = {
+  const exportReport = async () => {
+    try {
+      const table = document.getElementById('averageAgeTable') as HTMLElement
+      const fileName = `average-age-${dayjs().unix()}`
+      await exportChartPdf(chartRef, fileName, table, reportType, setIsExport)
+    } catch (err) {
+      console.log('🚀 ~ exportReport ~ err:', err)
+      setIsExport(false)
+      enqueueSnackbar('Export Failed', { variant: 'error' })
+    }
+  }
+
+  const dataSet: ChartData<'bar' | 'line', number[], string> = {
     labels: dates,
     datasets: [
       {
         type: 'bar',
         label: 'Total Task Age (Days)',
         data: totalAges,
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
+        backgroundColor: 'rgba(0, 122, 255, 0.4)',
+        borderColor: 'rgba(0, 122, 255, 1)',
+        borderWidth: 2
       },
       {
-        type: 'line',
+        type: 'bar',
         label: 'Average Age per Task',
         data: averageAges,
-        borderColor: 'rgba(153, 102, 255, 1)',
-        borderWidth: 2,
-        fill: false
+        borderColor: 'rgba(255, 149, 0, 1)',
+        backgroundColor: 'rgba(255, 149, 0, 0.4)',
+        borderWidth: 2
       },
       {
         type: 'line',
         label: 'Overall Average Age',
         data: averageLineData,
         borderColor: 'rgba(255, 99, 132, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.4)',
         borderWidth: 2,
         fill: false
       }
@@ -79,7 +97,8 @@ const AverageAgeReport = (props: IAverageAgeReportProps) => {
       setSprintData(data)
       setIsLoading(false)
     } catch (err) {
-      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+      console.log('🚀 ~ getAverageAgeReportData ~ err:', err)
+      enqueueSnackbar('Generate Export Failed', { variant: 'error' })
     }
   }
 
@@ -103,10 +122,8 @@ const AverageAgeReport = (props: IAverageAgeReportProps) => {
 
   return (
     <div>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <div className="wrapper">
+      <div className="wrapper">
+        <div className="wrapperHeader">
           <Box className="filterGroup">
             <Box sx={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
               <Typography variant="body1">Period:</Typography>
@@ -141,10 +158,24 @@ const AverageAgeReport = (props: IAverageAgeReportProps) => {
                 inputProps={{ min: 0 }}
               />
             </Box>
-            <Button onClick={onSubmit} variant="contained">
+            <Button
+              onClick={onSubmit}
+              variant="contained"
+              startIcon={isLoading ? <LoadingOutlined /> : null}
+              disabled={isLoading || isExport}>
               Submit
             </Button>
           </Box>
+          <Button
+            variant="outlined"
+            startIcon={isExport ? <LoadingOutlined /> : <RiDownloadLine />}
+            onClick={exportReport}
+            disabled={isExport || !(sprintData?.averageEachTask || []).length}>
+            Export PDF
+          </Button>
+        </div>
+        {!(sprintData?.averageEachTask || []).length && <Empty />}
+        {(sprintData?.averageEachTask || []).length > 0 ? (
           <div className="sprintChart">
             <CombinedChart
               options={chartOptions}
@@ -152,9 +183,17 @@ const AverageAgeReport = (props: IAverageAgeReportProps) => {
               chartRef={chartRef}
             />
           </div>
-          <div className="sprintTable"></div>
-        </div>
-      )}
+        ) : (
+          <></>
+        )}
+        {(sprintData?.averageEachTask || []).length > 0 ? (
+          <div className="sprintTable">
+            <AverageAgeTable data={sprintData.averageEachTask} />
+          </div>
+        ) : (
+          <></>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,48 +1,76 @@
-import { useQuery } from '@tanstack/react-query'
 import { getBurnDownReport } from '~/services/reportService'
-import { FORMAT_DATE, QUERY_KEY } from '~/utils/constant'
-import { IDataChart, ISprintBurnDownProps, chartOptions } from './helper'
-import Loading from '~/components/Loading'
-import { MenuItem, Select } from '@mui/material'
+import { FORMAT_DATE, SPRINT_STATUS } from '~/utils/constant'
+import {
+  IDataChart,
+  ISprintBurnDownProps,
+  chartOptions,
+  exportChartPdf
+} from './helper'
+import { Button, MenuItem, Select } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import './styles.scss'
 import LineChart from '~/components/Charts/LineChart'
 import dayjs from 'dayjs'
-import { exportChartPdf } from '../../ModalDetailReport/helper'
+import { RiDownloadLine } from 'react-icons/ri'
+import { LoadingOutlined } from '@ant-design/icons'
+import { enqueueSnackbar } from 'notistack'
+import { useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import { ISprint } from '~/services/types'
+import { IBurnDownReport } from '~/services/reportService/resTypes'
+import { Empty } from 'antd'
 const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
-  const { boardId, setExportFn } = props
-  const sprintId = '6676e0392f533b91b738031d'
+  const { boardId, reportType } = props
   const chartRef = useRef<unknown>(null)
-  const [selectedSprint, setSelectedSprint] = useState<string>('Sprint 1')
+  const { allSprints } = useSelector((state: StoreType) => state.sprint)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [selectedSprint, setSelectedSprint] = useState<string>('')
   const [estimationField, setEstimationField] = useState<string>('Story Points')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sprintOptions = (allSprints || [])
+    .filter((item: ISprint) => item?.status !== SPRINT_STATUS.backlog)
+    .map((sprint) => ({
+      value: sprint._id,
+      label: sprint.name
+    }))
+  const [isExport, setIsExport] = useState<boolean>(false)
   const [dataChart, setDataChart] = useState<IDataChart>({
     sprintDays: [],
     actualBurnDown: [],
     idealBurnDown: []
   })
-  const { data: sprintData, isLoading } = useQuery({
-    queryKey: [QUERY_KEY.burndown_report, sprintId],
-    queryFn: () => {
-      return getBurnDownReport(boardId, sprintId)
-    },
-    refetchOnWindowFocus: false
-  })
+  const [sprintData, setSprintData] = useState<IBurnDownReport>(
+    {} as IBurnDownReport
+  )
 
-  useEffect(() => {
-    setExportFn(() => () => {
-      const fileName = `sprint-burn-down-${dayjs().unix()}`
-      exportChartPdf(chartRef, fileName)
-    })
-  }, [])
+  // const { data: sprintData, isLoading } = useQuery({
+  //   queryKey: [QUERY_KEY.burndown_report, sprintId],
+  //   queryFn: () => {
+  //     return getBurnDownReport(boardId, sprintId)
+  //   },
+  //   refetchOnWindowFocus: false
+  // })
+
+  const getReportData = async () => {
+    try {
+      setIsLoading(true)
+      const data = await getBurnDownReport(boardId, selectedSprint)
+      if (!data) return
+      setSprintData(data)
+      setIsLoading(false)
+    } catch (err) {
+      enqueueSnackbar('Generate Export Failed', { variant: 'error' })
+    }
+  }
 
   useEffect(() => {
     if (sprintData) {
       const { dailyStoryPoints, totalStoryPoint } = sprintData
-      const sprintDays = dailyStoryPoints.map((point) =>
+      const sprintDays = (dailyStoryPoints || []).map((point) =>
         dayjs(point.date).format(FORMAT_DATE)
       )
-      const actualBurnDown = dailyStoryPoints.map((point) => point.storyPoints)
+      const actualBurnDown = (dailyStoryPoints || []).map(
+        (point) => point.storyPoints
+      )
       const idealBurnDown = Array.from(
         { length: sprintDays.length },
         (_, i) => totalStoryPoint - (totalStoryPoint / sprintDays.length) * i
@@ -77,12 +105,26 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
     ]
   }
 
+  const exportReport = async () => {
+    try {
+      const fileName = `sprint-burn-down-${dayjs().unix()}`
+      await exportChartPdf(chartRef, fileName, reportType, setIsExport)
+    } catch (err) {
+      console.log('🚀 ~ exportReport ~ err:', err)
+      setIsExport(false)
+      enqueueSnackbar('Export Failed', { variant: 'error' })
+    }
+  }
+
+  const handleSubmitSprint = () => {
+    if (selectedSprint) {
+      getReportData()
+    }
+  }
   return (
     <div>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <div className="wrapper">
+      <div className="wrapper">
+        <div className="wrapperHeader">
           <div className="sprintFilter">
             <div className="sprintFilterItem">
               <span
@@ -102,9 +144,11 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
                   width: '200px'
                 }}
                 size="small">
-                <MenuItem value={'Sprint 1'}>Sprint 1</MenuItem>
-                <MenuItem value={'Sprint 2'}>Sprint 2</MenuItem>
-                <MenuItem value={'Sprint 3'}>Sprint 3</MenuItem>
+                {sprintOptions.map((item) => (
+                  <MenuItem key={item.value} value={item.value}>
+                    {item.label}
+                  </MenuItem>
+                ))}
               </Select>
             </div>
             <div className="sprintFilterItem">
@@ -129,16 +173,37 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
                 <MenuItem value={'Time'}>Time</MenuItem>
               </Select>
             </div>
+            <div className="submitBtn">
+              <Button
+                variant="contained"
+                size="medium"
+                startIcon={isLoading ? <LoadingOutlined /> : null}
+                onClick={handleSubmitSprint}
+                disabled={!selectedSprint.length}>
+                Submit
+              </Button>
+            </div>
           </div>
-          <div className="sprintChart">
+          <Button
+            variant="outlined"
+            startIcon={isExport ? <LoadingOutlined /> : <RiDownloadLine />}
+            onClick={exportReport}
+            disabled={isExport || !(sprintData.dailyStoryPoints || []).length}>
+            Export PDF
+          </Button>
+        </div>
+        <div className="sprintChart">
+          {!(sprintData.dailyStoryPoints || []).length ? (
+            <Empty />
+          ) : (
             <LineChart
               options={chartOptions}
               data={dataSet}
               chartRef={chartRef}
             />
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

@@ -21,7 +21,7 @@ const CompletedTable = (props: ICompletedTableProps) => {
     (state: StoreType) => state.issueType.allIssueTypes
   )
   const dataTable = data.map((item: ICompletedTask) => ({
-    key: item._id,
+    key: item.cardId,
     name: item.title,
     priority: allPriorities.find((p) => p._id === item.priorityId)?.name || '',
     storyPoint: item.storyPoint,
@@ -59,7 +59,14 @@ const CompletedTable = (props: ICompletedTableProps) => {
       render: (text) => <span>{text}</span>
     }
   ]
-  return <Table columns={columns} dataSource={dataTable} />
+  return (
+    <Table
+      columns={columns}
+      dataSource={dataTable}
+      pagination={false}
+      id="sprint-table"
+    />
+  )
 }
 
 export default CompletedTable
