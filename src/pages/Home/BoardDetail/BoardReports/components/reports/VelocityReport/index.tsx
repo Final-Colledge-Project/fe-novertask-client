@@ -1,16 +1,25 @@
 import { useQuery } from '@tanstack/react-query'
 import { getVelocityReport } from '~/services/reportService'
 import { QUERY_KEY } from '~/utils/constant'
-import { IDataChart, IVelocityReportProps, chartOptions } from './helper'
+import {
+  IDataChart,
+  IVelocityReportProps,
+  chartOptions,
+  exportChartPdf
+} from './helper'
 import Loading from '~/components/Loading'
 import { useEffect, useRef, useState } from 'react'
 import './styles.scss'
 import BarChart from '~/components/Charts/BarChart'
-import { exportChartPdf } from '../../ModalDetailReport/helper'
 import dayjs from 'dayjs'
+import { RiDownloadLine } from 'react-icons/ri'
+import { LoadingOutlined } from '@ant-design/icons'
+import { Button } from '@mui/material'
+import { enqueueSnackbar } from 'notistack'
 const VelocityReport = (props: IVelocityReportProps) => {
-  const { boardId, setExportFn } = props
+  const { boardId, reportType } = props
   const chartRef = useRef<unknown>(null)
+  const [isExport, setIsExport] = useState<boolean>(false)
   const [dataChart, setDataChart] = useState<IDataChart>({
     sprintName: [],
     totalStoryPoint: [],
@@ -23,13 +32,6 @@ const VelocityReport = (props: IVelocityReportProps) => {
     },
     refetchOnWindowFocus: false
   })
-
-  useEffect(() => {
-    setExportFn(() => () => {
-      const fileName = `velocity-report-${dayjs().unix()}`
-      exportChartPdf(chartRef, fileName)
-    })
-  }, [])
 
   useEffect(() => {
     if (sprintData) {
@@ -66,12 +68,32 @@ const VelocityReport = (props: IVelocityReportProps) => {
     ]
   }
 
+  const exportReport = async () => {
+    try {
+      const fileName = `velocity-report-${dayjs().unix()}`
+      await exportChartPdf(chartRef, fileName, reportType, setIsExport)
+    } catch (err) {
+      console.log('🚀 ~ exportReport ~ err:', err)
+      setIsExport(false)
+      enqueueSnackbar('Export Failed', { variant: 'error' })
+    }
+  }
+
   return (
     <div>
       {isLoading ? (
         <Loading />
       ) : (
         <div className="wrapper">
+          <div className="wrapperHeader">
+            <Button
+              variant="outlined"
+              startIcon={isExport ? <LoadingOutlined /> : <RiDownloadLine />}
+              onClick={exportReport}
+              disabled={isExport || !dataChart?.totalStoryPoint?.length}>
+              Export PDF
+            </Button>
+          </div>
           <div className="sprintChart">
             <BarChart
               options={chartOptions}

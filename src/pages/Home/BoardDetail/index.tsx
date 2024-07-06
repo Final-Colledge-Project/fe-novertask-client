@@ -120,6 +120,8 @@ import BoardReports from './BoardReports'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import Empty from '~/components/Empty'
 import { BOARD_RELOAD_REASON } from '~/utils/constant/board'
+import useFetchBoardData from '~/hooks/useFetchBoardData'
+import { BOARD_RESOURCES } from '~/utils/constant/board'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -203,6 +205,11 @@ const BoardDetail = () => {
   const cardStore = useSelector((state: StoreType) => state.card)
   const { boards } = useSelector((state: StoreType) => state.board)
 
+  useFetchBoardData({ key: BOARD_RESOURCES.sprint, boardId: id || '' })
+  useFetchBoardData({ key: BOARD_RESOURCES.priority, boardId: id || '' })
+  useFetchBoardData({ key: BOARD_RESOURCES.issueType, boardId: id || '' })
+  useFetchBoardData({ key: BOARD_RESOURCES.column, boardId: id || '' })
+
   // const items = [
   //   {
   //     title: 'Add column',
@@ -211,7 +218,6 @@ const BoardDetail = () => {
   //     }
   //   }
   // ]
-  const items = []
   // #endregion
 
   // #region fetch data

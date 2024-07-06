@@ -21,7 +21,8 @@ export const BOARD_PERMISSIONS_POPUP_MODE = {
 export const BOARD_RESOURCES = {
   sprint: 'sprint',
   priority: 'priority',
-  issueType: 'issueType'
+  issueType: 'issueType',
+  column: 'column'
 }
 
 export const BOARD_RELOAD_REASON = {
