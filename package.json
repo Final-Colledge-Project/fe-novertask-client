@@ -32,6 +32,7 @@
     "@types/uuid": "^9.0.7",
     "antd": "^5.12.5",
     "axios": "^1.5.1",
+    "beautiful-react-diagrams": "^0.5.1",
     "chart.js": "^4.4.3",
     "clsx": "^2.0.0",
     "date-fns": "^3.6.0",
