@@ -6,7 +6,7 @@ import {
   BOARD_VIEW_EMPTY_ROLE
 } from '~/utils/constant/board'
 import SearchBox from '~/components/SearchBox'
-import { Button, MenuItem, Select } from '@mui/material'
+import { Button, MenuItem, Select, Tooltip } from '@mui/material'
 import { RiSettings2Line, RiUserAddLine } from 'react-icons/ri'
 import { IHeaderProps } from './IProps'
 import { useDebounceCallback } from 'usehooks-ts'
@@ -23,10 +23,15 @@ export default function Header({
   onOpenAddMemberPopup,
   onModeChange,
   mode
-}: IHeaderProps) {
+}: Readonly<IHeaderProps>) {
   const currentBoardPermission = useSelector(
     (state: StoreType) => state.permission.currentBoardPermission
   )
+
+  const isViewMode = () => mode === BOARD_MEMBER_VIEW_MODE.VIEW
+  const isPermissionSettingMode = () =>
+    mode === BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING
+
   const [selectedRole, setSelectedRole] = useState<string>(BOARD_VIEW_ALL_ROLE)
   const userPermission = usePermission()
   const isAdmin = () => userPermission?.isAdmin
@@ -61,7 +66,7 @@ export default function Header({
           variant="outlined"
           value={selectedRole}
           onChange={(e) => handleChangeRole(e.target.value)}>
-          {mode === BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING && (
+          {isPermissionSettingMode() && (
             <MenuItem dense value={BOARD_VIEW_EMPTY_ROLE}>
               Choose role
             </MenuItem>
@@ -81,7 +86,7 @@ export default function Header({
 
       <RightMenu>
         <div style={{ flexShrink: 0 }}>
-          {isAdmin() && mode !== BOARD_MEMBER_VIEW_MODE.PERMISSION_SETTING && (
+          {!isPermissionSettingMode() && (
             <Button
               color="primary"
               size="small"
@@ -105,8 +110,25 @@ export default function Header({
               Add
             </Button>
           )}
+          {!canInviteMember() && (
+            <Tooltip title="Only admin can do this action">
+              <span>
+                <Button
+                  color="primary"
+                  size="small"
+                  disabled={true}
+                  variant="contained"
+                  sx={{ '&.MuiButton-root': { color: '#606060' } }}
+                  onClick={onOpenAddMemberPopup}
+                  startIcon={<RiUserAddLine />}>
+                  Add
+                </Button>
+              </span>
+            </Tooltip>
+          )}
         </div>
-        {/* Search member */}
+
+        {/* Search member OR search permission */}
         <SearchBox
           label=""
           sx={{ height: '30px' }}

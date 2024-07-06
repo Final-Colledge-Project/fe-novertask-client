@@ -37,6 +37,7 @@ import SearchBox from '~/components/SearchBox'
 import IProps from './IProps'
 import { IBoardPermission, IMemberInBoard } from '~/services/types'
 import { mapData } from '~/utils/helper'
+import Empty from '~/components/Empty'
 
 const SEARCH_TYPES = {
   USER: 1,
@@ -49,6 +50,7 @@ interface IOtherGroup {
   name: string
   memberIds: string[]
   members: IMemberInBoard[] | undefined
+  isAdmin?: boolean
 }
 
 export default function AddUserToGroupPopup({
@@ -66,6 +68,8 @@ export default function AddUserToGroupPopup({
   const currentBoardPermission = useSelector(
     (state: StoreType) => state.permission.currentBoardPermission
   )
+
+  const isOwner = (id: string) => allMembers?.oweners[0]._id === id
 
   // close the popup
   const handleClose = () => {
@@ -189,7 +193,8 @@ export default function AddUserToGroupPopup({
           _id: per._id,
           name: per.name,
           memberIds: per.memberIds,
-          members: [] as unknown as IMemberInBoard[] | undefined
+          members: [] as unknown as IMemberInBoard[] | undefined,
+          isAdmin: per.isAdmin
         })
       }
     })
@@ -226,6 +231,10 @@ export default function AddUserToGroupPopup({
     // if the group is not unassigned group
     if (!isUnassignGroup) {
       const group = ortherGroupList.find((item) => item._id === groupId)
+
+      if (group?.isAdmin) {
+        return isDisableAllAdmin(group)
+      }
 
       // group not found => disable
       if (!group) return false
@@ -278,13 +287,16 @@ export default function AddUserToGroupPopup({
     }
     const group = ortherGroupList.find((item) => item._id === groupId)
     if (!group) return
+    // temp id list for group members
+    group.memberIds = [...(group.members?.map((member) => member._id) || [])]
     const isAllChosen = isCheckAll(groupId)
     if (isAllChosen) {
       setChosenList((prev) =>
-        prev.filter((item) => !group.memberIds.includes(item))
+        prev.filter((item) => !group.memberIds.includes(item) && !isOwner(item))
       )
     } else {
-      setChosenList((prev) => [...prev, ...group.memberIds])
+      const adddedList = group.memberIds.filter((item) => !isOwner(item))
+      setChosenList((prev) => [...prev, ...adddedList])
     }
   }
 
@@ -298,7 +310,23 @@ export default function AddUserToGroupPopup({
         : unAssignedMembers.every((member) => chosenList.includes(member._id))
     }
     if (group.memberIds.length === 0) return false
-    return group.memberIds.every((id) => chosenList.includes(id))
+
+    // remove owner from chosen list
+    const userListWithoutOwner = group.memberIds.filter(
+      (item) => !isOwner(item)
+    )
+
+    // check if should check all
+    const checkFlg =
+      userListWithoutOwner.every((id) => chosenList.includes(id)) &&
+      userListWithoutOwner.length > 0
+    return checkFlg
+  }
+
+  // check if admin group is have only owner user
+  const isDisableAllAdmin = (adminGroup: IOtherGroup) => {
+    if (!adminGroup) return false
+    return adminGroup.memberIds.length === 1 && isOwner(adminGroup.memberIds[0])
   }
 
   return (
@@ -376,7 +404,7 @@ export default function AddUserToGroupPopup({
             </MemberSectionTitle>
 
             {!startSearch && unAssignedMembers.length === 0 && (
-              <Placeholder>There is no user</Placeholder>
+              <Empty description="No result!" isFullWidth pY={20} />
             )}
 
             <UserList>
@@ -388,7 +416,10 @@ export default function AddUserToGroupPopup({
                       onChooseOne(id)
                     }}
                     user={member}
-                    disabled={isDisableMember(member._id)}
+                    disabled={
+                      isDisableMember(member._id) || isOwner(member._id)
+                    }
+                    isOwner={isOwner(member._id)}
                   />
                 ))}
             </UserList>
@@ -399,7 +430,7 @@ export default function AddUserToGroupPopup({
             <Members key={group.name}>
               <UserTypeTitle>{group.name}</UserTypeTitle>
               <MemberSectionTitle>
-                {group.memberIds.length !== 0 && (
+                {group.members?.length !== 0 && (
                   <FormControlLabel
                     sx={{
                       marginLeft: '0',
@@ -428,8 +459,8 @@ export default function AddUserToGroupPopup({
               </MemberSectionTitle>
 
               <UserList>
-                {!startSearch && group.memberIds.length === 0 && (
-                  <Placeholder>There is no user</Placeholder>
+                {!startSearch && group.members?.length === 0 && (
+                  <Empty description="No result!" isFullWidth pY={20} />
                 )}
 
                 {!startSearch &&
@@ -439,7 +470,8 @@ export default function AddUserToGroupPopup({
                       onChange={() => onChooseOne(user._id)}
                       user={user}
                       isUnassigned={true}
-                      disabled={isDisableMember(user._id)}
+                      disabled={isDisableMember(user._id) || isOwner(user._id)}
+                      isOwner={isOwner(user._id)}
                     />
                   ))}
               </UserList>

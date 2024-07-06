@@ -28,7 +28,7 @@ const SchedulePanel = ({ date, setDate }: ISchedulePanelProps) => {
   ]
 
   const onChange = (key: string) => {
-    console.log(key)
+    // console.log(key)
   }
 
   return (

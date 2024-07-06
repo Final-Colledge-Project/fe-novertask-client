@@ -3,6 +3,7 @@ import MenuItem from '@mui/material/MenuItem'
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import IProps from './IProps'
+import Empty from '~/components/Empty'
 
 const WSSelectBox = ({ workspaces, field, error }: IProps) => {
   return (
@@ -21,8 +22,7 @@ const WSSelectBox = ({ workspaces, field, error }: IProps) => {
               error ? theme.palette.error.main : theme.palette.primary.main
           }
         }
-      }}
-    >
+      }}>
       <InputLabel id="workspace-names-select-label">Workspace</InputLabel>
       <Select
         {...field}
@@ -39,6 +39,23 @@ const WSSelectBox = ({ workspaces, field, error }: IProps) => {
             {item.name}
           </MenuItem>
         ))}
+        {workspaces.length === 0 && (
+          <MenuItem
+            value={''}
+            color="FFFFFFF"
+            disabled
+            sx={{
+              '&.MuiButtonBase-root': {
+                bgcolor: '#ffffff'
+              }
+            }}>
+            <Empty
+              description="No workspaces available for creating boards!"
+              size={100}
+              isFullWidth
+            />
+          </MenuItem>
+        )}
       </Select>
     </FormControl>
   )

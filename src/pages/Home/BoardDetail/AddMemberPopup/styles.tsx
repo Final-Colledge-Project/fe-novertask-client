@@ -24,8 +24,8 @@ export const Container = styled.div`
 `
 
 export const Modal = styled.div`
-  min-width: 500px;
-  max-width: 500px;
+  min-width: 600px;
+  max-width: 600px;
   padding: 20px;
   background-color: var(--mui-palette-white-main);
   border-radius: 8px;
@@ -123,7 +123,6 @@ export const MemberItem = styled.div`
   }
 `
 export const Role = styled.div<{ $color: string }>`
-  display: flex;
   width: fit-content;
   justify-content: flex-end;
   text-align: right;
@@ -132,6 +131,11 @@ export const Role = styled.div<{ $color: string }>`
   border-radius: 50px;
   background-color: ${(props) => `${props.$color}1A`};
   color: ${(props) => props.$color};
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
 `
 
 export const MemberSectionTitle = styled.div`

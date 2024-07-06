@@ -1,12 +1,13 @@
 import { AxiosError } from 'axios'
 import axiosInstance from '../axiosInstance'
-import { IAssignAdminBody, ICreateWSBody, IGetMemberBody } from './reqTypes'
+import { IAssignAdminBody, ICreateWSBody, IGetMemberBody, IGetWSCanCreateBoardBody } from './reqTypes'
 import requests from './requests'
 import {
   IAssignAdminResponse,
   ICreateWSResponse,
   IErrorResponse,
-  IGetMemberResponse
+  IGetMemberResponse,
+  IGetWSCanCreateBoardResponse
 } from './resTypes'
 import data from '../mockData.json'
 export type * from './reqTypes'
@@ -124,6 +125,27 @@ export const deleteWorkspace = async (body: { id: string }) => {
     // 409: throw the error form api
     if (status && status === 409) {
       throw new Error(`UNAUTHORIZED`)
+    }
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const getWSCanCreateBoard = async (_body: IGetWSCanCreateBoardBody) => {
+  try {
+    const res = await axiosInstance.get<IGetWSCanCreateBoardResponse>(
+      requests.getPermissionCanCreateBoard()
+    )
+    if (res && res.status === 200 && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const errorData: IErrorResponse = (error as AxiosError).response
+      ?.data as IErrorResponse
+
+    if (errorData.message) {
+      throw new Error(errorData.message)
     }
 
     // general error

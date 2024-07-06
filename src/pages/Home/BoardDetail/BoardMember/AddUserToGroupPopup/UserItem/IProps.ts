@@ -5,5 +5,6 @@ export default interface IProps {
   onChange: (id: string, fullName: string) => void
   disabled?: boolean
   user: IMemberInBoard
-  isUnassigned?: boolean
+  isUnassigned?: boolean,
+  isOwner?: boolean
 }

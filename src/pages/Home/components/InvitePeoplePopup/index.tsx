@@ -5,8 +5,18 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import clsx from 'clsx'
 
 // component libraries
-import { IconButton, Tooltip, Button, Avatar } from '@mui/material'
-import { RiCloseFill, RiInformationLine } from 'react-icons/ri'
+import {
+  IconButton,
+  Button,
+  Avatar,
+  Stack,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Tooltip
+} from '@mui/material'
+import { RiCloseFill } from 'react-icons/ri'
 
 // components
 import {
@@ -16,7 +26,8 @@ import {
   Header,
   MemberItem,
   MemberList,
-  Modal
+  Modal,
+  RoleBadge
 } from './styles'
 import TextInput from '~/components/TextInput'
 
@@ -31,6 +42,9 @@ import { hideLoading, showLoading } from '~/redux/progressSlice'
 import { sendInvitation } from '~/services/inviteService'
 import { setPopupInvitePeople } from '~/redux/popupSlice'
 import { IBoardMembers } from '~/services/types'
+import { useEffect, useState } from 'react'
+import useWSPermission from '~/hooks/useWSPermission'
+import Empty from '~/components/Empty'
 
 const InvitePeoplePopup = () => {
   const { control, handleSubmit, reset, setError } = useForm<IFormFields>({
@@ -39,6 +53,13 @@ const InvitePeoplePopup = () => {
     resolver: yupResolver(schema),
     reValidateMode: 'onBlur'
   })
+  const [invitedRole, setInvitedRole] = useState<string>()
+
+  const currentWSPermission = useSelector(
+    (store: StoreType) => store.permission.currentWSPermission
+  )
+  const userPermissionOnWS = useWSPermission()
+  const isAdmin = () => userPermissionOnWS?.isWSAdmin
 
   const {
     data: { members, wsID },
@@ -48,6 +69,7 @@ const InvitePeoplePopup = () => {
   const dispatch = useDispatch()
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
+    if (!wsID || !data.email || !invitedRole) return
     // check if email is in workspace
     const { workspaceAdmins, workspaceMembers } = members as IBoardMembers
     const memberList = [...workspaceAdmins.map((mem) => mem.user)]
@@ -63,7 +85,8 @@ const InvitePeoplePopup = () => {
         dispatch(showLoading())
         const res = await sendInvitation({
           email: data.email,
-          wsID: wsID as string
+          wsID: wsID as string,
+          permissionId: invitedRole as string
         })
         if (res) {
           enqueueSnackbar(`Sent invitation to ${data.email} successfully!`, {
@@ -100,38 +123,102 @@ const InvitePeoplePopup = () => {
       return result
     }
   }
+
+  const changeRole = (newRole: string) => {
+    setInvitedRole(newRole)
+  }
+
+  // get role of user in workspace
+  // id: user id
+  const roleInWS = (id: string) => {
+    if (!id || !members) return
+    const foundGroup = currentWSPermission?.find((role) => {
+      return role.memberIds.includes(id)
+    })
+    if (foundGroup) {
+      return { name: foundGroup.name, color: foundGroup.color }
+    }
+    // return empty value if not found
+    return { name: '', color: '' }
+  }
+
+  // set viewer permission as init value
+  useEffect(() => {
+    if (!invitedRole && currentWSPermission) {
+      const viewerPermission = currentWSPermission?.find(
+        (role) => role.isWSViewer
+      )
+      if (viewerPermission) setInvitedRole(viewerPermission._id)
+    }
+  }, [currentWSPermission, show, invitedRole])
+
   return (
     <Container
       onClick={(e) => handleClose(e)}
-      className={clsx(!show && 'hidden')}
-    >
+      className={clsx(!show && 'hidden')}>
       <Modal onClick={(e) => e.stopPropagation()}>
         <Header>
           <div className="title">
             <p>Invite people to workspace</p>
-            <Tooltip
-              arrow
-              title={'Accepted people will become workspace member'}
-            >
-              <div className="icon">
-                <RiInformationLine />
-              </div>
-            </Tooltip>
           </div>
           <IconButton onClick={(e) => handleClose(e)}>
             <RiCloseFill />
           </IconButton>
         </Header>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          <WithController control={control} name="email">
-            <TextInput label="User email address" />
-          </WithController>
+          <Stack direction="row" spacing={2}>
+            <WithController control={control} name="email">
+              <TextInput label="User email address" />
+            </WithController>
+            <FormControl sx={{ width: '200px' }}>
+              <InputLabel id="invite-as" shrink={true}>
+                Invite as
+              </InputLabel>
+
+              {/* ROLE SELECT: ACTIVE */}
+              {isAdmin() && invitedRole && (
+                <Select
+                  notched={true}
+                  label="Invite as"
+                  labelId="invite-as"
+                  value={invitedRole}
+                  onChange={(e) => changeRole(e.target.value)}>
+                  {currentWSPermission?.map((role) => (
+                    <MenuItem key={role._id} value={role._id}>
+                      {role.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              )}
+
+              {/* ROLE SELECT: DISABLED */}
+              {!isAdmin() && invitedRole && (
+                <Tooltip title="Only admin can choose invited role">
+                  <span style={{ width: '100%' }}>
+                    <Select
+                      notched={true}
+                      label="Invite as"
+                      labelId="invite-as"
+                      disabled={true}
+                      fullWidth
+                      value={invitedRole}
+                      onChange={(e) => changeRole(e.target.value)}>
+                      {currentWSPermission?.map((role) => (
+                        <MenuItem key={role._id} value={role._id}>
+                          {role.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </span>
+                </Tooltip>
+              )}
+            </FormControl>
+          </Stack>
           <div className="button-group">
             <Button
               variant="text"
               color="error"
-              onClick={(e) => handleClose(e)}
-            >
+              onClick={(e) => handleClose(e)}>
               Cancel
             </Button>
             <Button variant="contained" color="primary" type="submit">
@@ -151,10 +238,12 @@ const InvitePeoplePopup = () => {
                   <div className="name">{member?.user?.fullName}</div>
                   <div className="email">{member?.user?.email}</div>
                 </div>
-                <div className={clsx('role', member?.role)}>
-                  {member?.role === 'superAdmin' && 'Super admin'}
-                  {member?.role === 'admin' && 'Admin'}
-                </div>
+                <RoleBadge
+                  $color={
+                    roleInWS(member?.user?._id as string)?.color as string
+                  }>
+                  {roleInWS(member?.user?._id as string)?.name}
+                </RoleBadge>
               </MemberItem>
             ))}
             {members?.workspaceMembers?.map((mem) => (
@@ -166,14 +255,17 @@ const InvitePeoplePopup = () => {
                   <div className="name">{mem?.user?.fullName}</div>
                   <div className="email">{mem?.user?.email}</div>
                 </div>
-                <div className={clsx('role', 'member')}>Member</div>
+                <RoleBadge
+                  $color={roleInWS(mem?.user?._id as string)?.color as string}>
+                  {roleInWS(mem?.user?._id as string)?.name}
+                </RoleBadge>
               </MemberItem>
             ))}
 
             {(!superAdminFirstList() ||
               (superAdminFirstList()?.length === 0 &&
                 members?.workspaceMembers?.length === 0)) && (
-              <p className="placeholder">There is no one here</p>
+              <Empty description="No result!" isFullWidth pY={50} />
             )}
           </MemberList>
         </CurrentMember>

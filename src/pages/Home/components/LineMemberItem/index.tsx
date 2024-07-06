@@ -16,7 +16,7 @@ import ConfirmDialog from '~/components/dialog/ConfirmDialog'
 import { useState } from 'react'
 import usePermission from '~/hooks/usePermission'
 
-const LineMemberItem = ({ data, _superAdminId, onDelete }: IWSItemProps) => {
+const LineMemberItem = ({ data, canRemove, onDelete }: IWSItemProps) => {
   const { user, role, color } = data
   const currentUser = useSelector((state: StoreType) => state.auth).userInfo
   const [openDialog, setOpenDialog] = useState(false)
@@ -24,6 +24,7 @@ const LineMemberItem = ({ data, _superAdminId, onDelete }: IWSItemProps) => {
 
   // 2024-06 update: check on admin permission
   const isAdmin = () => userPermission?.isAdmin
+
 
   const handleDelete = () => {
     setOpenDialog(false)
@@ -90,7 +91,7 @@ const LineMemberItem = ({ data, _superAdminId, onDelete }: IWSItemProps) => {
         </Badge>
       </div>
       <ActionGroup className="section">
-        {isAdmin() && currentUser?._id !== user?._id && (
+        {isAdmin() && canRemove && currentUser?._id !== user?._id && (
           <>
             {/* Action with board member */}
             {/* Swith to admin */}

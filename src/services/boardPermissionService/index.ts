@@ -1,7 +1,8 @@
-import axios, { AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import axiosInstance from '../axiosInstance.ts'
 import {
   ICreateBoardPermissionBody,
+  IDeleteBoardPermissionBody,
   IGetBoardPermissionBody,
   IGetBoardPermissionByUserIdBody,
   IUpdateBoardPermissionBody
@@ -9,9 +10,11 @@ import {
 import requests from './requests.ts'
 import {
   ICreateBoardPermissionResponse,
+  IDeleteBoardPermissionResponse,
   IGetBoardPermissionByUserIdResponse,
   IGetBoardPermissionResponse
 } from './resTypes.ts'
+import { IErrorResponse } from '../types.ts'
 
 export const createBoardPermission = async (
   body: ICreateBoardPermissionBody
@@ -96,6 +99,35 @@ export const updateBoardPermission = async (
     if (status && status === 409) {
       throw new Error(`UNAUTHORIZED`)
     }
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const deleteBoardPermission = async (
+  body: IDeleteBoardPermissionBody
+) => {
+  try {
+    const res = await axiosInstance.delete<IDeleteBoardPermissionResponse>(
+      requests.deleteBoardPermission(body.permissionId, body.boardId)
+    )
+    if (res && res.status === 200 && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    const errorData: IErrorResponse = (error as AxiosError).response
+      ?.data as IErrorResponse
+
+    // user is not allowed to
+    if (status && status === 409) {
+      throw new Error(`UNAUTHORIZED`)
+    }
+
+    if (errorData.message) {
+      throw new Error(errorData.message)
+    }
+
     // general error
     throw new Error('Something went wrong! Please try later.')
   }

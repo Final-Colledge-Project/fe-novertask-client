@@ -269,7 +269,8 @@ export default function GeneralInfo({
             </p>
           </Input>
 
-          <Input className="one-line">
+          {/* USE PERMISSION TO COVER THIS CASE */}
+          {/* <Input className="one-line">
             <p className="label">Public</p>
             <Switch
               size="small"
@@ -279,7 +280,7 @@ export default function GeneralInfo({
               id="is-project-public"
               inputProps={{ 'aria-label': 'controlled' }}
             />
-          </Input>
+          </Input> */}
 
           <Input>
             <p className="label">Description</p>

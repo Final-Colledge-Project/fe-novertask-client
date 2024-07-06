@@ -8,12 +8,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { IBoardPermission } from '~/services/types'
 import { useDispatch, useSelector } from 'react-redux'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
-import { Button, CircularProgress, Typography } from '@mui/material'
+import { Button, CircularProgress, Tooltip, Typography } from '@mui/material'
 import PermissionGroupEdit from '../PermissionGroupEdit'
 import { BOARD_PERMISSIONS_POPUP_MODE } from '~/utils/constant/board'
 import { clearDuplicateByKey } from '~/utils/helper'
 import { StoreType } from '~/redux'
 import { cloneDeep } from 'lodash'
+import usePermission from '~/hooks/usePermission'
+import Empty from '~/components/Empty'
 
 export default function PermissionSetting({
   searchKeyWord,
@@ -33,6 +35,10 @@ export default function PermissionSetting({
     })
     return permissionList
   }
+
+  const userPermissionOnBoard = usePermission()
+  // check if logged user is admin of current board
+  const isAdmin = () => userPermissionOnBoard?.isAdmin
 
   const boardPermissions = useMemo(() => {
     if (permissionStore.currentBoardPermission) {
@@ -75,9 +81,25 @@ export default function PermissionSetting({
           Total: {renderedList?.length}
           {searchKeyWord && `/${boardPermissions.length}`}
         </Typography>
-        <Button variant="contained" size="small" onClick={openAddPermission}>
-          Add
-        </Button>
+        {isAdmin() && (
+          <Button variant="contained" size="small" onClick={openAddPermission}>
+            Add
+          </Button>
+        )}
+        {!isAdmin() && (
+          <Tooltip title="Only admin can do this action">
+            <span>
+              <Button
+                variant="contained"
+                size="small"
+                disabled={true}
+                sx={{ '&.MuiButton-root': { color: '#606060' } }}
+                onClick={openAddPermission}>
+                Add
+              </Button>
+            </span>
+          </Tooltip>
+        )}
       </PermissionHeader>
       {!startSearch && (
         <PermissionSettingContainer>
@@ -88,7 +110,7 @@ export default function PermissionSetting({
       )}
 
       {!startSearch && renderedList.length == 0 && (
-        <Placeholder>No group found.</Placeholder>
+        <Empty description="No group found!" isFullWidth pY={50} />
       )}
 
       {startSearch && (

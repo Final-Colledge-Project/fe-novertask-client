@@ -2,9 +2,7 @@ import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 
 // component libraries
-import IconButton from '@mui/material/IconButton'
-import { RiLogoutBoxRLine, RiUserStarLine } from 'react-icons/ri'
-import Tooltip from '@mui/material/Tooltip'
+
 
 // component
 import { Badge, Item, ItemCover, Title, ActionGroup } from './styles'
@@ -14,22 +12,14 @@ import IWSItemProps from './IWSItemProps'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { assignAdmin } from '~/redux/teamWSSlice/actions'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
+import useWSPermission from '~/hooks/useWSPermission'
 
-const LineMemberItem = ({ data, superAdminId, onDelete }: IWSItemProps) => {
-  const { user, role } = data
+const LineMemberItem = ({ data, superAdminId, onDelete, canRemove }: IWSItemProps) => {
+  const { user, role, color } = data
   const currentUser = useSelector((state: StoreType) => state.auth).userInfo
   const dispatch = useDispatch<StoreDispatchType>()
+  const wsPermission = useWSPermission()
 
-  const roleString = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return 'admin'
-      case 'superAdmin':
-        return 'super admin'
-      default:
-        return role
-    }
-  }
 
   const checkIsUserASuperAdmin = () => {
     return superAdminId === currentUser?._id
@@ -61,24 +51,24 @@ const LineMemberItem = ({ data, superAdminId, onDelete }: IWSItemProps) => {
         <p>{user?.email}</p>
       </div>
       <div className="section">
-        <Badge className={role}>{roleString(role)}</Badge>
+        <Badge $color={color}>{role}</Badge>
       </div>
       <ActionGroup className="section">
         {checkIsUserASuperAdmin() && currentUser?._id !== user?._id && (
           <>
-            <Tooltip title="Switch to admin permission">
+            {/* <Tooltip title="Switch to admin permission">
               <IconButton color="primary" onClick={() => handleAssignAdmin()}>
                 <RiUserStarLine />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
-            <Tooltip title="Remove from this workspace">
+            {/* <Tooltip title="Remove from this workspace">
               <IconButton
                 color="error"
                 onClick={() => onDelete(user?._id as string)}>
                 <RiLogoutBoxRLine />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
           </>
         )}
       </ActionGroup>

@@ -79,6 +79,15 @@ export const createBoard = async (body: ICreateBoardBody) => {
         ?.data as IErrorResponse
       throw new Error(errorData.message as string)
     }
+
+    const errorData: IErrorResponse = (error as AxiosError).response
+      ?.data as IErrorResponse
+
+    // added member is not found
+    if (errorData.message) {
+      throw new Error(errorData.message)
+    }
+
     // general error
     throw new Error('Something went wrong! Please try later.')
   }
@@ -125,9 +134,7 @@ export const addMember = async (body: IAddMemberToBoardBody) => {
   try {
     const res = await axiosInstance.patch(
       requests.addMemberToBoard(body.boardId),
-      {
-        memberIds: body.memberIds
-      }
+      body
     )
 
     if (res && res.status) {

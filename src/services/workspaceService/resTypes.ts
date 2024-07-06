@@ -29,3 +29,8 @@ export interface IAssignAdminResponse {
 export interface IErrorResponse {
   message: string
 }
+
+export interface IGetWSCanCreateBoardResponse {
+  data: IGeneralWorkspace[]
+  message: string
+}

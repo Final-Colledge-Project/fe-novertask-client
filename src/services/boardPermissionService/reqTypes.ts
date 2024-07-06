@@ -17,3 +17,8 @@ export interface IGetBoardPermissionBody {
 export interface IGetBoardPermissionByUserIdBody {
   userId: string
 }
+
+export interface IDeleteBoardPermissionBody {
+  permissionId: string
+  boardId: string
+}

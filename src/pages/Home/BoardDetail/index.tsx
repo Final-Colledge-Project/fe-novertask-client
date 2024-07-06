@@ -67,8 +67,17 @@ import {
   setMembers as setMembersToStore,
   refreshMembers
 } from '~/redux/boardSlice'
-import { setCurrentBoardPermission } from '~/redux/permissionSlice'
-import { getBoardPermission } from '~/redux/permissionSlice/actions'
+import {
+  resetCurrentBoardPermission,
+  resetCurrentBoardPermissionState,
+  resetUserPermissionOnBoard,
+  resetUserPermissionOnBoardState,
+  setCurrentBoardPermission
+} from '~/redux/permissionSlice'
+import {
+  getBoardPermission,
+  getUserPermissionOnBoard
+} from '~/redux/permissionSlice/actions'
 import usePermission from '~/hooks/usePermission'
 import allRoutes from '~/utils/routes'
 // import { setPopupAddMemberToBoard } from '~/redux/popupSlice' 22-04-2024 move to Header.tsx
@@ -108,6 +117,9 @@ import { updateCard } from '~/services/cardService'
 import { setCreatingCard, setSearchString } from '~/redux/cardSlice'
 import { setFakeColumn } from '~/redux/columnSlice'
 import BoardReports from './BoardReports'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
+import Empty from '~/components/Empty'
+import { BOARD_RELOAD_REASON } from '~/utils/constant/board'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -138,6 +150,9 @@ const BoardDetail = () => {
     undefined
   )
   const [addingColumn, setAddingColumn] = useState(false)
+
+  // logged user info
+  const userInfo = useSelector((state: StoreType) => state.auth.userInfo)
 
   // change state of adding column process
   const handleAddingColumn = (nextState: boolean) => {
@@ -178,7 +193,7 @@ const BoardDetail = () => {
 
   // #region selector
 
-  const { success, error } = useSelector(
+  const { success, error, action } = useSelector(
     (state: StoreType) => state.board.creatingBoard
   )
   const { shouldRefreshBoardDetail } = useSelector(
@@ -204,6 +219,8 @@ const BoardDetail = () => {
   // get data from api
   const getBoard = async () => {
     try {
+      dispatch(showLoading())
+      dispatch(setCreateColumn({ loading: true }))
       const res = await getBoardDetail({ id: id as string })
       if (res && res?.data) {
         const board = res.data
@@ -251,6 +268,9 @@ const BoardDetail = () => {
         enqueueSnackbar('You cannot access this board', { variant: 'error' })
         navigate('/u', { replace: true })
       }
+    } finally {
+      dispatch(hideLoading())
+      dispatch(setCreateColumn({ loading: false }))
     }
   }
 
@@ -268,36 +288,65 @@ const BoardDetail = () => {
     }
   }
 
+  // check if logged user is member of board
+  const isMemberOfBoard = useCallback(() => {
+    if (members) {
+      return (
+        members?.members.find((member) => member._id === userInfo?._id) ||
+        members.oweners.find((owner) => owner._id === userInfo?._id)
+      )
+    }
+  }, [members, userInfo?._id])
+
   useEffect(() => {
     getBoard()
-    getAllPermission()
-
-    // clear permission when get out of board
-    return () => {
-      dispatch(setCurrentBoardPermission(null))
-    }
   }, [id])
 
   useEffect(() => {
-    board && getMembers()
-
-    return () => {
-      dispatch(refreshMembers())
+    if (board) {
+      if (isMemberOfBoard()) {
+        getUserPermission()
+      }
+      getAllPermission()
     }
   }, [id, board])
 
   useEffect(() => {
-    if (success) {
-      getBoard()
-      dispatch(setCreateColumn({ success: false }))
+    // clear permission when get out of board
+    return () => {
+      dispatch(resetCurrentBoardPermission())
+      dispatch(resetUserPermissionOnBoard())
+      dispatch(refreshMembers())
     }
+  }, [])
+
+  useEffect(() => {
+    board && getMembers()
+  }, [id, board])
+
+  useEffect(() => {
+    const func = async () => {
+      if (success) {
+        await getBoard()
+        dispatch(setCreateColumn({ success: false }))
+        // focus adding column after add get new board data
+        if (action === BOARD_RELOAD_REASON.CREATE_COLUMN) {
+          setAddingColumn(true)
+          dispatch(setCreateColumn({ action: BOARD_RELOAD_REASON.EMPTY }))
+        }
+      }
+    }
+    func()
   }, [success])
 
   useEffect(() => {
-    if (error) {
-      getBoard()
-      dispatch(setCreateColumn({ error: false }))
+    const func = async () => {
+      if (error) {
+        await getBoard()
+        dispatch(setCreateColumn({ error: false }))
+      }
     }
+    func()
   }, [error])
 
   useEffect(() => {
@@ -937,9 +986,16 @@ const BoardDetail = () => {
     if (!id) return
     try {
       await dispatch(getBoardPermission(id as string))
-      if (permissionStore.getBoardPermissionStatus === 'error') {
-        enqueueSnackbar('Get board permission failed!', { variant: 'error' })
-      }
+    } catch (error) {
+      // enqueueSnackbar((error as AxiosError).message, { variant: 'error' })
+    }
+  }
+
+  // const permission of logged user
+  const getUserPermission = async () => {
+    if (!id) return
+    try {
+      await dispatch(getUserPermissionOnBoard(id as string))
     } catch (error) {
       enqueueSnackbar((error as AxiosError).message, { variant: 'error' })
     }
@@ -948,13 +1004,29 @@ const BoardDetail = () => {
   // show error message when get board permission failed
   useEffect(() => {
     if (permissionStore.getBoardPermissionStatus === 'error') {
-      enqueueSnackbar(permissionStore.getBoardPermissionErrMessage, {
-        variant: 'error'
-      })
+      enqueueSnackbar(
+        `Get permission error: ${permissionStore.getBoardPermissionErrMessage}`,
+        { variant: 'error' }
+      )
+      dispatch(resetCurrentBoardPermissionState())
     }
   }, [
     permissionStore.getBoardPermissionStatus,
     permissionStore.getBoardPermissionErrMessage
+  ])
+
+  // show error message when get user permission failed
+  useEffect(() => {
+    if (permissionStore.getUserPermissionOnBoardStatus === 'error') {
+      enqueueSnackbar(
+        `Get permission error: ${permissionStore.getUserPermissionOnBoardErrMsg}`,
+        { variant: 'error' }
+      )
+      dispatch(resetUserPermissionOnBoardState())
+    }
+  }, [
+    permissionStore.getUserPermissionOnBoardStatus,
+    permissionStore.getUserPermissionOnBoardErrMsg
   ])
 
   return (
@@ -992,9 +1064,9 @@ const BoardDetail = () => {
                 <div className="board-avatar"></div>
                 <div className="title-container">
                   <span className="title">{board?.title}</span>
-                  <ProjectType $type={(board?.type as string) || 'public'}>
+                  {/* <ProjectType $type={(board?.type as string) || 'public'}>
                     {board?.type}
-                  </ProjectType>
+                  </ProjectType> */}
                   {/* <p className="description">{board?.description}</p> */}
                 </div>
               </div>
@@ -1102,6 +1174,12 @@ const BoardDetail = () => {
                   boardId={board?._id as string}
                 />
               )}
+
+              {board?.columns &&
+                orderedColumns.length === 0 &&
+                !canAddColumn() && (
+                  <Empty description="Board is empty!" isFullWidth pY={50} />
+                )}
             </Body>
           )
         }

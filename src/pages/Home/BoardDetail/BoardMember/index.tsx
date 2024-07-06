@@ -27,6 +27,7 @@ import { hideLoading, showLoading } from '~/redux/progressSlice'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
 import { enqueueSnackbar } from 'notistack'
 import { AxiosError } from 'axios'
+import Empty from '~/components/Empty'
 
 export default function BoardMember({ members, leaderId, board }: IMainProps) {
   const dispatch = useDispatch<StoreDispatchType>()
@@ -77,6 +78,13 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
         fullName: `${bareOwnerData.firstName} ${bareOwnerData.lastName}`
       }
     }
+  }
+
+  const isOwner = (userId: string) => {
+    if (owner()) {
+      return owner()?._id === userId
+    }
+    return false
   }
 
   // const memberList = () => {
@@ -130,7 +138,13 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
     }
 
     return onSearchMember(list)
-  }, [currentRole, members, searchTerm])
+  }, [
+    currentRole,
+    members,
+    searchTerm,
+    currentBoardPermission,
+    currentBoardMembers
+  ])
   // #endregion
 
   const onRoleListChange = (newRole: string) => {
@@ -247,10 +261,11 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
                   superAdminId={leaderId as string}
                   data={member}
                   onDelete={deleteUserFromBoard}
+                  canRemove={!isOwner(member?.user._id)}
                 />
               ))}
             {generateRenderList()?.length === 0 && !startSearch && (
-              <Placeholder>There is no one here</Placeholder>
+              <Empty description="No result!" isFullWidth pY={50} />
             )}
             {startSearch && (
               <Placeholder>

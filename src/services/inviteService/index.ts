@@ -93,7 +93,8 @@ export const respondInvitation = async (body: IRespondInvitationBody) => {
 export const sendInvitation = async (body: ISendInvitationBody) => {
   try {
     const res = await axiosInstance.post(requests.sendInvitation(body.wsID), {
-      emailUser: body.email
+      emailUser: body.email,
+      permissionId: body.permissionId
     })
     if (res.status === 201) {
       return res.data

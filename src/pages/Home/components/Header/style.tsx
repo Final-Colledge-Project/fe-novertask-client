@@ -5,17 +5,19 @@ export const StyledHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  padding: 5px 20px;
   gap: 16px;
   position: sticky;
   top: 0;
   left: 0;
   z-index: 1;
-  background-color: rgba($color: #f2f2f7, $alpha: 0.8);
+  /* background-color: rgba($color: #f2f2f7, $alpha: 0.8); */
+  background-color: var(--mui-palette-white-main);
   backdrop-filter: blur(15px);
-  & > .name {
+  & .workspace-name {
     color: var(--mui-palette-blue-main);
     flex: 1;
+    cursor: pointer;
   }
   & > .search-box {
     width: 300px;

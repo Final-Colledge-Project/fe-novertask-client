@@ -23,3 +23,13 @@ export const BOARD_RESOURCES = {
   priority: 'priority',
   issueType: 'issueType'
 }
+
+export const BOARD_RELOAD_REASON = {
+  CREATE_COLUMN: 1,
+  CREATE_CARD: 2,
+  DELETE_COLUMN: 3,
+  DELETE_CARD: 4,
+  UPDATE_CARD: 5,
+  UPDATE_COLUMN: 6,
+  EMPTY: -1
+}

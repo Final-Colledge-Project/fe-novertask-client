@@ -56,6 +56,7 @@ import { ILabel } from '~/services/types'
 import { COLOR } from '~/utils/constant'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
 import usePermission from '~/hooks/usePermission'
+import Empty from '~/components/Empty'
 
 export default function AddLabelMenu({
   onChoose,
@@ -383,7 +384,7 @@ export default function AddLabelMenu({
                           {/* PLACEHOLDER IF NO LABELS */}
 
                           {labels?.length === 0 && (
-                            <PlaceHolder>No label found</PlaceHolder>
+                            <Empty description="No label found!" isFullWidth pY={50} />
                           )}
                         </MenuList>
 

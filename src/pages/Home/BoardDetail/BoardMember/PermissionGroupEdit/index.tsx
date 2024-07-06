@@ -23,13 +23,14 @@ import {
   SubTitle2,
   CheckBoxList,
   TransitionList,
-  TransitionItem
+  TransitionItem,
+  EmptyMember
 } from './style'
 import IProps from './IProps'
 import { RiAddLine, RiCloseLine, RiExternalLinkLine } from 'react-icons/ri'
 import TextInput from '~/components/TextInput'
 import ColorPicker from '~/components/ColorPicker'
-import { MouseEvent, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { cloneDeep, has, set, forOwn, get, isEqual } from 'lodash'
 import AddUserToGroupPopup from '../AddUserToGroupPopup'
 import {
@@ -73,7 +74,7 @@ export default function PermissionGroupEdit({
   closeCallback,
   permissionProps,
   mode
-}: IProps) {
+}: Readonly<IProps>) {
   const isViewMode = () => mode === BOARD_PERMISSIONS_POPUP_MODE.VIEW
   const isAddMode = () => mode === BOARD_PERMISSIONS_POPUP_MODE.ADD
   const isEditMode = () => mode === BOARD_PERMISSIONS_POPUP_MODE.EDIT
@@ -118,6 +119,9 @@ export default function PermissionGroupEdit({
     setOpenAddUserToGroupPopup(true)
   }
 
+  // check if the current permission is not admin or viewer permission
+  const canEditPermission = () => !permission.isAdmin && !permission.isViewer
+
   const computedMembers = useMemo(() => {
     if (memberData && permission.memberIds) {
       const result = [
@@ -128,6 +132,16 @@ export default function PermissionGroupEdit({
     }
     return []
   }, [memberData, permission.memberIds])
+
+  const ownerId = () => {
+    return memberData?.oweners[0]._id
+  }
+  const isOwner = (userId: string) => {
+    if (userId === ownerId()) {
+      return true
+    }
+    return false
+  }
 
   const isChecked = (item: IItem, data: IBasicPermission) => {
     if (item.key && data) {
@@ -206,12 +220,6 @@ export default function PermissionGroupEdit({
   // handle close this popup
   const close = (ignoreChanges?: boolean) => {
     // check if data is modified && dialogResult is true
-    console.log(permissionSnapShot)
-    console.log({
-      ...permission,
-      name: getValues('name'),
-      description: getValues('description')
-    })
     const modifiedKeys = getModifiedKeys({
       ...permission,
       name: getValues('name'),
@@ -297,6 +305,11 @@ export default function PermissionGroupEdit({
       description: data.description
     }
 
+    // remove owner from memberIds
+    computedData.memberIds = [
+      ...computedData.memberIds.filter((id) => id !== ownerId())
+    ]
+
     if (isAddMode()) {
       // create permission
       await onCreatePermission(computedData)
@@ -307,7 +320,7 @@ export default function PermissionGroupEdit({
     // update permission
     await dispatch(getBoardPermission(boardId as string))
     // close popup
-    close()
+    close(true)
   }
 
   const onCreatePermission = async (data: IBoardPermission) => {
@@ -319,7 +332,7 @@ export default function PermissionGroupEdit({
         boardPermission: data,
         boardId
       })
-      if (res && res.data) {
+      if (res?.data) {
         enqueueSnackbar('Create permission successfully!', {
           variant: 'success'
         })
@@ -341,7 +354,7 @@ export default function PermissionGroupEdit({
       dispatch(showLoading())
       const res = await updateBoardPermission({
         boardPermission: computedData,
-        permissionId: data._id as string
+        permissionId: data._id
       })
       if (res) {
         enqueueSnackbar('Updated permission successfully!', {
@@ -396,7 +409,7 @@ export default function PermissionGroupEdit({
       dialogContentProp={{ sx: { padding: '0 8px 8px', overflowY: 'visible' } }}
       title={
         <Title>
-          {isViewMode() || (isEditMode() && permission.name)}
+          {(isViewMode() || isEditMode()) && permission.name}
           {isAddMode() && 'Permission'}
           {isViewMode() && <Mode> • Detail</Mode>}
           {isAddMode() && <Mode> • Add new</Mode>}
@@ -414,6 +427,7 @@ export default function PermissionGroupEdit({
                 <WithController control={control} name="name">
                   <TextInput
                     label=""
+                    disabled={isViewMode() || !canEditPermission()}
                     placeHolder="Add title..."
                     sx={{ height: '35px' }}
                   />
@@ -422,6 +436,7 @@ export default function PermissionGroupEdit({
               <Group className="flex-1">
                 <SubTitle>Color</SubTitle>
                 <ColorPicker
+                  disabled={isViewMode()}
                   chosenColor={color}
                   onChange={(color) => setColor(color)}
                 />
@@ -432,7 +447,12 @@ export default function PermissionGroupEdit({
             <Group>
               <SubTitle>Description</SubTitle>
               <WithController control={control} name="description">
-                <TextInput label="" multiple placeholder="Add description..." />
+                <TextInput
+                  label=""
+                  multiple
+                  placeholder="Add description..."
+                  disabled={isViewMode() || !canEditPermission()}
+                />
               </WithController>
             </Group>
 
@@ -449,24 +469,34 @@ export default function PermissionGroupEdit({
                         sx={{ width: '40px', height: '40px' }}
                         src={mem.avatar}></Avatar>
                     </Tooltip>
-                    <CloseButton style={{ width: '20px', height: '20px' }}>
-                      <IconButton
-                        sx={{
-                          width: '35px',
-                          height: '35px'
-                        }}
-                        onClick={() => onRemoveUser(mem._id)}
-                        color="inherit">
-                        <RiCloseLine />
-                      </IconButton>
-                    </CloseButton>
+
+                    {/* DELETE USER BUTTON */}
+                    {!isViewMode() && !isOwner(mem._id) && (
+                      <CloseButton style={{ width: '20px', height: '20px' }}>
+                        <IconButton
+                          sx={{
+                            width: '35px',
+                            height: '35px'
+                          }}
+                          onClick={() => onRemoveUser(mem._id)}
+                          color="inherit">
+                          <RiCloseLine />
+                        </IconButton>
+                      </CloseButton>
+                    )}
                   </User>
                 ))}
 
+                {isViewMode() && computedMembers.length === 0 && (
+                  <EmptyMember>No users</EmptyMember>
+                )}
+
                 {/* ADD USER BUTTON */}
-                <AddUserButton onClick={handleOpenAddUserToGroupPopup}>
-                  <RiAddLine />
-                </AddUserButton>
+                {!isViewMode() && (
+                  <AddUserButton onClick={handleOpenAddUserToGroupPopup}>
+                    <RiAddLine />
+                  </AddUserButton>
+                )}
               </UserList>
             </Group>
           </Panel>
@@ -488,6 +518,7 @@ export default function PermissionGroupEdit({
                         control={
                           <Checkbox
                             size="small"
+                            disabled={isViewMode() || !canEditPermission()}
                             checked={isChecked(item, permission.column)}
                             onChange={() =>
                               toggleNestedBoolean(
@@ -519,6 +550,7 @@ export default function PermissionGroupEdit({
                         control={
                           <Checkbox
                             size="small"
+                            disabled={isViewMode() || !canEditPermission()}
                             checked={isChecked(item, permission.issueType)}
                             onChange={() =>
                               toggleNestedBoolean(
@@ -550,6 +582,7 @@ export default function PermissionGroupEdit({
                         control={
                           <Checkbox
                             size="small"
+                            disabled={isViewMode() || !canEditPermission()}
                             checked={isChecked(item, permission.priority)}
                             onChange={() =>
                               toggleNestedBoolean(
@@ -581,6 +614,7 @@ export default function PermissionGroupEdit({
                         control={
                           <Checkbox
                             size="small"
+                            disabled={isViewMode() || !canEditPermission()}
                             checked={isChecked(item, permission.label)}
                             onChange={() =>
                               toggleNestedBoolean(
@@ -612,6 +646,7 @@ export default function PermissionGroupEdit({
                         control={
                           <Checkbox
                             size="small"
+                            disabled={isViewMode() || !canEditPermission()}
                             checked={isChecked(item, permission.card)}
                             onChange={() =>
                               toggleNestedBoolean(
@@ -643,6 +678,7 @@ export default function PermissionGroupEdit({
                         control={
                           <Checkbox
                             size="small"
+                            disabled={isViewMode() || !canEditPermission()}
                             checked={isChecked(item, permission.member)}
                             onChange={() =>
                               toggleNestedBoolean(
@@ -689,12 +725,21 @@ export default function PermissionGroupEdit({
         />
         {/* ACTIONS */}
         <ActionButtons>
-          <Button variant="text" color="error" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button variant="contained" color="primary" type="submit">
-            Save
-          </Button>
+          {!isViewMode() && (
+            <>
+              <Button variant="text" color="error" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button variant="contained" color="primary" type="submit">
+                Save
+              </Button>
+            </>
+          )}
+          {isViewMode() && (
+            <Button variant="text" color="error" onClick={handleCancel}>
+              Close
+            </Button>
+          )}
         </ActionButtons>
       </Form>
       <ConfirmDialog

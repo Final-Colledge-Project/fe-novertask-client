@@ -1,17 +1,20 @@
 import styled from '@emotion/styled'
 
 export const Board = styled.div`
-  padding: 10px;
-  background-color: var(--mui-palette-white-main);
+  padding: 0 30px;
+  /* background-color: var(--mui-palette-white-main); */
   border-radius: 8px;
 `
 export const Container = styled.div`
-  margin: 0 20px;
+  /* margin: 0 20px; */
+  border-top: 1px solid var(--mui-palette-divider);
 `
 
 export const Header = styled.div`
   border-bottom: 1px solid var(--mui-palette-divider);
   margin-bottom: 20px;
+  padding: 7.5px 15px;
+  background-color: var(--mui-palette-white-main);
 
   & > .describe {
     font-size: 14px;
@@ -24,7 +27,8 @@ export const Header = styled.div`
 export const Title = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  /* margin-top: 20px; */
+  padding: 0 15px;
   p.text {
     font-weight: 700;
   }
@@ -93,7 +97,7 @@ export const BoardBody = styled.div`
   flex-direction: column;
   gap: 10px;
   margin-top: 20px;
-  padding: 0 5px;
+  /* padding: 0 5px; */
   min-height: 100px;
 
   & .placeholder {
@@ -112,7 +116,7 @@ export const TabHeader = styled.div`
   align-items: center;
   gap: 40px;
   color: var(--mui-palette-gray3-main);
-  border-bottom: 1px solid var(--mui-palette-divider);
+  /* border-bottom: 1px solid var(--mui-palette-divider); */
 
   & > .item {
     cursor: pointer;
@@ -150,4 +154,27 @@ export const TabHeader = styled.div`
       transform: scaleX(1);
     }
   }
+`
+
+export const ControlHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  /* border-bottom: 1px solid var(--mui-palette-divider); */
+`
+
+export const HorizontalBar = styled.div`
+  width: 100%;
+  height: 1px;
+  background-color: var(--mui-palette-divider);
+  flex: 0;
+  min-height: 1px;
+`
+
+export const Placeholder = styled.div`
+  width: 100%;
+  color: var(--mui-palette-gray-main);
+  padding: 50px 0;
+  text-align: center;
 `

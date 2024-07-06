@@ -170,10 +170,9 @@ export const Badge = styled.div<{ $color: string }>`
   text-align: center;
   background-color: ${(props) => props.$color};
   color: var(--mui-palette-white-main);
-  &.boardAdmin {
-    background-color: var(--mui-palette-yellow-main);
-  }
-  &.boardLead {
-    background-color: var(--mui-palette-orange-main);
-  }
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
 `

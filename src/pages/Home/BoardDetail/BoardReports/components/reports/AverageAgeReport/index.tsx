@@ -37,7 +37,7 @@ const AverageAgeReport = (props: IAverageAgeReportProps) => {
   const { dates, totalAges, averageAges } = preProcessData(
     sprintData.averageEachTask
   )
-  console.log('~~~~> sprintData', sprintData)
+  // console.log('~~~~> sprintData', sprintData)
   const averageLineData = new Array(dates.length).fill(sprintData.averageAge)
 
   const dataSet: ChartData<'bar' | 'line'> = {

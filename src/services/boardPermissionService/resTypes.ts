@@ -15,6 +15,10 @@ export interface IGetBoardPermissionResponse {
 }
 
 export interface IGetBoardPermissionByUserIdResponse {
-  data: IBoardPermission[]
+  data: IBoardPermission
+  message: string
+}
+
+export interface IDeleteBoardPermissionResponse {
   message: string
 }

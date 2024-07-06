@@ -1,4 +1,6 @@
 import styled from '@emotion/styled'
+import { Button, ButtonProps } from '@mui/material'
+import { styled as muiStyled } from '@mui/material/styles'
 
 export const PermissionContainer = styled.div`
   flex: 1;
@@ -90,3 +92,18 @@ export const Description = styled.div`
   border-radius: 4px;
   /* background-color: var(--mui-palette-gray6-main); */
 `
+
+export const SquareButton = muiStyled((props: ButtonProps) => (
+  <Button
+    variant="outlined"
+    color="error"
+    sx={{
+      height: '35px',
+      minWidth: '35px',
+      width: '30px',
+      color: (theme) => theme.palette.white.main,
+      padding: 0
+    }}
+    {...props}
+  />
+))()

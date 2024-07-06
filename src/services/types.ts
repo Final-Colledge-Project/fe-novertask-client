@@ -335,6 +335,9 @@ export interface IBoardPermission {
   label: { create: boolean; update: boolean; delete: boolean }
   isAdmin?: boolean
   isViewer?: boolean
+  createdAt?: string
+  updatedAt?: string
+  isActive?: boolean
 }
 
 export interface IUpdatableBoardPermission {
@@ -347,6 +350,7 @@ export interface IUpdatableBoardPermission {
   issueType?: { create?: boolean; update?: boolean; delete?: boolean }
   priority?: { create?: boolean; update?: boolean; delete?: boolean }
   label?: { create?: boolean; update?: boolean; delete?: boolean }
+}
 export interface ITaskEvent {
   id: string
   title: string
@@ -425,4 +429,28 @@ export interface IIssueType {
   updatedAt: Date
   isActive: boolean
   hierarchy: number
+}
+
+export interface IWSPermission {
+  _id: string
+  name: string
+  memberIds: string[]
+  description: string
+  color: string
+  member: { invite: boolean }
+  board: { create: boolean; viewAll: boolean }
+  isWSAdmin?: boolean
+  isWSViewer?: boolean
+  createdAt?: string
+  updatedAt?: string
+  isActive?: boolean
+}
+
+export interface IUpdatableWSPermission {
+  name?: string
+  memberIds?: string[]
+  description?: string
+  color?: string
+  member?: { invite?: boolean; viewAll?: boolean }
+  board?: { create?: boolean }
 }

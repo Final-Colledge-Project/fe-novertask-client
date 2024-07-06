@@ -14,3 +14,5 @@ export interface IAssignAdminBody {
 export interface IDeleteWorkspaceBody {
   id: string
 }
+
+export interface IGetWSCanCreateBoardBody {}
