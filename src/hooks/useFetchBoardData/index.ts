@@ -9,9 +9,11 @@ import { fetchIssueTypes } from '~/redux/issueTypeSlice/actions'
 import { setSprints } from '~/redux/sprintSlice'
 import { setPriorities } from '~/redux/prioritySlice'
 import { setIssueTypes } from '~/redux/issueTypeSlice'
+import { fetchColumns } from '~/redux/columnSlice/actions'
+import { setColumns } from '~/redux/columnSlice'
 const useFetchBoardData = (props: IProps) => {
   const { key, boardId } = props
-  const dispatch = useDispatch<StoreDispatchType>()
+  const dispatch: StoreDispatchType = useDispatch<StoreDispatchType>()
   const allSprints = useSelector((state: StoreType) => state.sprint.allSprints)
   const allPriorities = useSelector(
     (state: StoreType) => state.priority.allPriorities
@@ -19,6 +21,7 @@ const useFetchBoardData = (props: IProps) => {
   const allIssueTypes = useSelector(
     (state: StoreType) => state.issueType.allIssueTypes
   )
+  const allColumns = useSelector((state: StoreType) => state.column.allColumns)
 
   const resetData = () => {
     switch (key) {
@@ -34,11 +37,14 @@ const useFetchBoardData = (props: IProps) => {
         dispatch(setIssueTypes([]))
         break
       }
+      case BOARD_RESOURCES.column: {
+        dispatch(setColumns([]))
+        break
+      }
       default:
         break
     }
   }
-
   useEffect(() => {
     switch (key) {
       case BOARD_RESOURCES.sprint: {
@@ -53,6 +59,13 @@ const useFetchBoardData = (props: IProps) => {
       }
       case BOARD_RESOURCES.issueType: {
         if (!allIssueTypes.length) dispatch(fetchIssueTypes(boardId))
+        break
+      }
+      case BOARD_RESOURCES.column: {
+        if (!allColumns.length) {
+          console.log('======> fetchColumns ')
+          dispatch(fetchColumns(boardId))
+        }
         break
       }
       default:

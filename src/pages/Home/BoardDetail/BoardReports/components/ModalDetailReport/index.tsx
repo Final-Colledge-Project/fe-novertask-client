@@ -13,30 +13,27 @@ import AverageAgeReport from '../reports/AverageAgeReport'
 const ModalDetailReport = (props: IModalDetailReportProps) => {
   const { visible, setVisible, reportType } = props
   const { id } = useParams()
-  const [exportFn, setExportFn] = useState<() => void>(() => () => {})
   let ReportDetail: ReactElement = <></>
   switch (reportType.type) {
     case REPORT_TYPE.sprintBurnDownReport: {
       ReportDetail = (
-        <SprintBurnDown boardId={id || ''} setExportFn={setExportFn} />
+        <SprintBurnDown boardId={id || ''} reportType={reportType} />
       )
       break
     }
     case REPORT_TYPE.sprintVelocityReport: {
       ReportDetail = (
-        <VelocityReport boardId={id || ''} setExportFn={setExportFn} />
+        <VelocityReport boardId={id || ''} reportType={reportType} />
       )
       break
     }
     case REPORT_TYPE.sprintReport: {
-      ReportDetail = (
-        <SprintReport boardId={id || ''} setExportFn={setExportFn} />
-      )
+      ReportDetail = <SprintReport boardId={id || ''} reportType={reportType} />
       break
     }
     case REPORT_TYPE.averageAgeReport: {
       ReportDetail = (
-        <AverageAgeReport boardId={id || ''} setExportFn={setExportFn} />
+        <AverageAgeReport boardId={id || ''} reportType={reportType} />
       )
       break
     }
@@ -54,14 +51,6 @@ const ModalDetailReport = (props: IModalDetailReportProps) => {
       <div className="modalWrapper">
         <span className="modelDescription">{reportType.description}</span>
         <div className="modalDetail">{ReportDetail}</div>
-        <div className="modalFooter">
-          <Button
-            variant="contained"
-            startIcon={<RiDownloadLine />}
-            onClick={exportFn}>
-            Export PDF
-          </Button>
-        </div>
       </div>
     </WindowDialog>
   )

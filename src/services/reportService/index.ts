@@ -1,7 +1,7 @@
 import axiosInstance from '../axiosInstance'
 import {
   IAverageAgeReportResponse,
-  IGetBurnDownReport,
+  IGetBurnDownReportResponse,
   IGetVelocityReport,
   ISprintReportResponse
 } from './resTypes'
@@ -9,7 +9,7 @@ import requests from './request'
 
 export const getBurnDownReport = async (boardId: string, sprintId: string) => {
   try {
-    const res = await axiosInstance.get<IGetBurnDownReport>(
+    const res = await axiosInstance.get<IGetBurnDownReportResponse>(
       requests.getBurnDownReport(boardId, sprintId)
     )
     if (res && res.status === 200 && res.data) {

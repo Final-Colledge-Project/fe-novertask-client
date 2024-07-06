@@ -3,16 +3,18 @@ export interface IDailyStoryPoints {
   storyPoints: number
   _id: string
 }
-export interface IGetBurnDownReport {
-  data: {
-    _id: string
-    boardId: string
-    name: string
-    startDate: string
-    endDate: string
-    dailyStoryPoints: IDailyStoryPoints[]
-    totalStoryPoint: number
-  }
+
+export interface IBurnDownReport {
+  _id: string
+  boardId: string
+  name: string
+  startDate: string
+  endDate: string
+  dailyStoryPoints: IDailyStoryPoints[]
+  totalStoryPoint: number
+}
+export interface IGetBurnDownReportResponse {
+  data: IBurnDownReport
   message: string
 }
 
@@ -47,6 +49,7 @@ export interface ISprintReport {
 
 export interface ICompletedTask {
   _id: string
+  cardId: string
   title: string
   storyPoint: number
   assignees: string
@@ -55,6 +58,7 @@ export interface ICompletedTask {
 }
 
 export interface IAverageTaskAge {
+  _id: string
   taskId: string
   name: string
   age: number
