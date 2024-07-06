@@ -1,6 +1,7 @@
-import { IGeneralWorkspace } from '~/services/types'
+import { IAllMemberInBoard, IGeneralWorkspace } from '~/services/types'
 import { createSlice } from '@reduxjs/toolkit'
 import { getAllByUserId } from './actions'
+import { BOARD_RELOAD_REASON } from '~/utils/constant/board'
 
 const initialState: {
   getAllBoard: {
@@ -14,9 +15,11 @@ const initialState: {
     loading: boolean
     error: string | undefined
     success: boolean
+    action: number
   }
   shouldRefreshBoardDetail: boolean
   shouldRefreshMemberInBoard: boolean
+  members: IAllMemberInBoard | undefined
 } = {
   getAllBoard: {
     loading: false,
@@ -28,10 +31,12 @@ const initialState: {
   creatingBoard: {
     loading: false,
     error: undefined,
-    success: false
+    success: false,
+    action: BOARD_RELOAD_REASON.EMPTY
   },
   shouldRefreshBoardDetail: false,
-  shouldRefreshMemberInBoard: false
+  shouldRefreshMemberInBoard: false,
+  members: undefined
 }
 
 const boardSlice = createSlice({
@@ -52,6 +57,15 @@ const boardSlice = createSlice({
         ...state.creatingBoard,
         ...payload
       }
+    },
+    setMembers: (state, { payload }) => {
+      state.members = {
+        ...state.members,
+        ...payload
+      }
+    },
+    refreshMembers: (state) => {
+      state.members = undefined
     }
   },
   extraReducers: (builder) => {
@@ -80,5 +94,7 @@ export const {
   setShouldReloadAllBoard,
   setCreateColumn,
   setShouldRefreshBoardDetail,
-  setShouldRefreshMemberInBoard
+  setShouldRefreshMemberInBoard,
+  setMembers,
+  refreshMembers
 } = boardSlice.actions

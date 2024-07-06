@@ -53,6 +53,29 @@ export interface IInvitation {
   }
 }
 
+// 2024-05-25 update permission
+// export interface IBoard {
+//   _id: string
+//   title: string
+//   description: string
+//   cover: undefined | string
+//   columnOrderIds?: Array<string>
+//   type: 'private' | 'public'
+//   teamWorkspaceId: string
+//   ownerIds: {
+//     user: string
+//     role: string
+//     _id: string
+//   }[]
+//   memberIds: Array<string>
+//   dueDate?: string
+//   isActive?: boolean
+//   isDestroyed?: boolean
+//   createdAt: string
+//   updatedAt?: string
+//   __v?: string
+//   columns?: IColumn[]
+// }
 export interface IBoard {
   _id: string
   title: string
@@ -61,11 +84,7 @@ export interface IBoard {
   columnOrderIds?: Array<string>
   type: 'private' | 'public'
   teamWorkspaceId: string
-  ownerIds: {
-    user: string
-    role: string
-    _id: string
-  }[]
+  ownerIds: string[]
   memberIds: Array<string>
   dueDate?: string
   isActive?: boolean
@@ -75,6 +94,7 @@ export interface IBoard {
   __v?: string
   columns?: IColumn[]
 }
+// 2024-05-25 update permission
 
 export interface IBoardData {
   board: IBoard[]
@@ -120,7 +140,7 @@ export interface IAllBoardOfCurrentUser {
 
 export interface IAllMemberInBoard {
   boardId: string
-  oweners: { user: IMemberInBoard; role: string }[]
+  oweners: IMemberInBoard[]
   members: IMemberInBoard[]
 }
 
@@ -301,6 +321,36 @@ export interface IUpdatableSubtask {
   dueDate?: string
 }
 
+export interface IBoardPermission {
+  _id: string
+  name: string
+  memberIds: string[]
+  description: string
+  color: string
+  column: { create: boolean; update: boolean; delete: boolean }
+  card: { create: boolean; update: boolean; delete: boolean }
+  member: { invite: boolean }
+  issueType: { create: boolean; update: boolean; delete: boolean }
+  priority: { create: boolean; update: boolean; delete: boolean }
+  label: { create: boolean; update: boolean; delete: boolean }
+  isAdmin?: boolean
+  isViewer?: boolean
+  createdAt?: string
+  updatedAt?: string
+  isActive?: boolean
+}
+
+export interface IUpdatableBoardPermission {
+  name?: string
+  description?: string
+  color?: string
+  column?: { create?: boolean; update?: boolean; delete?: boolean }
+  card?: { create?: boolean; update?: boolean; delete?: boolean }
+  member?: { invite?: boolean }
+  issueType?: { create?: boolean; update?: boolean; delete?: boolean }
+  priority?: { create?: boolean; update?: boolean; delete?: boolean }
+  label?: { create?: boolean; update?: boolean; delete?: boolean }
+}
 export interface ITaskEvent {
   id: string
   title: string
@@ -379,4 +429,28 @@ export interface IIssueType {
   updatedAt: Date
   isActive: boolean
   hierarchy: number
+}
+
+export interface IWSPermission {
+  _id: string
+  name: string
+  memberIds: string[]
+  description: string
+  color: string
+  member: { invite: boolean }
+  board: { create: boolean; viewAll: boolean }
+  isWSAdmin?: boolean
+  isWSViewer?: boolean
+  createdAt?: string
+  updatedAt?: string
+  isActive?: boolean
+}
+
+export interface IUpdatableWSPermission {
+  name?: string
+  memberIds?: string[]
+  description?: string
+  color?: string
+  member?: { invite?: boolean; viewAll?: boolean }
+  board?: { create?: boolean }
 }

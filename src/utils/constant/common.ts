@@ -22,6 +22,12 @@ export const TITLE = {
     myTask: 'My Task',
     inbox: 'Inbox',
     notifications: 'Notifications'
+  },
+  workspace: {
+    workspaceOverview: 'Overview',
+    workspaceDetail: 'Detail',
+    workspaceMember: 'Member',
+    workspaceSettings: 'Settings'
   }
 }
 

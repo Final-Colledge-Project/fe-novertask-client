@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { assignAdmin, createWS, getAllMembers } from './actions'
 import { IMockUser } from '~/services/workspaceService/resTypes'
+import { WS_VIEW_ALL_ROLE } from '~/utils/constant/workspace'
 
 const initialState: {
   loading: boolean
@@ -18,7 +19,7 @@ const initialState: {
   }
   currTeamMembers:
     | {
-        workspaceAdmins: { user?: IMockUser; role: 'admin' | 'superAdmin' }[]
+        workspaceAdmins: { user?: IMockUser }[]
         workspaceMembers: { user?: IMockUser }[]
       }
     | undefined
@@ -27,6 +28,7 @@ const initialState: {
     error: undefined | string
     success: boolean
   }
+  currentViewRole: string
 } = {
   loading: false,
   error: undefined,
@@ -46,7 +48,8 @@ const initialState: {
     error: undefined,
     success: false
   },
-  currTeamMembers: undefined
+  currTeamMembers: undefined,
+  currentViewRole: WS_VIEW_ALL_ROLE
 }
 
 const teamWSSlice = createSlice({
@@ -73,6 +76,9 @@ const teamWSSlice = createSlice({
         error: undefined,
         success: false
       }
+    },
+    setCurrentWSViewRole: (state, { payload }) => {
+      state.currentViewRole = payload as string
     }
   },
   extraReducers: (builder) => {
@@ -154,5 +160,9 @@ const teamWSSlice = createSlice({
 })
 
 export default teamWSSlice.reducer
-export const { resetCreateWS, resetAssignAdmin, resetGetAllMember } =
-  teamWSSlice.actions
+export const {
+  resetCreateWS,
+  resetAssignAdmin,
+  resetGetAllMember,
+  setCurrentWSViewRole
+} = teamWSSlice.actions

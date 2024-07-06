@@ -12,9 +12,13 @@ import {
   Checkbox,
   CircularProgress,
   FormControlLabel,
-  IconButton
+  IconButton,
+  MenuItem,
+  Select,
+  Stack,
+  Tooltip
 } from '@mui/material'
-import { RiCloseFill } from 'react-icons/ri'
+import { RiCloseFill, RiInformationLine } from 'react-icons/ri'
 
 // components
 import TextInput from '~/components/TextInput'
@@ -27,7 +31,8 @@ import {
   MemberSectionTitle,
   Members,
   Modal,
-  Placeholder
+  Placeholder,
+  Role
 } from './styles'
 
 // services
@@ -42,16 +47,17 @@ import {
   getAllMemberInBoard,
   revokeAdmin as revokeAdminInBoard
 } from '~/services/boardService'
-import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
+import {
+  refreshMembers,
+  setMembers,
+  setShouldRefreshBoardDetail
+} from '~/redux/boardSlice'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import socketIoClient from 'socket.io-client'
 import { useDebounceCallback } from 'usehooks-ts'
-
-const ROLES = {
-  member: 'member',
-  leader: 'boardLead',
-  admin: 'boardAdmin'
-}
+import { cloneDeep } from 'lodash'
+import usePermission from '~/hooks/usePermission'
+import Empty from '~/components/Empty'
 
 export default function AddMemberPopup() {
   const dispatch = useDispatch()
@@ -63,13 +69,23 @@ export default function AddMemberPopup() {
   const [boardMembers, setBoardMembers] = useState<
     IAllMemberInBoard | undefined
   >(popup.data.currentMembers)
-  const [chosenList, setChosenList] = useState<{ _id: string; name: string }[]>(
-    []
+  const [chosenList, setChosenList] = useState<
+    { _id: string; name: string; role: string }[]
+  >([])
+  const currentBoardPermission = useSelector(
+    (store: StoreType) => store.permission.currentBoardPermission
   )
+  const userPermissionOnBoard = usePermission()
+  const isAdmin = () => userPermissionOnBoard?.isAdmin
+
+  const [roleList, setRoleList] = useState<string[]>([])
   const [startSearch, setStartSearch] = useState<boolean>(false)
 
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
-
+  const memberData = useSelector((state: StoreType) => state.board.members)
+  const currentPermission = useSelector(
+    (state: StoreType) => state.permission.currentBoardPermission
+  )
   const handleSocket = (memberIds: string[]) => {
     const socket = socketIoClient('http://localhost:5000')
     socket.emit('add_boardMembers', memberIds)
@@ -103,49 +119,36 @@ export default function AddMemberPopup() {
 
   const getMemberInBoard = async () => {
     try {
+      // in case member data is already fetched
+      if (memberData) {
+        setBoardMembers(memberData)
+        return
+      }
       const res = await getAllMemberInBoard({
         id: popup.data.currentBoardID as string
       })
       if (res && res?.data) {
         setBoardMembers(res.data)
+        dispatch(refreshMembers())
+        dispatch(setMembers(res.data))
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
     }
   }
-  /*
-  22-04-2024: Unused in this component, moved to BoardMember/index.tsx
-  */
-  // const deleteUserFromBoard = async (id: string) => {
-  //   dispatch(showLoading())
-  //   try {
-  //     const res = await deleteMember({
-  //       boardId: popup.data.currentBoardID as string,
-  //       memberId: id
-  //     })
 
-  //     if (res) {
-  //       dispatch(setShouldRefreshBoardDetail(true))
-  //       setChosenList([])
-  //       setSearchString('')
-  //       // dispatch(setShouldRefreshMemberInBoard(true))
-  //       await getMemberInBoard()
-  //       enqueueSnackbar('Delete member successfully', { variant: 'success' })
-  //     }
-  //   } catch (err) {
-  //     enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
-  //   } finally {
-  //     dispatch(hideLoading())
-  //   }
-  // }
+  const isMemberInBoard = (id: string) => {
+    if (!id || !boardMembers) return
+    return (
+      !!boardMembers?.oweners?.find((user) => user._id === id) ||
+      !!boardMembers?.members?.find((user) => user._id === id)
+    )
+  }
 
   const cleanedWSMembers = useMemo(() => {
     if (WSMembers) {
       const { workspaceAdmins, workspaceMembers } = WSMembers as IBoardMembers
-      const mergedList = [
-        workspaceAdmins.find((mem) => mem.role === 'superAdmin')
-      ]
-      mergedList.push(...workspaceAdmins.filter((mem) => mem.role === 'admin'))
+      const mergedList = [...workspaceAdmins]
 
       if (workspaceMembers) {
         mergedList.push(
@@ -158,7 +161,7 @@ export default function AddMemberPopup() {
                 )
               )
             })
-            .map((mem) => ({ ...mem, role: '' as 'admin' }))
+            .map((mem) => ({ ...mem }))
         )
       }
 
@@ -172,32 +175,24 @@ export default function AddMemberPopup() {
         }
       })
 
-      return filteredList
+      return filteredList.filter(
+        (user) => !isMemberInBoard(user.user?._id as string)
+      )
     }
-  }, [WSMembers, searchString])
-
-  const isMemberInBoard = (id: string) => {
-    if (!id || !boardMembers) return
-    return (
-      !!boardMembers?.oweners?.find(({ user }) => user._id === id) ||
-      !!boardMembers?.members?.find((user) => user._id === id)
-    )
-  }
+  }, [WSMembers, searchString, boardMembers])
 
   const roleInBoard = (id: string) => {
     if (!id || !boardMembers) return
-    const foundUser = boardMembers?.oweners?.find(({ user }) => user._id === id)
-    if (!foundUser) return ROLES.member
-    else if (foundUser.role === ROLES.leader) return ROLES.leader
-    else return ROLES.admin
+    // if (!foundUser) return ROLES.member
+    const foundGroup = currentPermission?.find((group) => {
+      return group.memberIds.includes(id)
+    })
+    if (foundGroup) {
+      return { name: foundGroup.name, color: foundGroup.color }
+    }
+    // return empty value if not found
+    return { name: '', color: '' }
   }
-
-  /*
-    22-04-2024: Unused in this component, related to shouldShowAssignButton()
-  */
-  // const isAdminOrLeader = (id: string) => {
-  //   return roleInBoard(id) === ROLES.admin || roleInBoard(id) === ROLES.leader
-  // }
 
   const checkIsChosen = (id: string) => {
     if (!id || chosenList.length === 0) return false
@@ -209,9 +204,13 @@ export default function AddMemberPopup() {
       try {
         dispatch(showLoading())
         const memberIds = chosenList.map((mem) => mem._id)
+        const data = chosenList.map((item, index) => ({
+          memberId: item._id,
+          permissionId: item.role
+        }))
         const res = await addMember({
           boardId: popup.data.currentBoardID as string,
-          memberIds
+          members: data
         })
         if (res && res.data) {
           dispatch(setShouldRefreshBoardDetail(true))
@@ -221,6 +220,7 @@ export default function AddMemberPopup() {
           await getMemberInBoard()
           handleSocket(memberIds)
           enqueueSnackbar('Add member successfully', { variant: 'success' })
+          handleClose()
         }
       } catch (err) {
         enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -235,55 +235,15 @@ export default function AddMemberPopup() {
     )
   }
 
-  /*
-    22-04-2024: Unused in this component, moved to BoardMember/index.tsx
-  */
-  // const assignMember = async (id: string) => {
-  //   dispatch(showLoading())
-  //   try {
-  //     const res = await assignMemberToAdmin({
-  //       boardId: popup.data.currentBoardID as string,
-  //       memberId: id
-  //     })
-
-  //     if (res) {
-  //       dispatch(setShouldRefreshBoardDetail(true))
-  //       setChosenList([])
-  //       setSearchString('')
-  //       // dispatch(setShouldRefreshMemberInBoard(true))
-  //       await getMemberInBoard()
-  //     }
-  //   } catch (err) {
-  //     enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
-  //   } finally {
-  //     dispatch(hideLoading())
-  //   }
-  // }
-
-  /*
-    22-04-2024: Unused in this component, moved to BoardMember/index.tsx
-  */
-  // const revokeAdmin = async (id: string) => {
-  //   dispatch(showLoading())
-  //   try {
-  //     const res = await revokeAdminInBoard({
-  //       boardId: popup.data.currentBoardID as string,
-  //       memberId: id
-  //     })
-
-  //     if (res) {
-  //       dispatch(setShouldRefreshBoardDetail(true))
-  //       setChosenList([])
-  //       setSearchString('')
-  //       // dispatch(setShouldRefreshMemberInBoard(true))
-  //       await getMemberInBoard()
-  //     }
-  //   } catch (err) {
-  //     enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
-  //   } finally {
-  //     dispatch(hideLoading())
-  //   }
-  // }
+  const findUserInviteRole = (userId: string) => {
+    if (userId && cleanedWSMembers) {
+      const foundUserIndex = cleanedWSMembers.findIndex(
+        (user) => user.user?._id === userId
+      )
+      if (foundUserIndex !== -1) return roleList[foundUserIndex]
+    }
+    return undefined
+  }
 
   const handleChooseAll = () => {
     if (chosenList.length === availableToChooseList()?.length) {
@@ -294,7 +254,8 @@ export default function AddMemberPopup() {
         if (availableToChooseList()) {
           return availableToChooseList()!.map((mem) => ({
             _id: mem?.user?._id as string,
-            name: mem?.user?.fullName as string
+            name: mem?.user?.fullName as string,
+            role: findUserInviteRole(mem.user?._id as string) || ''
           }))
         } else {
           return prev
@@ -307,28 +268,10 @@ export default function AddMemberPopup() {
     setChosenList((prev) => {
       if (prev.find((mem) => mem._id === id)) {
         return prev.filter((mem) => mem._id !== id)
-      } else return [...prev, { _id: id, name }]
+      } else
+        return [...prev, { _id: id, name, role: findUserInviteRole(id) || '' }]
     })
   }
-
-  /*
-    22-04-2024: Unused in this component, moved to BoardMember/index.tsx
-  */
-  // const shouldShowAssignButton = (memberId: string) => {
-  //   if (!isAdminOrLeader(currentUser?._id as string)) return false
-  //   if (roleInBoard(memberId) !== ROLES.member) return false
-  //   return true
-  // }
-
-  /*
-    22-04-2024: Unused in this component, moved to BoardMember/index.tsx
-  */
-  // const shouldShowRevokeButton = (memberId: string) => {
-  //   if (roleInBoard(memberId) !== ROLES.admin) return false
-  //   if (roleInBoard(currentUser?._id as string) !== ROLES.leader) return false
-
-  //   return true
-  // }
 
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchString(event.target.value)
@@ -345,6 +288,24 @@ export default function AddMemberPopup() {
     },
     500
   )
+
+  // index: index of updated user
+  // userId: id of updated user
+  // value: new role id
+  const setRole = (index: number, userId: string, value: string) => {
+    setRoleList((prev) => {
+      const newRoleList = cloneDeep(prev)
+      newRoleList[index] = value
+      return newRoleList
+    })
+    setChosenList((prev) => {
+      const foundUserIndex = prev.findIndex((user) => user._id === userId)
+      if (foundUserIndex !== -1) {
+        prev[foundUserIndex].role = value
+      }
+      return cloneDeep(prev)
+    })
+  }
 
   useEffect(() => {
     if (popup.show) getWSMembers()
@@ -363,6 +324,18 @@ export default function AddMemberPopup() {
     })
   }, [searchString])
 
+  // init role data
+  useEffect(() => {
+    if (cleanedWSMembers && currentBoardPermission) {
+      const defaultValue = currentBoardPermission?.find(
+        (role) => role.isViewer
+      )?._id
+      if (defaultValue) {
+        setRoleList([...cleanedWSMembers.map(() => defaultValue)])
+      }
+    }
+  }, [cleanedWSMembers, popup.show, currentBoardPermission])
+
   return (
     <Container className={clsx(!popup.show && 'hidden')} onClick={handleClose}>
       <Modal onClick={(e) => e.stopPropagation()}>
@@ -377,6 +350,7 @@ export default function AddMemberPopup() {
         <TextInput
           label=""
           size="small"
+          sx={{ height: 40 }}
           placeHolder="Search by name or email..."
           value={searchString}
           onChange={debouncedSearch}
@@ -404,11 +378,11 @@ export default function AddMemberPopup() {
               }
               label="Select all"
             />
-            {/* <p className="note">Board actions</p> */}
+            <div className="note">Add with role</div>
           </MemberSectionTitle>
 
           {!startSearch &&
-            cleanedWSMembers?.map((member) => (
+            cleanedWSMembers?.map((member, index) => (
               <MemberItem key={member?.user?._id}>
                 <Checkbox
                   style={{
@@ -442,69 +416,67 @@ export default function AddMemberPopup() {
                 <div className="info">
                   <div className="name-role-group">
                     <div className="name">{member?.user?.fullName}</div>
-                    <div
-                      className={clsx(
-                        'role',
+                    <Role
+                      $color={
                         roleInBoard(member?.user?._id as string)
-                      )}>
-                      {roleInBoard(member?.user?._id as string) ===
-                        ROLES.leader && 'Lead'}
-                      {roleInBoard(member?.user?._id as string) ===
-                        ROLES.admin && 'Admin'}
-                      {roleInBoard(member?.user?._id as string) ===
-                        ROLES.member && 'Member'}
-                    </div>
+                          ?.color as string
+                      }>
+                      {roleInBoard(member?.user?._id as string)?.name}
+                    </Role>
                   </div>
                   <div className="email">{member?.user?.email}</div>
                 </div>
-                {/* {isMemberInBoard(member?.user?._id as string) && (
-                <p className="plaintext">Already in board</p>
-              )} */}
-                {/* {isAdminOrLeader(currentUser?._id as string) &&
-                isMemberInBoard(member?.user?._id as string) && (
-                  <ActionButtonsGroup>
-                    {shouldShowAssignButton(member?.user?._id as string) && (
-                      <Tooltip title="Assign to be admin">
-                        <IconButton
-                          color="info"
-                          onClick={() =>
-                            assignMember(member?.user?._id as string)
-                          }
-                        >
-                          <RiUserStarLine />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    {shouldShowRevokeButton(member?.user?._id as string) && (
-                      <Tooltip title="Revoke admin role">
-                        <IconButton
-                          color="error"
-                          onClick={() =>
-                            revokeAdmin(member?.user?._id as string)
-                          }
-                        >
-                          <RiUserUnfollowLine />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                    {currentUser?._id !== member?.user?._id && (
-                      <Tooltip title="Remove from board">
-                        <IconButton
-                          color="error"
-                          onClick={() =>
-                            deleteUserFromBoard(member?.user?._id as string)
-                          }
-                        >
-                          <RiCloseLine />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  </ActionButtonsGroup>
-                )} */}
+
+                {/* ROLE SELECT BOX: ACTIVE */}
+                {isAdmin() && roleList && roleList.length > 0 && (
+                  <Select
+                    sx={{ height: 35 }}
+                    value={roleList[index]}
+                    onChange={(event) =>
+                      setRole(
+                        index,
+                        member.user?._id as string,
+                        event.target.value
+                      )
+                    }>
+                    {currentBoardPermission?.map((role) => (
+                      <MenuItem key={role._id} value={role._id} dense>
+                        {role.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+
+                {/* ROLE SELECT BOX */}
+                {!isAdmin() && roleList && roleList.length > 0 && (
+                  <Tooltip title="Only admin can choose invited role">
+                    <span>
+                      <Select
+                        sx={{ height: 35 }}
+                        value={roleList[index]}
+                        disabled={true}
+                        onChange={(event) =>
+                          setRole(
+                            index,
+                            member.user?._id as string,
+                            event.target.value
+                          )
+                        }>
+                        {currentBoardPermission?.map((role) => (
+                          <MenuItem key={role._id} value={role._id} dense>
+                            {role.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </span>
+                  </Tooltip>
+                )}
               </MemberItem>
             ))}
           {(!cleanedWSMembers || cleanedWSMembers?.length === 0) &&
-            !startSearch && <Placeholder>There is no one here</Placeholder>}
+            !startSearch && (
+              <Empty description="No result matched!" isFullWidth pY={50} />
+            )}
 
           {startSearch && (
             <Placeholder>

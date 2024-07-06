@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useDispatch, useSelector } from 'react-redux'
@@ -27,6 +27,7 @@ import { createBoard } from '~/services/boardService'
 import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setShouldReloadAllBoard } from '~/redux/boardSlice'
 import { useNavigate } from 'react-router-dom'
+import { getWSCanCreateBoard as getAllCanCreateBoard } from '~/services/workspaceService'
 
 const AddPJPopup = () => {
   const dispatch = useDispatch<StoreDispatchType>()
@@ -34,16 +35,19 @@ const AddPJPopup = () => {
 
   const { PopupAddPJ } = useSelector((state: StoreType) => state.popup)
   const { boards } = useSelector((state: StoreType) => state.board)
+  const wsCanCreateBoardIdList = useRef<string[]>([])
 
   const isFirstFocus = useRef(true)
 
   const getWorkspaces = () => {
-    if (boards) {
+    if (boards && wsCanCreateBoardIdList.current.length) {
       const result = boards?.map((w) => ({
         _id: w._id,
         name: w.name
       }))
-      return result
+      return result.filter((ws) =>
+        wsCanCreateBoardIdList.current.includes(ws._id)
+      )
     }
   }
 
@@ -115,6 +119,14 @@ const AddPJPopup = () => {
     isFirstFocus.current = false
   }, [])
 
+  useEffect(() => {
+    getWSCanCreateBoard()
+
+    return () => {
+      wsCanCreateBoardIdList.current.length = 0
+    }
+  }, [PopupAddPJ.data, boards])
+
   const workspaceNameList = () => {
     if (PopupAddPJ.data.currentWsID) {
       const selectedWS = getWorkspaces()?.find(
@@ -129,18 +141,28 @@ const AddPJPopup = () => {
     } else return getWorkspaces()
   }
 
+  const getWSCanCreateBoard = async () => {
+    wsCanCreateBoardIdList.current.length = 0
+    try {
+      const res = await getAllCanCreateBoard({})
+      if (res && res.data) {
+        wsCanCreateBoardIdList.current = res.data.map((ws) => ws._id)
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    }
+  }
+
   return (
     <div
       className={clsx(
         'add-pj-popup',
         !PopupAddPJ.show && 'add-pj-popup--hidden'
       )}
-      onClick={handleClose}
-    >
+      onClick={handleClose}>
       <div
         className="add-pj-popup__container"
-        onClick={(e) => e.stopPropagation()}
-      >
+        onClick={(e) => e.stopPropagation()}>
         <div className="add-pj-popup__picture">
           <div className="inner">
             <img src="/img/workspace.gif" alt="" />
@@ -165,15 +187,13 @@ const AddPJPopup = () => {
               <WSSelectBox workspaces={workspaceNameList() || []} />
             </WithController>
           </div>
-          <div
-            className="add-pj-popup__input-row"
-          >
+          <div className="add-pj-popup__input-row">
             <WithController name="description" control={control}>
               <TextInput label="Description" multiple row={3} />
             </WithController>
           </div>
           <div className="add-pj-popup__actions">
-            <Button variant="text" color="warning" onClick={handleClose}>
+            <Button variant="text" color="error" onClick={handleClose}>
               Cancel
             </Button>
             <Button variant="contained" color="primary" type="submit">

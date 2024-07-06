@@ -45,7 +45,7 @@ export default function ConfirmDialog({
   onClose,
   confirmBtnText,
   cancelBtnText
-}: IProps) {
+}: Readonly<IProps>) {
   const renderContent = () => {
     if (isEmpty(content))
       return (
@@ -63,8 +63,7 @@ export default function ConfirmDialog({
     <Dialog
       open={open}
       TransitionComponent={Transition}
-      PaperProps={{ sx: { borderRadius: '12px', padding: '20px' } }}
-    >
+      PaperProps={{ sx: { borderRadius: '12px', padding: '12px 16px' } }}>
       <DialogTitle fontSize={20} fontWeight={600}>
         {title || DEFAULT_CONFIRM_DIALOG_TITLE}
       </DialogTitle>
@@ -73,7 +72,7 @@ export default function ConfirmDialog({
         <Button color="error" onClick={onClose}>
           {cancelBtnText || DEFAULT_CANCEL_BUTTON}
         </Button>
-        <Button variant="contained" onClick={onConfirm}>
+        <Button variant="contained" onClick={onConfirm} autoFocus>
           {confirmBtnText || DEFAULT_CONFIRM_BUTTON}
         </Button>
       </DialogActions>

@@ -35,7 +35,7 @@ export const getAllByBoard = async (body: IGetAllByBoardBody) => {
 export const createLabel = async (body: ICreateLabelBody) => {
   try {
     const res = await axiosInstance.post<ICreateLabelResponse>(
-      requests.createLabel,
+      requests.createLabel(body.boardId),
       body
     )
 
@@ -57,7 +57,7 @@ export const createLabel = async (body: ICreateLabelBody) => {
 export const updateLabel = async (body: IUpdateLabelBody) => {
   try {
     const res = await axiosInstance.patch<IUpdateLabelResponse>(
-      requests.updateLabel(body.labelId),
+      requests.updateLabel(body.labelId, body.boardId),
       {
         ...body.changes
       }

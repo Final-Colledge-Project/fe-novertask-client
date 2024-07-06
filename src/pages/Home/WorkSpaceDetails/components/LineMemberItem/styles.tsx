@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 export const Item = styled.div<{ $img: string; $isMe: boolean }>`
   width: 100%;
   min-width: 244px;
-  background-color: var(-mui-palette-white-main);
+  background-color: var(--mui-palette-white-main);
   box-shadow: 0px 0px 7px 1px var(--mui-palette-gray5-main);
   border-radius: 8px;
   border: 1px solid
@@ -160,14 +160,14 @@ export const MoreButton = styled.div`
   justify-content: flex-end;
 `
 
-export const Badge = styled.div`
+export const Badge = styled.div<{ $color: string }>`
   /* margin: 0 auto; */
   width: fit-content;
   border-radius: 50px;
   padding: 0 12px;
   font-size: 14px;
   text-align: center;
-  background-color: var(--mui-palette-green-main);
+  background-color: ${(props) => props.$color};
   color: var(--mui-palette-white-main);
   &.admin {
     background-color: var(--mui-palette-yellow-main);
@@ -175,4 +175,9 @@ export const Badge = styled.div`
   &.superAdmin {
     background-color: var(--mui-palette-orange-main);
   }
+  // limit tẽt 1 line
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
 `

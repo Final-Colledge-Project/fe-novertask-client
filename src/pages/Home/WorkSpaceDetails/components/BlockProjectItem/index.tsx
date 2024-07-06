@@ -34,7 +34,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
       <ItemCover>
         <div className="item-header">
           <div className="item-header__title">
-            <Tooltip title={'This board is ' + data.type} placement="top">
+            {/* <Tooltip title={'This board is ' + data.type} placement="top">
               <div
                 className={clsx(
                   'circle',
@@ -42,7 +42,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
                 )}>
                 {data.type}
               </div>
-            </Tooltip>
+            </Tooltip> */}
             <p>{data.title}</p>
           </div>
           {/* <IconButton

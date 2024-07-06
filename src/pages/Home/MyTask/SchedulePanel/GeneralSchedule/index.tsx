@@ -64,7 +64,7 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
       }
     })
     if (error) {
-      console.log('~~~~>error', error)
+      // console.log('~~~~>error', error)
     } else {
       if (!calendarSchedule) {
         dispatch(

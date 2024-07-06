@@ -17,6 +17,7 @@ import { setCurrentNavItem } from '~/redux/navSlice'
 import { setPopupAddPJ } from '~/redux/popupSlice'
 import { getMembers } from '~/services/workspaceService'
 import { StoreType } from '~/redux'
+import Empty from '~/components/Empty'
 
 const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
   const navigate = useNavigate()
@@ -89,13 +90,12 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
               variant="contained"
               fullWidth
               className="glass-effect"
-              onClick={handleOpenAddBoardPopup}
-            >
+              onClick={handleOpenAddBoardPopup}>
               <RiAddLine />
             </Button>
           </div>
         ) : (
-          <p className="placeholder">This workspace is empty</p>
+          <Empty description="Workspace is empty!" isFullWidth pY={50} />
         )}
       </div>
     </div>

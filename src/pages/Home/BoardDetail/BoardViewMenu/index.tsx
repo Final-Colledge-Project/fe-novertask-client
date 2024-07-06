@@ -10,12 +10,16 @@ import {
 } from 'react-router-dom'
 import allRoutes from '~/utils/routes'
 import { TITLE } from '~/utils/constant/common'
+import usePermission from '~/hooks/usePermission'
 
 export default function BoardViewMenu() {
   const [currentView, setCurrentView] = useState('')
   const navigate = useNavigate()
   const { id } = useParams()
   const location = useLocation()
+  const userPermission = usePermission()
+
+  const isAdmin = () => userPermission?.isAdmin
 
   /*
     path: path to navigate
@@ -60,6 +64,31 @@ export default function BoardViewMenu() {
     setCurrentView(name)
   }
 
+  const routeName = (route: string) => {
+    let name = ''
+    switch (route) {
+      case allRoutes.home.board.boardOverView.name:
+        name = TITLE.board.boardOverView
+        break
+      case allRoutes.home.board.boardDetail.name:
+        name = TITLE.board.boardDetail
+        break
+      case allRoutes.home.board.boardMember.name:
+        name = TITLE.board.boardMember
+        break
+      case allRoutes.home.board.boardReports.name:
+        name = TITLE.board.boardReports
+        break
+      case allRoutes.home.board.boardSettings.name:
+        name = TITLE.board.boardSettings
+        break
+      default:
+        name = TITLE.board.boardDetail
+        break
+    }
+    return name
+  }
+
   useEffect(() => {
     const segment = location.pathname.split('/').pop()
     let name = ''
@@ -100,21 +129,15 @@ export default function BoardViewMenu() {
         value={currentView}
         variant="outlined"
         onChange={(e) => onChoose(e.target.value)}>
-        <MenuItem dense value={allRoutes.home.board.boardOverView.name}>
-          {TITLE.board.boardOverView}
-        </MenuItem>
-        <MenuItem dense value={allRoutes.home.board.boardDetail.name}>
-          {TITLE.board.boardDetail}
-        </MenuItem>
-        <MenuItem dense value={allRoutes.home.board.boardMember.name}>
-          {TITLE.board.boardMember}
-        </MenuItem>
-        <MenuItem dense value={allRoutes.home.board.boardReports.name}>
-          {TITLE.board.boardReports}
-        </MenuItem>
-        <MenuItem dense value={allRoutes.home.board.boardSettings.name}>
-          {TITLE.board.boardSettings}
-        </MenuItem>
+        {Object.values(allRoutes.home.board)
+          .filter((route) => {
+            return route.adminOnly ? isAdmin() : true
+          })
+          .map((route) => (
+            <MenuItem dense value={route.name}>
+              {routeName(route.name)}
+            </MenuItem>
+          ))}
       </Select>
     </BoardViewMenuContainer>
   )

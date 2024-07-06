@@ -38,6 +38,14 @@ import BoardDetailLoading from '../components/BoardDetailLoading'
 import AddMenu from './AddMenu'
 import AddMemberPopup from './AddMemberPopup'
 import Card from './Column/Card'
+import CurrentFilters from './CurrentFilters'
+import BoardViewMenu from './BoardViewMenu'
+import BoardOverview from './BoardOverview'
+import BoardSettings from './BoardSettings'
+import BoardViewLayout from '~/layouts/BoardViewLayout'
+import BoardMember from './BoardMember'
+import FilterMenu from './FilterMenu'
+import BoardMenu from './BoardMenu'
 
 // services
 import {
@@ -52,11 +60,26 @@ import {
   getBoardDetail,
   updateBoard
 } from '~/services/boardService'
-import { StoreType } from '~/redux'
+import { StoreDispatchType, StoreType } from '~/redux'
 import {
   setCreateColumn,
-  setShouldRefreshBoardDetail
+  setShouldRefreshBoardDetail,
+  setMembers as setMembersToStore,
+  refreshMembers
 } from '~/redux/boardSlice'
+import {
+  resetCurrentBoardPermission,
+  resetCurrentBoardPermissionState,
+  resetUserPermissionOnBoard,
+  resetUserPermissionOnBoardState,
+  setCurrentBoardPermission
+} from '~/redux/permissionSlice'
+import {
+  getBoardPermission,
+  getUserPermissionOnBoard
+} from '~/redux/permissionSlice/actions'
+import usePermission from '~/hooks/usePermission'
+import allRoutes from '~/utils/routes'
 // import { setPopupAddMemberToBoard } from '~/redux/popupSlice' 22-04-2024 move to Header.tsx
 
 // Dnd specific
@@ -91,18 +114,12 @@ import {
   updateTwoColumnsConcurrentLy
 } from '~/services/columnService'
 import { updateCard } from '~/services/cardService'
-import BoardMenu from './BoardMenu'
 import { setCreatingCard, setSearchString } from '~/redux/cardSlice'
-import FilterMenu from './FilterMenu'
-import CurrentFilters from './CurrentFilters'
 import { setFakeColumn } from '~/redux/columnSlice'
-import BoardViewMenu from './BoardViewMenu'
-import allRoutes from '~/utils/routes'
-import BoardViewLayout from '~/layouts/BoardViewLayout'
-import BoardMember from './BoardMember'
-import BoardOverview from './BoardOverview'
-import BoardSettings from './BoardSettings'
 import BoardReports from './BoardReports'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
+import Empty from '~/components/Empty'
+import { BOARD_RELOAD_REASON } from '~/utils/constant/board'
 import useFetchBoardData from '~/hooks/useFetchBoardData'
 import { BOARD_RESOURCES } from '~/utils/constant/board'
 
@@ -127,7 +144,7 @@ const BoardDetail = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<StoreDispatchType>()
   // const socket = socketIoClient('http://localhost:5000')
   const [viewType, setViewType] = useState(viewList[0])
   const [board, setBoard] = useState<IBoard | undefined>(undefined)
@@ -136,10 +153,26 @@ const BoardDetail = () => {
   )
   const [addingColumn, setAddingColumn] = useState(false)
 
+  // logged user info
+  const userInfo = useSelector((state: StoreType) => state.auth.userInfo)
+
   // change state of adding column process
   const handleAddingColumn = (nextState: boolean) => {
     setAddingColumn(nextState)
   }
+
+  const userPermission = usePermission()
+
+  // check if logged in user can update column
+  const canUpdateColumn = () => userPermission?.column.update
+
+  // check if logged in user can add column
+  const canAddColumn = () => userPermission?.column.create
+
+  // check if logged in user can update card
+  const canUpdateCard = () => userPermission?.card.update
+
+  const isAdmin = () => userPermission?.isAdmin
 
   // useEffect(() => {
   //   const joinBoard = () => socket.emit('join_board', { board: id })
@@ -162,13 +195,12 @@ const BoardDetail = () => {
 
   // #region selector
 
-  const { success, error } = useSelector(
+  const { success, error, action } = useSelector(
     (state: StoreType) => state.board.creatingBoard
   )
   const { shouldRefreshBoardDetail } = useSelector(
     (state: StoreType) => state.board
   )
-  const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
   const columnStore = useSelector((state: StoreType) => state.column)
   const cardStore = useSelector((state: StoreType) => state.card)
   const { boards } = useSelector((state: StoreType) => state.board)
@@ -178,14 +210,14 @@ const BoardDetail = () => {
   useFetchBoardData({ key: BOARD_RESOURCES.issueType, boardId: id || '' })
   useFetchBoardData({ key: BOARD_RESOURCES.column, boardId: id || '' })
 
-  const items = [
-    {
-      title: 'Add column',
-      onChoose: () => {
-        setAddingColumn(true)
-      }
-    }
-  ]
+  // const items = [
+  //   {
+  //     title: 'Add column',
+  //     onChoose: () => {
+  //       setAddingColumn(true)
+  //     }
+  //   }
+  // ]
   // #endregion
 
   // #region fetch data
@@ -193,6 +225,8 @@ const BoardDetail = () => {
   // get data from api
   const getBoard = async () => {
     try {
+      dispatch(showLoading())
+      dispatch(setCreateColumn({ loading: true }))
       const res = await getBoardDetail({ id: id as string })
       if (res && res?.data) {
         const board = res.data
@@ -240,6 +274,9 @@ const BoardDetail = () => {
         enqueueSnackbar('You cannot access this board', { variant: 'error' })
         navigate('/u', { replace: true })
       }
+    } finally {
+      dispatch(hideLoading())
+      dispatch(setCreateColumn({ loading: false }))
     }
   }
 
@@ -249,32 +286,73 @@ const BoardDetail = () => {
       const res = await getAllMemberInBoard({ id: id as string })
       if (res && res?.data) {
         setMembers(res.data)
+        dispatch(refreshMembers())
+        dispatch(setMembersToStore(res.data))
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
     }
   }
 
+  // check if logged user is member of board
+  const isMemberOfBoard = useCallback(() => {
+    if (members) {
+      return (
+        members?.members.find((member) => member._id === userInfo?._id) ||
+        members.oweners.find((owner) => owner._id === userInfo?._id)
+      )
+    }
+  }, [members, userInfo?._id])
+
   useEffect(() => {
     getBoard()
   }, [id])
+
+  useEffect(() => {
+    if (board) {
+      if (isMemberOfBoard()) {
+        getUserPermission()
+      }
+      getAllPermission()
+    }
+  }, [id, board])
+
+  useEffect(() => {
+    // clear permission when get out of board
+    return () => {
+      dispatch(resetCurrentBoardPermission())
+      dispatch(resetUserPermissionOnBoard())
+      dispatch(refreshMembers())
+    }
+  }, [])
 
   useEffect(() => {
     board && getMembers()
   }, [id, board])
 
   useEffect(() => {
-    if (success) {
-      getBoard()
-      dispatch(setCreateColumn({ success: false }))
+    const func = async () => {
+      if (success) {
+        await getBoard()
+        dispatch(setCreateColumn({ success: false }))
+        // focus adding column after add get new board data
+        if (action === BOARD_RELOAD_REASON.CREATE_COLUMN) {
+          setAddingColumn(true)
+          dispatch(setCreateColumn({ action: BOARD_RELOAD_REASON.EMPTY }))
+        }
+      }
     }
+    func()
   }, [success])
 
   useEffect(() => {
-    if (error) {
-      getBoard()
-      dispatch(setCreateColumn({ error: false }))
+    const func = async () => {
+      if (error) {
+        await getBoard()
+        dispatch(setCreateColumn({ error: false }))
+      }
     }
+    func()
   }, [error])
 
   useEffect(() => {
@@ -374,28 +452,49 @@ const BoardDetail = () => {
     }
   }, [cardStore.creatingCard.showFakeCard])
 
-  const boardLeader = useCallback(() => {
-    const leadId = board?.ownerIds.find(
-      (owner) => owner.role === 'boardLead'
-    )?.user
-    return members?.oweners.find((owner) => owner?.user?._id === leadId)?.user
+  // 2024-06 update permission => check by admin permission
+  const boardOwner = useCallback(() => {
+    // 2024-05-24 update permission
+    // const leadId = board?.ownerIds.find(
+    //   (owner) => owner.role === 'boardLead'
+    // )?.user
+    // return members?.oweners.find((owner) => owner.user._id === leadId)?.user
+    const leadId = board?.ownerIds[0]
+    if (leadId) {
+      return members?.oweners.find((owner) => owner._id === leadId)
+    }
+    return undefined
+    // 2024-05-24 update permission
   }, [members, board])
 
-  const boardAdminAndLead = useCallback(() => {
-    return members?.oweners.filter(
-      (owner) => owner.role === 'boardLead' || owner.role === 'boardAdmin'
-    )
-  }, [members])
+  // 2024-06 update permission => check by admin permission
+  // const boardAdminAndLead = useCallback(() => {
+  //   // 2024-05-24 update permission
+  //   // return members?.oweners.filter(
+  //   //   (owner) => owner.role === 'boardLead' || owner.role === 'boardAdmin'
+  //   // )
+  //   if (boardLeader() && members) {
+  //     return members.oweners.filter((owner) => owner._id === boardLeader()?._id)
+  //   }
+  //   return []
+  //   // 2024-05-24 update permission
+  // }, [members])
 
-  const isUserTheBoardLead = useCallback(() => {
-    return boardLeader()?._id === currentUser?._id
-  }, [boardLeader, currentUser])
+  // const isUserTheBoardLead = useCallback(() => {
+  //   // 2024-05-24 update permission
+  //   // return boardLeader()?._id === currentUser?._id
+  //   return boardLeader() === currentUser?._id
+  //   // 2024-05-24 update permission
+  // }, [boardLeader, currentUser])
 
-  const isUserLeadOrAdmin = useCallback(() => {
-    return boardAdminAndLead()?.find(
-      (admin) => admin.user._id === currentUser?._id
-    )
-  }, [boardAdminAndLead, currentUser])
+  // const isUserLeadOrAdmin = useCallback(() => {
+  //   return boardAdminAndLead()?.find(
+  //     // 2024-05-24 update permission
+  //     // (admin) => admin.user._id === currentUser?._id
+  //     (admin) => admin._id === currentUser?._id
+  //     // 2024-05-24 update permission
+  //   )
+  // }, [boardAdminAndLead, currentUser])
 
   // 22-04-2024 move to Header.tsx
   // const handleShowAddMemberPopup = () => {
@@ -440,11 +539,23 @@ const BoardDetail = () => {
       const [toColumnChange, fromColumnChange] = changes
       // console.log('Changes >>>>>:', changes)
       if (fromColumnChange) {
-        await updateTwoColumnsConcurrentLy([fromColumnChange, toColumnChange])
+        await updateTwoColumnsConcurrentLy([
+          {
+            ...fromColumnChange,
+            boardId: board?._id as string
+          },
+          {
+            ...toColumnChange,
+            boardId: board?._id as string
+          }
+        ])
         await updateMovedCard(cardId as string, toColumnChange.id)
         // console.log('Update card orders in 2 column successfully')
       } else {
-        const res = await updateColumn(toColumnChange)
+        const res = await updateColumn({
+          ...toColumnChange,
+          boardId: board?._id as string
+        })
         if (res && res.data) {
           // console.log('Update card order in 1 column successfully')
         }
@@ -456,10 +567,18 @@ const BoardDetail = () => {
   }
 
   const updateMovedCard = async (cardId: string, newColumnId: string) => {
+    // check permission before update card
+    if (!canUpdateCard()) {
+      enqueueSnackbar('Do not have permission to do this action!', {
+        variant: 'error'
+      })
+      return
+    }
     try {
       const res = await updateCard({
         cardId,
-        changes: { columnId: newColumnId }
+        changes: { columnId: newColumnId },
+        boardId: board?._id as string
       })
       if (res && res.data) {
         // console.log('Update card successfully')
@@ -554,15 +673,19 @@ const BoardDetail = () => {
     // active: đối tượng bắt đầu kéo thả, bao gồm data được bind
     const { active } = e
 
-    // only admin can drag column
-    if (!isUserLeadOrAdmin() && !active.data.current?.columnId) return
+    // 2024-06 update permission
+    // // only admin can drag column
+    // if (!isUserLeadOrAdmin() && !active.data.current?.columnId) return
 
     setActiveItemID(active.id)
     setActiveItemData(active.data.current as ICard | IColumn)
     if (active.data.current?.columnId) {
+      if (!canUpdateCard()) return
       setActiveItem(ACTIVE_ITEM_TYPE.CARD)
       setOriginColumn(findColumnByCardID(active.id as string))
     } else {
+      // only who can update column can drag column
+      if (!canUpdateColumn()) return
       setActiveItem(ACTIVE_ITEM_TYPE.COLUMN)
     }
   }
@@ -573,6 +696,10 @@ const BoardDetail = () => {
     // Đã xử lý column rồi
     if (activeItem === ACTIVE_ITEM_TYPE.COLUMN) return
     // dragging card là card đang được kéo
+
+    // check permission before drag over
+    if (!canUpdateCard()) return
+
     const {
       id: activeDraggingCardId,
       data: { current: activeDraggingCardData }
@@ -860,6 +987,54 @@ const BoardDetail = () => {
     else if (isReportView()) return allRoutes.home.board.boardReports.segment
   }
 
+  const permissionStore = useSelector((state: StoreType) => state.permission)
+  const getAllPermission = async () => {
+    if (!id) return
+    try {
+      await dispatch(getBoardPermission(id as string))
+    } catch (error) {
+      // enqueueSnackbar((error as AxiosError).message, { variant: 'error' })
+    }
+  }
+
+  // const permission of logged user
+  const getUserPermission = async () => {
+    if (!id) return
+    try {
+      await dispatch(getUserPermissionOnBoard(id as string))
+    } catch (error) {
+      enqueueSnackbar((error as AxiosError).message, { variant: 'error' })
+    }
+  }
+
+  // show error message when get board permission failed
+  useEffect(() => {
+    if (permissionStore.getBoardPermissionStatus === 'error') {
+      enqueueSnackbar(
+        `Get permission error: ${permissionStore.getBoardPermissionErrMessage}`,
+        { variant: 'error' }
+      )
+      dispatch(resetCurrentBoardPermissionState())
+    }
+  }, [
+    permissionStore.getBoardPermissionStatus,
+    permissionStore.getBoardPermissionErrMessage
+  ])
+
+  // show error message when get user permission failed
+  useEffect(() => {
+    if (permissionStore.getUserPermissionOnBoardStatus === 'error') {
+      enqueueSnackbar(
+        `Get permission error: ${permissionStore.getUserPermissionOnBoardErrMsg}`,
+        { variant: 'error' }
+      )
+      dispatch(resetUserPermissionOnBoardState())
+    }
+  }, [
+    permissionStore.getUserPermissionOnBoardStatus,
+    permissionStore.getUserPermissionOnBoardErrMsg
+  ])
+
   return (
     <DndContext
       onDragStart={handleDragStart}
@@ -895,9 +1070,9 @@ const BoardDetail = () => {
                 <div className="board-avatar"></div>
                 <div className="title-container">
                   <span className="title">{board?.title}</span>
-                  <ProjectType $type={(board?.type as string) || 'public'}>
+                  {/* <ProjectType $type={(board?.type as string) || 'public'}>
                     {board?.type}
-                  </ProjectType>
+                  </ProjectType> */}
                   {/* <p className="description">{board?.description}</p> */}
                 </div>
               </div>
@@ -909,8 +1084,10 @@ const BoardDetail = () => {
             {/* Change view */}
             <BoardViewMenu />
 
-            {isUserTheBoardLead() && (
-              <IconButton onClick={() => setShouldShowBoardMenu(true)}>
+            {isAdmin() && (
+              <IconButton
+                onClick={() => setShouldShowBoardMenu(true)}
+                size="small">
                 <RiMore2Fill />
               </IconButton>
             )}
@@ -943,10 +1120,8 @@ const BoardDetail = () => {
               <FilterMenu />
 
               {/* Add column or add card */}
-              {isUserLeadOrAdmin() && (
-                <AddMenu
-                  items={isUserLeadOrAdmin() ? items : items.slice(0, 1)}
-                />
+              {isAdmin() && items.length > 0 && (
+                <AddMenu items={isAdmin() ? items : items.slice(0, 1)} />
               )}
 
               {/* Search card */}
@@ -998,13 +1173,19 @@ const BoardDetail = () => {
                 )}
               </DragOverlay>
 
-              {isUserLeadOrAdmin() && (
+              {canAddColumn() && (
                 <AddColumnButton
                   addingColumn={addingColumn}
                   setFocus={handleAddingColumn}
                   boardId={board?._id as string}
                 />
               )}
+
+              {board?.columns &&
+                orderedColumns.length === 0 &&
+                !canAddColumn() && (
+                  <Empty description="Board is empty!" isFullWidth pY={50} />
+                )}
             </Body>
           )
         }
@@ -1020,7 +1201,7 @@ const BoardDetail = () => {
               element={
                 <BoardMember
                   members={members}
-                  leaderId={boardLeader()?._id}
+                  leaderId={boardOwner()?._id}
                   board={board}
                 />
               }
@@ -1044,7 +1225,7 @@ const BoardDetail = () => {
           onClose={handleCloseBoardMenu}
           shouldShow={shouldShowBoardMenu}
           board={board}
-          owner={boardLeader() as IMemberInBoard}
+          owner={boardOwner() as IMemberInBoard}
         />
       )}
 

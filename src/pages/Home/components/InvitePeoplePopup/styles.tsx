@@ -22,8 +22,8 @@ export const Container = styled.div`
 `
 
 export const Modal = styled.div`
-  min-width: 500px;
-  max-width: 500px;
+  min-width: 600px;
+  max-width: 600px;
   padding: 20px;
   background-color: var(--mui-palette-white-main);
   border-radius: 8px;
@@ -138,4 +138,24 @@ export const MemberItem = styled.div`
       color: var(--mui-palette-green-main);
     }
   }
+`
+
+export const RoleBadge = styled.div<{ $color: string }>`
+  /* display: flex; */
+  /* width: fit-content; */
+  display: -webkit-box;
+  justify-content: flex-end;
+  /* text-align: right; */
+  font-size: 14px;
+  padding: 2px 8px;
+  border-radius: 50px;
+  color: ${(props) => `${props.$color}`};
+  background-color: ${(props) => `${props.$color}1A`};
+  // limit text 1 line
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  word-break: break-all;
+  max-width: 100px;
 `

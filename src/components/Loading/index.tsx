@@ -1,12 +1,10 @@
-import { CircularProgress } from '@mui/material'
 import * as StyledComponent from './style'
+import { GooSpinner } from 'react-spinners-kit'
+import { COLOR } from '~/utils/constant'
 const Loading = () => {
   return (
     <StyledComponent.ProgressModalContainer>
-      <CircularProgress
-        size="50px"
-        sx={{ color: (theme) => theme.palette.white.main }}
-      />
+      <GooSpinner size={50} color={COLOR.WHITE.main} loading={true} />
     </StyledComponent.ProgressModalContainer>
   )
 }

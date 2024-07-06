@@ -25,6 +25,9 @@ import { getAllMemberInBoard } from '~/services/boardService'
 import { enqueueSnackbar } from 'notistack'
 import { AxiosError } from 'axios'
 import { Loading } from '../../style'
+import { useDispatch, useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import { refreshMembers, setMembers } from '~/redux/boardSlice'
 
 export default function AssignMemberMenu({
   currentMembers,
@@ -35,6 +38,9 @@ export default function AssignMemberMenu({
   const anchorRef = React.useRef<HTMLButtonElement>(null)
   const [allMemberInBoard, setAllMemberInBoard] = React.useState<ITempUser[]>()
   const [isUpdating, setIsUpdating] = React.useState<boolean>(false)
+
+  const memberData = useSelector((state: StoreType) => state.board.members)
+  const dispatch = useDispatch()
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen)
@@ -90,19 +96,28 @@ export default function AssignMemberMenu({
 
   const getMembers = async () => {
     try {
-      const res = await getAllMemberInBoard({ id: boardId })
-      if (res && res?.data) {
-        const computedList = res.data.members.map((member) => ({
+      let data
+      // in case member data is already fetched
+      if (memberData) {
+        data = memberData
+      } else {
+        const res = await getAllMemberInBoard({ id: boardId })
+        data = res?.data
+        dispatch(refreshMembers())
+        dispatch(setMembers(data))
+      }
+      if (data) {
+        const computedList = data.members.map((member) => ({
           fullName: `${member.firstName} ${member.lastName}`,
           _id: member._id,
           avatar: member.avatar
         }))
 
         computedList.push(
-          ...res.data.oweners.map((member) => ({
-            fullName: `${member.user.firstName} ${member.user.lastName}`,
-            _id: member.user._id,
-            avatar: member.user.avatar
+          ...data.oweners.map((member) => ({
+            fullName: `${member.firstName} ${member.lastName}`,
+            _id: member._id,
+            avatar: member.avatar
           }))
         )
 
@@ -142,8 +157,7 @@ export default function AssignMemberMenu({
           fontSize: '18px',
           bgcolor: `rgba(var(--mui-palette-blue-mainChannel)/ 0.2)`,
           color: (theme) => theme.palette.blue.main
-        }}
-      >
+        }}>
         <RiAddLine />
       </IconButton>
       <Popper
@@ -156,22 +170,19 @@ export default function AssignMemberMenu({
         sx={{
           position: 'relative',
           zIndex: 100
-        }}
-      >
+        }}>
         {({ TransitionProps, placement }) => (
           <Grow
             {...TransitionProps}
             style={{
               transformOrigin:
                 placement === 'bottom-start' ? 'left top' : 'right bottom'
-            }}
-          >
+            }}>
             <Paper
               sx={{
                 borderRadius: '8px',
                 boxShadow: '0px 0px 8px 1px var(--mui-palette-gray2-main)'
-              }}
-            >
+              }}>
               <ClickAwayListener onClickAway={handleClose}>
                 <>
                   <MenuHeader>
@@ -191,8 +202,7 @@ export default function AssignMemberMenu({
                       borderRadius: '8px',
                       maxHeight: '300px',
                       overflowY: 'auto'
-                    }}
-                  >
+                    }}>
                     {mixMemberList().map((member) => (
                       <MenuItem
                         key={member._id}
@@ -203,8 +213,7 @@ export default function AssignMemberMenu({
                           '&:hover': {
                             bgcolor: (theme) => theme.palette.white.main
                           }
-                        }}
-                      >
+                        }}>
                         <ItemContainer>
                           <UserItem>
                             <Avatar>

@@ -1,4 +1,5 @@
 import {
+  Breadcrumbs,
   Button,
   ClickAwayListener,
   Grow,
@@ -7,10 +8,18 @@ import {
   Paper,
   Popper
 } from '@mui/material'
-import { RiMoreFill } from 'react-icons/ri'
+import { RiMore2Fill } from 'react-icons/ri'
 /* import SearchBox from '~/components/SearchBox' */
 import { StyledHeader } from './style'
-import React from 'react'
+import React, { useState } from 'react'
+import WSViewMenu from '../WSViewMenu'
+import {
+  generatePath,
+  matchPath,
+  useNavigate,
+  useParams
+} from 'react-router-dom'
+import allRoutes from '~/utils/routes'
 
 const Header = ({
   title,
@@ -19,11 +28,51 @@ const Header = ({
   title: string
   items: { title: string; onChoose: () => void }[]
 }) => {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
   const anchorRef = React.useRef<HTMLButtonElement>(null)
+  const { id } = useParams()
+  const navigate = useNavigate()
+
+  const isTaskView = () =>
+    matchPath(allRoutes.home.workspace.workspaceDetail.path, location.pathname)
+  const isMemberView = () =>
+    matchPath(allRoutes.home.workspace.workspaceMember.path, location.pathname)
+  const isOverviewView = () =>
+    matchPath(
+      allRoutes.home.workspace.workspaceOverview.path,
+      location.pathname
+    )
+  const isSettingsView = () =>
+    matchPath(
+      allRoutes.home.workspace.workspaceSettings.path,
+      location.pathname
+    )
+
+  /*
+    Render title breadcrumb for each view
+  */
+  const renderBreadcrumbTitle = () => {
+    if (isTaskView()) return allRoutes.home.workspace.workspaceDetail.segment
+    else if (isMemberView())
+      return allRoutes.home.workspace.workspaceMember.segment
+    else if (isOverviewView())
+      return allRoutes.home.workspace.workspaceOverview.segment
+    else if (isSettingsView())
+      return allRoutes.home.workspace.workspaceSettings.segment
+  }
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen)
+  }
+
+  const navigateToCurrentWS = () => {
+    const nextPath = generatePath(
+      allRoutes.home.workspace.workspaceDetail.segment,
+      {
+        workspaceId: id as string
+      }
+    )
+    navigate(nextPath)
   }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
@@ -58,15 +107,21 @@ const Header = ({
 
   return (
     <StyledHeader className="header">
-      <h2 className="name">{title}</h2>
+      <Breadcrumbs aria-label="breadcrumb" sx={{ width: '100%' }}>
+        <h2 className="workspace-name" onClick={navigateToCurrentWS}>
+          {title}
+        </h2>
+        {renderBreadcrumbTitle() && <div>{renderBreadcrumbTitle()}</div>}
+      </Breadcrumbs>
       {/* <div className="search-box">
         <SearchBox label="" />
       </div> */}
+      <WSViewMenu />
       <div className="more-icon">
         {/* <IconButton aria-label=""></IconButton> */}
         <div>
           <Button
-            variant="contained"
+            variant="text"
             ref={anchorRef}
             id="composition-button"
             aria-controls={open ? 'composition-menu' : undefined}
@@ -80,7 +135,7 @@ const Header = ({
               padding: '0',
               minWidth: '0'
             }}>
-            <RiMoreFill />
+            <RiMore2Fill />
           </Button>
           <Popper
             open={open}

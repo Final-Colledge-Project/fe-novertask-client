@@ -30,7 +30,10 @@ export interface IGetMemberInBoardBody {
 
 export interface IAddMemberToBoardBody {
   boardId: string
-  memberIds: string[]
+  members: {
+    memberId: string
+    permissionId: string
+  }[]
 }
 
 interface IUpdatableBoard {
