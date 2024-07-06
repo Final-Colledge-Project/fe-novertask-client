@@ -25,7 +25,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
   const { allSprints } = useSelector((state: StoreType) => state.sprint)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [selectedSprint, setSelectedSprint] = useState<string>('')
-  const [estimationField, setEstimationField] = useState<string>('Story Points')
+  const workingDays = [1, 2, 3, 4, 5]
   const sprintOptions = (allSprints || [])
     .filter((item: ISprint) => item?.status !== SPRINT_STATUS.backlog)
     .map((sprint) => ({
@@ -42,14 +42,6 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
     {} as IBurnDownReport
   )
 
-  // const { data: sprintData, isLoading } = useQuery({
-  //   queryKey: [QUERY_KEY.burndown_report, sprintId],
-  //   queryFn: () => {
-  //     return getBurnDownReport(boardId, sprintId)
-  //   },
-  //   refetchOnWindowFocus: false
-  // })
-
   const getReportData = async () => {
     try {
       setIsLoading(true)
@@ -65,18 +57,52 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
   useEffect(() => {
     if (sprintData) {
       const { dailyStoryPoints, totalStoryPoint } = sprintData
-      const sprintDays = (dailyStoryPoints || []).map((point) =>
-        dayjs(point.date).format(FORMAT_DATE)
+      const distanceSprint = dayjs(dayjs(sprintData.endDate)).diff(
+        dayjs(sprintData.startDate),
+        'day'
       )
-      const actualBurnDown = (dailyStoryPoints || []).map(
-        (point) => point.storyPoints
-      )
+      const sprintDays = []
+      for (let i = 0; i <= distanceSprint; i++) {
+        const endDate = dayjs(sprintData.startDate).add(i, 'day').day()
+        if (workingDays.includes(endDate)) {
+          sprintDays.push(
+            dayjs(sprintData.startDate).add(i, 'day').format(FORMAT_DATE)
+          )
+        }
+      }
+      const actualBurnDown: number[] = []
+      const extendSprintDays = sprintDays
+      if ((dailyStoryPoints || []).length) {
+        if (
+          dayjs(dailyStoryPoints[dailyStoryPoints.length - 1].date).isAfter(
+            dayjs(sprintData.endDate)
+          )
+        ) {
+          extendSprintDays.push(
+            dayjs(dailyStoryPoints[dailyStoryPoints.length - 1].date).format(
+              FORMAT_DATE
+            )
+          )
+        }
+      }
+
+      sprintDays.forEach((day, index) => {
+        const dailyStoryPoint = dailyStoryPoints.find(
+          (point) =>
+            dayjs(point.date).format(FORMAT_DATE).toString() === day.toString()
+        )
+        if (dailyStoryPoint) {
+          actualBurnDown[index] = dailyStoryPoint.storyPoints
+        } else {
+          actualBurnDown[index] = actualBurnDown[index - 1]
+        }
+      })
       const idealBurnDown = Array.from(
-        { length: sprintDays.length },
-        (_, i) => totalStoryPoint - (totalStoryPoint / sprintDays.length) * i
+        { length: distanceSprint },
+        (_, i) => totalStoryPoint - (totalStoryPoint / distanceSprint) * i
       )
       setDataChart({
-        sprintDays: sprintDays,
+        sprintDays: extendSprintDays,
         actualBurnDown: actualBurnDown,
         idealBurnDown: idealBurnDown
       })
@@ -87,7 +113,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
     labels: dataChart.sprintDays,
     datasets: [
       {
-        label: 'Actual Burn Down',
+        label: 'Actual Story Points Remaining',
         data: dataChart.actualBurnDown,
         fill: false,
         backgroundColor: 'rgba(255, 149, 0, 0.2)',
@@ -95,7 +121,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
         tension: 0.1
       },
       {
-        label: 'Ideal Burn Down',
+        label: 'Ideal Story Points Remaining',
         data: dataChart.idealBurnDown,
         fill: false,
         backgroundColor: 'rgba(0, 122, 255, 0.2)',
@@ -103,6 +129,33 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
         tension: 0.1
       }
     ]
+  }
+
+  const verticalLinePlugin = {
+    id: 'verticalLinePlugin',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    afterDraw: (chart: any) => {
+      const ctx = chart.ctx
+      const xAxis = chart.scales.x
+
+      // Draw vertical line at x-axis value (assuming it's index-based)
+      const xValue = xAxis.getPixelForValue(
+        dayjs(sprintData.endDate).toISOString().split('T')[0]
+      ) // Change to match your date label
+      if (xValue) {
+        ctx.save()
+        ctx.strokeStyle = 'rgb(255, 99, 132)'
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.moveTo(xValue, 0)
+        ctx.lineTo(xValue, chart.height - 50)
+        ctx.stroke()
+        ctx.restore()
+        ctx.fillStyle = 'rgb(255, 99, 132)'
+        ctx.textAlign = 'center'
+        ctx.fillText('Sprint End', xValue, chart.height - 20)
+      }
+    }
   }
 
   const exportReport = async () => {
@@ -124,7 +177,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
   return (
     <div>
       <div className="wrapper">
-        <div className="wrapperHeader">
+        <div className="wrapperHeader--burnDown">
           <div className="sprintFilter">
             <div className="sprintFilterItem">
               <span
@@ -149,28 +202,6 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
                     {item.label}
                   </MenuItem>
                 ))}
-              </Select>
-            </div>
-            <div className="sprintFilterItem">
-              <span
-                style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: '#8c8c8c'
-                }}>
-                Estimation field
-              </span>
-              <Select
-                value={estimationField}
-                onChange={(e) => {
-                  setSelectedSprint(e.target.value)
-                }}
-                sx={{
-                  width: '200px'
-                }}
-                size="small">
-                <MenuItem value={'Story Points'}>Story Point</MenuItem>
-                <MenuItem value={'Time'}>Time</MenuItem>
               </Select>
             </div>
             <div className="submitBtn">
@@ -200,6 +231,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
               options={chartOptions}
               data={dataSet}
               chartRef={chartRef}
+              plugins={verticalLinePlugin}
             />
           )}
         </div>
