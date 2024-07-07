@@ -109,6 +109,7 @@
     align-items: center;
     position: relative;
     z-index: 2;
+    gap: 8px;
 
     & .switch-label {
       font-weight: 700;
@@ -144,5 +145,35 @@
     position: absolute;
     top: 10px;
     right: 10px;
+  }
+}
+
+.info-group {
+  padding: 12px;
+  z-index: 2;
+  background-color: var(--mui-palette-gray6-main);
+  border-radius: 8px;
+  margin-top: 8px;
+
+  .info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+
+    .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    
+    .text {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      text-align: justify;
+      font-size: 14px;
+    }
   }
 }

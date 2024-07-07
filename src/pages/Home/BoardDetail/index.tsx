@@ -1121,9 +1121,9 @@ const BoardDetail = () => {
               <FilterMenu />
 
               {/* Add column or add card */}
-              {isAdmin() && items.length > 0 && (
+              {/* {isAdmin() && items.length > 0 && (
                 <AddMenu items={isAdmin() ? items : items.slice(0, 1)} />
-              )}
+              )} */}
 
               {/* Search card */}
               <SearchBox

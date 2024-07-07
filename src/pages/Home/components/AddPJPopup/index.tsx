@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo } from 'react'
+import { useRef, useEffect, useMemo, useState, useCallback } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,7 +9,7 @@ import clsx from 'clsx'
 // component libraries
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
-import { RiCloseFill } from 'react-icons/ri'
+import { RiCloseFill, RiInformationLine } from 'react-icons/ri'
 
 // components
 import TextInput from '~/components/TextInput'
@@ -28,6 +28,11 @@ import { getAllByUserId } from '~/redux/boardSlice/actions'
 import { setShouldReloadAllBoard } from '~/redux/boardSlice'
 import { useNavigate } from 'react-router-dom'
 import { getWSCanCreateBoard as getAllCanCreateBoard } from '~/services/workspaceService'
+import { generateBusinessKey } from '~/utils/helper'
+import { useDebounceCallback } from 'usehooks-ts'
+import TemplateSelect from './TemplateSelect'
+import { BOARD_TEMPLATES_LIST } from '~/utils/constant/board'
+import { Tooltip } from '@mui/material'
 
 const AddPJPopup = () => {
   const dispatch = useDispatch<StoreDispatchType>()
@@ -36,6 +41,7 @@ const AddPJPopup = () => {
   const { PopupAddPJ } = useSelector((state: StoreType) => state.popup)
   const { boards } = useSelector((state: StoreType) => state.board)
   const wsCanCreateBoardIdList = useRef<string[]>([])
+  const [manuallyEditFlg, setManuallyEditFlg] = useState(false)
 
   const isFirstFocus = useRef(true)
 
@@ -51,15 +57,27 @@ const AddPJPopup = () => {
     }
   }
 
-  const { control, handleSubmit, reset } = useForm<IFormFields>({
-    defaultValues: {
-      PJName: '',
-      workspace: '',
-      description: ''
-    },
-    mode: 'onChange',
-    resolver: yupResolver(schema),
-    reValidateMode: 'onBlur'
+  const { control, handleSubmit, reset, watch, setValue, register } =
+    useForm<IFormFields>({
+      defaultValues: {
+        PJName: '',
+        workspace: '',
+        description: '',
+        template: ''
+      },
+      mode: 'onChange',
+      resolver: yupResolver(schema),
+      reValidateMode: 'onBlur'
+    })
+
+  register('PJKey', {
+    onChange: (e) => {
+      if (e.target.value) {
+        setManuallyEditFlg(true)
+      } else {
+        setManuallyEditFlg(false)
+      }
+    }
   })
 
   const handleClose = () => {
@@ -76,11 +94,13 @@ const AddPJPopup = () => {
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     try {
-      dispatch(showLoading)
+      dispatch(showLoading())
       const res = await createBoard({
         description: data.description,
         title: data.PJName,
-        teamWorkspaceId: data.workspace
+        teamWorkspaceId: data.workspace,
+        template: data.template,
+        key: data.PJKey
       })
       // if create board is successful -> load all boards again
       if (res && res.data) {
@@ -115,6 +135,43 @@ const AddPJPopup = () => {
     }
   }
 
+  const updateBoardKey = (name: string, shouldValidate: boolean) => {
+    if (name) {
+      const key = generateBusinessKey(name)
+      setValue('PJKey', key, { shouldValidate })
+    } else {
+      setValue('PJKey', '')
+    }
+  }
+
+  const debounced = useDebounceCallback(updateBoardKey, 500)
+  const debouncedCallback = useCallback(debounced, [])
+  const PJName = watch('PJName')
+  const PJKey = watch('PJKey')
+
+  useEffect(() => {
+    const name = PJName
+    if (!manuallyEditFlg) {
+      if (name && name.length > 1) {
+        debouncedCallback(PJName, false)
+      } else {
+        debouncedCallback('', false)
+      }
+    }
+  }, [PJName])
+
+  useEffect(() => {
+    const key = PJKey
+    const name = PJName
+
+    // if key is empty, update key base on name
+    if (!key) {
+      if (name) {
+        debouncedCallback(name, true)
+      }
+    }
+  }, [PJKey])
+
   useEffect(() => {
     isFirstFocus.current = false
   }, [])
@@ -139,6 +196,10 @@ const AddPJPopup = () => {
         }
       ]
     } else return getWorkspaces()
+  }
+
+  const templatesList = () => {
+    return Object.values(BOARD_TEMPLATES_LIST)
   }
 
   const getWSCanCreateBoard = async () => {
@@ -171,27 +232,62 @@ const AddPJPopup = () => {
           <div className="filled-div"></div>
         </div>
         <form className="add-pj-popup__form" onSubmit={handleSubmit(onSubmit)}>
-          <h1 className="add-pj-popup__title">Create a new project</h1>
+          <h1 className="add-pj-popup__title">Create a new board</h1>
 
           <div className="add-pj-popup__input-row">
+            {/* BOARD NAME */}
             <WithController control={control} name="PJName">
               <TextInput
                 autofocus={isFirstFocus.current}
                 label="Name of the new project"
                 placeHolder="Some example names..."
+                sx={{ width: '300px' }}
+              />
+            </WithController>
+
+            {/* BOARD KEY */}
+            <WithController control={control} name="PJKey">
+              <TextInput
+                label={'Board key'}
+                persistLabel={true}
+                maxLength={10}
               />
             </WithController>
           </div>
+
+          {/* WORKSPACE */}
           <div className="add-pj-popup__input-row">
             <WithController name="workspace" control={control}>
               <WSSelectBox workspaces={workspaceNameList() || []} />
             </WithController>
           </div>
+
+          {/* WORKSPACE */}
+          <div className="add-pj-popup__input-row">
+            <WithController name="template" control={control}>
+              <TemplateSelect templates={templatesList() || []} />
+            </WithController>
+          </div>
+
+          {/* DESCRIPTION */}
           <div className="add-pj-popup__input-row">
             <WithController name="description" control={control}>
               <TextInput label="Description" multiple row={3} />
             </WithController>
           </div>
+
+          <div className="info-group">
+            <div className="info">
+              <div className="icon">
+                <RiInformationLine />
+              </div>
+              <div className="text">
+                Board key is an identifier for your project. It can be change
+                later. It defaults be generated from the project name.
+              </div>
+            </div>
+          </div>
+
           <div className="add-pj-popup__actions">
             <Button variant="text" color="error" onClick={handleClose}>
               Cancel

@@ -19,6 +19,8 @@ export interface ICreateBoardBody {
   title: string
   description: string
   teamWorkspaceId: string
+  template: string
+  key: string
 }
 
 export interface IGetBoardDetailBody {
