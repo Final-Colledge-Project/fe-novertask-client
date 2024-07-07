@@ -34,3 +34,19 @@ export const BOARD_RELOAD_REASON = {
   UPDATE_COLUMN: 6,
   EMPTY: -1
 }
+
+export const BOARD_TEMPLATE = {
+  KANBAN: 'kanban',
+  SCRUM: 'scrum'
+}
+
+export const BOARD_TEMPLATES_LIST = [
+  {
+    name: 'Kanban',
+    value: BOARD_TEMPLATE.KANBAN
+  },
+  {
+    name: 'Scrum',
+    value: BOARD_TEMPLATE.SCRUM
+  }
+]

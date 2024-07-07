@@ -126,3 +126,38 @@ export const upperCaseFirstLetter = (str: string) => {
   if (!str) return str
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
+
+export const first3UpperCharacter = (str: string) => {
+  if (!str) return str
+  return str.replace(/\s/g, '').slice(0, 3).toUpperCase()
+}
+
+export const generateBusinessKey = (input: string): string => {
+  // Step 1: Trim spaces from the input
+  const trimmedInput = input.trim()
+
+  // Step 2: Split the input into words, ignoring any additional spaces
+  const words = trimmedInput.split(/\s+/)
+
+  // Step 3: Process the words based on the given conditions
+  let result: string
+
+  if (words.length === 1) {
+    // If the input has only one word
+    const word = words[0]
+    if (word.length <= 4) {
+      result = word
+    } else {
+      result = word.slice(0, 2)
+    }
+  } else {
+    // If the input has two or more words
+    result = words
+      .map((word) => word[0])
+      .join('')
+      .slice(0, 10)
+  }
+
+  // Step 4: Convert the result to uppercase
+  return result.toUpperCase()
+}

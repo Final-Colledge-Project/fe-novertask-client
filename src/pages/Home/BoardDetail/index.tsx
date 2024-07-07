@@ -122,6 +122,7 @@ import Empty from '~/components/Empty'
 import { BOARD_RELOAD_REASON } from '~/utils/constant/board'
 import useFetchBoardData from '~/hooks/useFetchBoardData'
 import { BOARD_RESOURCES } from '~/utils/constant/board'
+import { TITLE } from '~/utils/constant/common'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -980,11 +981,11 @@ const BoardDetail = () => {
     Render title breadcrumb for each view
   */
   const renderBreadcrumbTitle = () => {
-    if (isTaskView()) return allRoutes.home.board.boardDetail.segment
-    else if (isMemberView()) return allRoutes.home.board.boardMember.segment
-    else if (isOverviewView()) return allRoutes.home.board.boardOverView.segment
-    else if (isSettingsView()) return allRoutes.home.board.boardSettings.segment
-    else if (isReportView()) return allRoutes.home.board.boardReports.segment
+    if (isTaskView()) return TITLE.board.boardDetail
+    else if (isMemberView()) return TITLE.board.boardMember
+    else if (isOverviewView()) return TITLE.board.boardOverView
+    else if (isSettingsView()) return TITLE.board.boardSettings
+    else if (isReportView()) return TITLE.board.boardReports
   }
 
   const permissionStore = useSelector((state: StoreType) => state.permission)
@@ -1120,9 +1121,9 @@ const BoardDetail = () => {
               <FilterMenu />
 
               {/* Add column or add card */}
-              {isAdmin() && items.length > 0 && (
+              {/* {isAdmin() && items.length > 0 && (
                 <AddMenu items={isAdmin() ? items : items.slice(0, 1)} />
-              )}
+              )} */}
 
               {/* Search card */}
               <SearchBox

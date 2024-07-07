@@ -8,22 +8,25 @@ import {
 import IInputProps from '../IInputProps'
 import { useEffect, useRef, useState } from 'react'
 
-const TextInput = ({
-  label,
-  placeHolder,
-  type,
-  startIcon,
-  endIcon,
-  value,
-  onChange,
-  error = false,
-  field,
-  autofocus,
-  multiple,
-  row,
-  sx,
-  disabled
-}: IInputProps & OutlinedInputProps) => {
+const TextInput = (props: IInputProps & OutlinedInputProps) => {
+  const {
+    label,
+    placeHolder,
+    type,
+    startIcon,
+    endIcon,
+    value,
+    onChange,
+    error = false,
+    field,
+    autofocus,
+    multiple,
+    row,
+    sx,
+    disabled,
+    persistLabel,
+    maxLength
+  } = props
   const inputRef = useRef<HTMLElement | null>(null)
 
   const [firstRender, setFirstRender] = useState(true)
@@ -50,12 +53,15 @@ const TextInput = ({
           }
         },
         ...sx
-      }}
-    >
-      <InputLabel htmlFor={'outlined-adornment-amount' + label}>
+      }}>
+      <InputLabel
+        htmlFor={'outlined-adornment-amount' + label}
+        shrink={persistLabel}>
         {label}
       </InputLabel>
       <OutlinedInput
+        notched={persistLabel}
+        inputProps={{ maxLength }}
         multiline={multiple}
         autoFocus={autofocus}
         rows={(multiple && row) || 2}
@@ -65,7 +71,7 @@ const TextInput = ({
           input && autofocus && !firstRender && input.focus()
         }}
         error={error}
-        defaultValue={value}
+        value={value}
         onChange={onChange}
         type={type || 'text'}
         id="outlined-adornment-amount"
@@ -80,8 +86,7 @@ const TextInput = ({
                   width: '100%',
                   height: '100%'
                 }
-              }}
-            >
+              }}>
               {startIcon}
             </InputAdornment>
           ) : undefined
@@ -97,8 +102,7 @@ const TextInput = ({
                   width: '100%',
                   height: '100%'
                 }
-              }}
-            >
+              }}>
               {startIcon}
             </InputAdornment>
           ) : undefined

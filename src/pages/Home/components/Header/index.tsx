@@ -20,6 +20,7 @@ import {
   useParams
 } from 'react-router-dom'
 import allRoutes from '~/utils/routes'
+import { TITLE } from '~/utils/constant/common'
 
 const Header = ({
   title,
@@ -52,13 +53,10 @@ const Header = ({
     Render title breadcrumb for each view
   */
   const renderBreadcrumbTitle = () => {
-    if (isTaskView()) return allRoutes.home.workspace.workspaceDetail.segment
-    else if (isMemberView())
-      return allRoutes.home.workspace.workspaceMember.segment
-    else if (isOverviewView())
-      return allRoutes.home.workspace.workspaceOverview.segment
-    else if (isSettingsView())
-      return allRoutes.home.workspace.workspaceSettings.segment
+    if (isTaskView()) return TITLE.workspace.workspaceDetail
+    else if (isMemberView()) return TITLE.workspace.workspaceMember
+    else if (isOverviewView()) return TITLE.workspace.workspaceOverview
+    else if (isSettingsView()) return TITLE.workspace.workspaceSettings
   }
 
   const handleToggle = () => {
