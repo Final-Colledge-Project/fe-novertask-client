@@ -417,6 +417,7 @@ export interface IPriority {
   createdAt: Date
   updatedAt: Date
   isActive: boolean
+  canDelete?: boolean
 }
 
 export interface IIssueType {
@@ -428,7 +429,7 @@ export interface IIssueType {
   createdAt: Date
   updatedAt: Date
   isActive: boolean
-  hierarchy: number
+  hierarchy?: number
   canDelete?: boolean
 }
 

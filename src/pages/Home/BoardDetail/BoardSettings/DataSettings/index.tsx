@@ -3,6 +3,7 @@ import { DATA_SETTING } from '~/utils/constant/common'
 import IssueTypeSetting from './IssueTypeSetting'
 import { IDataSettingSectionProps } from './helper'
 import './styles.scss'
+import PrioritySetting from './PrioritySetting'
 export default function DataSettingSection(props: IDataSettingSectionProps) {
   const { settingItem } = props
   let childComponent = <></>
@@ -11,7 +12,7 @@ export default function DataSettingSection(props: IDataSettingSectionProps) {
       childComponent = <IssueTypeSetting />
       break
     case DATA_SETTING.priority:
-      childComponent = <div>Priority</div>
+      childComponent = <PrioritySetting />
       break
     case DATA_SETTING.label:
       childComponent = <div>Status</div>

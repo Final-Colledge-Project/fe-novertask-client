@@ -1,39 +1,42 @@
 import { useQuery } from '@tanstack/react-query'
 import { TableColumnsType } from 'antd'
 import { useParams } from 'react-router-dom'
-import { getAllIssueTypesByBoard } from '~/services/issueTypeService'
 import { FORMAT_DATE, QUERY_KEY } from '~/utils/constant'
-import { RiPantoneFill } from 'react-icons/ri'
 import './styles.scss'
 import { IconButton, Tooltip } from '@mui/material'
 import { RiEditLine } from 'react-icons/ri'
 import { RiDeleteBinLine } from 'react-icons/ri'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import ModalActionIssueType from './ModalActionIssueType'
 import ConfirmDialog from '~/components/dialog/ConfirmDialog'
 import { deleteIssueType } from '~/redux/issueTypeSlice/actions'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import DataSettingTable from '../component/DataSettingTable'
+import { isDarkColor, isHexColor } from '~/utils/helper'
+import { getAllPrioritiesByBoard } from '~/services/priorityService'
 import { CommonSettingType } from '../helper'
-export default function IssueTypeSetting() {
+import ModalActionPriority from './ModalActionPriority'
+import { RiArrowUpCircleFill } from 'react-icons/ri'
+import { deletePriority } from '~/redux/prioritySlice/actions'
+
+export default function PrioritySetting() {
   const { id: boardId } = useParams()
   const [filterName, setFilterName] = useState('')
-  const [selectedIssueType, setSelectedIssueType] =
+  const [selectedPriority, setSelectedPriority] =
     useState<CommonSettingType | null>(null)
   const dispatch = useDispatch<StoreDispatchType>()
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
   const loading = useSelector((state: StoreType) => state.issueType.loading)
   const {
-    data: issueTypeData,
+    data: priorityData,
     isLoading,
     refetch,
     isRefetching
   } = useQuery({
     queryKey: [QUERY_KEY.get_all_issue_types, boardId],
     queryFn: () => {
-      return getAllIssueTypesByBoard(boardId || '', '')
+      return getAllPrioritiesByBoard(boardId || '', '')
     },
     refetchOnWindowFocus: false
   })
@@ -58,30 +61,20 @@ export default function IssueTypeSetting() {
       render: (text: string) => <span className="normalCell">{text}</span>
     },
     {
-      title: 'Icon',
-      dataIndex: 'icon',
-      key: 'icon',
+      title: 'Color',
+      dataIndex: 'color',
+      key: 'color',
       className: 'colTable',
       render: (text: string) => (
-        <div>
-          {text ? <img width={20} height={20} src={text} alt={'Icon'} /> : '-'}
-        </div>
-      )
-    },
-    {
-      title: 'Hierarchy',
-      dataIndex: 'hierarchy',
-      key: 'hierarchy',
-      className: 'colTable',
-      sorter: (a: CommonSettingType, b: CommonSettingType) => {
-        const hierarchyA =
-          'hierarchy' in a && typeof a.hierarchy === 'number' ? a.hierarchy : 0
-        const hierarchyB =
-          'hierarchy' in b && typeof b.hierarchy === 'number' ? b.hierarchy : 0
-        return hierarchyA - hierarchyB
-      },
-      render: (text: number) => (
-        <span className="normalCell" style={{ textAlign: 'center' }}>
+        <span
+          className="normalCell"
+          style={{
+            textAlign: 'center',
+            padding: '4px',
+            borderRadius: '4px',
+            background: isHexColor(text) ? `${text}` : '#fff',
+            color: isDarkColor(text) ? '#fff' : '#000'
+          }}>
           {text}
         </span>
       )
@@ -143,38 +136,38 @@ export default function IssueTypeSetting() {
     }
   ]
 
-  const dataRender = issueTypeData?.filter((item) =>
+  const dataRender = priorityData?.filter((item) =>
     item.name.toLowerCase().includes(filterName.toLowerCase())
   )
 
   const onEditRow = (record: CommonSettingType) => {
-    setSelectedIssueType(record)
+    setSelectedPriority(record)
     setVisible(true)
   }
 
   const onDeleteRow = (record: CommonSettingType) => {
-    setSelectedIssueType(record)
+    setSelectedPriority(record)
     setOpenDeleteModal(true)
   }
 
-  const onDeleteIssueType = () => {
+  const onDeletePriority = () => {
     const cb = () => {
-      setSelectedIssueType(null)
+      setSelectedPriority(null)
       setOpenDeleteModal(false)
       refetch()
     }
     const data = {
-      issueTypeId: selectedIssueType?._id || '',
+      priorityId: selectedPriority?._id || '',
       boardId: boardId || '',
       cb
     }
-    dispatch(deleteIssueType(data))
+    dispatch(deletePriority(data))
   }
 
   const title = (
     <div className="settingTitle">
-      <RiPantoneFill />
-      <h3>Issue Type</h3>
+      <RiArrowUpCircleFill />
+      <h3>Priority</h3>
     </div>
   )
 
@@ -190,28 +183,28 @@ export default function IssueTypeSetting() {
         columns={issueTypeColumns}
         dataRender={dataRender || []}
       />
-      <ModalActionIssueType
+      <ModalActionPriority
         visible={visible}
         setVisible={setVisible}
         refetch={refetch}
-        selectedIssueType={selectedIssueType || null}
-        setSelectedIssueType={setSelectedIssueType}
+        selectedPriority={selectedPriority || null}
+        setSelectedPriority={setSelectedPriority}
       />
       <ConfirmDialog
-        title="Delete Issue Type"
+        title="Delete Priority"
         content={
           <div>
             <p>
               Are you sure you want to delete permanently the{' '}
-              <strong>{selectedIssueType?.name}</strong> issue type?
+              <strong>{selectedPriority?.name}</strong> issue type?
             </p>
           </div>
         }
-        onConfirm={onDeleteIssueType}
+        onConfirm={onDeletePriority}
         open={openDeleteModal}
         onClose={() => {
           setOpenDeleteModal(false)
-          setSelectedIssueType(null)
+          setSelectedPriority(null)
         }}
         cancelBtnText="Cancel"
         confirmBtnText="Delete"

@@ -1,6 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { IPriority } from '~/services/types'
-import { fetchPriorities } from './actions'
+import {
+  createPriority,
+  deletePriority,
+  fetchPriorities,
+  updatePriority
+} from './actions'
 
 const initialState: {
   loading: boolean
@@ -27,6 +32,33 @@ const prioritySlice = createSlice({
       state.allPriorities = payload as IPriority[]
     })
     builder.addCase(fetchPriorities.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(createPriority.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(createPriority.fulfilled, (state) => {
+      state.loading = false
+    })
+    builder.addCase(createPriority.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(updatePriority.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(updatePriority.fulfilled, (state) => {
+      state.loading = false
+    })
+    builder.addCase(updatePriority.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(deletePriority.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(deletePriority.fulfilled, (state) => {
+      state.loading = false
+    })
+    builder.addCase(deletePriority.rejected, (state) => {
       state.loading = false
     })
   }

@@ -11,7 +11,7 @@ import {
   Select,
   TextField
 } from '@mui/material'
-import { useMemo, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import IssueIconPicker from '~/components/IssueIconPicker'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
@@ -32,15 +32,19 @@ export default function ModalActionIssueType(
     setSelectedIssueType
   } = props
   const initSelectHierarchy = selectedIssueType
-    ? selectedIssueType.hierarchy
+    ? 'hierarchy' in selectedIssueType &&
+      typeof selectedIssueType.hierarchy === 'number'
+      ? selectedIssueType.hierarchy
+      : 2
     : 2
-  const initSelectedIcon = selectedIssueType ? selectedIssueType.icon : ''
-  const [selectHierarchy, setSelectHierarchy] = useState<number>(
-    initSelectHierarchy ? initSelectHierarchy : 2
-  )
-  const [selectedIcon, setSelectedIcon] = useState(
-    selectedIssueType ? selectedIssueType.icon : ''
-  )
+  const initSelectedIcon = selectedIssueType
+    ? 'icon' in selectedIssueType && typeof selectedIssueType.icon === 'string'
+      ? selectedIssueType.icon
+      : ''
+    : ''
+  const [selectHierarchy, setSelectHierarchy] =
+    useState<number>(initSelectHierarchy)
+  const [selectedIcon, setSelectedIcon] = useState(initSelectedIcon)
   const loading = useSelector((state: StoreType) => state.issueType.loading)
   const dispatch = useDispatch<StoreDispatchType>()
   const { id: boardId } = useParams()
@@ -63,8 +67,12 @@ export default function ModalActionIssueType(
 
   useEffect(() => {
     if (selectedIssueType) {
-      setSelectHierarchy(selectedIssueType.hierarchy)
-      setSelectedIcon(selectedIssueType.icon)
+      if ('hierarchy' in selectedIssueType) {
+        setSelectHierarchy(selectedIssueType.hierarchy as number)
+      }
+      if ('icon' in selectedIssueType) {
+        setSelectedIcon(selectedIssueType.icon as string)
+      }
       setValue('name', selectedIssueType.name)
       setValue('description', selectedIssueType.description)
     } else {
