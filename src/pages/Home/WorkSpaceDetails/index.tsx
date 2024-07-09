@@ -87,23 +87,23 @@ const WorkSpaceDetails = () => {
   const getAllPermission = async () => {
     if (!id) return
     try {
-      dispatch(showLoading())
+      // dispatch(showLoading())
       await dispatch(getWSPermission(id as string))
     } catch (error) {
       enqueueSnackbar((error as AxiosError).message, { variant: 'error' })
     } finally {
-      dispatch(hideLoading())
+      // dispatch(hideLoading())
     }
   }
 
   const getUserPermission = async () => {
     try {
-      dispatch(showLoading())
+      // dispatch(showLoading())
       await dispatch(getUserPermissionOnWS(id as string))
     } catch (error) {
       enqueueSnackbar((error as AxiosError).message, { variant: 'error' })
     } finally {
-      dispatch(hideLoading())
+      // dispatch(hideLoading())
     }
   }
 
@@ -112,6 +112,19 @@ const WorkSpaceDetails = () => {
       await getUserPermission()
     }
     await getAllPermission()
+  }
+
+  const getWSMembers = async () => {
+    try {
+      dispatch(showLoading())
+      await dispatch(getAllMembers({ id: id as string }))
+      await initData()
+    } catch (err) {
+      const message = (err as Error).message
+      enqueueSnackbar(message, { variant: 'error' })
+    } finally {
+      dispatch(hideLoading())
+    }
   }
 
   // show error message when get all ws permission failed
@@ -155,12 +168,7 @@ const WorkSpaceDetails = () => {
   }, [])
 
   useEffect(() => {
-    try {
-      dispatch(getAllMembers({ id: id as string }))
-    } catch (err) {
-      const message = (err as Error).message
-      enqueueSnackbar(message, { variant: 'error' })
-    }
+    getWSMembers()
 
     // reset all member when out of this page
     return () => {

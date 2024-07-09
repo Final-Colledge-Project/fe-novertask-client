@@ -22,7 +22,8 @@ export const BOARD_RESOURCES = {
   sprint: 'sprint',
   priority: 'priority',
   issueType: 'issueType',
-  column: 'column'
+  column: 'column',
+  label: 'label'
 }
 
 export const BOARD_RELOAD_REASON = {

@@ -45,6 +45,7 @@ import { setShouldReloadAllBoard } from '~/redux/boardSlice'
 import useWSPermission from '~/hooks/useWSPermission'
 import { COLOR } from '~/utils/constant'
 import Empty from '~/components/Empty'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
 
 const OverviewSection = () => {
   const dispatch = useDispatch<StoreDispatchType>()
@@ -163,7 +164,9 @@ const OverviewSection = () => {
   // get board of current workspace
   useEffect(() => {
     const getAllBoard = async () => {
+      dispatch(showLoading())
       await getBoards()
+      dispatch(hideLoading())
     }
     getAllBoard()
   }, [id])
