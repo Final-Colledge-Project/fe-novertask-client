@@ -5,7 +5,7 @@ import { ReactNode } from 'react'
 export const Summary = styled.div`
   display: flex;
   align-items: center;
-  margin: 0 20px;
+  margin: 20px 20px 0;
   gap: 12px;
 `
 

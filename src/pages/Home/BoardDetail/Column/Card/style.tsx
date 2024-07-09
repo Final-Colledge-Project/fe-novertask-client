@@ -46,6 +46,10 @@ export const CardContainer = styled.div`
   &.creating {
     opacity: 0.4;
   }
+
+  &.opa-1-persist {
+    opacity: 1 !important;
+  }
 `
 
 export const Cover = styled.div`

@@ -5,5 +5,4 @@ export interface IProps {
   boardId: string
   card: ICard
   refreshCard: () => void
-  isAdmin: boolean
 }

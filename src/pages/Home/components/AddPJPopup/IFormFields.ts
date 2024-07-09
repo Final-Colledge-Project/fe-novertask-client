@@ -4,4 +4,6 @@ export default interface IFormFields extends FieldValues {
   PJName: string
   workspace: string
   description: string
+  PJKey: string
+  template: string
 }

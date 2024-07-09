@@ -6,6 +6,7 @@ import {
   Popper,
   Stack,
   Switch,
+  Tooltip,
   Typography
 } from '@mui/material'
 import {
@@ -31,7 +32,8 @@ import { COLOR } from '~/utils/constant'
 export default function ColorPicker({
   chosenColor,
   onChange,
-  open: openProp
+  open: openProp,
+  disabled
 }: Readonly<IProps>) {
   const [isCustomizeColor, setIsCustomizeColor] = useState(false)
   const [color, setColor] = useColor(chosenColor || COLOR.BLUE.main)
@@ -49,11 +51,11 @@ export default function ColorPicker({
   }
 
   const handleOpen = () => {
+    if (disabled) return
     setOpen(true)
   }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
-    console.log(event.target)
     // if (
     //   anchorRef.current &&
     //   anchorRef.current.contains(event.target as HTMLElement)
@@ -92,19 +94,27 @@ export default function ColorPicker({
   return (
     <div>
       <Stack spacing={2} direction="row" alignItems="center">
-        <ColorBox
-          $color={originalColor.current}
-          className="keep-hover"
-          onClick={handleOpen}></ColorBox>
-        <Button
-          onClick={() => setOpen((prev) => !prev)}
-          ref={anchorRef}
-          aria-controls={open ? 'composition-menu-color-picker' : undefined}
-          aria-expanded={open ? 'true' : undefined}
-          aria-haspopup={open ? 'true' : undefined}
-          startIcon={<RiLoopRightLine />}>
-          Change
-        </Button>
+        <Tooltip title={color.hex} arrow>
+          <ColorBox
+            $color={originalColor.current}
+            className="keep-hover"
+            onClick={handleOpen}></ColorBox>
+        </Tooltip>
+
+        {!disabled ? (
+          <Button
+            tabIndex={-1}
+            onClick={() => setOpen((prev) => !prev)}
+            ref={anchorRef}
+            aria-controls={open ? 'composition-menu-color-picker' : undefined}
+            aria-expanded={open ? 'true' : undefined}
+            aria-haspopup={open ? 'true' : undefined}
+            startIcon={<RiLoopRightLine />}>
+            Change
+          </Button>
+        ) : (
+          <div style={{ width: '150px' }}></div>
+        )}
       </Stack>
 
       {open && <Overlay onClick={handleClose} />}

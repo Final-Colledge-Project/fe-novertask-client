@@ -18,6 +18,8 @@ interface IInputProps {
   multiple?: boolean
   row?: number
   disabled?: boolean
+  persistLabel?: boolean
+  maxLength?: number
   [key: string]: unknown
 }
 export default IInputProps

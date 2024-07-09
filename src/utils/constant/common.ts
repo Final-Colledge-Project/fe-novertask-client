@@ -22,6 +22,12 @@ export const TITLE = {
     myTask: 'My Task',
     inbox: 'Inbox',
     notifications: 'Notifications'
+  },
+  workspace: {
+    workspaceOverview: 'Overview',
+    workspaceDetail: 'Detail',
+    workspaceMember: 'Member',
+    workspaceSettings: 'Settings'
   }
 }
 
@@ -30,4 +36,21 @@ export const REPORT_TYPE = {
   sprintReport: 'sprintReport',
   sprintBurnDownReport: 'sprintBurnDownReport',
   sprintVelocityReport: 'sprintVelocityReport'
+}
+
+export const WORKING_DAYS = {
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+  SUNDAY: 0
+}
+
+export const DATA_SETTING = {
+  issueType: 'issueType',
+  label: 'label',
+  priority: 'priority',
+  issueLinkType: 'issueLinkType'
 }

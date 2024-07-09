@@ -72,12 +72,10 @@ const AddWSPopup = () => {
   return (
     <div
       className={clsx('add-ws-popup', !PopupAddWS && 'add-ws-popup--hidden')}
-      onClick={handleClose}
-    >
+      onClick={handleClose}>
       <div
         className="add-ws-popup-container"
-        onClick={(e) => e.stopPropagation()}
-      >
+        onClick={(e) => e.stopPropagation()}>
         <div className="add-ws-popup-picture">
           <div className="inner">
             <img src="/img/workspace.gif" alt="" />
@@ -100,7 +98,7 @@ const AddWSPopup = () => {
             of it
           </p>
           <div className="add-ws-popup-actions">
-            <Button variant="text" color="warning" onClick={handleClose}>
+            <Button variant="text" color="error" onClick={handleClose}>
               Cancel
             </Button>
             <Button variant="contained" color="primary" type="submit">

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 // component libraries
 import { Avatar, Button, IconButton, Tooltip } from '@mui/material'
+import { Tooltip as Tooltip2 } from 'antd'
 import {
   AdminAvatarGroup,
   AdminTooltip,
@@ -41,6 +42,10 @@ import { IBoard } from '~/services/types'
 import { getAllMembers } from '~/redux/teamWSSlice/actions'
 import { resetGetAllMember } from '~/redux/teamWSSlice'
 import { setShouldReloadAllBoard } from '~/redux/boardSlice'
+import useWSPermission from '~/hooks/useWSPermission'
+import { COLOR } from '~/utils/constant'
+import Empty from '~/components/Empty'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
 
 const OverviewSection = () => {
   const dispatch = useDispatch<StoreDispatchType>()
@@ -68,6 +73,9 @@ const OverviewSection = () => {
   const { shouldRefreshAllBoard } = useSelector(
     (state: StoreType) => state.board
   )
+  const userPermissionOnWS = useWSPermission()
+  const canCreateBoard = () => userPermissionOnWS?.board.create
+  const canInviteMember = () => userPermissionOnWS?.member.invite
 
   // show popup add project
   const handleShowAddPJPopup = () => {
@@ -119,17 +127,17 @@ const OverviewSection = () => {
   const { id } = useParams()
 
   // get members of current workspace
-  useEffect(() => {
-    const getMembers = async () => {
-      try {
-        await dispatch(getAllMembers({ id: id as string }))
-      } catch (err) {
-        const message = (err as Error).message
-        enqueueSnackbar(message, { variant: 'error' })
-      }
-    }
-    getMembers()
-  }, [id])
+  // useEffect(() => {
+  //   const getMembers = async () => {
+  //     try {
+  //       await dispatch(getAllMembers({ id: id as string }))
+  //     } catch (err) {
+  //       const message = (err as Error).message
+  //       enqueueSnackbar(message, { variant: 'error' })
+  //     }
+  //   }
+  //   getMembers()
+  // }, [id])
 
   const getBoards = async () => {
     try {
@@ -156,7 +164,9 @@ const OverviewSection = () => {
   // get board of current workspace
   useEffect(() => {
     const getAllBoard = async () => {
+      dispatch(showLoading())
       await getBoards()
+      dispatch(hideLoading())
     }
     getAllBoard()
   }, [id])
@@ -172,16 +182,16 @@ const OverviewSection = () => {
     shouldRefreshAllBoard && getAllBoard()
   }, [shouldRefreshAllBoard])
 
-  // just catch the error
-  useEffect(() => {
-    if (getAllMember.error) {
-      if (getAllMember.error === 'UNAUTHORIZED') {
-        return
-      }
-      enqueueSnackbar(getAllMember.error, { variant: 'error' })
-      dispatch(resetGetAllMember())
-    }
-  }, [getAllMember.error])
+  // // just catch the error
+  // useEffect(() => {
+  //   if (getAllMember.error) {
+  //     if (getAllMember.error === 'UNAUTHORIZED') {
+  //       return
+  //     }
+  //     enqueueSnackbar(getAllMember.error, { variant: 'error' })
+  //     dispatch(resetGetAllMember())
+  //   }
+  // }, [getAllMember.error])
 
   // the name is really meaningful already :)
   const checkIsUserInBoard = useCallback(
@@ -227,13 +237,24 @@ const OverviewSection = () => {
     return superAdmin()?.user?._id === currentUser?.userInfo?._id
   }
 
+  const InviteMemberButtonCss = (isDisabled: boolean) => {
+    return {
+      '&.MuiButton-root': {
+        backgroundImage: !isDisabled
+          ? 'linear-gradient(45deg, #0B84FF -15.23%, #0040DD 102.22%);'
+          : 'linear-gradient(45deg, #D1D1D6 -15.23%, #AEAEB2 102.22%);',
+        color: !isDisabled ? '#FFFFFF' : '#606063'
+      }
+    }
+  }
+
   return (
     <>
       <Summary>
         <ProjectSummary>
           <div className="header">
             <p className="title">Projects</p>
-            {checkIsUserAnAdmin() && (
+            {canCreateBoard() && (
               <Button
                 variant="contained"
                 color="primary"
@@ -241,6 +262,23 @@ const OverviewSection = () => {
                 onClick={() => handleShowAddPJPopup()}>
                 Create new
               </Button>
+            )}
+            {!canCreateBoard() && (
+              <Tooltip
+                title="Only admin can do this action"
+                color={COLOR.GRAY.main}
+                placement="bottom">
+                <span>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ p: '2px 8px' }}
+                    disabled={true}
+                    onClick={() => handleShowAddPJPopup()}>
+                    Create new
+                  </Button>
+                </span>
+              </Tooltip>
             )}
           </div>
           <Total>
@@ -256,7 +294,7 @@ const OverviewSection = () => {
               color="primary"
               sx={{ p: '2px 8px' }}
               onClick={() => navigate('members')}>
-              See all
+              More
             </Button>
           </div>
           <div className="content">
@@ -270,7 +308,7 @@ const OverviewSection = () => {
                   <div className="label">Admins</div>
                   <AdminAvatarGroup>
                     <AdminTooltip
-                      title={'Super admin | ' + superAdmin()?.user?.fullName}
+                      title={'WS owner | ' + superAdmin()?.user?.fullName}
                       arrow
                       key={superAdmin()?.user?._id}>
                       <Avatar
@@ -285,7 +323,7 @@ const OverviewSection = () => {
                         }}
                       />
                     </AdminTooltip>
-                    {currTeamMembers?.workspaceAdmins.map(
+                    {/* {currTeamMembers?.workspaceAdmins.map(
                       (mem) =>
                         mem.role === 'admin' && (
                           <Tooltip
@@ -298,7 +336,7 @@ const OverviewSection = () => {
                             />
                           </Tooltip>
                         )
-                    )}
+                    )} */}
                   </AdminAvatarGroup>
                 </MemberPart>
                 <MemberPart className="members">
@@ -321,7 +359,7 @@ const OverviewSection = () => {
                   </MemberAvatarGroup>
                 </MemberPart>
               </Members>
-              {checkIsCurrentUserAnSuperAdmin() && (
+              {canInviteMember() && (
                 <Button
                   fullWidth
                   variant="contained"
@@ -338,6 +376,29 @@ const OverviewSection = () => {
                   }}>
                   Invite new people
                 </Button>
+              )}
+
+              {/* DISABLE BUTTON INVITE USER */}
+              {!canInviteMember() && (
+                <Tooltip
+                  title="Only admin can do this action"
+                  color={COLOR.GRAY.main}
+                  placement="bottom">
+                  <span style={{ width: '100%' }}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      endIcon={
+                        <img className="icon" src="/img/plane_2.png" alt="" />
+                      }
+                      onClick={handleShowPopupInvite}
+                      disabled={true}
+                      sx={InviteMemberButtonCss(true)}>
+                      Invite new people
+                    </Button>
+                  </span>
+                </Tooltip>
               )}
             </div>
           </div>
@@ -449,7 +510,7 @@ const OverviewSection = () => {
             </ProjectContainer>
             {!boards ||
               (boards?.length <= 0 && (
-                <PlaceHolder>There is no board here</PlaceHolder>
+                <Empty description="Workspce is empty!" isFullWidth pY={50} />
               ))}
           </ProjectBoard>
         </ProjectSection>

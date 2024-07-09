@@ -33,8 +33,7 @@ export default function CardMenu({ items }: ICardMenuProps) {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        color="inherit"
-      >
+        color="inherit">
         <RiMore2Fill />
       </IconButton>
       <Menu
@@ -59,18 +58,17 @@ export default function CardMenu({ items }: ICardMenuProps) {
         transformOrigin={{
           vertical: 'top',
           horizontal: 'left'
-        }}
-      >
+        }}>
         {items?.map((item) => (
           <MenuItem
             key={item.title}
+            dense
             onClick={(e) => {
               e.stopPropagation()
               item.onChoose()
               handleClose()
             }}
-            sx={{ color: 'var(--mui-palette-pink-main)' }}
-          >
+            sx={{ color: 'var(--mui-palette-pink-main)' }}>
             <ListItemIcon sx={{ color: 'inherit' }}>
               <RiDeleteBinLine />
             </ListItemIcon>

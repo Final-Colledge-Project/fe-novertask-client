@@ -13,4 +13,5 @@ export interface ICreateLabelBody {
 export interface IUpdateLabelBody {
   labelId: string
   changes: IUpdatableLabel
+  boardId: string
 }

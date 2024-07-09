@@ -20,12 +20,22 @@ import { setCreateColumn } from '~/redux/boardSlice'
 import { createCard } from '~/services/cardService'
 import { setCreatingCard } from '~/redux/cardSlice'
 import { StoreType } from '~/redux'
+import usePermission from '~/hooks/usePermission'
 
-const ColumnFooter = ({ columnId }: { columnId: string }) => {
+const ColumnFooter = ({
+  columnId,
+  boardId
+}: {
+  columnId: string
+  boardId: string
+}) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const dispatch = useDispatch()
   const [isAddingCard, setIsAddingCard] = useState(false)
   const cardStore = useSelector((store: StoreType) => store.card)
+
+  const userPermission = usePermission()
+  const canCreateCard = () => userPermission?.card.create
 
   const handleFocus = () => {
     setIsAddingCard(true)
@@ -80,6 +90,7 @@ const ColumnFooter = ({ columnId }: { columnId: string }) => {
   }, [cardStore.creatingCard.readyToHide])
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
+    if (!canCreateCard()) return
     try {
       reset()
       dispatch(
@@ -92,7 +103,8 @@ const ColumnFooter = ({ columnId }: { columnId: string }) => {
       )
       const res = await createCard({
         title: data.name,
-        columnId: columnId
+        columnId: columnId,
+        boardId: boardId
       })
       if (res) {
         dispatch(setCreateColumn({ success: true }))
@@ -114,16 +126,14 @@ const ColumnFooter = ({ columnId }: { columnId: string }) => {
       {isAddingCard && <Modal onClick={handleClose} />}
       <Form
         onSubmit={handleSubmit(onSubmit)}
-        className={clsx(isAddingCard && 'is-focused')}
-      >
+        className={clsx(isAddingCard && 'is-focused')}>
         <Input
           //   $isShow={isAddingCard}
           className={clsx(isAddingCard && 'is-focused')}
           placeholder="Add card"
           {...register('name')}
           ref={inputRef}
-          onFocus={handleFocus}
-        ></Input>
+          onFocus={handleFocus}></Input>
         <Error>{errors.name?.message}</Error>
         {isAddingCard && (
           <ActionGroup>
@@ -131,16 +141,14 @@ const ColumnFooter = ({ columnId }: { columnId: string }) => {
               // variant="contained"
               color="error"
               sx={{ p: '4px', height: '0', minWidth: 'unset' }}
-              onClick={handleClose}
-            >
+              onClick={handleClose}>
               <RiCloseLine />
             </IconButton>
             <IconButton
               type="submit"
               // variant="contained"
               color="success"
-              sx={{ p: '4px', height: '0', minWidth: 'unset' }}
-            >
+              sx={{ p: '4px', height: '0', minWidth: 'unset' }}>
               <RiCheckLine />
             </IconButton>
           </ActionGroup>

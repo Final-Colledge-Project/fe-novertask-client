@@ -29,7 +29,7 @@ export const getAllSubTaskInCard = async (body: IGetAllSubtasksBody) => {
 export const updateSubtask = async (body: IUpdateSubtaskBody) => {
   try {
     const res = await axiosInstance.patch<IUpdateSubtaskResponse>(
-      requests.updateSubtask(body.subtaskId),
+      requests.updateSubtask(body.subtaskId, body.boardId),
       body.changes
     )
 
@@ -51,7 +51,7 @@ export const updateSubtask = async (body: IUpdateSubtaskBody) => {
 export const createSubtask = async (body: ICreateSubtaskBody) => {
   try {
     const res = await axiosInstance.post<ICreateSubtaskResponse>(
-      requests.createSubtask,
+      requests.createSubtask(body.boardId),
       body
     )
     if (res && res.status === 201 && res.data) {

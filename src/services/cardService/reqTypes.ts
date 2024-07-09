@@ -7,11 +7,13 @@ export interface ICreateCardBody {
   labelId?: string
   priorityId?: string
   description?: string
+  boardId: string // 2024-05-26 update permission
 }
 
 export interface IUpdateCardBody {
   cardId: string
   changes: IUpdatableCard
+  boardId: string // 2024-05-26 update permission
 }
 
 export interface IGetCardBody {
@@ -24,14 +26,17 @@ export interface IGetCardMembersBody {
 
 export interface IUpdateCoverBody {
   cardId: string
-  file: File
+  file: File,
+  boardId: string // 2024-06-21 update permission
 }
 
 export interface IAssignMemberToCardBody {
   cardId: string
   memberId: string
+  boardId: string // 2024-05-26 update permission
 }
 
 export interface IDeleteCard {
-  cardId: string
+  cardId: string,
+  boardId: string // 2024-05-26 update permission
 }

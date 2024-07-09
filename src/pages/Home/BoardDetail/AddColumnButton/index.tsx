@@ -26,6 +26,7 @@ import { createColumn } from '~/services/columnService'
 import { setCreateColumn } from '~/redux/boardSlice'
 import { setFakeColumn } from '~/redux/columnSlice'
 import { StoreType } from '~/redux'
+import { BOARD_RELOAD_REASON } from '~/utils/constant/board'
 
 const AddColumnButton = ({
   addingColumn,
@@ -39,10 +40,17 @@ const AddColumnButton = ({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const dispatch = useDispatch()
   const columnStore = useSelector((store: StoreType) => store.column)
+  const isLoadingBoard = useSelector(
+    (store: StoreType) => store.board.creatingBoard.loading
+  )
 
   useEffect(() => {
     focusAndScroll()
   }, [addingColumn])
+
+  useEffect(() => {
+    if (isLoadingBoard) blurOnly()
+  }, [isLoadingBoard])
 
   useEffect(() => {
     if (columnStore.fakeColumn.readyToHide) {
@@ -66,6 +74,7 @@ const AddColumnButton = ({
     }
   }
 
+  // focus the input field and show the modal
   const handleFocus = () => {
     if (inputRef.current) {
       setFocus(true)
@@ -73,9 +82,17 @@ const AddColumnButton = ({
     }
   }
 
+  // blur the input field and hide the modal
   const handleUnFocus = () => {
     if (inputRef.current) {
       setFocus(false)
+      inputRef.current.blur()
+    }
+  }
+
+  // blur the input field only
+  const blurOnly = () => {
+    if (inputRef.current) {
       inputRef.current.blur()
     }
   }
@@ -101,6 +118,7 @@ const AddColumnButton = ({
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
     try {
+      blurOnly()
       dispatch(
         setFakeColumn({
           title: data.name,
@@ -111,12 +129,18 @@ const AddColumnButton = ({
       reset()
       const res = await createColumn({ title: data.name, boardId })
       if (res) {
-        dispatch(setCreateColumn({ success: true }))
+        dispatch(
+          setCreateColumn({
+            success: true,
+            action: BOARD_RELOAD_REASON.CREATE_COLUMN
+          })
+        )
       }
     } catch (err) {
       dispatch(setCreateColumn({ error: true }))
       const message = (err as AxiosError).message
       enqueueSnackbar(message, { variant: 'error' })
+    } finally {
     }
   }
 
@@ -135,8 +159,7 @@ const AddColumnButton = ({
         <Input
           $isShow={addingColumn}
           {...register('name')}
-          ref={inputRef}
-        ></Input>
+          ref={inputRef}></Input>
         <Error>{errors.name?.message}</Error>
         {addingColumn && (
           <ActionGroup>
@@ -144,16 +167,14 @@ const AddColumnButton = ({
               variant="contained"
               color="error"
               sx={{ p: '2px 10px', height: '0', minWidth: 'unset' }}
-              onClick={handleClose}
-            >
+              onClick={handleClose}>
               Cancel
             </MuiButton>
             <MuiButton
               type="submit"
               variant="contained"
               color="primary"
-              sx={{ p: '2px 10px', height: '0', minWidth: 'unset' }}
-            >
+              sx={{ p: '2px 10px', height: '0', minWidth: 'unset' }}>
               Add
             </MuiButton>
           </ActionGroup>

@@ -8,7 +8,7 @@ export default function UserItem({
   onChange,
   disabled,
   user,
-  isUnassigned
+  isOwner
 }: IProps) {
   const getFullName = () => `${user.firstName} ${user.lastName}`
 
@@ -35,9 +35,9 @@ export default function UserItem({
         <div className="info">
           <div className="name-role-group">
             <div className="name">{getFullName()}</div>
-            {isUnassigned && (
+            {isOwner && (
               <div className={clsx('role', 'KEY_OF_ROLE')}>
-                {'TITLE OF ROLE'}
+                {'Owner'}
               </div>
             )}
           </div>

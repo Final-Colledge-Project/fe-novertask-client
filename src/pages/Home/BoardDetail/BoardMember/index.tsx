@@ -7,21 +7,32 @@ import {
   MemberListTypeContainer,
   Placeholder
 } from './style'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { CircularProgress } from '@mui/material'
 import AddMemberPopup from '../AddMemberPopup'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { setPopupAddMemberToBoard } from '~/redux/popupSlice'
 import { IMainProps } from './IProps'
-import { BOARD_MEMBER_VIEW_MODE } from '~/utils/constant/board'
+import {
+  BOARD_MEMBER_VIEW_MODE,
+  BOARD_VIEW_ALL_ROLE
+} from '~/utils/constant/board'
 import PermissionSetting from './PermissionSetting'
+import { clearDuplicateByKey, mapData } from '~/utils/helper'
+import { IMemberInBoard } from '~/services/types'
+import usePermission from '~/hooks/usePermission'
+import { deleteMember } from '~/services/boardService'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
+import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
+import { enqueueSnackbar } from 'notistack'
+import { AxiosError } from 'axios'
+import Empty from '~/components/Empty'
 
 export default function BoardMember({ members, leaderId, board }: IMainProps) {
   const dispatch = useDispatch<StoreDispatchType>()
 
-  // 0: all, 1: lead, 2: admin, 3: member
-  const [currentRole, setCurrentRole] = useState<number>(0)
+  const [currentRole, setCurrentRole] = useState<string>(BOARD_VIEW_ALL_ROLE)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [startSearch, setStartSearch] = useState<boolean>(false)
   // 0: see, 1: edit
@@ -29,84 +40,117 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
     BOARD_MEMBER_VIEW_MODE.VIEW
   )
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+  const currentBoardPermission = useSelector(
+    (state: StoreType) => state.permission.currentBoardPermission
+  )
+  const currentBoardMembers = useSelector(
+    (state: StoreType) => state.board.members
+  )
+  const userPermission = usePermission()
 
   // #region group members by role
   const adminList = () => {
     if (!members?.oweners || members.oweners.length === 0) return []
 
-    return members?.oweners
-      .filter((member) => member.role === 'boardAdmin')
-      .map((member) => ({
-        ...member,
-        user: {
-          ...member.user,
-          fullName: `${member.user.firstName} ${member.user.lastName}`
-        }
-      }))
+    // 2024-05-26 update permission
+    // return members?.oweners
+    //   .filter((member) => member.role === 'boardAdmin')
+    //   .map((member) => ({
+    //     ...member,
+    //     user: {
+    //       ...member.user,
+    //       fullName: `${member.user.firstName} ${member.user.lastName}`
+    //     }
+    //   }))
+    // 2024-05-26 update permission
+    return []
   }
 
   const owner = () => {
-    const bareOwnerData = members?.oweners.find(
-      (member) => member.role === 'boardLead'
-    )
+    const bareOwnerData = members?.oweners[0]
 
     if (!bareOwnerData) return null
 
     return {
       ...bareOwnerData,
       user: {
-        ...bareOwnerData?.user,
-        fullName: `${bareOwnerData?.user.firstName} ${bareOwnerData?.user.lastName}`
+        ...bareOwnerData,
+        fullName: `${bareOwnerData.firstName} ${bareOwnerData.lastName}`
       }
     }
   }
 
-  const memberList = () => {
-    if (!members?.members || members.members.length === 0) return []
+  const isOwner = (userId: string) => {
+    if (owner()) {
+      return owner()?._id === userId
+    }
+    return false
+  }
 
-    return members?.members.map((member) => ({
-      role: 'member',
-      user: {
-        ...member,
-        fullName: `${member.firstName} ${member.lastName}`
-      }
-    }))
+  // const memberList = () => {
+  //   if (!members?.members || members.members.length === 0) return []
+
+  //   return members?.members.map((member) => ({
+  //     role: 'member',
+  //     user: {
+  //       ...member,
+  //       fullName: `${member.firstName} ${member.lastName}`
+  //     }
+  //   }))
+  // }
+
+  const getMembersInGroup = (groupId: string) => {
+    if (!currentBoardPermission || !currentBoardMembers) return []
+    const group = currentBoardPermission.find(
+      (permission) => permission._id === groupId
+    )
+    if (!group) return []
+    else {
+      const idList = group.memberIds
+      const rawMemberList = mapData(currentBoardMembers.members, '_id', idList)
+      rawMemberList.push(...mapData(currentBoardMembers.oweners, '_id', idList))
+      return clearDuplicateByKey(rawMemberList, '_id').map(
+        (member: IMemberInBoard) => ({
+          role: group.name,
+          user: {
+            ...member,
+            fullName: `${member.firstName} ${member.lastName}`
+          },
+          color: group.color
+        })
+      )
+    }
   }
 
   // generate list of members to render
-  const generateRenderList = () => {
+  const generateRenderList = useCallback(() => {
     const list = []
 
-    if (owner() === null) return []
+    if (!currentBoardMembers || !currentBoardPermission || owner() === null)
+      return list
 
-    switch (currentRole) {
-      case 0:
-        list.push(owner())
-        list.push(...adminList())
-        list.push(...memberList())
-        break
-      case 1:
-        list.push(owner())
-        break
-      case 2:
-        list.push(...adminList())
-        break
-      case 3:
-        list.push(...memberList())
-        break
-      default:
-        list.push(owner())
-        list.push(...adminList())
-        list.push(...memberList())
+    if (currentRole === BOARD_VIEW_ALL_ROLE) {
+      currentBoardPermission.forEach((permission) => {
+        list.push(...getMembersInGroup(permission._id))
+      })
+    } else {
+      list.push(...getMembersInGroup(currentRole))
     }
-    return onSearch(list)
-  }
+
+    return onSearchMember(list)
+  }, [
+    currentRole,
+    members,
+    searchTerm,
+    currentBoardPermission,
+    currentBoardMembers
+  ])
   // #endregion
 
-  const onRoleListChange = (newRole: number) => {
+  const onRoleListChange = (newRole: string) => {
     setCurrentRole(newRole)
   }
-  const onSearch = <T,>(list: Array<T>) => {
+  const onSearchMember = <T,>(list: Array<T>) => {
     const filteredMembers = list.filter((member: T) => {
       if (member) {
         const fullNameMatch = (
@@ -166,13 +210,30 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
     true: admin or lead
     false: member
   */
-  const isUserAdminOrLead = () => {
-    const flag = members?.oweners.findIndex(
-      (user) =>
-        user.user._id === currentUser?._id &&
-        (user.role === 'boardAdmin' || user.role === 'boardLead')
-    )
-    return flag !== -1
+  // const isUserAdminOrLead = () => {
+  //   const flag = members?.oweners.findIndex(
+  //     (owner) => owner._id === currentUser?._id
+  //   )
+  //   return flag !== -1
+  // }
+
+  const deleteUserFromBoard = async (id: string) => {
+    dispatch(showLoading())
+    try {
+      const res = await deleteMember({
+        boardId: board?._id as string,
+        memberId: id
+      })
+
+      if (res) {
+        dispatch(setShouldRefreshBoardDetail(true))
+        enqueueSnackbar('Delete member successfully', { variant: 'success' })
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    } finally {
+      dispatch(hideLoading())
+    }
   }
 
   return (
@@ -184,8 +245,8 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
         setSearchTerm={onSearchTermChange}
         onStartSearch={setStartSearch}
         onOpenAddMemberPopup={handleShowAddMemberPopup}
-        shouldShowAddMemberButton={isUserAdminOrLead()}
         onModeChange={setViewMode}
+        mode={currentViewMode}
       />
 
       <Body>
@@ -198,13 +259,13 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
                 <LineMemberItem
                   key={member?.user._id}
                   superAdminId={leaderId as string}
-                  data={
-                    member as { role: 'member' | 'boardAdmin' | 'boardLead' }
-                  }
+                  data={member}
+                  onDelete={deleteUserFromBoard}
+                  canRemove={!isOwner(member?.user._id)}
                 />
               ))}
             {generateRenderList()?.length === 0 && !startSearch && (
-              <Placeholder>There is no one here</Placeholder>
+              <Empty description="No result!" isFullWidth pY={50} />
             )}
             {startSearch && (
               <Placeholder>
@@ -213,7 +274,12 @@ export default function BoardMember({ members, leaderId, board }: IMainProps) {
             )}
           </MemberListTypeContainer>
         )}
-        {isPermissionSettingMode() && <PermissionSetting />}
+        {isPermissionSettingMode() && (
+          <PermissionSetting
+            searchKeyWord={searchTerm}
+            startSearch={startSearch}
+          />
+        )}
       </Body>
 
       <AddMemberPopup />

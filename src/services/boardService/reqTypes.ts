@@ -19,6 +19,8 @@ export interface ICreateBoardBody {
   title: string
   description: string
   teamWorkspaceId: string
+  template: string
+  key: string
 }
 
 export interface IGetBoardDetailBody {
@@ -30,7 +32,10 @@ export interface IGetMemberInBoardBody {
 
 export interface IAddMemberToBoardBody {
   boardId: string
-  memberIds: string[]
+  members: {
+    memberId: string
+    permissionId: string
+  }[]
 }
 
 interface IUpdatableBoard {

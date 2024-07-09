@@ -10,4 +10,5 @@ export interface IRespondInvitationBody {
 export interface ISendInvitationBody {
   email: string
   wsID: string
+  permissionId: string
 }

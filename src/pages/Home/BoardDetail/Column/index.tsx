@@ -20,7 +20,9 @@ import {
   Form,
   Header,
   Input,
-  Modal
+  Modal,
+  PreventDrag,
+  TestDiv
 } from './styles'
 
 // services
@@ -38,6 +40,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import mapOrder from '~/utils/mapOrder'
+import usePermission from '~/hooks/usePermission'
 
 const Column = ({
   column,
@@ -48,6 +51,7 @@ const Column = ({
 }) => {
   const [showModal, setShowModal] = useState(false)
   const [isMouseDowing, setIsMouseDowning] = useState(false)
+  const userPermission = usePermission()
 
   // const handleChangeMouseGrabing = (
   //   event: React.MouseEvent<HTMLParagraphElement>
@@ -60,7 +64,18 @@ const Column = ({
   //   event.currentTarget.style.cursor = 'grab'
   // }
 
+  // check permission on edit column
+  const canEditColumn = () => userPermission?.column.update
+  // check permission on create card
+  const canCreateCard = () => userPermission?.card.create
+  // check permission on update card
+  const canUpdateCard = () => userPermission?.card.update
+
+  // open edit form
   const handleFocus = (target: HTMLInputElement) => {
+    // check permission on edit column
+    if (!canEditColumn()) return
+
     target.select()
     target.style.zIndex = '10'
     setShowModal(true)
@@ -89,12 +104,15 @@ const Column = ({
   })
 
   const onSubmit: SubmitHandler<IFormFields> = async (data) => {
+    // check permission on update column
+
     try {
       const res = await updateColumn({
         id: column._id,
         changes: {
           title: data.name
-        }
+        },
+        boardId: column.boardId
       })
       if (res) {
         // reset the ui name -> no need to refresh board
@@ -121,116 +139,142 @@ const Column = ({
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    height: 'fit-content'
+    height: '-moz-available'
   }
 
   const isColumnEmpty = useCallback(() => {
     return column.cards?.filter((c) => !c.FE_ONLY_PLACEHOLDER).length === 0
   }, [column])
 
+  const preventDrag = (event?: React.MouseEvent<HTMLDivElement>) => {
+    if (!event) return
+    event.stopPropagation()
+    event.preventDefault()
+  }
+
   return (
-    <DnDContainer
-      ref={setNodeRef}
-      {...attributes}
-      style={style}
-      {...listeners}
-      className="test-scale"
-    >
-      <ColumnContainer
-        className={clsx(isColumnEmpty() && 'collapse-space', className)}
-      >
-        <Header>
-          <p className="icon">
-            <RiDraggable />
-          </p>
-          <div className="title">
-            {showModal && <Modal onClick={handleCloseEditTitleMode} />}
-            <Form
-              onSubmit={handleSubmit(onSubmit)}
-              className={clsx(showModal && 'showing-modal')}
-              // onMouseDownCapture={(e) => e.stopPropagation()}
-            >
-              <Input
-                className={clsx('name', showModal && 'is-focus')}
-                onMouseDown={() => {
-                  setIsMouseDowning(true)
-                }}
-                onMouseMove={() => {
-                  if (isMouseDowing) {
-                    setShowModal(false)
-                  }
-                }}
-                onMouseUp={() => {
-                  setIsMouseDowning(false)
-                }}
-                // onFocus={}
-                onClick={(e) => handleFocus(e.target as HTMLInputElement)}
-                {...register('name')}
-                onBlur={handleBlur}
-              ></Input>
-              <Error>{errors.name?.message}</Error>
-              {showModal && (
-                <ActionGroup>
-                  <MuiButton
-                    variant="contained"
-                    color="error"
-                    sx={{
-                      p: '2px 10px',
-                      height: '0',
-                      minWidth: 'unset',
-                      fontSize: '12px'
-                    }}
-                    onClick={handleCloseEditTitleMode}
-                  >
-                    Cancel
-                  </MuiButton>
-                  <MuiButton
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                      p: '2px 10px',
-                      height: '0',
-                      minWidth: 'unset',
-                      fontSize: '12px'
-                    }}
-                  >
-                    Save
-                  </MuiButton>
-                </ActionGroup>
-              )}
-            </Form>
-            <p className="cards-count">
-              {column.cards?.filter((c) => !c.FE_ONLY_PLACEHOLDER).length}
+    <TestDiv>
+      <DnDContainer
+        ref={setNodeRef}
+        {...attributes}
+        style={style}
+        {...listeners}
+        className={clsx(!canEditColumn() && 'opa-1-persist')}>
+        <ColumnContainer
+          className={clsx(isColumnEmpty() && 'collapse-space', className)}>
+          {/* COLUMN HEADER */}
+          <Header>
+            <p className={clsx('icon', !canEditColumn() && 'not-allowed')}>
+              <RiDraggable />
             </p>
-            <div className="add-task-button">
-              <RiAddFill />
+            <div className="title">
+              {showModal && <Modal onClick={handleCloseEditTitleMode} />}
+              <Form
+                onSubmit={handleSubmit(onSubmit)}
+                className={clsx(showModal && 'showing-modal')}
+                // onMouseDownCapture={(e) => e.stopPropagation()}
+              >
+                <Input
+                  className={clsx('name', showModal && 'is-focus')}
+                  onMouseDown={() => {
+                    setIsMouseDowning(true)
+                  }}
+                  onMouseMove={() => {
+                    if (isMouseDowing) {
+                      setShowModal(false)
+                    }
+                  }}
+                  onMouseUp={() => {
+                    setIsMouseDowning(false)
+                  }}
+                  // onFocus={}
+                  onClick={(e) => handleFocus(e.target as HTMLInputElement)}
+                  {...register('name')}
+                  onBlur={handleBlur}></Input>
+                <Error>{errors.name?.message}</Error>
+                {showModal && (
+                  <ActionGroup>
+                    <MuiButton
+                      variant="contained"
+                      color="error"
+                      sx={{
+                        p: '2px 10px',
+                        height: '0',
+                        minWidth: 'unset',
+                        fontSize: '12px'
+                      }}
+                      onClick={handleCloseEditTitleMode}>
+                      Cancel
+                    </MuiButton>
+                    <MuiButton
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      sx={{
+                        p: '2px 10px',
+                        height: '0',
+                        minWidth: 'unset',
+                        fontSize: '12px'
+                      }}>
+                      Save
+                    </MuiButton>
+                  </ActionGroup>
+                )}
+              </Form>
+              <p className="cards-count">
+                {column.cards?.filter((c) => !c.FE_ONLY_PLACEHOLDER).length}
+              </p>
+              {/* <div className="add-task-button">
+                <RiAddFill />
+              </div> */}
             </div>
-          </div>
-          <IconButton size="small">
-            <RiMore2Fill />
-          </IconButton>
-        </Header>
-        {column.cards && (
-          <CardsContainer>
-            <SortableContext
-              strategy={verticalListSortingStrategy}
-              items={column.cardOrderIds}
-              id={column._id}
-            >
+            {/* <IconButton size="small">
+              <RiMore2Fill />
+            </IconButton> */}
+          </Header>
+
+          {/* CARDS LIST [CAN DRAG] */}
+          {column.cards && canUpdateCard() && (
+            <CardsContainer>
+              <SortableContext
+                strategy={verticalListSortingStrategy}
+                items={column.cardOrderIds}
+                id={column._id}>
+                {mapOrder(
+                  column.cards as ICard[],
+                  column.cardOrderIds,
+                  '_id'
+                ).map((card) => (
+                  <Card card={card} key={card._id} />
+                ))}
+              </SortableContext>
+            </CardsContainer>
+          )}
+
+          {/* CARDS LIST [CAN NOT DRAG] */}
+          {column.cards && !canUpdateCard() && (
+            <CardsContainer>
               {mapOrder(
                 column.cards as ICard[],
                 column.cardOrderIds,
                 '_id'
               ).map((card) => (
-                <Card card={card} key={card._id} />
+                <Card card={card} key={card._id} className="opa-1-persist" />
               ))}
-            </SortableContext>
-          </CardsContainer>
-        )}
-        <ColumnFooter columnId={column._id} />
-      </ColumnContainer>
-    </DnDContainer>
+            </CardsContainer>
+          )}
+
+          {/* COLUMN FOOTER */}
+          {canCreateCard() && (
+            <ColumnFooter columnId={column._id} boardId={column.boardId} />
+          )}
+        </ColumnContainer>
+        <PreventDrag
+          onMouseDown={preventDrag}
+          onMouseDownCapture={preventDrag}
+        />
+      </DnDContainer>
+    </TestDiv>
   )
 }
 export default Column

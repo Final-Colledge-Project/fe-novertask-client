@@ -11,6 +11,8 @@ import { setPriorities } from '~/redux/prioritySlice'
 import { setIssueTypes } from '~/redux/issueTypeSlice'
 import { fetchColumns } from '~/redux/columnSlice/actions'
 import { setColumns } from '~/redux/columnSlice'
+import { resetLabelsData } from '~/redux/labelSlice'
+import { getAllLabelByBoardId } from '~/redux/labelSlice/actions'
 const useFetchBoardData = (props: IProps) => {
   const { key, boardId } = props
   const dispatch: StoreDispatchType = useDispatch<StoreDispatchType>()
@@ -22,6 +24,7 @@ const useFetchBoardData = (props: IProps) => {
     (state: StoreType) => state.issueType.allIssueTypes
   )
   const allColumns = useSelector((state: StoreType) => state.column.allColumns)
+  const allLabels = useSelector((state: StoreType) => state.label.labels)
 
   const resetData = () => {
     switch (key) {
@@ -39,6 +42,10 @@ const useFetchBoardData = (props: IProps) => {
       }
       case BOARD_RESOURCES.column: {
         dispatch(setColumns([]))
+        break
+      }
+      case BOARD_RESOURCES.label: {
+        dispatch(resetLabelsData([]))
         break
       }
       default:
@@ -65,6 +72,12 @@ const useFetchBoardData = (props: IProps) => {
         if (!allColumns.length) {
           console.log('======> fetchColumns ')
           dispatch(fetchColumns(boardId))
+        }
+        break
+      }
+      case BOARD_RESOURCES.label: {
+        if (!allLabels.length) {
+          dispatch(getAllLabelByBoardId(boardId))
         }
         break
       }

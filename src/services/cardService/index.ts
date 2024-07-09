@@ -20,7 +20,7 @@ import { IErrorResponse } from '../types'
 
 export const createCard = async (body: ICreateCardBody) => {
   try {
-    const res = await axiosInstance.post(requests.createCard, body)
+    const res = await axiosInstance.post(requests.createCard(body.boardId), body)
     if (res && res.status === 201 && res.data) {
       return res.data
     }
@@ -33,7 +33,7 @@ export const createCard = async (body: ICreateCardBody) => {
 export const updateCard = async (body: IUpdateCardBody) => {
   try {
     const res = await axiosInstance.patch(
-      requests.updateCard(body.cardId),
+      requests.updateCard(body.cardId, body.boardId),
       body.changes
     )
     if (res && res.status === 200 && res.data) {
@@ -57,7 +57,7 @@ export const updateCard = async (body: IUpdateCardBody) => {
 export const updateOnlyCoverCard = async (body: IUpdateCoverBody) => {
   try {
     const res = await axiosInstance.patchForm<IUpdateCoverResponse>(
-      requests.updateCover(body.cardId),
+      requests.updateCover(body.cardId, body.boardId),
       {
         cover: body.file
       }
@@ -121,7 +121,7 @@ export const getMemberInCard = async (body: IGetCardMembersBody) => {
 export const assignMemberToCard = async (body: IAssignMemberToCardBody) => {
   try {
     const res = await axiosInstance.patch<IAssignMemberToCardReponse>(
-      requests.assignMember(body.cardId, body.memberId)
+      requests.assignMember(body.memberId, body.boardId)
     )
     if (res && res.status === 200 && res.data) {
       return res.data
@@ -155,7 +155,7 @@ export const cardAssignToMe = async () => {
 
 export const deleteCard = async (body: IDeleteCard) => {
   try {
-    const res = await axiosInstance.delete(requests.deleteCard(body.cardId))
+    const res = await axiosInstance.delete(requests.deleteCard(body.cardId, body.boardId))
     if (res && res.status === 200 && res.data) {
       return res.data
     }

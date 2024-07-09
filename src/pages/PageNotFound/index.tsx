@@ -63,10 +63,10 @@ const PageNotFound = ({
       )}
       <div className="page-not-found__emergency-text">
         <span>In case emergency, please contact </span>
-        <a href="mailto:khiemld@gmail.com">khiemld@gmail.com</a>
+        <a href="mailto:novertask@hotmail.com">novertask@hotmail.com</a>
         <div
           className="page-not-found__email-copy"
-          onClick={() => handleAddToClipBoard('khiemld@gmail.com')}>
+          onClick={() => handleAddToClipBoard('novertask@hotmail.com')}>
           <RiFileCopyLine />
         </div>
       </div>

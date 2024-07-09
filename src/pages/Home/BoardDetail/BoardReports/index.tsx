@@ -3,8 +3,6 @@ import './styles.scss'
 import { useState } from 'react'
 import { a11yProps, getReportTypesByTab } from './helper'
 import ReportTypeItem from './components/ReportTypeItem'
-import { AVERAGE_AGE_PERIOD } from '~/utils/constant'
-import { Select } from 'antd'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -55,7 +53,6 @@ export default function BoardOverview() {
           }}>
           <Tab label="Task Analysis Reports" {...a11yProps(0)} />
           <Tab label="Agile Scrum Reports" {...a11yProps(1)} />
-          <Tab label="Others" {...a11yProps(2)} />
         </Tabs>
       </div>
 
@@ -76,9 +73,6 @@ export default function BoardOverview() {
               return <ReportTypeItem key={index} item={item} />
             })}
           </Box>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          Item Three
         </CustomTabPanel>
       </div>
     </div>

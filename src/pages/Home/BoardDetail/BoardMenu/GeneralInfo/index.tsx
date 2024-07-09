@@ -241,7 +241,7 @@ export default function GeneralInfo({
             <DateTimeInput
               disableOpenPicker={false}
               format={DATE_FORMAT}
-              value={dayjs(dueDateString)}
+              value={dueDateString ? dayjs(dueDateString) : null}
               disabled={!enableEditDueDate || !isCurrentUSerOwner()}
               minDateTime={dayjs(board.createdAt)}
               sx={{
@@ -269,16 +269,18 @@ export default function GeneralInfo({
             </p>
           </Input>
 
-          <Input className="one-line">
+          {/* USE PERMISSION TO COVER THIS CASE */}
+          {/* <Input className="one-line">
             <p className="label">Public</p>
             <Switch
+              size="small"
               disabled={!isCurrentUSerOwner()}
               checked={boardAccessibility === 'public'}
               onChange={handleToggleBoardAccessibility}
               id="is-project-public"
               inputProps={{ 'aria-label': 'controlled' }}
             />
-          </Input>
+          </Input> */}
 
           <Input>
             <p className="label">Description</p>
