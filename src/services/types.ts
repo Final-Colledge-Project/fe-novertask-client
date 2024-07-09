@@ -197,7 +197,7 @@ export interface IIssueType {
   updatedAt: Date
   isActive: boolean
   hierarchy: number
-  color: string
+  canDelete?: boolean
 }
 
 export interface ICard {
