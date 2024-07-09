@@ -2,7 +2,6 @@
 import { cloneDeep } from 'lodash'
 import dayjs from 'dayjs'
 import { FORMAT_DATE_TIME } from './constant'
-
 export const getRecordTime = (date: string) => {
   const convertDate = dayjs(date)
   return dayjs().diff(convertDate, 'hour') < 24
@@ -161,3 +160,13 @@ export const generateBusinessKey = (input: string): string => {
   // Step 4: Convert the result to uppercase
   return result.toUpperCase()
 }
+
+// export const getLocalIcon = (icon: string) => {
+//   return require(`../public/icon/${icon}`)
+// }
+
+export const DefaultIssueTypeIcon = [
+  {
+    path: ''
+  }
+]

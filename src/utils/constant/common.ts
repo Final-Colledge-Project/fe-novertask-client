@@ -47,3 +47,10 @@ export const WORKING_DAYS = {
   SATURDAY: 6,
   SUNDAY: 0
 }
+
+export const DATA_SETTING = {
+  issueType: 'issueType',
+  label: 'label',
+  priority: 'priority',
+  issueLinkType: 'issueLinkType'
+}

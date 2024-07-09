@@ -57,10 +57,9 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
   useEffect(() => {
     if (sprintData) {
       const { dailyStoryPoints, totalStoryPoint } = sprintData
-      const distanceSprint = dayjs(dayjs(sprintData.endDate)).diff(
-        dayjs(sprintData.startDate),
-        'day'
-      )
+      const distanceSprint = dayjs(
+        dayjs(sprintData.endDate?.split('T')[0])
+      ).diff(dayjs(sprintData.startDate?.split('T')[0]), 'day')
       const sprintDays = []
       for (let i = 0; i <= distanceSprint; i++) {
         const endDate = dayjs(sprintData.startDate).add(i, 'day').day()
@@ -98,8 +97,8 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
         }
       })
       const idealBurnDown = Array.from(
-        { length: distanceSprint },
-        (_, i) => totalStoryPoint - (totalStoryPoint / distanceSprint) * i
+        { length: sprintDays.length },
+        (_, i) => totalStoryPoint - (totalStoryPoint / sprintDays.length) * i
       )
       setDataChart({
         sprintDays: extendSprintDays,

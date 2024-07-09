@@ -17,7 +17,7 @@ import {
   DEFAULT_CONFIRM_DIALOG_TITLE
 } from '~/utils/constant/common'
 import { isEmpty } from 'lodash'
-
+import { LoadingOutlined } from '@ant-design/icons'
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
     children: ReactElement<any, any>
@@ -35,6 +35,7 @@ interface IProps {
   onClose: () => void
   confirmBtnText?: string
   cancelBtnText?: string
+  loading?: boolean
 }
 
 export default function ConfirmDialog({
@@ -44,7 +45,8 @@ export default function ConfirmDialog({
   onConfirm,
   onClose,
   confirmBtnText,
-  cancelBtnText
+  cancelBtnText,
+  loading = false
 }: Readonly<IProps>) {
   const renderContent = () => {
     if (isEmpty(content))
@@ -72,7 +74,11 @@ export default function ConfirmDialog({
         <Button color="error" onClick={onClose}>
           {cancelBtnText || DEFAULT_CANCEL_BUTTON}
         </Button>
-        <Button variant="contained" onClick={onConfirm} autoFocus>
+        <Button
+          variant="contained"
+          onClick={onConfirm}
+          autoFocus
+          startIcon={loading ? <LoadingOutlined /> : null}>
           {confirmBtnText || DEFAULT_CONFIRM_BUTTON}
         </Button>
       </DialogActions>
