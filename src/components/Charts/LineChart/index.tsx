@@ -22,8 +22,10 @@ ChartJS.register(
 )
 
 const LineChart = (props: ILineChartProps) => {
-  const { data, options = {}, chartRef } = props
-  return <Line options={options} data={data} ref={chartRef} />
+  const { data, options = {}, chartRef, plugins = {} } = props
+  return (
+    <Line options={options} data={data} ref={chartRef} plugins={[plugins]} />
+  )
 }
 
 export default LineChart

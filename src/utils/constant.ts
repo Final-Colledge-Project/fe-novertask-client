@@ -82,7 +82,8 @@ export const QUERY_KEY = {
   burndown_report: 'burndown_report',
   velocity_report: 'velocity_report',
   print_report: 'print_report',
-  average_age: 'average_age'
+  average_age: 'average_age',
+  get_all_issue_types: 'get_all_issue_types'
 }
 
 export const OPTION_VIEWS = {

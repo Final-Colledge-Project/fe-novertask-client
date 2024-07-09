@@ -429,6 +429,7 @@ export interface IIssueType {
   updatedAt: Date
   isActive: boolean
   hierarchy: number
+  canDelete?: boolean
 }
 
 export interface IWSPermission {
