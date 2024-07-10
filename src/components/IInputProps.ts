@@ -17,8 +17,9 @@ interface IInputProps {
   sx?: SxProps
   multiple?: boolean
   row?: number
-  disabled?: boolean,
+  disabled?: boolean
   persistLabel?: boolean
+  maxLength?: number
   [key: string]: unknown
 }
 export default IInputProps

@@ -1,4 +1,4 @@
-import { DialogContentProps, TypographyProps } from '@mui/material'
+import { DialogContentProps, SxProps, TypographyProps } from '@mui/material'
 import { ReactElement, ReactNode } from 'react'
 
 export default interface IProps {
@@ -12,4 +12,5 @@ export default interface IProps {
   dialogTitleProp?: TypographyProps
   dialogContentProp?: DialogContentProps
   isFullScreen?: boolean
+  sx?: SxProps
 }

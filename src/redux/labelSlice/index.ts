@@ -1,39 +1,37 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { ILabel } from '~/services/types'
-import {
-  createLabelThunk,
-  deleteLabelThunk,
-  fetchLabels,
-  updateLabelThunk
-} from './actions'
-
+import { getAllLabelByBoardId } from './actions'
+import { createLabelThunk, deleteLabelThunk, updateLabelThunk } from './actions'
 const initialState: {
   loading: boolean
-  allLabels: ILabel[]
+  getAllLabelByBoardId: {
+    loading: boolean
+    error: string | undefined
+    success: boolean
+  }
+  labels: ILabel[]
 } = {
   loading: false,
-  allLabels: []
+  getAllLabelByBoardId: {
+    loading: false,
+    error: undefined,
+    success: false
+  },
+  labels: []
 }
 
 const labelSlice = createSlice({
   name: 'label',
   initialState,
   reducers: {
+    resetLabelsData: (state) => {
+      state.labels = []
+    },
     setLabels: (state, { payload }) => {
-      state.allLabels = payload
+      state.labels = payload
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchLabels.pending, (state) => {
-      state.loading = true
-    })
-    builder.addCase(fetchLabels.fulfilled, (state, { payload }) => {
-      state.loading = false
-      state.allLabels = payload as ILabel[]
-    })
-    builder.addCase(fetchLabels.rejected, (state) => {
-      state.loading = false
-    })
     builder.addCase(createLabelThunk.pending, (state) => {
       state.loading = true
     })
@@ -61,8 +59,24 @@ const labelSlice = createSlice({
     builder.addCase(deleteLabelThunk.rejected, (state) => {
       state.loading = false
     })
+    builder.addCase(getAllLabelByBoardId.fulfilled, (state, { payload }) => {
+      state.getAllLabelByBoardId.loading = false
+      state.getAllLabelByBoardId.success = true
+      state.getAllLabelByBoardId.error = undefined
+      state.labels = payload as ILabel[]
+    })
+    builder.addCase(getAllLabelByBoardId.pending, (state) => {
+      state.getAllLabelByBoardId.loading = true
+      state.getAllLabelByBoardId.success = false
+      state.getAllLabelByBoardId.error = undefined
+    })
+    builder.addCase(getAllLabelByBoardId.rejected, (state, { payload }) => {
+      state.getAllLabelByBoardId.loading = false
+      state.getAllLabelByBoardId.success = false
+      state.getAllLabelByBoardId.error = payload as string
+    })
   }
 })
 
 export default labelSlice.reducer
-export const { setLabels } = labelSlice.actions
+export const { setLabels, resetLabelsData } = labelSlice.actions

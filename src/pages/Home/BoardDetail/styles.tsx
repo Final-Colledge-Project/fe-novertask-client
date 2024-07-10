@@ -250,7 +250,7 @@ export const ProjectType = styled.div<{ $type: string }>`
   padding: 0 8px;
   border-radius: 50px;
   background-color: ${(props) =>
-    props.$type === 'private'
+    props.$type === 'scrum'
       ? 'var(--mui-palette-orange-main)'
       : 'var(--mui-palette-green-main)'};
 `

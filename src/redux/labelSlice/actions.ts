@@ -1,5 +1,4 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-
 import { enqueueSnackbar } from 'notistack'
 import {
   createLabel,
@@ -10,25 +9,26 @@ import {
 import { IDeleteLabelBody } from '~/services/labelService/reqTypes'
 import { ICreateLabel, IUpdateLabel } from './types'
 
-export const fetchLabels = createAsyncThunk(
-  'label/fetchLabels',
-  async (boardId: string, thunkApi) => {
+export const getAllLabelByBoardId = createAsyncThunk(
+  'label/getAllByBoard',
+  async (data: string, thunkApi) => {
     try {
-      const data = await getAllByBoard({ boardId })
-      return data?.data
+      // get all label by board id
+      const res = await getAllByBoard({ boardId: data as string })
+
+      if (res) return res.data
     } catch (err) {
       return thunkApi.rejectWithValue((err as Error).message as string)
     }
   }
 )
-
 export const createLabelThunk = createAsyncThunk(
   'label/createLabel',
   async (data: ICreateLabel, thunkApi) => {
     try {
       const { data: payload } = data
       await createLabel(payload)
-      thunkApi.dispatch(fetchLabels(payload.boardId))
+      thunkApi.dispatch(getAllLabelByBoardId(payload.boardId))
       enqueueSnackbar('Create label successfully!', { variant: 'success' })
     } catch (err) {
       enqueueSnackbar((err as Error).message, {
@@ -45,7 +45,7 @@ export const updateLabelThunk = createAsyncThunk(
     try {
       const { data: payload } = data
       await updateLabel(payload)
-      thunkApi.dispatch(fetchLabels(payload.boardId))
+      thunkApi.dispatch(getAllLabelByBoardId(payload.boardId))
       enqueueSnackbar('Update label successfully!', { variant: 'success' })
     } catch (err) {
       enqueueSnackbar((err as Error).message, {
@@ -61,7 +61,7 @@ export const deleteLabelThunk = createAsyncThunk(
   async (data: IDeleteLabelBody, thunkApi) => {
     try {
       await deleteLabel(data)
-      thunkApi.dispatch(fetchLabels(data.boardId))
+      thunkApi.dispatch(getAllLabelByBoardId(data.boardId))
       enqueueSnackbar('Delete label successfully!', { variant: 'success' })
     } catch (err) {
       enqueueSnackbar((err as Error).message, {

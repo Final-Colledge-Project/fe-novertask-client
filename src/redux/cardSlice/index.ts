@@ -26,6 +26,7 @@ const initialState: {
     error: string | undefined
     success: boolean
   }
+  openAddCardDialog: boolean
 } = {
   searchString: undefined,
   filter: {
@@ -47,7 +48,8 @@ const initialState: {
     loading: false,
     error: undefined,
     success: false
-  }
+  },
+  openAddCardDialog: false
 }
 
 const cardSlice = createSlice({
@@ -65,6 +67,12 @@ const cardSlice = createSlice({
     },
     setDeletingCard: (state, { payload }) => {
       state.deletingCard = { ...payload }
+    },
+    showAddCardDialog: (state) => {
+      state.openAddCardDialog = true
+    },
+    hideAddCardDialog: (state) => {
+      state.openAddCardDialog = false
     }
   },
   extraReducers: (builder) => {
@@ -88,4 +96,11 @@ const cardSlice = createSlice({
 })
 
 export default cardSlice.reducer
-export const { setSearchString, setFilter, setCreatingCard, setDeletingCard } = cardSlice.actions
+export const {
+  setSearchString,
+  setFilter,
+  setCreatingCard,
+  setDeletingCard,
+  showAddCardDialog,
+  hideAddCardDialog
+} = cardSlice.actions

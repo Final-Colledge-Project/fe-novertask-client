@@ -25,6 +25,7 @@ import {
   BoardDetailContainer,
   Body,
   Divider,
+  ProjectType,
   TitleHeader,
   TypeHeader,
   TypeItem,
@@ -120,6 +121,8 @@ import { BOARD_RELOAD_REASON } from '~/utils/constant/board'
 import useFetchBoardData from '~/hooks/useFetchBoardData'
 import { BOARD_RESOURCES } from '~/utils/constant/board'
 import { TITLE } from '~/utils/constant/common'
+import ActionMenu from './ActionMenu'
+import AddCardDialog from './AddCardDialog'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -207,6 +210,7 @@ const BoardDetail = () => {
   useFetchBoardData({ key: BOARD_RESOURCES.priority, boardId: id || '' })
   useFetchBoardData({ key: BOARD_RESOURCES.issueType, boardId: id || '' })
   useFetchBoardData({ key: BOARD_RESOURCES.column, boardId: id || '' })
+  useFetchBoardData({ key: BOARD_RESOURCES.label, boardId: id || '' })
 
   // const items = [
   //   {
@@ -1068,9 +1072,9 @@ const BoardDetail = () => {
                 <div className="board-avatar"></div>
                 <div className="title-container">
                   <span className="title">{board?.title}</span>
-                  {/* <ProjectType $type={(board?.type as string) || 'public'}>
-                    {board?.type}
-                  </ProjectType> */}
+                  <ProjectType $type={(board?.template as string) || 'kanban'}>
+                    {board?.template}
+                  </ProjectType>
                   {/* <p className="description">{board?.description}</p> */}
                 </div>
               </div>
@@ -1216,6 +1220,12 @@ const BoardDetail = () => {
         </Routes>
 
         <AddMemberPopup />
+
+        {/* ACTIONS MENU */}
+        <ActionMenu />
+
+        {/* ADD CARD DIALOG */}
+        <AddCardDialog board={board} />
       </BoardDetailContainer>
 
       {board && members && (

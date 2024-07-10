@@ -30,12 +30,14 @@ export default function WindowDialog({
   children,
   dialogTitleProp,
   dialogContentProp,
-  isFullScreen = false
+  isFullScreen = false,
+  sx
 }: IProps) {
   return (
     <Dialog
       fullScreen={isFullScreen}
       open={open}
+      sx={{padding:0}}
       TransitionComponent={Transition}
       PaperProps={{
         sx: {
@@ -43,10 +45,11 @@ export default function WindowDialog({
           padding: '12px',
           boxShadow: 'none',
           overflow: 'visible',
-          maxWidth: 'none'
+          maxWidth: 'none',
+          ...sx
         }
       }}>
-      <DialogTitle fontSize={20} fontWeight={600} {...dialogTitleProp}>
+      <DialogTitle fontSize={16} fontWeight={600} {...dialogTitleProp}>
         {title}
       </DialogTitle>
       <DialogContent {...dialogContentProp}>
