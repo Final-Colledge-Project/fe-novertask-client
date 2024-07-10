@@ -1,0 +1,31 @@
+.modalSettingWrapper {
+  width: 30vw;
+  height: fit-content;
+}
+
+.formItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.settingForm {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.btnGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.formItemHorizontal {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

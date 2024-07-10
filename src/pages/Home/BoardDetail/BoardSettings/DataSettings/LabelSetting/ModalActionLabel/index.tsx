@@ -1,4 +1,5 @@
-import { IFormFields, schema } from './helper'
+import './styles.scss'
+import { IActionLabelModalProps, IFormFields, schema } from './helper'
 import WindowDialog from '~/components/dialog/WIndowDialog'
 import './styles.scss'
 import { useForm } from 'react-hook-form'
@@ -9,24 +10,18 @@ import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useParams } from 'react-router-dom'
 import { LoadingOutlined } from '@ant-design/icons'
-import { IActionPriorityModalProps } from './helper'
-import { createPriority, updatePriority } from '~/redux/prioritySlice/actions'
 import ColorPicker from '~/components/ColorPicker'
-export default function ModalActionPriority(props: IActionPriorityModalProps) {
-  const {
-    visible,
-    setVisible,
-    selectedPriority,
-    refetch,
-    setSelectedPriority
-  } = props
-  const initColor = selectedPriority
-    ? 'color' in selectedPriority
-      ? selectedPriority.color
+import { createLabelThunk, updateLabelThunk } from '~/redux/labelSlice/actions'
+export default function ModalActionLabel(props: IActionLabelModalProps) {
+  const { visible, setVisible, selectedLabel, refetch, setSelectedLabel } =
+    props
+  const initColor = selectedLabel
+    ? 'color' in selectedLabel
+      ? selectedLabel.color
       : '#fff'
     : '#fff'
   const [selectedColor, setSelectedColor] = useState<string>(initColor)
-  const loading = useSelector((state: StoreType) => state.priority.loading)
+  const loading = useSelector((state: StoreType) => state.label.loading)
   const dispatch = useDispatch<StoreDispatchType>()
   const { id: boardId } = useParams()
   const {
@@ -37,12 +32,7 @@ export default function ModalActionPriority(props: IActionPriorityModalProps) {
     formState: { errors }
   } = useForm<IFormFields>({
     defaultValues: {
-      name: selectedPriority ? selectedPriority.name : '',
-      description: selectedPriority
-        ? 'description' in selectedPriority
-          ? selectedPriority.description
-          : ''
-        : ''
+      name: selectedLabel ? selectedLabel.name : ''
     },
     mode: 'onSubmit',
     resolver: yupResolver(schema),
@@ -50,18 +40,15 @@ export default function ModalActionPriority(props: IActionPriorityModalProps) {
   })
 
   useEffect(() => {
-    if (selectedPriority) {
-      if ('color' in selectedPriority) {
-        setSelectedColor(selectedPriority.color)
+    if (selectedLabel) {
+      if ('color' in selectedLabel) {
+        setSelectedColor(selectedLabel.color)
       }
-      setValue('name', selectedPriority.name)
-      if ('description' in selectedPriority) {
-        setValue('description', selectedPriority.description)
-      }
+      setValue('name', selectedLabel.name)
     } else {
       resetData()
     }
-  }, [selectedPriority])
+  }, [selectedLabel])
 
   const resetData = () => {
     reset()
@@ -69,46 +56,50 @@ export default function ModalActionPriority(props: IActionPriorityModalProps) {
   }
 
   const onSubmit = (data: IFormFields) => {
-    const { name, description } = data
-    const dataSubmit = {
-      name: name || '',
-      description: description || '',
-      color: selectedColor
-    }
+    const { name } = data
+
     const callback = () => {
       setVisible(false)
       resetData()
       refetch()
     }
-    if (!selectedPriority) {
+    if (!selectedLabel) {
       const payload = {
-        boardId: boardId || '',
-        data: dataSubmit,
-        cb: () => callback()
+        data: {
+          name: name,
+          color: selectedColor,
+          boardId: boardId || '',
+          cb: () => callback()
+        }
       }
-      dispatch(createPriority(payload))
+      dispatch(createLabelThunk(payload))
     } else {
       const payload = {
-        priorityId: selectedPriority._id || '',
-        boardId: boardId || '',
-        data: dataSubmit,
-        cb: () => callback()
+        data: {
+          labelId: selectedLabel._id || '',
+          changes: {
+            name: name,
+            color: selectedColor
+          },
+          boardId: boardId || '',
+          cb: () => callback()
+        }
       }
-      dispatch(updatePriority(payload))
+      dispatch(updateLabelThunk(payload))
     }
   }
 
   const onClose = () => {
     setVisible(false)
     resetData()
-    setSelectedPriority(null)
+    setSelectedLabel(null)
   }
 
   return (
     <WindowDialog
       onClose={onClose}
       open={visible}
-      title={selectedPriority ? 'Edit Priority' : 'Add Priority'}>
+      title={selectedLabel ? 'Edit Label' : 'Add Label'}>
       <div className="modalSettingWrapper">
         <form className="settingForm" onSubmit={handleSubmit(onSubmit)}>
           <div className="formItem">
@@ -118,16 +109,6 @@ export default function ModalActionPriority(props: IActionPriorityModalProps) {
               {...register('name')}
               error={!!errors.name}
               helperText={errors.name ? errors.name.message : ''}
-              sx={{ width: '100%' }}
-            />
-          </div>
-          <div className="formItem">
-            <TextField
-              label="Description"
-              variant="outlined"
-              {...register('description')}
-              error={!!errors.description}
-              helperText={errors.description ? errors.description.message : ''}
               sx={{ width: '100%' }}
             />
           </div>

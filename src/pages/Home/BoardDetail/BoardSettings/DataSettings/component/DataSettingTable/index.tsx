@@ -9,6 +9,7 @@ import { Skeleton, Table } from 'antd'
 import { RiAddFill, RiLoopLeftFill, RiSearchLine } from 'react-icons/ri'
 import IDataSettingTableProps from './helper'
 import './styles.scss'
+import Empty from '~/components/Empty'
 export default function DataSettingTable(props: IDataSettingTableProps) {
   const {
     title,
@@ -20,7 +21,9 @@ export default function DataSettingTable(props: IDataSettingTableProps) {
     columns,
     dataRender
   } = props
-
+  const locale = {
+    emptyText: <Empty size={70} />
+  }
   return (
     <div className="settingCommon">
       <div className="settingHeader">{title}</div>
@@ -66,6 +69,7 @@ export default function DataSettingTable(props: IDataSettingTableProps) {
             showSizeChanger: true,
             position: ['bottomRight']
           }}
+          locale={locale}
         />
       </Skeleton>
     </div>

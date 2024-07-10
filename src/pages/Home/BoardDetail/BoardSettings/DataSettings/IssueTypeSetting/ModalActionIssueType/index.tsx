@@ -1,6 +1,6 @@
 import { IActionIssueTypeModalProps, IFormFields, schema } from './helpter'
 import WindowDialog from '~/components/dialog/WIndowDialog'
-import './style.scss'
+import './styles.scss'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import {
@@ -58,7 +58,11 @@ export default function ModalActionIssueType(
   } = useForm<IFormFields>({
     defaultValues: {
       name: selectedIssueType ? selectedIssueType.name : '',
-      description: selectedIssueType ? selectedIssueType.description : ''
+      description: selectedIssueType
+        ? 'description' in selectedIssueType
+          ? selectedIssueType.description
+          : ''
+        : ''
     },
     mode: 'onSubmit',
     resolver: yupResolver(schema),
@@ -74,7 +78,9 @@ export default function ModalActionIssueType(
         setSelectedIcon(selectedIssueType.icon as string)
       }
       setValue('name', selectedIssueType.name)
-      setValue('description', selectedIssueType.description)
+      if ('description' in selectedIssueType) {
+        setValue('description', selectedIssueType.description)
+      }
     } else {
       reset()
       setSelectHierarchy(initSelectHierarchy)

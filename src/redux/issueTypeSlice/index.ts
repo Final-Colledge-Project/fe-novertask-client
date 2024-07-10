@@ -1,6 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { IIssueType } from '~/services/types'
-import { createIssueType, fetchIssueTypes, updateIssueType } from './actions'
+import {
+  createIssueType,
+  deleteIssueType,
+  fetchIssueTypes,
+  updateIssueType
+} from './actions'
 
 const initialState: {
   loading: boolean
@@ -45,6 +50,15 @@ const issueTypeSlice = createSlice({
       state.loading = false
     })
     builder.addCase(updateIssueType.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(deleteIssueType.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(deleteIssueType.fulfilled, (state) => {
+      state.loading = false
+    })
+    builder.addCase(deleteIssueType.rejected, (state) => {
       state.loading = false
     })
   }

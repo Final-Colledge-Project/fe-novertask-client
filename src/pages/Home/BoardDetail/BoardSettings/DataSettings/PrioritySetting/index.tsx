@@ -9,7 +9,6 @@ import { RiDeleteBinLine } from 'react-icons/ri'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import ConfirmDialog from '~/components/dialog/ConfirmDialog'
-import { deleteIssueType } from '~/redux/issueTypeSlice/actions'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import DataSettingTable from '../component/DataSettingTable'
@@ -27,14 +26,14 @@ export default function PrioritySetting() {
     useState<CommonSettingType | null>(null)
   const dispatch = useDispatch<StoreDispatchType>()
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
-  const loading = useSelector((state: StoreType) => state.issueType.loading)
+  const loading = useSelector((state: StoreType) => state.priority.loading)
   const {
     data: priorityData,
     isLoading,
     refetch,
     isRefetching
   } = useQuery({
-    queryKey: [QUERY_KEY.get_all_issue_types, boardId],
+    queryKey: [QUERY_KEY.get_all_priorities, boardId],
     queryFn: () => {
       return getAllPrioritiesByBoard(boardId || '', '')
     },
@@ -43,7 +42,7 @@ export default function PrioritySetting() {
 
   const [visible, setVisible] = useState<boolean>(false)
 
-  const issueTypeColumns: TableColumnsType<CommonSettingType> = [
+  const priorityColumns: TableColumnsType<CommonSettingType> = [
     {
       title: 'Name',
       dataIndex: 'name',
@@ -58,7 +57,18 @@ export default function PrioritySetting() {
       dataIndex: 'description',
       key: 'description',
       className: 'colTable',
-      render: (text: string) => <span className="normalCell">{text}</span>
+      render: (text: string) => (
+        <div
+          className="normalCell"
+          style={{
+            maxWidth: '450px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+          {text}
+        </div>
+      )
     },
     {
       title: 'Color',
@@ -72,8 +82,8 @@ export default function PrioritySetting() {
             textAlign: 'center',
             padding: '4px',
             borderRadius: '4px',
-            background: isHexColor(text) ? `${text}` : '#fff',
-            color: isDarkColor(text) ? '#fff' : '#000'
+            background: text ? (isHexColor(text) ? `${text}` : '#fff') : '#fff',
+            color: text ? (isDarkColor(text) ? '#fff' : '#000') : '#000'
           }}>
           {text}
         </span>
@@ -118,7 +128,7 @@ export default function PrioritySetting() {
               onClick={() => onEditRow(record)}>
               <RiEditLine />
             </IconButton>
-            <Tooltip title={canDelete ? 'Delete' : 'Issue type is in use'}>
+            <Tooltip title={canDelete ? 'Delete' : 'Priority is in use'}>
               <span>
                 <IconButton
                   aria-label="delete"
@@ -180,7 +190,7 @@ export default function PrioritySetting() {
         setVisibleCreateModal={setVisible}
         refetch={refetch}
         loading={isLoading || isRefetching}
-        columns={issueTypeColumns}
+        columns={priorityColumns}
         dataRender={dataRender || []}
       />
       <ModalActionPriority
@@ -196,7 +206,7 @@ export default function PrioritySetting() {
           <div>
             <p>
               Are you sure you want to delete permanently the{' '}
-              <strong>{selectedPriority?.name}</strong> issue type?
+              <strong>{selectedPriority?.name}</strong> priority?
             </p>
           </div>
         }

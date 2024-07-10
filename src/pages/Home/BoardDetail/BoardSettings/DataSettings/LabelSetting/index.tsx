@@ -1,46 +1,49 @@
 import { useQuery } from '@tanstack/react-query'
 import { TableColumnsType } from 'antd'
 import { useParams } from 'react-router-dom'
-import { getAllIssueTypesByBoard } from '~/services/issueTypeService'
 import { FORMAT_DATE, QUERY_KEY } from '~/utils/constant'
-import { RiBugFill } from 'react-icons/ri'
 import './styles.scss'
 import { IconButton, Tooltip } from '@mui/material'
 import { RiEditLine } from 'react-icons/ri'
 import { RiDeleteBinLine } from 'react-icons/ri'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import ModalActionIssueType from './ModalActionIssueType'
 import ConfirmDialog from '~/components/dialog/ConfirmDialog'
-import { deleteIssueType } from '~/redux/issueTypeSlice/actions'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import DataSettingTable from '../component/DataSettingTable'
+import { isDarkColor, isHexColor } from '~/utils/helper'
 import { CommonSettingType } from '../helper'
-export default function IssueTypeSetting() {
+import { RiPantoneFill } from 'react-icons/ri'
+import { getAllByBoard } from '~/services/labelService'
+import ModalActionLabel from './ModalActionLabel'
+import { deleteLabelThunk } from '~/redux/labelSlice/actions'
+
+export default function LabelSetting() {
   const { id: boardId } = useParams()
   const [filterName, setFilterName] = useState('')
-  const [selectedIssueType, setSelectedIssueType] =
-    useState<CommonSettingType | null>(null)
+  const [selectedLabel, setSelectedLabel] = useState<CommonSettingType | null>(
+    null
+  )
   const dispatch = useDispatch<StoreDispatchType>()
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
-  const loading = useSelector((state: StoreType) => state.issueType.loading)
+  const loading = useSelector((state: StoreType) => state.label.loading)
   const {
-    data: issueTypeData,
+    data: resData,
     isLoading,
     refetch,
     isRefetching
   } = useQuery({
-    queryKey: [QUERY_KEY.get_all_issue_types, boardId],
+    queryKey: [QUERY_KEY.get_all_labels, boardId],
     queryFn: () => {
-      return getAllIssueTypesByBoard(boardId || '', '')
+      return getAllByBoard({ boardId: boardId || '' })
     },
     refetchOnWindowFocus: false
   })
 
   const [visible, setVisible] = useState<boolean>(false)
 
-  const issueTypeColumns: TableColumnsType<CommonSettingType> = [
+  const labelColumns: TableColumnsType<CommonSettingType> = [
     {
       title: 'Name',
       dataIndex: 'name',
@@ -51,50 +54,20 @@ export default function IssueTypeSetting() {
       render: (text: string) => <span className="boldCell">{text}</span>
     },
     {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
+      title: 'Color',
+      dataIndex: 'color',
+      key: 'color',
       className: 'colTable',
       render: (text: string) => (
-        <Tooltip title={text}>
-          <div
-            className="normalCell"
-            style={{
-              maxWidth: '450px',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}>
-            {text}
-          </div>
-        </Tooltip>
-      )
-    },
-    {
-      title: 'Icon',
-      dataIndex: 'icon',
-      key: 'icon',
-      className: 'colTable',
-      render: (text: string) => (
-        <div>
-          {text ? <img width={20} height={20} src={text} alt={'Icon'} /> : '-'}
-        </div>
-      )
-    },
-    {
-      title: 'Hierarchy',
-      dataIndex: 'hierarchy',
-      key: 'hierarchy',
-      className: 'colTable',
-      sorter: (a: CommonSettingType, b: CommonSettingType) => {
-        const hierarchyA =
-          'hierarchy' in a && typeof a.hierarchy === 'number' ? a.hierarchy : 0
-        const hierarchyB =
-          'hierarchy' in b && typeof b.hierarchy === 'number' ? b.hierarchy : 0
-        return hierarchyA - hierarchyB
-      },
-      render: (text: number) => (
-        <span className="normalCell" style={{ textAlign: 'center' }}>
+        <span
+          className="normalCell"
+          style={{
+            textAlign: 'center',
+            padding: '4px',
+            borderRadius: '4px',
+            background: text ? (isHexColor(text) ? `${text}` : '#fff') : '#fff',
+            color: text ? (isDarkColor(text) ? '#fff' : '#000') : '#000'
+          }}>
           {text}
         </span>
       )
@@ -138,7 +111,7 @@ export default function IssueTypeSetting() {
               onClick={() => onEditRow(record)}>
               <RiEditLine />
             </IconButton>
-            <Tooltip title={canDelete ? 'Delete' : 'Issue type is in use'}>
+            <Tooltip title={canDelete ? 'Delete' : 'Label is in use'}>
               <span>
                 <IconButton
                   aria-label="delete"
@@ -156,38 +129,38 @@ export default function IssueTypeSetting() {
     }
   ]
 
-  const dataRender = issueTypeData?.filter((item) =>
+  const dataRender = resData?.data.filter((item) =>
     item.name.toLowerCase().includes(filterName.toLowerCase())
   )
 
   const onEditRow = (record: CommonSettingType) => {
-    setSelectedIssueType(record)
+    setSelectedLabel(record)
     setVisible(true)
   }
 
   const onDeleteRow = (record: CommonSettingType) => {
-    setSelectedIssueType(record)
+    setSelectedLabel(record)
     setOpenDeleteModal(true)
   }
 
-  const onDeleteIssueType = () => {
+  const onDeletePriority = () => {
     const cb = () => {
-      setSelectedIssueType(null)
+      setSelectedLabel(null)
       setOpenDeleteModal(false)
       refetch()
     }
     const data = {
-      issueTypeId: selectedIssueType?._id || '',
+      labelId: selectedLabel?._id || '',
       boardId: boardId || '',
       cb
     }
-    dispatch(deleteIssueType(data))
+    dispatch(deleteLabelThunk(data))
   }
 
   const title = (
     <div className="settingTitle">
-      <RiBugFill />
-      <h3>Issue Type</h3>
+      <RiPantoneFill />
+      <h3>Label</h3>
     </div>
   )
 
@@ -200,31 +173,31 @@ export default function IssueTypeSetting() {
         setVisibleCreateModal={setVisible}
         refetch={refetch}
         loading={isLoading || isRefetching}
-        columns={issueTypeColumns}
+        columns={labelColumns}
         dataRender={dataRender || []}
       />
-      <ModalActionIssueType
+      <ModalActionLabel
         visible={visible}
         setVisible={setVisible}
         refetch={refetch}
-        selectedIssueType={selectedIssueType || null}
-        setSelectedIssueType={setSelectedIssueType}
+        selectedLabel={selectedLabel || null}
+        setSelectedLabel={setSelectedLabel}
       />
       <ConfirmDialog
-        title="Delete Issue Type"
+        title="Delete Priority"
         content={
           <div>
             <p>
               Are you sure you want to delete permanently the{' '}
-              <strong>{selectedIssueType?.name}</strong> issue type?
+              <strong>{selectedLabel?.name}</strong> label?
             </p>
           </div>
         }
-        onConfirm={onDeleteIssueType}
+        onConfirm={onDeletePriority}
         open={openDeleteModal}
         onClose={() => {
           setOpenDeleteModal(false)
-          setSelectedIssueType(null)
+          setSelectedLabel(null)
         }}
         cancelBtnText="Cancel"
         confirmBtnText="Delete"

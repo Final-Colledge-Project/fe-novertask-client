@@ -238,6 +238,7 @@ export interface ILabel {
   boardId: string
   createdAt?: string
   updatedAt?: string
+  canDelete?: boolean
 }
 
 export interface IUpdatableLabel {
@@ -455,4 +456,15 @@ export interface IUpdatableWSPermission {
   color?: string
   member?: { invite?: boolean; viewAll?: boolean }
   board?: { create?: boolean }
+}
+
+export interface IIssueLinkType {
+  _id: string
+  boardId: string
+  name: string
+  inwardName: string
+  outwardName: string
+  createdAt: Date
+  updatedAt: Date
+  canDelete?: boolean
 }

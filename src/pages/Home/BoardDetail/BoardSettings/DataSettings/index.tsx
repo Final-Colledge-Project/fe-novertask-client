@@ -4,6 +4,8 @@ import IssueTypeSetting from './IssueTypeSetting'
 import { IDataSettingSectionProps } from './helper'
 import './styles.scss'
 import PrioritySetting from './PrioritySetting'
+import LabelSetting from './LabelSetting'
+import IssueLinkTypeSetting from './IssueLinkTypeSetting'
 export default function DataSettingSection(props: IDataSettingSectionProps) {
   const { settingItem } = props
   let childComponent = <></>
@@ -15,10 +17,10 @@ export default function DataSettingSection(props: IDataSettingSectionProps) {
       childComponent = <PrioritySetting />
       break
     case DATA_SETTING.label:
-      childComponent = <div>Status</div>
+      childComponent = <LabelSetting />
       break
     case DATA_SETTING.issueLinkType:
-      childComponent = <div>IssueLinkType</div>
+      childComponent = <IssueLinkTypeSetting />
       break
   }
   return <Box className="settingSection">{childComponent}</Box>

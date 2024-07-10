@@ -16,6 +16,8 @@ import permissionReducer from './permissionSlice'
 import sprintReducer from './sprintSlice'
 import priorityReducer from './prioritySlice'
 import issueTypeReducer from './issueTypeSlice'
+import labelReducer from './labelSlice'
+import issueLinkTypeReducer from './issueLinkTypeSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -34,7 +36,9 @@ const store = configureStore({
     permission: permissionReducer,
     sprint: sprintReducer,
     priority: priorityReducer,
-    issueType: issueTypeReducer
+    issueType: issueTypeReducer,
+    label: labelReducer,
+    issueLinkType: issueLinkTypeReducer
   }
 })
 

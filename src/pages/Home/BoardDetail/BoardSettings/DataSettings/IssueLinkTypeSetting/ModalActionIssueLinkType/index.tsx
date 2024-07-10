@@ -1,32 +1,29 @@
-import { IFormFields, schema } from './helper'
+import { IActionIssueLinkTypeModalProps, IFormFields, schema } from './helper'
 import WindowDialog from '~/components/dialog/WIndowDialog'
 import './styles.scss'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, TextField, Typography } from '@mui/material'
-import { useState, useEffect } from 'react'
+import { Button, TextField } from '@mui/material'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useParams } from 'react-router-dom'
 import { LoadingOutlined } from '@ant-design/icons'
-import { IActionPriorityModalProps } from './helper'
-import { createPriority, updatePriority } from '~/redux/prioritySlice/actions'
-import ColorPicker from '~/components/ColorPicker'
-export default function ModalActionPriority(props: IActionPriorityModalProps) {
+import {
+  createIssueLinkType,
+  updateIssueLinkType
+} from '~/redux/issueLinkTypeSlice/actions'
+export default function ModalActionLinkIssueType(
+  props: IActionIssueLinkTypeModalProps
+) {
   const {
     visible,
     setVisible,
-    selectedPriority,
+    selectedIssueLinkType,
     refetch,
-    setSelectedPriority
+    setSelectedIssueLinkType
   } = props
-  const initColor = selectedPriority
-    ? 'color' in selectedPriority
-      ? selectedPriority.color
-      : '#fff'
-    : '#fff'
-  const [selectedColor, setSelectedColor] = useState<string>(initColor)
-  const loading = useSelector((state: StoreType) => state.priority.loading)
+  const loading = useSelector((state: StoreType) => state.issueLinkType.loading)
   const dispatch = useDispatch<StoreDispatchType>()
   const { id: boardId } = useParams()
   const {
@@ -37,10 +34,15 @@ export default function ModalActionPriority(props: IActionPriorityModalProps) {
     formState: { errors }
   } = useForm<IFormFields>({
     defaultValues: {
-      name: selectedPriority ? selectedPriority.name : '',
-      description: selectedPriority
-        ? 'description' in selectedPriority
-          ? selectedPriority.description
+      name: selectedIssueLinkType ? selectedIssueLinkType.name : '',
+      inwardName: selectedIssueLinkType
+        ? 'inwardName' in selectedIssueLinkType
+          ? selectedIssueLinkType.inwardName
+          : ''
+        : '',
+      outwardName: selectedIssueLinkType
+        ? 'outwardName' in selectedIssueLinkType
+          ? selectedIssueLinkType.outwardName
           : ''
         : ''
     },
@@ -50,65 +52,55 @@ export default function ModalActionPriority(props: IActionPriorityModalProps) {
   })
 
   useEffect(() => {
-    if (selectedPriority) {
-      if ('color' in selectedPriority) {
-        setSelectedColor(selectedPriority.color)
+    if (selectedIssueLinkType) {
+      setValue('name', selectedIssueLinkType.name)
+      if ('inwardName' in selectedIssueLinkType) {
+        setValue('inwardName', selectedIssueLinkType.inwardName)
       }
-      setValue('name', selectedPriority.name)
-      if ('description' in selectedPriority) {
-        setValue('description', selectedPriority.description)
+      if ('outwardName' in selectedIssueLinkType) {
+        setValue('outwardName', selectedIssueLinkType.outwardName)
       }
     } else {
-      resetData()
+      reset()
     }
-  }, [selectedPriority])
-
-  const resetData = () => {
-    reset()
-    setSelectedColor('#fff')
-  }
+  }, [selectedIssueLinkType])
 
   const onSubmit = (data: IFormFields) => {
-    const { name, description } = data
-    const dataSubmit = {
-      name: name || '',
-      description: description || '',
-      color: selectedColor
-    }
     const callback = () => {
       setVisible(false)
-      resetData()
       refetch()
     }
-    if (!selectedPriority) {
+    if (!selectedIssueLinkType) {
       const payload = {
         boardId: boardId || '',
-        data: dataSubmit,
+        data: data,
         cb: () => callback()
       }
-      dispatch(createPriority(payload))
+      dispatch(createIssueLinkType(payload))
     } else {
       const payload = {
-        priorityId: selectedPriority._id || '',
+        issueLinkTypeId: selectedIssueLinkType._id || '',
         boardId: boardId || '',
-        data: dataSubmit,
+        data: data,
         cb: () => callback()
       }
-      dispatch(updatePriority(payload))
+      dispatch(updateIssueLinkType(payload))
     }
   }
 
   const onClose = () => {
     setVisible(false)
-    resetData()
-    setSelectedPriority(null)
+    reset()
+    setSelectedIssueLinkType(null)
   }
 
   return (
     <WindowDialog
       onClose={onClose}
       open={visible}
-      title={selectedPriority ? 'Edit Priority' : 'Add Priority'}>
+      title={
+        selectedIssueLinkType ? 'Edit Link issue type' : 'Add Link issue type'
+      }>
       <div className="modalSettingWrapper">
         <form className="settingForm" onSubmit={handleSubmit(onSubmit)}>
           <div className="formItem">
@@ -123,20 +115,22 @@ export default function ModalActionPriority(props: IActionPriorityModalProps) {
           </div>
           <div className="formItem">
             <TextField
-              label="Description"
+              label="Inward"
               variant="outlined"
-              {...register('description')}
-              error={!!errors.description}
-              helperText={errors.description ? errors.description.message : ''}
+              {...register('inwardName')}
+              error={!!errors.name}
+              helperText={errors.name ? errors.name.message : ''}
               sx={{ width: '100%' }}
             />
           </div>
           <div className="formItem">
-            <Typography>Color:</Typography>
-            <ColorPicker
-              chosenColor={selectedColor}
-              onChange={setSelectedColor}
-              placement="top-start"
+            <TextField
+              label="Outward"
+              variant="outlined"
+              {...register('outwardName')}
+              error={!!errors.name}
+              helperText={errors.name ? errors.name.message : ''}
+              sx={{ width: '100%' }}
             />
           </div>
           <div className="btnGroup">
