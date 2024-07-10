@@ -18,7 +18,7 @@ import IFormFields from './IFormFields'
 import schema from './formSchema'
 import { setCreateColumn } from '~/redux/boardSlice'
 import { createCard } from '~/services/cardService'
-import { setCreatingCard } from '~/redux/cardSlice'
+import { setCreatingCard, showAddCardDialog } from '~/redux/cardSlice'
 import { StoreType } from '~/redux'
 import usePermission from '~/hooks/usePermission'
 
@@ -121,40 +121,50 @@ const ColumnFooter = ({
     reset()
   }
 
+  const openAddCardDialog = () => {
+    dispatch(showAddCardDialog())
+  }
+
   return (
-    <AddZone onMouseDownCapture={(e) => e.stopPropagation()}>
-      {isAddingCard && <Modal onClick={handleClose} />}
-      <Form
-        onSubmit={handleSubmit(onSubmit)}
-        className={clsx(isAddingCard && 'is-focused')}>
-        <Input
-          //   $isShow={isAddingCard}
-          className={clsx(isAddingCard && 'is-focused')}
-          placeholder="Add card"
-          {...register('name')}
-          ref={inputRef}
-          onFocus={handleFocus}></Input>
-        <Error>{errors.name?.message}</Error>
-        {isAddingCard && (
-          <ActionGroup>
-            <IconButton
-              // variant="contained"
-              color="error"
-              sx={{ p: '4px', height: '0', minWidth: 'unset' }}
-              onClick={handleClose}>
-              <RiCloseLine />
-            </IconButton>
-            <IconButton
-              type="submit"
-              // variant="contained"
-              color="success"
-              sx={{ p: '4px', height: '0', minWidth: 'unset' }}>
-              <RiCheckLine />
-            </IconButton>
-          </ActionGroup>
-        )}
-      </Form>
-    </AddZone>
+    // <AddZone onMouseDownCapture={(e) => e.stopPropagation()}>
+    //   {isAddingCard && <Modal onClick={handleClose} />}
+    //   <Form
+    //     onSubmit={handleSubmit(onSubmit)}
+    //     className={clsx(isAddingCard && 'is-focused')}>
+    //     <Input
+    //       //   $isShow={isAddingCard}
+    //       className={clsx(isAddingCard && 'is-focused')}
+    //       placeholder="Add card"
+    //       {...register('name')}
+    //       ref={inputRef}
+    //       onFocus={handleFocus}></Input>
+    //     <Error>{errors.name?.message}</Error>
+    //     {isAddingCard && (
+    //       <ActionGroup>
+    //         <IconButton
+    //           // variant="contained"
+    //           color="error"
+    //           sx={{ p: '4px', height: '0', minWidth: 'unset' }}
+    //           onClick={handleClose}>
+    //           <RiCloseLine />
+    //         </IconButton>
+    //         <IconButton
+    //           type="submit"
+    //           // variant="contained"
+    //           color="success"
+    //           sx={{ p: '4px', height: '0', minWidth: 'unset' }}>
+    //           <RiCheckLine />
+    //         </IconButton>
+    //       </ActionGroup>
+    //     )}
+    //   </Form>
+    // </AddZone>
+    // 2024-07: Do not use quick add card feature
+    <Input
+      readOnly
+      placeholder="Add card"
+      ref={inputRef}
+      onClick={openAddCardDialog}></Input>
   )
 }
 export default ColumnFooter

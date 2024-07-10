@@ -205,6 +205,10 @@ export interface ICard {
   boardId: string
   cardId: string
   columnId: string
+  column: {
+    title: string
+    _id: string
+  }
   title: string
   cover: string | undefined
   startDate: string
@@ -245,6 +249,9 @@ export interface ICard {
   issueLinks: IIssueLink[]
   issueType: IIssueType
   watcherIds: string[]
+  issueTypeId?: string
+  assigneeId?: string
+  reporterIds?: string
 }
 
 export interface ISubtask {

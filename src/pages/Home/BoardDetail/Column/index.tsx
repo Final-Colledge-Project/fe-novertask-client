@@ -44,10 +44,12 @@ import usePermission from '~/hooks/usePermission'
 
 const Column = ({
   column,
-  className
+  className,
+  initColumnId
 }: {
   column: IColumn
   className?: string
+  initColumnId: string
 }) => {
   const [showModal, setShowModal] = useState(false)
   const [isMouseDowing, setIsMouseDowning] = useState(false)
@@ -70,6 +72,9 @@ const Column = ({
   const canCreateCard = () => userPermission?.card.create
   // check permission on update card
   const canUpdateCard = () => userPermission?.card.update
+
+  // check if a column is initial column
+  const isInitColumn = () => initColumnId === column._id
 
   // open edit form
   const handleFocus = (target: HTMLInputElement) => {
@@ -265,7 +270,7 @@ const Column = ({
           )}
 
           {/* COLUMN FOOTER */}
-          {canCreateCard() && (
+          {canCreateCard() && isInitColumn() && (
             <ColumnFooter columnId={column._id} boardId={column.boardId} />
           )}
         </ColumnContainer>

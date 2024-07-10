@@ -183,8 +183,7 @@ export const AddItemButton = muiStyled((props: IconButtonProps) => (
       backgroundColor: `rgba(var(--mui-palette-blue-mainChannel)/ 0.2)`,
       padding: '2px',
       ...props
-    }}
-  >
+    }}>
     <RiAddLine />
   </IconButton>
 ))()
@@ -328,7 +327,6 @@ export const SubTaskContainer = styled.div`
   }
 `
 
-
 export const Owner = styled.div`
   width: 100%;
   display: flex;
@@ -453,4 +451,13 @@ export const ReadOnlyInput = styled.div`
   border: 1px solid transparent;
   font-weight: 700;
   margin: 5px 0;
+`
+
+export const IssueTypeItem = styled.img`
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  object-position: center;
+  // image fall back is bugGrey.png if image is not found
+  content: url(${(props) => props.src || '/public/icon/bugGrey.png'});
 `

@@ -384,7 +384,7 @@ export default function AddLabelMenu({
                           {/* PLACEHOLDER IF NO LABELS */}
 
                           {labels?.length === 0 && (
-                            <Empty description="No label found!" isFullWidth pY={50} />
+                            <Empty description="No label found!" isFullWidth pY={20} />
                           )}
                         </MenuList>
 

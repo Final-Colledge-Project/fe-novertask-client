@@ -12,7 +12,7 @@ const IssueContainer = styled.div`
   align-items: center;
 `
 
-const IssueIcon = styled.div`
+const IssueIcon = styled.img`
   width: 25px;
   height: 25px;
   border-radius: 4px;
@@ -21,6 +21,11 @@ const IssueIcon = styled.div`
   justify-content: center;
   flex-shrink: 0;
   background-color: var(--mui-palette-gray-main);
+  // handle if the icon is not found
+  object-fit: cover;
+  object-position: center;
+  // using bugGrey as fallback img
+  content: url(${(props) => props.src || '/public/icon/bugGrey.png'});
 `
 
 const IssueName = styled.div`
@@ -38,7 +43,7 @@ const IssueType = (props: IProps) => {
   const { name, icon } = props
   return (
     <IssueContainer>
-      <IssueIcon>{icon}</IssueIcon>
+      <IssueIcon src={icon} />
       <IssueName>{name}</IssueName>
     </IssueContainer>
   )

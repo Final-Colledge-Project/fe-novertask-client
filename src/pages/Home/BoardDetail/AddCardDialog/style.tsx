@@ -1,12 +1,12 @@
 import styled from '@emotion/styled'
 
 export const Modal = styled.div`
-  width: 450px;
+  width: 550px;
   height: 500px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 0 16px 0 20px;
+  padding: 0 20px 0 24px;
   margin-right: 4px;
 `
 
@@ -27,7 +27,7 @@ export const Group = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 
   &.row {
     flex-direction: row;
@@ -117,6 +117,6 @@ export const HorizontalDivider = styled.div`
   width: 100%;
   height: 1px;
   background-color: var(--mui-palette-gray-main);
-  margin: 6px 0;
+  margin: 12px 0;
   flex-shrink: 0;
 `

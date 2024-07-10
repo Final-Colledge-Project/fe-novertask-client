@@ -18,6 +18,7 @@ import {
   Divider,
   DueDate,
   Info,
+  IssueType,
   Label,
   LabelContainer,
   MemberAvatarGroup,
@@ -41,6 +42,7 @@ import { deleteCard as deleteCardService } from '~/services/cardService'
 import { setCreateColumn } from '~/redux/boardSlice'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import usePermission from '~/hooks/usePermission'
+import { EMPTY_ISSUE_TYPE } from '~/utils/constant/card'
 
 const Card = ({ card, className }: { card: ICard; className?: string }) => {
   dayjs.extend(isTomorrow)
@@ -71,6 +73,11 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
   )
   const filter = useSelector((state: StoreType) => state.card.filter)
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+  const issueTypeData = useSelector(
+    (state: StoreType) => state.issueType.allIssueTypes
+  )
+
+  // ----------------TOOLS----------------
   const userPermission = usePermission()
   const canUpdateCard = () => userPermission?.card.update
   const canDeleteCard = () => userPermission?.card.delete
@@ -191,6 +198,12 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
     return result
   }
 
+  const getIssueType = (issueTypeId: string | undefined) => {
+    if (!issueTypeId) return { name: 'Not found', icon: EMPTY_ISSUE_TYPE }
+    const issueType = issueTypeData.find((type) => type._id === issueTypeId)
+    return issueType
+  }
+
   useEffect(() => {
     if (titleRef.current) {
       titleRef.current.innerHTML = html(card.title)
@@ -223,29 +236,50 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
           !isAssignToCurrentUser() && filter.assignToMe && 'unassigned-to-me',
           card.FE_ONLY_CREATING && 'creating'
         )}>
+        {/* CARD COVER */}
         {card.cover && (
           <Cover>
             <img src={card.cover} alt="" />
           </Cover>
         )}
+
+        {/* LABELS */}
         {card.label && (
           <LabelContainer>
             <Label $color={card.label.color}>{card.label.name}</Label>
           </LabelContainer>
         )}
+
+        {/* DIVIDER */}
         {card.label && <Divider />}
+
+        {/* CARD HEADER */}
         <CardHeader>
           <div className="badges">
+            {/* CARD ISSUE TYPE */}
+            <Tooltip title={getIssueType(card.issueTypeId)?.name}>
+              <IssueType src={getIssueType(card.issueTypeId)?.icon} />
+            </Tooltip>
+
+            {/* CARD ID */}
             <p ref={cardIdRef} className={clsx('card-id')}></p>
+
+            {/* PRIORITY */}
             <Priority $priority={card.priority} className={card.priority}>
               {card.priority}
             </Priority>
           </div>
+
+          {/* MENU AT TOP-RIGHT CORNER */}
           {canUpdateCard() && menuItems().length && (
             <CardMenu items={menuItems()} />
           )}
         </CardHeader>
+
+        {/* TITLE */}
         <Title ref={titleRef} />
+
+        {/* INFO */}
         <Info>
           <div className="info-section">
             {convertDate(card.dueDate) ? (
@@ -258,16 +292,20 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
             ) : (
               <div></div>
             )}
+
+            {/* OLD: MEMBERS(n), NEW: MEMBERS(1) */}
             <MemberAvatarGroup>
-              {card.memberIds.map((mem) => (
-                <Tooltip key={mem._id} title={mem.fullName}>
-                  <Avatar src={mem.avatar} />
+              {card.memberIds.map((member) => (
+                <Tooltip key={member._id} title={member.fullName}>
+                  <Avatar src={member.avatar} />
                 </Tooltip>
               ))}
             </MemberAvatarGroup>
           </div>
         </Info>
       </CardContainer>
+
+      {/* CONFIRM ON DELETE */}
       <ConfirmDialog
         open={openConfirmDialog}
         onClose={toggleConfirmDialog}

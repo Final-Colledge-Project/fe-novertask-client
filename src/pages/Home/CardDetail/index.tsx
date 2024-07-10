@@ -15,7 +15,8 @@ import {
   MenuItem,
   Tooltip,
   Select as MuiSelect,
-  IconButton
+  IconButton,
+  Select
 } from '@mui/material'
 import { RiCheckLine, RiCloseLine, RiLinkM } from 'react-icons/ri'
 
@@ -40,7 +41,8 @@ import {
   VisuallyHiddenInput,
   CardHeader,
   Loading,
-  ReadOnlyInput
+  ReadOnlyInput,
+  IssueTypeItem
 } from './style'
 import DateTimeInput from '~/components/DateTimeInput'
 import GeneralLoading from '../components/GeneralLoading'
@@ -73,6 +75,7 @@ import copy from '~/utils/copy'
 import isFileValid from '~/utils/isFileValid'
 import { DATE_FORMAT } from '~/utils/constant'
 import usePermission from '~/hooks/usePermission'
+import useInfo from '~/hooks/useInfo'
 
 const UPDATING_FIELDS = {
   description: 'description',
@@ -96,7 +99,7 @@ export default function CardDetail() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
+  const currentUser = useInfo()
 
   const userPermission = usePermission()
   const canUpdateCard = () => userPermission?.card.update
@@ -115,6 +118,10 @@ export default function CardDetail() {
   const [currentDueDate, setCurrentDueDate] = useState<Date | Dayjs | null>()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cardId = useMemo(() => board?.key + '-' + card?.cardId, [board, card])
+  const issueTypeData = useSelector(
+    (state: StoreType) => state.issueType.allIssueTypes
+  )
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -444,6 +451,7 @@ export default function CardDetail() {
         ) : (
           <>
             <CardHeader>
+              {/* BREADCRUMB */}
               <Breadcrumbs aria-label="breadcrumb" sx={{ width: '100%' }}>
                 <Link
                   to={`/u/boards/${boardId}`}
@@ -455,7 +463,7 @@ export default function CardDetail() {
                   to={`/u/boards/${boardId}`}
                   className="breadcrumb__item"
                   color="inherit">
-                  {columnOfCurrentCard()?.title}
+                  {card.column.title}
                 </Link>
                 <div
                   color="text.primary"
@@ -465,7 +473,7 @@ export default function CardDetail() {
                       `/u/boards/${card.boardId}/cards/${card._id}`
                     )
                   }>
-                  <p>{card.cardId}</p>
+                  <p>{cardId}</p>
                   <RiLinkM />
                 </div>
               </Breadcrumbs>
@@ -476,8 +484,11 @@ export default function CardDetail() {
                 <RiCloseLine />
               </IconButton>
             </CardHeader>
+
+            {/* CARD INFO */}
             <CardInfo>
               <CardInfoPart className="part--main">
+                {/* CARD COVER */}
                 <Cover className={!imageUrl ? 'no-image' : ''}>
                   {imageUrl && (
                     <img src={imageUrl || '/img/item-cover-2.png'} alt="" />
@@ -515,6 +526,19 @@ export default function CardDetail() {
                     )}
                   </div>
                 </Cover>
+
+                {/* ISSUE TYPE */}
+                <Select value={''}>
+                  {issueTypeData.map((item) => (
+                    <MenuItem>
+                      <Tooltip title={item.name}>
+                        <IssueTypeItem src={item.icon} />
+                      </Tooltip>
+                    </MenuItem>
+                  ))}
+                </Select>
+
+                {/* CARD TITLE */}
                 <div className="title">
                   {canUpdateCard() ? (
                     <TitleInput card={card} onUpdateTitle={handleUpdateTitle} />
@@ -522,6 +546,8 @@ export default function CardDetail() {
                     <ReadOnlyInput>{card.title}</ReadOnlyInput>
                   )}
                 </div>
+
+                {/* CARD DESCRIPTION */}
                 <Section>
                   <p className="section__label">
                     <span>Description</span>
@@ -537,7 +563,9 @@ export default function CardDetail() {
                     disabled={!canUpdateCard()}
                   />
                 </Section>
+
                 <div className="part__divider"></div>
+
                 <Section className="section">
                   <SubTaskContainer>
                     <div className="section__header">
@@ -563,7 +591,9 @@ export default function CardDetail() {
                   </SubTaskContainer>
                 </Section>
               </CardInfoPart>
+
               <CardInfoPartDivider />
+
               <CardInfoPart className="part--sub">
                 <Section>
                   <p className="section__label">Created by</p>
@@ -576,7 +606,9 @@ export default function CardDetail() {
                     </Info>
                   </Owner>
                 </Section>
+
                 <div className="part__divider"></div>
+
                 <Section>
                   <div className="section__header">
                     <p className="section__title">Assignee</p>
@@ -588,19 +620,21 @@ export default function CardDetail() {
                       />
                     )}
                   </div>
+
                   <AvatarGroup>
-                    {cardMembers?.map((member) => {
-                      return (
-                        <Tooltip title={member.fullName}>
-                          <Avatar>
-                            <img src={member.avatar} alt="" />
-                          </Avatar>
-                        </Tooltip>
-                      )
-                    })}
+                    {cardMembers?.map((member) => (
+                      <Tooltip title={member.fullName}>
+                        <Avatar>
+                          <img src={member.avatar} alt="" />
+                        </Avatar>
+                      </Tooltip>
+                    ))}
                   </AvatarGroup>
                 </Section>
+
                 <div className="part__divider"></div>
+
+                {/* DUE DATE */}
                 <Section>
                   <p className="section__label">
                     <span>Due date</span>
@@ -626,7 +660,9 @@ export default function CardDetail() {
                     onAccept={handleSubmitDueDate}
                   />
                 </Section>
+
                 <div className="part__divider"></div>
+
                 <Section>
                   <p className="section__label">
                     <span>Priority</span>
@@ -667,7 +703,6 @@ export default function CardDetail() {
                         onChoose={handleUpdateLabel}
                         card={card}
                         refreshCard={refreshCard}
-                        isAdmin={isAdminOrSuperAdminOfBoard() as boolean}
                       />
                     )}
                   </div>

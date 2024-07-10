@@ -215,4 +215,13 @@ export const MemberAvatarGroup = ({ children }: { children: ReactNode }) => (
   </AvatarGroup>
 )
 
+export const IssueType = styled.img`
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  object-fit: cover;
+  // image fall back is bugGrey.png if image is not found
+  content: url(${(props) => props.src || '/public/icon/bugGrey.png'});
+`
+
 export const Properties = styled.div``
