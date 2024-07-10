@@ -1,6 +1,5 @@
 import { TableColumnsType } from 'antd'
 import { ReactElement } from 'react'
-import { IIssueType, IPriority } from '~/services/types'
 import { CommonSettingType } from '../../helper'
 
 export default interface IDataSettingTableProps {
@@ -12,4 +11,5 @@ export default interface IDataSettingTableProps {
   loading: boolean
   columns: TableColumnsType<CommonSettingType>
   dataRender: CommonSettingType[]
+  type: string
 }

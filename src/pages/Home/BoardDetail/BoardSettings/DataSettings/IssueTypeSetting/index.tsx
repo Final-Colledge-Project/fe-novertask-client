@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { TableColumnsType } from 'antd'
 import { useParams } from 'react-router-dom'
 import { getAllIssueTypesByBoard } from '~/services/issueTypeService'
-import { FORMAT_DATE, QUERY_KEY } from '~/utils/constant'
+import { FORMAT_DATE, PERMISSION_MSG, QUERY_KEY } from '~/utils/constant'
 import { RiBugFill } from 'react-icons/ri'
 import './styles.scss'
 import { IconButton, Tooltip } from '@mui/material'
@@ -17,6 +17,8 @@ import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import DataSettingTable from '../component/DataSettingTable'
 import { CommonSettingType } from '../helper'
+import { DATA_SETTING } from '~/utils/constant/common'
+import usePermission from '~/hooks/usePermission'
 export default function IssueTypeSetting() {
   const { id: boardId } = useParams()
   const [filterName, setFilterName] = useState('')
@@ -25,6 +27,7 @@ export default function IssueTypeSetting() {
   const dispatch = useDispatch<StoreDispatchType>()
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
   const loading = useSelector((state: StoreType) => state.issueType.loading)
+
   const {
     data: issueTypeData,
     isLoading,
@@ -39,6 +42,12 @@ export default function IssueTypeSetting() {
   })
 
   const [visible, setVisible] = useState<boolean>(false)
+
+  const curPerm = usePermission()
+  const canEdit = curPerm ? curPerm.isAdmin || curPerm.issueType.update : false
+  const canDelete = curPerm
+    ? curPerm.isAdmin || curPerm.issueType.delete
+    : false
 
   const issueTypeColumns: TableColumnsType<CommonSettingType> = [
     {
@@ -128,23 +137,35 @@ export default function IssueTypeSetting() {
       className: 'colTable',
       fixed: 'right',
       render: (_, record) => {
-        const { canDelete } = record
+        const { canDelete: notInUse } = record
         return (
           <div className="actionCol">
-            <IconButton
-              aria-label="edit"
-              className="btnRow"
-              size="small"
-              onClick={() => onEditRow(record)}>
-              <RiEditLine />
-            </IconButton>
-            <Tooltip title={canDelete ? 'Delete' : 'Issue type is in use'}>
+            <Tooltip title={!canEdit ? PERMISSION_MSG.notHavePerm : 'Edit'}>
+              <span>
+                <IconButton
+                  aria-label="edit"
+                  className="btnRow"
+                  size="small"
+                  onClick={() => onEditRow(record)}
+                  disabled={!canEdit}>
+                  <RiEditLine />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip
+              title={
+                !canDelete
+                  ? PERMISSION_MSG.notHavePerm
+                  : notInUse
+                  ? 'Delete'
+                  : 'Issue type is in use'
+              }>
               <span>
                 <IconButton
                   aria-label="delete"
                   className="btnRow"
                   size="small"
-                  disabled={!canDelete}
+                  disabled={!canDelete || !notInUse}
                   onClick={() => onDeleteRow(record)}>
                   <RiDeleteBinLine />
                 </IconButton>
@@ -202,6 +223,7 @@ export default function IssueTypeSetting() {
         loading={isLoading || isRefetching}
         columns={issueTypeColumns}
         dataRender={dataRender || []}
+        type={DATA_SETTING.issueType}
       />
       <ModalActionIssueType
         visible={visible}

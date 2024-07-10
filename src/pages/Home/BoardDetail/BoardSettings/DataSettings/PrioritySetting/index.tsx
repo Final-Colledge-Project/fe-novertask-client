@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { TableColumnsType } from 'antd'
 import { useParams } from 'react-router-dom'
-import { FORMAT_DATE, QUERY_KEY } from '~/utils/constant'
+import { FORMAT_DATE, PERMISSION_MSG, QUERY_KEY } from '~/utils/constant'
 import './styles.scss'
 import { IconButton, Tooltip } from '@mui/material'
 import { RiEditLine } from 'react-icons/ri'
@@ -18,6 +18,8 @@ import { CommonSettingType } from '../helper'
 import ModalActionPriority from './ModalActionPriority'
 import { RiArrowUpCircleFill } from 'react-icons/ri'
 import { deletePriority } from '~/redux/prioritySlice/actions'
+import { DATA_SETTING } from '~/utils/constant/common'
+import usePermission from '~/hooks/usePermission'
 
 export default function PrioritySetting() {
   const { id: boardId } = useParams()
@@ -41,6 +43,9 @@ export default function PrioritySetting() {
   })
 
   const [visible, setVisible] = useState<boolean>(false)
+  const curPerm = usePermission()
+  const canEdit = curPerm ? curPerm.isAdmin || curPerm.priority.update : false
+  const canDelete = curPerm ? curPerm.isAdmin || curPerm.priority.delete : false
 
   const priorityColumns: TableColumnsType<CommonSettingType> = [
     {
@@ -118,23 +123,35 @@ export default function PrioritySetting() {
       className: 'colTable',
       fixed: 'right',
       render: (_, record) => {
-        const { canDelete } = record
+        const { canDelete: notInUse } = record
         return (
           <div className="actionCol">
-            <IconButton
-              aria-label="edit"
-              className="btnRow"
-              size="small"
-              onClick={() => onEditRow(record)}>
-              <RiEditLine />
-            </IconButton>
-            <Tooltip title={canDelete ? 'Delete' : 'Priority is in use'}>
+            <Tooltip title={!canEdit ? PERMISSION_MSG.notHavePerm : 'Edit'}>
+              <span>
+                <IconButton
+                  aria-label="edit"
+                  className="btnRow"
+                  size="small"
+                  onClick={() => onEditRow(record)}
+                  disabled={!canEdit}>
+                  <RiEditLine />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip
+              title={
+                !canDelete
+                  ? PERMISSION_MSG.notHavePerm
+                  : notInUse
+                  ? 'Delete'
+                  : 'Priority is in use'
+              }>
               <span>
                 <IconButton
                   aria-label="delete"
                   className="btnRow"
                   size="small"
-                  disabled={!canDelete}
+                  disabled={!notInUse || !canDelete}
                   onClick={() => onDeleteRow(record)}>
                   <RiDeleteBinLine />
                 </IconButton>
@@ -192,6 +209,7 @@ export default function PrioritySetting() {
         loading={isLoading || isRefetching}
         columns={priorityColumns}
         dataRender={dataRender || []}
+        type={DATA_SETTING.priority}
       />
       <ModalActionPriority
         visible={visible}

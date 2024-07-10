@@ -122,3 +122,7 @@ export const AVERAGE_AGE_PERIOD = {
   quarterly: 'quarterly',
   yearly: 'yearly'
 }
+
+export const PERMISSION_MSG = {
+  notHavePerm: " Don't have permission to do this action"
+}

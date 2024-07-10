@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { TableColumnsType } from 'antd'
 import { useParams } from 'react-router-dom'
-import { FORMAT_DATE, QUERY_KEY } from '~/utils/constant'
+import { FORMAT_DATE, PERMISSION_MSG, QUERY_KEY } from '~/utils/constant'
 import './styles.scss'
 import { IconButton, Tooltip } from '@mui/material'
 import { RiEditLine } from 'react-icons/ri'
@@ -13,11 +13,12 @@ import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import DataSettingTable from '../component/DataSettingTable'
 import { CommonSettingType } from '../helper'
-import { RiArrowUpCircleFill } from 'react-icons/ri'
 import { getAllIssueLinkTypes } from '~/services/issueLinkTypeService'
 import ModalActionLinkIssueType from './ModalActionIssueLinkType'
 import { deleteIssueLinkType } from '~/redux/issueLinkTypeSlice/actions'
 import { RiArrowLeftRightLine } from 'react-icons/ri'
+import { DATA_SETTING } from '~/utils/constant/common'
+import usePermission from '~/hooks/usePermission'
 export default function IssueLinkTypeSetting() {
   const { id: boardId } = useParams()
   const [filterName, setFilterName] = useState('')
@@ -38,6 +39,14 @@ export default function IssueLinkTypeSetting() {
     },
     refetchOnWindowFocus: false
   })
+
+  const curPerm = usePermission()
+  const canEdit = curPerm
+    ? curPerm.isAdmin || curPerm.issueLinkType.update
+    : false
+  const canDelete = curPerm
+    ? curPerm.isAdmin || curPerm.issueLinkType.delete
+    : false
 
   const [visible, setVisible] = useState<boolean>(false)
 
@@ -104,23 +113,37 @@ export default function IssueLinkTypeSetting() {
       className: 'colTable',
       fixed: 'right',
       render: (_, record) => {
-        const { canDelete } = record
+        const { canDelete: notInUse } = record
+
         return (
           <div className="actionCol">
-            <IconButton
-              aria-label="edit"
-              className="btnRow"
-              size="small"
-              onClick={() => onEditRow(record)}>
-              <RiEditLine />
-            </IconButton>
-            <Tooltip title={canDelete ? 'Delete' : 'Priority is in use'}>
+            <Tooltip title={!canEdit ? PERMISSION_MSG.notHavePerm : 'Edit'}>
+              <span>
+                <IconButton
+                  aria-label="edit"
+                  className="btnRow"
+                  size="small"
+                  onClick={() => onEditRow(record)}
+                  disabled={!canEdit}>
+                  <RiEditLine />
+                </IconButton>
+              </span>
+            </Tooltip>
+
+            <Tooltip
+              title={
+                !canDelete
+                  ? PERMISSION_MSG.notHavePerm
+                  : notInUse
+                  ? 'Delete'
+                  : 'Priority is in use'
+              }>
               <span>
                 <IconButton
                   aria-label="delete"
                   className="btnRow"
                   size="small"
-                  disabled={!canDelete}
+                  disabled={!canDelete || !notInUse}
                   onClick={() => onDeleteRow(record)}>
                   <RiDeleteBinLine />
                 </IconButton>
@@ -178,6 +201,7 @@ export default function IssueLinkTypeSetting() {
         loading={isLoading || isRefetching}
         columns={priorityColumns}
         dataRender={dataRender || []}
+        type={DATA_SETTING.issueLinkType}
       />
       <ModalActionLinkIssueType
         visible={visible}

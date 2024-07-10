@@ -334,6 +334,7 @@ export interface IBoardPermission {
   issueType: { create: boolean; update: boolean; delete: boolean }
   priority: { create: boolean; update: boolean; delete: boolean }
   label: { create: boolean; update: boolean; delete: boolean }
+  issueLinkType: { create: boolean; update: boolean; delete: boolean }
   isAdmin?: boolean
   isViewer?: boolean
   createdAt?: string

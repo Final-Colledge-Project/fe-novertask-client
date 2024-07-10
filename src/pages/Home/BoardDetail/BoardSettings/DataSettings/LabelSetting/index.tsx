@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { TableColumnsType } from 'antd'
 import { useParams } from 'react-router-dom'
-import { FORMAT_DATE, QUERY_KEY } from '~/utils/constant'
+import { FORMAT_DATE, PERMISSION_MSG, QUERY_KEY } from '~/utils/constant'
 import './styles.scss'
 import { IconButton, Tooltip } from '@mui/material'
 import { RiEditLine } from 'react-icons/ri'
@@ -18,6 +18,8 @@ import { RiPantoneFill } from 'react-icons/ri'
 import { getAllByBoard } from '~/services/labelService'
 import ModalActionLabel from './ModalActionLabel'
 import { deleteLabelThunk } from '~/redux/labelSlice/actions'
+import { DATA_SETTING } from '~/utils/constant/common'
+import usePermission from '~/hooks/usePermission'
 
 export default function LabelSetting() {
   const { id: boardId } = useParams()
@@ -42,6 +44,10 @@ export default function LabelSetting() {
   })
 
   const [visible, setVisible] = useState<boolean>(false)
+
+  const curPerm = usePermission()
+  const canEdit = curPerm ? curPerm.isAdmin || curPerm.label.update : false
+  const canDelete = curPerm ? curPerm.isAdmin || curPerm.label.delete : false
 
   const labelColumns: TableColumnsType<CommonSettingType> = [
     {
@@ -101,24 +107,36 @@ export default function LabelSetting() {
       className: 'colTable',
       fixed: 'right',
       render: (_, record) => {
-        const { canDelete } = record
+        const { canDelete: notInUse } = record
         return (
           <div className="actionCol">
-            <IconButton
-              aria-label="edit"
-              className="btnRow"
-              size="small"
-              onClick={() => onEditRow(record)}>
-              <RiEditLine />
-            </IconButton>
-            <Tooltip title={canDelete ? 'Delete' : 'Label is in use'}>
+            <Tooltip title={!canEdit ? PERMISSION_MSG.notHavePerm : 'Edit'}>
+              <span>
+                <IconButton
+                  aria-label="edit"
+                  className="btnRow"
+                  size="small"
+                  onClick={() => onEditRow(record)}
+                  disabled={!canEdit}>
+                  <RiEditLine />
+                </IconButton>
+              </span>
+            </Tooltip>
+            <Tooltip
+              title={
+                !canDelete
+                  ? PERMISSION_MSG.notHavePerm
+                  : notInUse
+                  ? 'Delete'
+                  : 'Label is in use'
+              }>
               <span>
                 <IconButton
                   aria-label="delete"
                   className="btnRow"
                   size="small"
-                  disabled={!canDelete}
-                  onClick={() => onDeleteRow(record)}>
+                  onClick={() => onDeleteRow(record)}
+                  disabled={!canDelete || !notInUse}>
                   <RiDeleteBinLine />
                 </IconButton>
               </span>
@@ -175,6 +193,7 @@ export default function LabelSetting() {
         loading={isLoading || isRefetching}
         columns={labelColumns}
         dataRender={dataRender || []}
+        type={DATA_SETTING.label}
       />
       <ModalActionLabel
         visible={visible}
