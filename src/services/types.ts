@@ -267,6 +267,7 @@ export interface ILabel {
   boardId: string
   createdAt?: string
   updatedAt?: string
+  canDelete?: boolean
 }
 
 export interface IUpdatableLabel {
@@ -362,6 +363,7 @@ export interface IBoardPermission {
   issueType: { create: boolean; update: boolean; delete: boolean }
   priority: { create: boolean; update: boolean; delete: boolean }
   label: { create: boolean; update: boolean; delete: boolean }
+  issueLinkType: { create: boolean; update: boolean; delete: boolean }
   isAdmin?: boolean
   isViewer?: boolean
   createdAt?: string
@@ -446,6 +448,7 @@ export interface IPriority {
   createdAt: Date
   updatedAt: Date
   isActive: boolean
+  canDelete?: boolean
 }
 
 export interface IWSPermission {
@@ -472,6 +475,16 @@ export interface IUpdatableWSPermission {
   board?: { create?: boolean }
 }
 
+export interface IIssueLinkType {
+  _id: string
+  boardId: string
+  name: string
+  inwardName: string
+  outwardName: string
+  createdAt: Date
+  updatedAt: Date
+  canDelete?: boolean
+}
 export default interface IEpic {
   _id: string
   boardId: string

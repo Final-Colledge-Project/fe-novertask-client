@@ -2,6 +2,7 @@ import { AxiosError } from 'axios'
 import axiosInstance from '../axiosInstance'
 import {
   ICreateLabelBody,
+  IDeleteLabelBody,
   IGetAllByBoardBody,
   IUpdateLabelBody
 } from './reqTypes'
@@ -22,12 +23,10 @@ export const getAllByBoard = async (body: IGetAllByBoardBody) => {
     }
   } catch (error) {
     const status = (error as AxiosError).response?.status
-
-    if (status && status === 409) {
-      throw new Error('Board not found!')
+    const message = (error as AxiosError).message
+    if (status && status.toString().startsWith('4')) {
+      throw new Error(message)
     }
-
-    // general error
     throw new Error('Something went wrong! Please try later.')
   }
 }
@@ -40,16 +39,15 @@ export const createLabel = async (body: ICreateLabelBody) => {
     )
 
     if (res && res.status === 201 && res.data) {
+      body.cb && body.cb()
       return res.data
     }
   } catch (error) {
     const status = (error as AxiosError).response?.status
-
-    if (status && status === 404) {
-      throw new Error('Board not found!')
+    const message = (error as AxiosError).message
+    if (status && status.toString().startsWith('4')) {
+      throw new Error(message)
     }
-
-    // general error
     throw new Error('Something went wrong! Please try later.')
   }
 }
@@ -62,18 +60,30 @@ export const updateLabel = async (body: IUpdateLabelBody) => {
         ...body.changes
       }
     )
-
     if (res && res.status === 200) {
+      body.cb && body.cb()
       return res.data
     }
   } catch (error) {
     const status = (error as AxiosError).response?.status
-
-    if (status && status === 404) {
-      throw new Error('Label not found!')
+    const message = (error as AxiosError).message
+    if (status && status.toString().startsWith('4')) {
+      throw new Error(message)
     }
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
 
-    // general error
+export const deleteLabel = async (body: IDeleteLabelBody) => {
+  try {
+    await axiosInstance.delete(requests.deleteLabel(body.labelId, body.boardId))
+    body.cb && body.cb()
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    const message = (error as AxiosError).message
+    if (status && status.toString().startsWith('4')) {
+      throw new Error(message)
+    }
     throw new Error('Something went wrong! Please try later.')
   }
 }

@@ -1,18 +1,16 @@
 import { AxiosError } from 'axios'
 import axiosInstance from '../axiosInstance'
+import { IIssueLinkTypeResponse } from './resType'
 import requests from './request'
-import { IPriorityResponse } from './resType'
-import { IModifyPriorityBody } from './reqTypes'
-export const getAllPrioritiesByBoard = async (
-  boardId: string,
-  query: string
-) => {
+import { IModifyIssueLinkTypeBody } from './reqTypes'
+
+export const getAllIssueLinkTypes = async (boardId: string, query: string) => {
   try {
-    const res = await axiosInstance.get<IPriorityResponse>(
+    const res = await axiosInstance.get<IIssueLinkTypeResponse>(
       requests.getAllByBoard(boardId, query)
     )
     if (res && res.status === 200 && res.data) {
-      return res.data?.data
+      return res.data.data
     }
   } catch (error) {
     const status = (error as AxiosError).response?.status
@@ -24,15 +22,18 @@ export const getAllPrioritiesByBoard = async (
   }
 }
 
-export const createPriorityService = async (
+export const createIssueLinkTypeService = async (
   boardId: string,
-  data: IModifyPriorityBody,
+  data: IModifyIssueLinkTypeBody,
   cb: () => void
 ) => {
   try {
-    const res = await axiosInstance.post(requests.createPriority(boardId), data)
+    const res = await axiosInstance.post(
+      requests.createIssueLinkType(boardId),
+      data
+    )
     if (res && res.status === 201) {
-      cb()
+      cb && cb()
     }
   } catch (err) {
     const status = (err as AxiosError).response?.status
@@ -44,19 +45,19 @@ export const createPriorityService = async (
   }
 }
 
-export const updatePriorityService = async (
-  priorityId: string,
+export const updateIssueLinkTypeService = async (
+  issueLinkTypeId: string,
   boardId: string,
-  data: IModifyPriorityBody,
+  data: IModifyIssueLinkTypeBody,
   cb: () => void
 ) => {
   try {
     const res = await axiosInstance.put(
-      requests.updatePriority(priorityId, boardId),
+      requests.updateIssueLinkType(issueLinkTypeId, boardId),
       data
     )
     if (res && res.status === 200) {
-      cb()
+      cb && cb()
     }
   } catch (err) {
     const status = (err as AxiosError).response?.status
@@ -68,17 +69,17 @@ export const updatePriorityService = async (
   }
 }
 
-export const deletePriorityService = async (
-  priorityId: string,
+export const deleteIssueLinkTypeService = async (
+  issueLinkTypeId: string,
   boardId: string,
   cb: () => void
 ) => {
   try {
     const res = await axiosInstance.delete(
-      requests.deletePriority(priorityId, boardId)
+      requests.deleteIssueLinkType(issueLinkTypeId, boardId)
     )
     if (res && res.status === 200) {
-      cb()
+      cb && cb()
     }
   } catch (err) {
     const status = (err as AxiosError).response?.status

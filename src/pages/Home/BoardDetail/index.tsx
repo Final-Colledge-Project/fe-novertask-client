@@ -35,7 +35,6 @@ import SearchBox from '~/components/SearchBox'
 import Column from './Column'
 import AddColumnButton from './AddColumnButton'
 import BoardDetailLoading from '../components/BoardDetailLoading'
-import AddMenu from './AddMenu'
 import AddMemberPopup from './AddMemberPopup'
 import Card from './Column/Card'
 import CurrentFilters from './CurrentFilters'
@@ -71,8 +70,7 @@ import {
   resetCurrentBoardPermission,
   resetCurrentBoardPermissionState,
   resetUserPermissionOnBoard,
-  resetUserPermissionOnBoardState,
-  setCurrentBoardPermission
+  resetUserPermissionOnBoardState
 } from '~/redux/permissionSlice'
 import {
   getBoardPermission,

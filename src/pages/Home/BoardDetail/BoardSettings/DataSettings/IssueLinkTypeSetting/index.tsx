@@ -1,55 +1,56 @@
 import { useQuery } from '@tanstack/react-query'
 import { TableColumnsType } from 'antd'
 import { useParams } from 'react-router-dom'
-import { getAllIssueTypesByBoard } from '~/services/issueTypeService'
 import { FORMAT_DATE, PERMISSION_MSG, QUERY_KEY } from '~/utils/constant'
-import { RiBugFill } from 'react-icons/ri'
 import './styles.scss'
 import { IconButton, Tooltip } from '@mui/material'
 import { RiEditLine } from 'react-icons/ri'
 import { RiDeleteBinLine } from 'react-icons/ri'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import ModalActionIssueType from './ModalActionIssueType'
 import ConfirmDialog from '~/components/dialog/ConfirmDialog'
-import { deleteIssueType } from '~/redux/issueTypeSlice/actions'
 import { StoreDispatchType, StoreType } from '~/redux'
 import { useDispatch, useSelector } from 'react-redux'
 import DataSettingTable from '../component/DataSettingTable'
 import { CommonSettingType } from '../helper'
+import { getAllIssueLinkTypes } from '~/services/issueLinkTypeService'
+import ModalActionLinkIssueType from './ModalActionIssueLinkType'
+import { deleteIssueLinkType } from '~/redux/issueLinkTypeSlice/actions'
+import { RiArrowLeftRightLine } from 'react-icons/ri'
 import { DATA_SETTING } from '~/utils/constant/common'
 import usePermission from '~/hooks/usePermission'
-export default function IssueTypeSetting() {
+export default function IssueLinkTypeSetting() {
   const { id: boardId } = useParams()
   const [filterName, setFilterName] = useState('')
-  const [selectedIssueType, setSelectedIssueType] =
+  const [selectedIssueLinkType, setSelectedIssueLinkType] =
     useState<CommonSettingType | null>(null)
   const dispatch = useDispatch<StoreDispatchType>()
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
-  const loading = useSelector((state: StoreType) => state.issueType.loading)
-
+  const loading = useSelector((state: StoreType) => state.issueLinkType.loading)
   const {
-    data: issueTypeData,
+    data: priorityData,
     isLoading,
     refetch,
     isRefetching
   } = useQuery({
-    queryKey: [QUERY_KEY.get_all_issue_types, boardId],
+    queryKey: [QUERY_KEY.get_all_issue_link_types, boardId],
     queryFn: () => {
-      return getAllIssueTypesByBoard(boardId || '', '')
+      return getAllIssueLinkTypes(boardId || '', '')
     },
     refetchOnWindowFocus: false
   })
 
-  const [visible, setVisible] = useState<boolean>(false)
-
   const curPerm = usePermission()
-  const canEdit = curPerm ? curPerm.isAdmin || curPerm.issueType.update : false
+  const canEdit = curPerm
+    ? curPerm.isAdmin || curPerm.issueLinkType.update
+    : false
   const canDelete = curPerm
-    ? curPerm.isAdmin || curPerm.issueType.delete
+    ? curPerm.isAdmin || curPerm.issueLinkType.delete
     : false
 
-  const issueTypeColumns: TableColumnsType<CommonSettingType> = [
+  const [visible, setVisible] = useState<boolean>(false)
+
+  const priorityColumns: TableColumnsType<CommonSettingType> = [
     {
       title: 'Name',
       dataIndex: 'name',
@@ -60,53 +61,28 @@ export default function IssueTypeSetting() {
       render: (text: string) => <span className="boldCell">{text}</span>
     },
     {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      className: 'colTable',
-      render: (text: string) => (
-        <Tooltip title={text}>
-          <div
-            className="normalCell"
-            style={{
-              maxWidth: '450px',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}>
-            {text}
-          </div>
-        </Tooltip>
-      )
-    },
-    {
-      title: 'Icon',
-      dataIndex: 'icon',
-      key: 'icon',
-      className: 'colTable',
-      render: (text: string) => (
-        <div>
-          {text ? <img width={20} height={20} src={text} alt={'Icon'} /> : '-'}
-        </div>
-      )
-    },
-    {
-      title: 'Hierarchy',
-      dataIndex: 'hierarchy',
-      key: 'hierarchy',
+      title: 'Inward',
+      dataIndex: 'inwardName',
+      key: 'name',
       className: 'colTable',
       sorter: (a: CommonSettingType, b: CommonSettingType) => {
-        const hierarchyA =
-          'hierarchy' in a && typeof a.hierarchy === 'number' ? a.hierarchy : 0
-        const hierarchyB =
-          'hierarchy' in b && typeof b.hierarchy === 'number' ? b.hierarchy : 0
-        return hierarchyA - hierarchyB
+        const inwardA = 'inwardName' in a ? a.inwardName : ''
+        const inwardB = 'inwardName' in b ? b.inwardName : ''
+        return inwardA.localeCompare(inwardB)
       },
-      render: (text: number) => (
-        <span className="normalCell" style={{ textAlign: 'center' }}>
-          {text}
-        </span>
-      )
+      render: (text: string) => <span className="boldCell">{text}</span>
+    },
+    {
+      title: 'Outward',
+      dataIndex: 'outwardName',
+      key: 'name',
+      className: 'colTable',
+      sorter: (a: CommonSettingType, b: CommonSettingType) => {
+        const outwardA = 'outwardName' in a ? a.outwardName : ''
+        const outwardB = 'outwardName' in b ? b.outwardName : ''
+        return outwardA.localeCompare(outwardB)
+      },
+      render: (text: string) => <span className="boldCell">{text}</span>
     },
     {
       title: 'Created At',
@@ -138,6 +114,7 @@ export default function IssueTypeSetting() {
       fixed: 'right',
       render: (_, record) => {
         const { canDelete: notInUse } = record
+
         return (
           <div className="actionCol">
             <Tooltip title={!canEdit ? PERMISSION_MSG.notHavePerm : 'Edit'}>
@@ -152,13 +129,14 @@ export default function IssueTypeSetting() {
                 </IconButton>
               </span>
             </Tooltip>
+
             <Tooltip
               title={
                 !canDelete
                   ? PERMISSION_MSG.notHavePerm
                   : notInUse
                   ? 'Delete'
-                  : 'Issue type is in use'
+                  : 'Priority is in use'
               }>
               <span>
                 <IconButton
@@ -177,38 +155,38 @@ export default function IssueTypeSetting() {
     }
   ]
 
-  const dataRender = issueTypeData?.filter((item) =>
+  const dataRender = priorityData?.filter((item) =>
     item.name.toLowerCase().includes(filterName.toLowerCase())
   )
 
   const onEditRow = (record: CommonSettingType) => {
-    setSelectedIssueType(record)
+    setSelectedIssueLinkType(record)
     setVisible(true)
   }
 
   const onDeleteRow = (record: CommonSettingType) => {
-    setSelectedIssueType(record)
+    setSelectedIssueLinkType(record)
     setOpenDeleteModal(true)
   }
 
-  const onDeleteIssueType = () => {
+  const onDeleteIssueLinkType = () => {
     const cb = () => {
-      setSelectedIssueType(null)
+      setSelectedIssueLinkType(null)
       setOpenDeleteModal(false)
       refetch()
     }
     const data = {
-      issueTypeId: selectedIssueType?._id || '',
+      issueLinkTypeId: selectedIssueLinkType?._id || '',
       boardId: boardId || '',
       cb
     }
-    dispatch(deleteIssueType(data))
+    dispatch(deleteIssueLinkType(data))
   }
 
   const title = (
     <div className="settingTitle">
-      <RiBugFill />
-      <h3>Issue Type</h3>
+      <RiArrowLeftRightLine />
+      <h3>Issue Link Type</h3>
     </div>
   )
 
@@ -221,32 +199,32 @@ export default function IssueTypeSetting() {
         setVisibleCreateModal={setVisible}
         refetch={refetch}
         loading={isLoading || isRefetching}
-        columns={issueTypeColumns}
+        columns={priorityColumns}
         dataRender={dataRender || []}
-        type={DATA_SETTING.issueType}
+        type={DATA_SETTING.issueLinkType}
       />
-      <ModalActionIssueType
+      <ModalActionLinkIssueType
         visible={visible}
         setVisible={setVisible}
         refetch={refetch}
-        selectedIssueType={selectedIssueType || null}
-        setSelectedIssueType={setSelectedIssueType}
+        selectedIssueLinkType={selectedIssueLinkType || null}
+        setSelectedIssueLinkType={setSelectedIssueLinkType}
       />
       <ConfirmDialog
-        title="Delete Issue Type"
+        title="Delete Issue Link Type"
         content={
           <div>
             <p>
               Are you sure you want to delete permanently the{' '}
-              <strong>{selectedIssueType?.name}</strong> issue type?
+              <strong>{selectedIssueLinkType?.name}</strong> issue link type?
             </p>
           </div>
         }
-        onConfirm={onDeleteIssueType}
+        onConfirm={onDeleteIssueLinkType}
         open={openDeleteModal}
         onClose={() => {
           setOpenDeleteModal(false)
-          setSelectedIssueType(null)
+          setSelectedIssueLinkType(null)
         }}
         cancelBtnText="Cancel"
         confirmBtnText="Delete"
