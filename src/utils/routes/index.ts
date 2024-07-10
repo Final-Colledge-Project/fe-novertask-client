@@ -39,7 +39,7 @@ const allRoutes = {
         path: '/u/boards/:boardId/settings',
         name: 'boardSettings',
         segment: 'settings',
-        adminOnly: true
+        adminOnly: false
       },
       boardReports: {
         path: '/u/boards/:boardId/reports',

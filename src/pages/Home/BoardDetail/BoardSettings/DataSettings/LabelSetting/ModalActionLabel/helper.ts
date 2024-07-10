@@ -1,18 +1,17 @@
-import { IIssueType } from '~/services/types'
+import { ILabel } from '~/services/types'
 import { FieldValues } from 'react-hook-form'
 import * as yup from 'yup'
 import { CommonSettingType } from '../../helper'
-export interface IActionIssueTypeModalProps {
+export interface IActionLabelModalProps {
   visible: boolean
   setVisible: (visible: boolean) => void
-  selectedIssueType?: CommonSettingType | null
+  selectedLabel: CommonSettingType | null
   refetch: () => void
-  setSelectedIssueType: (issueType: IIssueType | null) => void
+  setSelectedLabel: (issueType: ILabel | null) => void
 }
 
 export interface IFormFields extends FieldValues {
   name: string
-  description?: string
 }
 
 export const schema = yup.object().shape({
@@ -20,6 +19,5 @@ export const schema = yup.object().shape({
     .string()
     .required('Issue type name is required')
     .min(3, 'At least 3 characters')
-    .max(50, 'Maximum 50 characters'),
-  description: yup.string().max(300, 'Maximum 30 characters')
+    .max(50, 'Maximum 50 characters')
 })

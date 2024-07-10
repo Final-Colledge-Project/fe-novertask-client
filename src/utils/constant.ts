@@ -83,7 +83,10 @@ export const QUERY_KEY = {
   velocity_report: 'velocity_report',
   print_report: 'print_report',
   average_age: 'average_age',
-  get_all_issue_types: 'get_all_issue_types'
+  get_all_issue_types: 'get_all_issue_types',
+  get_all_priorities: 'get_all_priorities',
+  get_all_labels: 'get_all_labels',
+  get_all_issue_link_types: 'get_all_issue_link_types'
 }
 
 export const OPTION_VIEWS = {
@@ -118,4 +121,8 @@ export const AVERAGE_AGE_PERIOD = {
   monthly: 'monthly',
   quarterly: 'quarterly',
   yearly: 'yearly'
+}
+
+export const PERMISSION_MSG = {
+  notHavePerm: " Don't have permission to do this action"
 }

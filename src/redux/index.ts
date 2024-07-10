@@ -17,6 +17,7 @@ import sprintReducer from './sprintSlice'
 import priorityReducer from './prioritySlice'
 import issueTypeReducer from './issueTypeSlice'
 import labelReducer from './labelSlice'
+import issueLinkTypeReducer from './issueLinkTypeSlice'
 const store = configureStore({
   reducer: {
     user: userReducer,
@@ -36,7 +37,8 @@ const store = configureStore({
     sprint: sprintReducer,
     priority: priorityReducer,
     issueType: issueTypeReducer,
-    label: labelReducer
+    label: labelReducer,
+    issueLinkType: issueLinkTypeReducer
   }
 })
 

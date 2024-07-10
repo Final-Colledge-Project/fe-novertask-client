@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { ILabel } from '~/services/types'
 import { getAllLabelByBoardId } from './actions'
-
+import { createLabelThunk, deleteLabelThunk, updateLabelThunk } from './actions'
 const initialState: {
+  loading: boolean
   getAllLabelByBoardId: {
     loading: boolean
     error: string | undefined
@@ -10,6 +11,7 @@ const initialState: {
   }
   labels: ILabel[]
 } = {
+  loading: false,
   getAllLabelByBoardId: {
     loading: false,
     error: undefined,
@@ -24,9 +26,39 @@ const labelSlice = createSlice({
   reducers: {
     resetLabelsData: (state) => {
       state.labels = []
+    },
+    setLabels: (state, { payload }) => {
+      state.labels = payload
     }
   },
   extraReducers: (builder) => {
+    builder.addCase(createLabelThunk.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(createLabelThunk.fulfilled, (state) => {
+      state.loading = false
+    })
+    builder.addCase(createLabelThunk.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(updateLabelThunk.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(updateLabelThunk.fulfilled, (state) => {
+      state.loading = false
+    })
+    builder.addCase(updateLabelThunk.rejected, (state) => {
+      state.loading = false
+    })
+    builder.addCase(deleteLabelThunk.pending, (state) => {
+      state.loading = true
+    })
+    builder.addCase(deleteLabelThunk.fulfilled, (state) => {
+      state.loading = false
+    })
+    builder.addCase(deleteLabelThunk.rejected, (state) => {
+      state.loading = false
+    })
     builder.addCase(getAllLabelByBoardId.fulfilled, (state, { payload }) => {
       state.getAllLabelByBoardId.loading = false
       state.getAllLabelByBoardId.success = true
@@ -47,4 +79,4 @@ const labelSlice = createSlice({
 })
 
 export default labelSlice.reducer
-export const { resetLabelsData } = labelSlice.actions
+export const { setLabels, resetLabelsData } = labelSlice.actions

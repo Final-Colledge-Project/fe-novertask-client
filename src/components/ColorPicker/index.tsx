@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   ClickAwayListener,
   Grow,
@@ -33,13 +34,13 @@ export default function ColorPicker({
   chosenColor,
   onChange,
   open: openProp,
-  disabled
+  disabled,
+  placement = 'bottom-start'
 }: Readonly<IProps>) {
   const [isCustomizeColor, setIsCustomizeColor] = useState(false)
   const [color, setColor] = useColor(chosenColor || COLOR.BLUE.main)
   const anchorRef = useRef<HTMLButtonElement>(null)
   const [open, setOpen] = useState(openProp || false)
-
   const originalColor = useRef(chosenColor)
 
   const changeInputColorMode: () => void = () => {
@@ -64,10 +65,21 @@ export default function ColorPicker({
     // }
 
     setOpen(false)
+    setColor(
+      ColorService.convert(
+        'hex',
+        chosenColor ? chosenColor : originalColor.current
+      ) as IColor
+    )
   }
 
   const resetColor = () => {
-    setColor(ColorService.convert('hex', originalColor.current) as IColor)
+    setColor(
+      ColorService.convert(
+        'hex',
+        chosenColor ? chosenColor : originalColor.current
+      ) as IColor
+    )
     toggleOpen()
   }
 
@@ -96,7 +108,7 @@ export default function ColorPicker({
       <Stack spacing={2} direction="row" alignItems="center">
         <Tooltip title={color.hex} arrow>
           <ColorBox
-            $color={originalColor.current}
+            $color={color.hex}
             className="keep-hover"
             onClick={handleOpen}></ColorBox>
         </Tooltip>
@@ -123,7 +135,7 @@ export default function ColorPicker({
         open={open}
         anchorEl={anchorRef.current}
         role={undefined}
-        placement="bottom-start"
+        placement={placement}
         transition
         disablePortal
         sx={{
@@ -145,7 +157,25 @@ export default function ColorPicker({
               <ClickAwayListener onClickAway={handleClose}>
                 <div>
                   <Section>
-                    <Typography className="section__title">Preview</Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItem: 'center',
+                        width: '100%'
+                      }}>
+                      <Typography className="section__title">
+                        Preview
+                      </Typography>
+                      <span
+                        style={{
+                          color: `${color.hex}`,
+                          fontSize: '14px',
+                          fontWeight: '600'
+                        }}>
+                        {color.hex}
+                      </span>
+                    </Box>
                     <CurrentColorBox $color={color.hex} />
                     <Typography className="section__title">
                       Custom

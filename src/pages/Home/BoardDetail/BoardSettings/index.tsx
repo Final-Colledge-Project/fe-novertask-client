@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { DATA_SETTING_ITEMS, a11yProps } from './helper'
 import { DATA_SETTING } from '~/utils/constant/common'
 import DataSettings from './DataSettings'
+import usePermission from '~/hooks/usePermission'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -29,8 +30,11 @@ const CustomTabPanel = (props: TabPanelProps) => {
     </Box>
   )
 }
+
 export default function BoardSettings() {
-  const [value, setValue] = useState(0)
+  const userPerm = usePermission()
+  const isAdmin = userPerm ? userPerm.isAdmin : false
+  const [value, setValue] = useState(isAdmin ? 0 : 1)
   const onChangeTab = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
@@ -50,6 +54,7 @@ export default function BoardSettings() {
   const handleTabMouseLeave = () => {
     setAnchorEl(null)
   }
+
   return (
     <div className="sectionWrapper">
       <div className="sectionHeader">
@@ -73,7 +78,7 @@ export default function BoardSettings() {
             },
             padding: '0 10px'
           }}>
-          <Tab label="General Setting" {...a11yProps(0)} />
+          {isAdmin && <Tab label="General Setting" {...a11yProps(0)} />}
           <Tab
             label="Data Setting"
             {...a11yProps(1)}
@@ -86,9 +91,11 @@ export default function BoardSettings() {
       </div>
 
       <div className="sectionBody">
-        <CustomTabPanel value={value} index={0}>
-          <div>General Setting</div>
-        </CustomTabPanel>
+        {isAdmin && (
+          <CustomTabPanel value={value} index={0}>
+            <div>General Setting</div>
+          </CustomTabPanel>
+        )}
         <CustomTabPanel value={value} index={1}>
           <DataSettings settingItem={selectedDataSetting} />
         </CustomTabPanel>
