@@ -10,7 +10,7 @@ const schema = yup.object().shape({
     .string()
     .required('Description is required')
     .min(2, 'Should be 2~2000 characters long')
-    .max(2000, 'Should be 2~2000 characters long')
+    .max(2008, 'Should be 2~2000 characters long')
 })
 
 export default schema

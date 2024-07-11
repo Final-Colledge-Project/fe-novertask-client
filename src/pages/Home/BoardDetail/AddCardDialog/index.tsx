@@ -97,9 +97,15 @@ const AddCardDialog = (props: IProps) => {
       // Call api to create card
       dispatch(showLoading())
       try {
+        const formattedDescription = JSON.stringify({
+          content: data.description,
+          formatter: `<p>${data.description}</p>`
+        })
+
         const card = {
           ...data,
           ...issue,
+          description: formattedDescription,
           columnId: board.initColumnId,
           boardId: board._id
         }

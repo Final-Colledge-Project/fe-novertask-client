@@ -6,6 +6,7 @@ import {
   IDeleteCard,
   IGetCardBody,
   IGetCardMembersBody,
+  IUnassignMemberToCardBody,
   IUpdateCardBody,
   IUpdateCoverBody
 } from './reqTypes'
@@ -14,13 +15,17 @@ import {
   IAssignMemberToCardReponse,
   IAssignedToMeResponse,
   IGetMemberInCardResponse,
+  IUnassignMemberToCardReponse,
   IUpdateCoverResponse
 } from './resTypes'
 import { IErrorResponse } from '../types'
 
 export const createCard = async (body: ICreateCardBody) => {
   try {
-    const res = await axiosInstance.post(requests.createCard(body.boardId), body)
+    const res = await axiosInstance.post(
+      requests.createCard(body.boardId),
+      body
+    )
     if (res && res.status === 201 && res.data) {
       return res.data
     }
@@ -121,7 +126,31 @@ export const getMemberInCard = async (body: IGetCardMembersBody) => {
 export const assignMemberToCard = async (body: IAssignMemberToCardBody) => {
   try {
     const res = await axiosInstance.patch<IAssignMemberToCardReponse>(
-      requests.assignMember(body.memberId, body.boardId)
+      requests.assignMember(body.cardId, body.boardId),
+      { memId: body.memberId }
+    )
+    if (res && res.status === 200 && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    if (status && status === 409) {
+      const errorData: IErrorResponse = (error as AxiosError).response
+        ?.data as IErrorResponse
+      throw new Error(errorData.message)
+    }
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const unassignMemberToCard = async (body: IUnassignMemberToCardBody) => {
+  try {
+    const res = await axiosInstance.patch<IUnassignMemberToCardReponse>(
+      requests.unAssignMember(body.cardId, body.boardId),
+      { memId: body.memberId }
     )
     if (res && res.status === 200 && res.data) {
       return res.data
@@ -155,7 +184,9 @@ export const cardAssignToMe = async () => {
 
 export const deleteCard = async (body: IDeleteCard) => {
   try {
-    const res = await axiosInstance.delete(requests.deleteCard(body.cardId, body.boardId))
+    const res = await axiosInstance.delete(
+      requests.deleteCard(body.cardId, body.boardId)
+    )
     if (res && res.status === 200 && res.data) {
       return res.data
     }

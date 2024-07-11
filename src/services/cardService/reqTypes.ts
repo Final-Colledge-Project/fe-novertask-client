@@ -47,3 +47,9 @@ export interface IDeleteCard {
   cardId: string,
   boardId: string // 2024-05-26 update permission
 }
+
+export interface IUnassignMemberToCardBody {
+  cardId: string
+  memberId: string
+  boardId: string // 2024-05-26 update permission
+}

@@ -6,7 +6,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useDispatch, useSelector } from 'react-redux'
 import isTomorrow from 'dayjs/plugin/isTomorrow'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { forOwn } from 'lodash'
+import { uniq } from 'lodash'
 
 // component libraries
 import {
@@ -16,9 +16,10 @@ import {
   Tooltip,
   Select as MuiSelect,
   IconButton,
-  Select
+  Select,
+  Stack
 } from '@mui/material'
-import { RiCheckLine, RiCloseLine, RiLinkM } from 'react-icons/ri'
+import { RiCheckLine, RiCloseLine, RiEyeLine, RiLinkM } from 'react-icons/ri'
 
 // components
 import {
@@ -42,7 +43,9 @@ import {
   CardHeader,
   Loading,
   ReadOnlyInput,
-  IssueTypeItem
+  IssueTypeItem,
+  PlaceHolder,
+  Watcher
 } from './style'
 import DateTimeInput from '~/components/DateTimeInput'
 import GeneralLoading from '../components/GeneralLoading'
@@ -55,11 +58,12 @@ import Subtask from './components/Subtask'
 import AddSubtask from './components/AddSubtask'
 
 // services
-import { IBoard, ICard, ISubtask } from '~/services/types'
+import { IBoard, ICard, ISubtask, IUpdatableCard } from '~/services/types'
 import {
   assignMemberToCard,
   getCard as getCardDetail,
   getMemberInCard as getMember,
+  unassignMemberToCard,
   updateCard,
   updateOnlyCoverCard
 } from '~/services/cardService'
@@ -76,23 +80,27 @@ import isFileValid from '~/utils/isFileValid'
 import { DATE_FORMAT } from '~/utils/constant'
 import usePermission from '~/hooks/usePermission'
 import useInfo from '~/hooks/useInfo'
+import WatcherList from './components/WatcherList'
+import StoryPointInput from './components/StoryPointInput'
 
 const UPDATING_FIELDS = {
   description: 'description',
   priority: 'priority',
-  dueDate: 'dueDate'
+  dueDate: 'dueDate',
+  label: 'label',
+  storyPoint: 'storyPoint'
 }
 
 type TPriority = keyof typeof PRIORITIES
 
 export default function CardDetail() {
-  const priorityList = useMemo(() => {
-    const list: { priority: TPriority }[] = []
-    forOwn(PRIORITIES, (value: string, _key: string) => {
-      list.push({ priority: value as TPriority })
-    })
-    return list
-  }, [])
+  // const priorityList = useMemo(() => {
+  //   const list: { priority: TPriority }[] = []
+  //   forOwn(PRIORITIES, (value: string, _key: string) => {
+  //     list.push({ priority: value as TPriority })
+  //   })
+  //   return list
+  // }, [])
 
   dayjs.extend(isTomorrow)
   const { selectedCardId, id: boardId } = useParams()
@@ -121,6 +129,19 @@ export default function CardDetail() {
   const cardId = useMemo(() => board?.key + '-' + card?.cardId, [board, card])
   const issueTypeData = useSelector(
     (state: StoreType) => state.issueType.allIssueTypes
+  )
+  const ISSUE_HIERARCHY = useMemo<number>(() => {
+    if (!card || !issueTypeData) return -1
+
+    const issueType = issueTypeData.find(
+      (item) => item._id === card.issueType._id
+    )
+
+    if (!issueType) return -1
+    return issueType.hierarchy
+  }, [issueTypeData, card])
+  const priorityList = useSelector(
+    (state: StoreType) => state.priority.allPriorities
   )
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,13 +229,7 @@ export default function CardDetail() {
     }
   }
 
-  const handleUpdateCard = async (changes: {
-    title?: string
-    description?: string
-    priority?: string
-    dueDate?: string
-    labelId?: string | null
-  }) => {
+  const handleUpdateCard = async (changes: IUpdatableCard) => {
     // check permission before updating
     if (!canUpdateCard()) {
       enqueueSnackbar('You do not have permission to do this action!', {
@@ -233,6 +248,7 @@ export default function CardDetail() {
       })
 
       if (res && res.data) {
+        enqueueSnackbar('Updated successfully!', { variant: 'success' })
         dispatch(setShouldRefreshBoardDetail(true))
         await getCard()
       }
@@ -254,9 +270,9 @@ export default function CardDetail() {
     setUpdatingField('')
   }
 
-  const handleUpdatePriority = async (priority: string) => {
+  const handleUpdatePriority = async (priorityId: string) => {
     setUpdatingField(UPDATING_FIELDS.priority)
-    await handleUpdateCard({ priority })
+    await handleUpdateCard({ priorityId })
     setUpdatingField('')
   }
 
@@ -266,6 +282,16 @@ export default function CardDetail() {
     await handleUpdateCard({ dueDate })
     setUpdatingField('')
     setCurrentDueDate(dueDate ? dayjs(dueDate) : null)
+  }
+
+  const handleUpdateIssueType = async (issueTypeId: string) => {
+    await handleUpdateCard({ issueTypeId })
+  }
+
+  const handleUpdateStoryPoint = async (storyPoint: number) => {
+    setUpdatingField(UPDATING_FIELDS.storyPoint)
+    await handleUpdateCard({ storyPoint })
+    setUpdatingField('')
   }
 
   const handleSubmitDueDate = async (e: Dayjs | Date | null) => {
@@ -378,6 +404,25 @@ export default function CardDetail() {
     }
   }
 
+  const unassignMember = async (memberId: string) => {
+    try {
+      const res = await unassignMemberToCard({
+        cardId: selectedCardId as string,
+        memberId,
+        boardId: boardId as string
+      })
+
+      if (res) {
+        dispatch(setShouldRefreshBoardDetail(true))
+        getMemberInCard()
+        await getCard()
+        handleSocketAssign(memberId)
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    }
+  }
+
   useEffect(() => {
     if (selectedCardId) {
       getCard()
@@ -444,7 +489,7 @@ export default function CardDetail() {
   }
 
   return (
-    <Container onClick={() => navigate(`/u/boards/${boardId}`)}>
+    <Container onClick={() => {}}>
       <Modal onClick={(e) => e.stopPropagation()}>
         {!(board && card) ? (
           <GeneralLoading />
@@ -477,6 +522,7 @@ export default function CardDetail() {
                   <RiLinkM />
                 </div>
               </Breadcrumbs>
+              <WatcherList watcherIds={uniq(card.watcherIds)} />
               {canUpdateCard() && <Menu items={computedMenuItems()} />}
               <IconButton
                 size="small"
@@ -527,25 +573,47 @@ export default function CardDetail() {
                   </div>
                 </Cover>
 
-                {/* ISSUE TYPE */}
-                <Select value={''}>
-                  {issueTypeData.map((item) => (
-                    <MenuItem>
-                      <Tooltip title={item.name}>
-                        <IssueTypeItem src={item.icon} />
-                      </Tooltip>
-                    </MenuItem>
-                  ))}
-                </Select>
+                <Stack direction="row" spacing={1} alignItems={'center'}>
+                  {/* ISSUE TYPE */}
+                  <Select
+                    value={card?.issueType._id}
+                    onChange={(e) => handleUpdateIssueType(e.target.value)}
+                    size="small"
+                    IconComponent={null}
+                    variant="standard"
+                    sx={{
+                      '.MuiOutlinedInput-notchedOutline': { border: 0 },
+                      '.MuiInput-input': {
+                        padding: '0 0 12px !important',
+                        '&:focus': {
+                          bgcolor: 'white !important'
+                        }
+                      }
+                    }}
+                    disableUnderline={true}>
+                    {issueTypeData
+                      .filter((item) => item.hierarchy === ISSUE_HIERARCHY)
+                      .map((item) => (
+                        <MenuItem key={item._id} value={item._id} dense>
+                          <Tooltip title={item.name} placement="right">
+                            <IssueTypeItem src={item.icon} />
+                          </Tooltip>
+                        </MenuItem>
+                      ))}
+                  </Select>
 
-                {/* CARD TITLE */}
-                <div className="title">
-                  {canUpdateCard() ? (
-                    <TitleInput card={card} onUpdateTitle={handleUpdateTitle} />
-                  ) : (
-                    <ReadOnlyInput>{card.title}</ReadOnlyInput>
-                  )}
-                </div>
+                  {/* CARD TITLE */}
+                  <div className="title">
+                    {canUpdateCard() ? (
+                      <TitleInput
+                        card={card}
+                        onUpdateTitle={handleUpdateTitle}
+                      />
+                    ) : (
+                      <ReadOnlyInput>{card.title}</ReadOnlyInput>
+                    )}
+                  </div>
+                </Stack>
 
                 {/* CARD DESCRIPTION */}
                 <Section>
@@ -617,18 +685,26 @@ export default function CardDetail() {
                         currentMembers={cardMembers!}
                         boardId={card.boardId}
                         onChoose={assignMember}
+                        onRemove={unassignMember}
                       />
                     )}
                   </div>
 
                   <AvatarGroup>
                     {cardMembers?.map((member) => (
-                      <Tooltip title={member.fullName}>
+                      <Owner>
                         <Avatar>
                           <img src={member.avatar} alt="" />
                         </Avatar>
-                      </Tooltip>
+                        <Info>
+                          <p className="name">{member.fullName}</p>
+                        </Info>
+                      </Owner>
                     ))}
+
+                    {cardMembers?.length === 0 && (
+                      <PlaceHolder>Choose a user</PlaceHolder>
+                    )}
                   </AvatarGroup>
                 </Section>
 
@@ -673,7 +749,7 @@ export default function CardDetail() {
                     </span>
                   </p>
                   <MuiSelect
-                    value={card.priority}
+                    value={card.priority._id}
                     disabled={!canUpdateCard()}
                     sx={{
                       height: '50px',
@@ -684,16 +760,18 @@ export default function CardDetail() {
                     onChange={(e) => handleUpdatePriority(e.target.value)}>
                     {priorityList.map((item) => (
                       <MenuItem
-                        value={item.priority as string}
-                        key={item.priority as string}>
-                        <PriorityItem className={item.priority}>
-                          {item.priority as string}
+                        value={item._id as string}
+                        key={item._id as string}>
+                        <PriorityItem $color={item.color}>
+                          {item.name}
                         </PriorityItem>
                       </MenuItem>
                     ))}
                   </MuiSelect>
                 </Section>
+
                 <div className="part__divider"></div>
+
                 <Section>
                   <div className="section__header">
                     <p className="section__title">Labels</p>
@@ -709,8 +787,34 @@ export default function CardDetail() {
                   <LabelContainer>
                     <Label $color={card?.label?.color as string}>
                       {card?.label?.name}
+                      {card?.label && (
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleUpdateLabel('', 'remove')}>
+                          <RiCloseLine />
+                        </IconButton>
+                      )}
                     </Label>
+                    {!card?.label && <PlaceHolder>Choose a label</PlaceHolder>}
                   </LabelContainer>
+                </Section>
+
+                {/* CARD STORY POINT */}
+                <Section>
+                  <p className="section__label">
+                    <span>Story point</span>
+                    <span>
+                      {updatingField === UPDATING_FIELDS.storyPoint && (
+                        <Loading />
+                      )}
+                    </span>
+                  </p>
+                  <StoryPointInput
+                    card={card}
+                    onUpdate={handleUpdateStoryPoint}
+                    disabled={!canUpdateCard()}
+                  />
                 </Section>
               </CardInfoPart>
             </CardInfo>

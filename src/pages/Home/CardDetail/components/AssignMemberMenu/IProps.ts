@@ -8,4 +8,5 @@ export default interface IProps {
   currentMembers: ITempUser[]
   onChoose: (chosenMemberId: string) => void
   boardId: string
+  onRemove: (memberId: string) => void
 }

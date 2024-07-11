@@ -4,8 +4,8 @@ const schema = yup.object().shape({
   description: yup
     .string()
     .required('Should not be empty')
-    .min(2, 'Must have 2~200 characters')
-    .max(200, 'Must have 2~200 characters')
+    .min(2, 'Must have 2~2000 characters')
+    .max(2000, 'Must have 2~2000 characters')
 })
 
 export default schema
