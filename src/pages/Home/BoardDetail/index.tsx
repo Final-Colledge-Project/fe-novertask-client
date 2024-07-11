@@ -123,6 +123,7 @@ import { BOARD_RESOURCES } from '~/utils/constant/board'
 import { TITLE } from '~/utils/constant/common'
 import ActionMenu from './ActionMenu'
 import AddCardDialog from './AddCardDialog'
+import { StringSchema } from 'yup'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -140,8 +141,8 @@ const FAKE_CARD_KEY = 'fake-card-id'
 // import socketIoClient from 'socket.io-client'
 
 const BoardDetail = () => {
+  // -------------------------STATE-------------------------
   const viewList = ['Kanban']
-
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -164,6 +165,7 @@ const BoardDetail = () => {
 
   const userPermission = usePermission()
 
+  //-------------------------TOOLS-------------------------
   // check if logged in user can update column
   const canUpdateColumn = () => userPermission?.column.update
 
@@ -172,6 +174,7 @@ const BoardDetail = () => {
 
   // check if logged in user can update card
   const canUpdateCard = () => userPermission?.card.update
+  const canCreateCard = () => userPermission?.card.create
 
   const isAdmin = () => userPermission?.isAdmin
 
@@ -238,8 +241,13 @@ const BoardDetail = () => {
           // reorder columns by order
           board.columns = mapOrder(columns, columnOrderIds, '_id')
 
-          // add placeholder card if column does not have any
           board.columns.forEach((column) => {
+            // create key for each card base on baord identifier
+            column.cards?.forEach((card) => {
+              card.cardId = `${board.key}-${card.cardId}`
+            })
+
+            // add placeholder card if column does not have any
             if (column.cards && column.cards.length === 0) {
               column.cards.push({
                 _id: `placeholder-${column._id}`,
@@ -1150,7 +1158,11 @@ const BoardDetail = () => {
                   id={board?._id}>
                   {orderedColumns &&
                     orderedColumns.map((column) => (
-                      <Column column={column} key={column._id} />
+                      <Column
+                        column={column}
+                        key={column._id}
+                        initColumnId={board?.initColumnId as string}
+                      />
                     ))}
                 </SortableContext>
               )}
@@ -1163,6 +1175,7 @@ const BoardDetail = () => {
                     column={activeItemData as IColumn}
                     key={activeItemID}
                     className="drag-over-column"
+                    initColumnId={board?.initColumnId as string}
                   />
                 )}
 
@@ -1222,10 +1235,10 @@ const BoardDetail = () => {
         <AddMemberPopup />
 
         {/* ACTIONS MENU */}
-        <ActionMenu />
+        {canCreateCard() && <ActionMenu />}
 
         {/* ADD CARD DIALOG */}
-        <AddCardDialog board={board} />
+        {canCreateCard() && <AddCardDialog board={board as IBoard} />}
       </BoardDetailContainer>
 
       {board && members && (

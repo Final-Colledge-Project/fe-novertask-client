@@ -7,11 +7,6 @@ export const Container = styled.div`
 `
 
 export const ActionGroup = styled.div`
-  position: absolute;
-  top: -5px;
-  /* bottom: -5px; */
-  right: 0px;
-  transform: translateY(-100%);
   display: flex;
   align-items: flex-start;
   gap: 5px;
@@ -48,14 +43,25 @@ export const Form = styled.form`
 `
 
 export const InputContainer = styled.div`
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
   .limit {
-    position: absolute;
-    bottom: 0px;
-    right: 10px;
     color: var(--mui-palette-gray-main);
     font-size: 14px;
-    z-index: 1;
+
+    &.over {
+      color: var(--mui-palette-pink-main);
+      font-weight: 600;
+    }
+  }
+`
+
+export const DescriptionReview = styled.div`
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: var(--mui-palette-gray6-main);
   }
 `

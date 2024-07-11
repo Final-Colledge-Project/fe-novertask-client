@@ -185,6 +185,11 @@ export interface IUpdatableCard {
   priorityId?: string
   isDone?: false
   columnId?: string
+  epicId?: string
+  issueTypeId?: string
+  startDate?: string
+  storyPoint?: number
+  sprintId?: string
 }
 
 export interface IIssueType {
@@ -205,11 +210,19 @@ export interface ICard {
   boardId: string
   cardId: string
   columnId: string
+  column: {
+    title: string
+    _id: string
+  }
   title: string
   cover: string | undefined
   startDate: string
   dueDate: string
-  priority: string
+  priority: {
+    color: string
+    name: string
+    _id: string
+  }
   isDone: undefined | boolean
   description: string
   isOverdue: boolean
@@ -245,6 +258,9 @@ export interface ICard {
   issueLinks: IIssueLink[]
   issueType: IIssueType
   watcherIds: string[]
+  issueTypeId?: string
+  assigneeId?: string
+  reporterIds?: string
 }
 
 export interface ISubtask {
@@ -485,7 +501,7 @@ export interface IIssueLinkType {
   updatedAt: Date
   canDelete?: boolean
 }
-export default interface IEpic {
+export interface IEpic {
   _id: string
   boardId: string
   name: string
@@ -529,4 +545,9 @@ export interface IIssueLink {
   createdAt: Date
   updatedAt: Date
   isActive: boolean
+}
+
+export interface IDescription {
+  content: string
+  formatter: string
 }

@@ -8,6 +8,13 @@ export interface ICreateCardBody {
   priorityId?: string
   description?: string
   boardId: string // 2024-05-26 update permission
+  // 2024-07 update sprint
+  sprintId?: string
+  epicId?: string
+  issueTypeId?: string
+  storyPoint?: number
+  assigneeId?: string
+  reporterId?: string
 }
 
 export interface IUpdateCardBody {
@@ -38,5 +45,11 @@ export interface IAssignMemberToCardBody {
 
 export interface IDeleteCard {
   cardId: string,
+  boardId: string // 2024-05-26 update permission
+}
+
+export interface IUnassignMemberToCardBody {
+  cardId: string
+  memberId: string
   boardId: string // 2024-05-26 update permission
 }

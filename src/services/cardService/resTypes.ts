@@ -35,6 +35,10 @@ export interface IAssignMemberToCardReponse {
   message: string
 }
 
+export interface IUnassignMemberToCardReponse {
+  message: string
+}
+
 export interface IAssignedToMeResponse {
   data: IAssignedCard[],
   message: string

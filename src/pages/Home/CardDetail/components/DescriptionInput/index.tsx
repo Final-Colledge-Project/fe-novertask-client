@@ -1,13 +1,21 @@
-import TextInput from '~/components/TextInput'
-import { ActionGroup, Form, InputContainer, SquareButton } from './style'
+import {
+  ActionGroup,
+  DescriptionReview,
+  InputContainer,
+  SquareButton
+} from './style'
 import { RiCheckLine, RiCloseLine } from 'react-icons/ri'
 import { Container } from './style'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import IFormFields from './IFormFields'
-import { yupResolver } from '@hookform/resolvers/yup'
-import schema from './formSchema'
-import { ICard } from '~/services/types'
-import WithController from '~/components/InputWithController'
+import { ICard, IDescription } from '~/services/types'
+import RichText from '~/components/RichText'
+import { useEffect, useState } from 'react'
+import clsx from 'clsx'
+import { cloneDeep } from 'lodash'
+import {
+  CARD_DESC_MODE,
+  CARD_DESCRIPTION_MAX_LENGTH
+} from '~/utils/constant/card'
+import { Button } from '@mui/material'
 
 interface IProps {
   card: ICard
@@ -17,65 +25,112 @@ interface IProps {
 
 export default function DescriptionInput({
   card,
-  onUpdateDescription,
-  disabled
+  onUpdateDescription
 }: IProps) {
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isDirty },
-    watch
-  } = useForm<IFormFields>({
-    defaultValues: { description: card.description || '' },
-    mode: 'onBlur',
-    resolver: yupResolver(schema),
-    reValidateMode: 'onChange'
-  })
+  const [description, setDescription] = useState<IDescription>()
+  const [viewMode, setViewMode] = useState<number>(CARD_DESC_MODE.VIEW)
 
-  const onSubmit: SubmitHandler<IFormFields> = async (data) => {
-    await onUpdateDescription(data.description)
-    reset({ description: data.description })
+  const onSubmit = async () => {
+    if (isOverLength() || (description && description?.content.length < 2))
+      return
+    await onUpdateDescription(JSON.stringify(description))
+    changeMode(CARD_DESC_MODE.VIEW)
   }
 
   const onReset = () => {
-    reset({ description: card.description })
+    setDescription(toObject(card.description))
+    changeMode(CARD_DESC_MODE.VIEW)
   }
+
+  const handleChangeDesc = (newData: IDescription) => {
+    setDescription(newData)
+  }
+
+  const toObject = (descriptionStr: string): IDescription => {
+    let descriptionObject: IDescription
+    try {
+      descriptionObject = JSON.parse(descriptionStr)
+    } catch (e) {
+      descriptionObject = {
+        content: descriptionStr,
+        formatter: `<p>${descriptionStr}</p>`
+      }
+    }
+    return cloneDeep(descriptionObject)
+  }
+
+  const changeMode = (mode: number) => {
+    setViewMode(mode)
+  }
+
+  const isDirty = () => {
+    // if card is have just create => should be added <p> tag
+    if (!description || !card) return false
+    const descObject = toObject(card.description)
+
+    return (
+      descObject.content !== description.content ||
+      descObject.formatter !== description.formatter
+    )
+  }
+
+  const isOverLength = () => {
+    return (
+      description && description.content.length >= CARD_DESCRIPTION_MAX_LENGTH
+    )
+  }
+
+  const isViewMode = () => viewMode === CARD_DESC_MODE.VIEW
+  const isEditMode = () => viewMode === CARD_DESC_MODE.EDIT
+
+  useEffect(() => {
+    const rawDescription = card.description
+    if (!rawDescription) setDescription(undefined)
+    const descriptionObject = toObject(card.description)
+    setDescription(descriptionObject)
+  }, [card])
 
   return (
     <Container>
-      <Form onSubmit={handleSubmit(onSubmit)}>
-        <InputContainer>
-          <WithController control={control} name="description">
-            <TextInput
-              label=""
-              placeHolder="Add description..."
-              sx={{
-                maxHeight: '300px',
-                backgroundColor: (theme) => theme.palette.gray6.main
-              }}
-              multiple
-              maxRows={4}
-              row={3}
-              disabled={!!disabled}
-            />
-          </WithController>
-          {isDirty && (
-            <div className="limit">{watch('description').length}/200</div>
-          )}
-        </InputContainer>
+      {isEditMode() && (
+        <div>
+          <RichText
+            defaultValue={description as IDescription}
+            onChange={handleChangeDesc}
+            maxLength={7}
+          />
+          <InputContainer>
+            <div className={clsx('limit', isOverLength() && 'over')}>
+              {description?.content.length}/{CARD_DESCRIPTION_MAX_LENGTH}
+            </div>
+            <ActionGroup>
+              {isEditMode() && (
+                <Button size="small" onClick={onReset} color="error">
+                  Cancel
+                </Button>
+              )}
+              {isDirty() && (
+                <Button
+                  size="small"
+                  type="submit"
+                  onClick={onSubmit}
+                  color="info"
+                  variant="contained">
+                  Save
+                </Button>
+              )}
+            </ActionGroup>
+          </InputContainer>
+        </div>
+      )}
 
-        {isDirty && (
-          <ActionGroup>
-            <SquareButton onClick={onReset}>
-              <RiCloseLine />
-            </SquareButton>
-            <SquareButton color="success" type="submit">
-              <RiCheckLine />
-            </SquareButton>
-          </ActionGroup>
-        )}
-      </Form>
+      {isViewMode() && (
+        <DescriptionReview
+          className="ql-editor"
+          onClick={() => changeMode(CARD_DESC_MODE.EDIT)}
+          dangerouslySetInnerHTML={{ __html: description?.formatter as string }}
+        />
+      )}
     </Container>
   )
 }

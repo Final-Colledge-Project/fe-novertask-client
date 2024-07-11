@@ -29,13 +29,15 @@ export const Modal = styled.div`
   background-color: var(--mui-palette-white-main);
   border-radius: 8px;
   padding: 10px 20px;
-  max-width: 1080px;
+  max-width: 1180px;
   min-height: 90%;
   max-height: 90%;
-  min-width: 1080px;
+  min-width: 1180px;
   position: relative;
   overflow-y: auto;
   overflow-x: visible;
+  display: flex;
+  flex-direction: column;
 
   & .breadcrumb__item {
     text-decoration: none;
@@ -74,12 +76,16 @@ export const CardHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  flex-shrink: 0;
 `
 
 export const CardInfo = styled.div`
   display: flex;
   margin-top: 10px;
   gap: 20px;
+  overflow-y: auto;
+  padding: 0 20px 30px 0;
+  flex: 1;
 `
 export const CardInfoPartDivider = styled.div`
   flex: 0 0 1px;
@@ -101,11 +107,11 @@ export const CardInfoPart = styled.div`
   }
 
   &.part--main {
-    flex: 2;
+    flex: 5;
   }
 
   &.part--sub {
-    flex: 1;
+    flex: 2;
   }
 
   & > .part__divider {
@@ -183,8 +189,7 @@ export const AddItemButton = muiStyled((props: IconButtonProps) => (
       backgroundColor: `rgba(var(--mui-palette-blue-mainChannel)/ 0.2)`,
       padding: '2px',
       ...props
-    }}
-  >
+    }}>
     <RiAddLine />
   </IconButton>
 ))()
@@ -328,7 +333,6 @@ export const SubTaskContainer = styled.div`
   }
 `
 
-
 export const Owner = styled.div`
   width: 100%;
   display: flex;
@@ -377,8 +381,12 @@ export const Label = styled.div<{ $color: string }>`
   color: ${(props) => props.$color};
   background-color: ${(props) => props.$color + '20'};
   padding: 2px 10px;
+  padding-right: 0;
   border-radius: 50px;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `
 
 export const LabelContainer = styled.div`
@@ -387,7 +395,7 @@ export const LabelContainer = styled.div`
   flex-wrap: wrap;
 `
 
-export const PriorityItem = styled.div`
+export const PriorityItem = styled.div<{ $color: string }>`
   padding: 4px 40px;
   text-align: center;
   font-size: 14px;
@@ -395,7 +403,7 @@ export const PriorityItem = styled.div`
   color: var(--mui-palette-white-main) !important;
   /* width: fit-content; */
   border-radius: 5px;
-  width: 100%;
+  /* width: 100%; */
 
   &.highest {
     background-color: ${PRIORITY_COLOR.highest};
@@ -412,6 +420,8 @@ export const PriorityItem = styled.div`
   &.lowest {
     background-color: ${PRIORITY_COLOR.lowest};
   }
+
+  background-color: ${(props) => props.$color};
 `
 
 export const VisuallyHiddenInput = styled('input')({
@@ -453,4 +463,20 @@ export const ReadOnlyInput = styled.div`
   border: 1px solid transparent;
   font-weight: 700;
   margin: 5px 0;
+`
+
+export const IssueTypeItem = styled.img`
+  width: 25px;
+  height: 25px;
+  object-fit: cover;
+  object-position: center;
+  // image fall back is bugGrey.png if image is not found
+  content: url(${(props) => props.src || '/public/icon/bugGrey.png'});
+`
+
+export const PlaceHolder = styled.div`
+  padding: 10px 0;
+  color: var(--mui-palette-gray-main);
+  font-size: 13px;
+  font-style: italic;
 `

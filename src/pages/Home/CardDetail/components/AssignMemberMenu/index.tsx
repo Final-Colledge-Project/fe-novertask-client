@@ -11,7 +11,12 @@ import MenuList from '@mui/material/MenuList'
 // component props
 import IProps, { ITempUser } from './IProps'
 import { Button, IconButton, Typography } from '@mui/material'
-import { RiAddLine, RiCheckLine, RiCloseLine } from 'react-icons/ri'
+import {
+  RiAddLine,
+  RiCheckLine,
+  RiCloseLine,
+  RiLoopLeftLine
+} from 'react-icons/ri'
 import {
   Avatar,
   IconCheck,
@@ -28,11 +33,13 @@ import { Loading } from '../../style'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 import { refreshMembers, setMembers } from '~/redux/boardSlice'
+import Empty from '~/components/Empty'
 
 export default function AssignMemberMenu({
   currentMembers,
   boardId,
-  onChoose
+  onChoose,
+  onRemove
 }: IProps) {
   const [open, setOpen] = React.useState(false)
   const anchorRef = React.useRef<HTMLButtonElement>(null)
@@ -64,6 +71,10 @@ export default function AssignMemberMenu({
     } else if (event.key === 'Escape') {
       setOpen(false)
     }
+  }
+
+  const isExistAssignee = () => {
+    return currentMembers?.length > 0
   }
 
   // return focus to the button when we transitioned from !open -> open
@@ -134,6 +145,12 @@ export default function AssignMemberMenu({
     setIsUpdating(false)
   }
 
+  const handleRemoveMember = async (memberId: string) => {
+    setIsUpdating(true)
+    await onRemove(memberId)
+    setIsUpdating(false)
+  }
+
   React.useEffect(() => {
     getMembers()
   }, [])
@@ -158,7 +175,7 @@ export default function AssignMemberMenu({
           bgcolor: `rgba(var(--mui-palette-blue-mainChannel)/ 0.2)`,
           color: (theme) => theme.palette.blue.main
         }}>
-        <RiAddLine />
+        {isExistAssignee() ? <RiLoopLeftLine /> : <RiAddLine />}
       </IconButton>
       <Popper
         open={open}
@@ -205,6 +222,7 @@ export default function AssignMemberMenu({
                     }}>
                     {mixMemberList().map((member) => (
                       <MenuItem
+                        disableTouchRipple
                         key={member._id}
                         // onClick={(e) => {
                         //   handleClose(e)
@@ -214,7 +232,7 @@ export default function AssignMemberMenu({
                             bgcolor: (theme) => theme.palette.white.main
                           }
                         }}>
-                        <ItemContainer>
+                        <ItemContainer onClick={(e) => e.stopPropagation()}>
                           <UserItem>
                             <Avatar>
                               <img src={member.avatar} alt="" />
@@ -224,9 +242,11 @@ export default function AssignMemberMenu({
                             </Info>
                           </UserItem>
                           {member.isMemberOfCard ? (
-                            <IconCheck>
-                              <RiCheckLine />
-                            </IconCheck>
+                            <IconButton
+                              color="error"
+                              onClick={() => handleRemoveMember(member._id)}>
+                              <RiCloseLine />
+                            </IconButton>
                           ) : (
                             <Button onClick={() => handleAddMember(member._id)}>
                               {' '}
@@ -236,6 +256,10 @@ export default function AssignMemberMenu({
                         </ItemContainer>
                       </MenuItem>
                     ))}
+
+                    {mixMemberList().length === 0 && (
+                      <Empty description="No users available!" pY={20} />
+                    )}
                   </MenuList>
                 </>
               </ClickAwayListener>
