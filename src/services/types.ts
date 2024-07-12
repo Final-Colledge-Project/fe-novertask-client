@@ -97,6 +97,7 @@ export interface IBoard {
   template: string
   defaultAssigneeId: string
   initColumnId: string
+  workingDays: number[]
 }
 // 2024-05-25 update permission
 
@@ -438,6 +439,7 @@ export interface ISprint {
   boardId: string
   name: string
   cardOrderIds: string[]
+  cards: ISprintCard[]
   duration: string
   creatorId: string
   startDate: Date
@@ -550,4 +552,24 @@ export interface IIssueLink {
 export interface IDescription {
   content: string
   formatter: string
+}
+
+export interface ISprintCard {
+  column: {
+    _id: string
+    title: string
+    isResolved: boolean
+  }
+  issueType: {
+    _id: string
+    name: string
+  }
+  storyPoint: number
+  title: string
+  _id: string
+  assignee?: {
+    avatar: string
+    fullName: string
+    _id: string
+  }
 }

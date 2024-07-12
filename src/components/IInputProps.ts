@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SxProps } from '@mui/material'
 import { ChangeEventHandler, ReactElement } from 'react'
 
@@ -8,8 +9,8 @@ interface IInputProps {
   endIcon?: ReactElement
   disableFuture?: boolean
   disablePast?: boolean
-  value?: string
-  onChange?: ChangeEventHandler
+  value?: string | object
+  onChange?: ChangeEventHandler | ((v: any, context: any) => void)
   error?: boolean
   field?: object
   type?: string

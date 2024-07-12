@@ -1,6 +1,15 @@
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import IInputProps from '../IInputProps'
-const DateInput = ({ label, disableFuture, error, field, sx }: IInputProps) => {
+const DateInput = ({
+  label,
+  disableFuture,
+  error,
+  field,
+  sx,
+  disabled,
+  value,
+  onChange
+}: IInputProps) => {
   return (
     <DatePicker
       {...field}
@@ -15,6 +24,9 @@ const DateInput = ({ label, disableFuture, error, field, sx }: IInputProps) => {
         },
         ...sx
       }}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
       disableFuture={disableFuture}
       views={['year', 'month', 'day']}
       slotProps={{

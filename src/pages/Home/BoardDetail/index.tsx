@@ -17,8 +17,22 @@ import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep, isEmpty } from 'lodash'
 
 // component libraries
-import { Breadcrumbs, IconButton } from '@mui/material'
-import { RiMore2Fill } from 'react-icons/ri'
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Breadcrumbs,
+  Button,
+  IconButton,
+  Typography
+} from '@mui/material'
+import {
+  RiAccountBoxFill,
+  RiArrowDownSLine,
+  RiArrowDropDownFill,
+  RiArrowRightSLine,
+  RiMore2Fill
+} from 'react-icons/ri'
 
 // components
 import {
@@ -26,6 +40,8 @@ import {
   Body,
   Divider,
   ProjectType,
+  SprintActions,
+  SprintSummary,
   TitleHeader,
   TypeHeader,
   TypeItem,
@@ -52,7 +68,8 @@ import {
   IBoard,
   ICard,
   IColumn,
-  IMemberInBoard
+  IMemberInBoard,
+  ISprint
 } from '~/services/types'
 import {
   getAllMemberInBoard,
@@ -117,13 +134,16 @@ import { setFakeColumn } from '~/redux/columnSlice'
 import BoardReports from './BoardReports'
 import { hideLoading, showLoading } from '~/redux/progressSlice'
 import Empty from '~/components/Empty'
-import { BOARD_RELOAD_REASON } from '~/utils/constant/board'
+import { BOARD_RELOAD_REASON, BOARD_TEMPLATE } from '~/utils/constant/board'
 import useFetchBoardData from '~/hooks/useFetchBoardData'
 import { BOARD_RESOURCES } from '~/utils/constant/board'
 import { TITLE } from '~/utils/constant/common'
 import ActionMenu from './ActionMenu'
 import AddCardDialog from './AddCardDialog'
 import { StringSchema } from 'yup'
+import Sprint from './Sprint'
+import { getAllSprintsDetail } from '~/services/sprintService'
+import AddSprintDialog from './AddSprintDialog'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -142,7 +162,7 @@ const FAKE_CARD_KEY = 'fake-card-id'
 
 const BoardDetail = () => {
   // -------------------------STATE-------------------------
-  const viewList = ['Kanban']
+  const viewList = ['Kanban', 'Backlog']
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -154,6 +174,7 @@ const BoardDetail = () => {
     undefined
   )
   const [addingColumn, setAddingColumn] = useState(false)
+  const [openAddSprint, setOpenAddSprint] = useState(false)
 
   // logged user info
   const userInfo = useSelector((state: StoreType) => state.auth.userInfo)
@@ -161,6 +182,10 @@ const BoardDetail = () => {
   // change state of adding column process
   const handleAddingColumn = (nextState: boolean) => {
     setAddingColumn(nextState)
+  }
+  // change state of adding sprint process
+  const handleAddingSprint = (nextState: boolean) => {
+    setOpenAddSprint(nextState)
   }
 
   const userPermission = usePermission()
@@ -189,6 +214,7 @@ const BoardDetail = () => {
   const [activeItemData, setActiveItemData] = useState<ICard | IColumn>()
   const [originColumn, setOriginColumn] = useState<IColumn>()
   const [shouldShowBoardMenu, setShouldShowBoardMenu] = useState<boolean>(false)
+  const [sprints, setSprints] = useState<ISprint[]>([])
 
   const lastOverId = useRef<UniqueIdentifier | null>(null)
   const newChangesWithDiffColumn = useRef<IChangeColumn[]>()
@@ -215,6 +241,8 @@ const BoardDetail = () => {
   useFetchBoardData({ key: BOARD_RESOURCES.column, boardId: id || '' })
   useFetchBoardData({ key: BOARD_RESOURCES.label, boardId: id || '' })
 
+  const sprintData = useSelector((state: StoreType) => state.sprint.allSprints)
+
   // const items = [
   //   {
   //     title: 'Add column',
@@ -230,7 +258,7 @@ const BoardDetail = () => {
   // get data from api
   const getBoard = async () => {
     try {
-      dispatch(showLoading())
+      // dispatch(showLoading())
       dispatch(setCreateColumn({ loading: true }))
       const res = await getBoardDetail({ id: id as string })
       if (res && res?.data) {
@@ -285,7 +313,7 @@ const BoardDetail = () => {
         navigate('/u', { replace: true })
       }
     } finally {
-      dispatch(hideLoading())
+      // dispatch(hideLoading())
       dispatch(setCreateColumn({ loading: false }))
     }
   }
@@ -298,6 +326,22 @@ const BoardDetail = () => {
         setMembers(res.data)
         dispatch(refreshMembers())
         dispatch(setMembersToStore(res.data))
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    }
+  }
+
+  const getSprintsDetail = async () => {
+    try {
+      const res = await getAllSprintsDetail(id as string)
+      if (res) {
+        // reorder columns by order
+        const sprints = res
+        sprints.forEach((sprint) => {
+          sprint.cards = mapOrder(sprint.cards, sprint.cardOrderIds, '_id')
+        })
+        setSprints(cloneDeep(sprints))
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -337,7 +381,15 @@ const BoardDetail = () => {
   }, [])
 
   useEffect(() => {
-    board && getMembers()
+    if (board) {
+      getMembers()
+    }
+  }, [id, board])
+
+  useEffect(() => {
+    if (board?.template === BOARD_TEMPLATE.SCRUM) {
+      getSprintsDetail()
+    }
   }, [id, board])
 
   useEffect(() => {
@@ -477,49 +529,6 @@ const BoardDetail = () => {
     // 2024-05-24 update permission
   }, [members, board])
 
-  // 2024-06 update permission => check by admin permission
-  // const boardAdminAndLead = useCallback(() => {
-  //   // 2024-05-24 update permission
-  //   // return members?.oweners.filter(
-  //   //   (owner) => owner.role === 'boardLead' || owner.role === 'boardAdmin'
-  //   // )
-  //   if (boardLeader() && members) {
-  //     return members.oweners.filter((owner) => owner._id === boardLeader()?._id)
-  //   }
-  //   return []
-  //   // 2024-05-24 update permission
-  // }, [members])
-
-  // const isUserTheBoardLead = useCallback(() => {
-  //   // 2024-05-24 update permission
-  //   // return boardLeader()?._id === currentUser?._id
-  //   return boardLeader() === currentUser?._id
-  //   // 2024-05-24 update permission
-  // }, [boardLeader, currentUser])
-
-  // const isUserLeadOrAdmin = useCallback(() => {
-  //   return boardAdminAndLead()?.find(
-  //     // 2024-05-24 update permission
-  //     // (admin) => admin.user._id === currentUser?._id
-  //     (admin) => admin._id === currentUser?._id
-  //     // 2024-05-24 update permission
-  //   )
-  // }, [boardAdminAndLead, currentUser])
-
-  // 22-04-2024 move to Header.tsx
-  // const handleShowAddMemberPopup = () => {
-  //   dispatch(
-  //     setPopupAddMemberToBoard({
-  //       show: true,
-  //       data: {
-  //         currentWsID: board?.teamWorkspaceId,
-  //         currentBoardID: board?._id,
-  //         currentMembers: members
-  //       }
-  //     })
-  //   )
-  // }
-
   const handleCloseBoardMenu = () => {
     setShouldShowBoardMenu(false)
   }
@@ -591,7 +600,7 @@ const BoardDetail = () => {
         boardId: board?._id as string
       })
       if (res && res.data) {
-        // console.log('Update card successfully')
+        await getBoard()
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -986,6 +995,9 @@ const BoardDetail = () => {
     return matchPath(allRoutes.home.board.boardReports.path, location.pathname)
   }
 
+  const isKanbanView = () => viewType === 'Kanban'
+  const isBacklogView = () => viewType === 'Backlog'
+
   /*
     Render title breadcrumb for each view
   */
@@ -1146,8 +1158,8 @@ const BoardDetail = () => {
         )}
 
         {
-          // TASK VIEW
-          isTaskView() && (
+          // TASK VIEW + KANBAN
+          isTaskView() && isKanbanView() && (
             <Body>
               {!board?.columns && <BoardDetailLoading />}
 
@@ -1201,6 +1213,37 @@ const BoardDetail = () => {
                 !canAddColumn() && (
                   <Empty description="Board is empty!" isFullWidth pY={50} />
                 )}
+            </Body>
+          )
+        }
+
+        {
+          // TASK VIEW + BACKLOG
+          isTaskView() && isBacklogView() && (
+            <Body className="backlog">
+              {sprints.map((sprint) => (
+                <Sprint
+                  key={sprint._id}
+                  sprint={sprint}
+                  board={board as IBoard}
+                />
+              ))}
+
+              <SprintActions>
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="primary"
+                  onClick={() => handleAddingSprint(true)}>
+                  Create sprint
+                </Button>
+              </SprintActions>
+
+              <AddSprintDialog
+                board={board}
+                open={openAddSprint}
+                onCancel={() => handleAddingSprint(false)}
+              />
             </Body>
           )
         }

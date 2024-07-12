@@ -1,3 +1,4 @@
+import { ISprint as IGeneralSprint } from '../types'
 export interface ISprint {
   _id: string
   name: string
@@ -20,4 +21,14 @@ export interface ISprint {
 export interface ISprintByBoardResponse {
   data: ISprint
   message: string
+}
+
+export interface ICreateSprintResponse {
+  data: ISprint
+  message: string
+}
+
+export interface IGetAllSprintDetailResponse {
+  message: string
+  data: IGeneralSprint[]
 }

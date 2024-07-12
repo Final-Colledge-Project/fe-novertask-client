@@ -211,6 +211,10 @@ export const Body = styled.div`
   &::-webkit-scrollbar-thumb {
     background-color: var(--mui-palette-gray2-main);
   }
+  &.backlog {
+    flex-direction: column;
+    gap: 12px;
+  }
 `
 
 export const YellowTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -253,4 +257,24 @@ export const ProjectType = styled.div<{ $type: string }>`
     props.$type === 'scrum'
       ? 'var(--mui-palette-orange-main)'
       : 'var(--mui-palette-green-main)'};
+`
+
+export const SprintSummary = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+
+  .time {
+    font-size: 12px;
+    color: var(--mui-palette-gray-main);
+    font-style: italic;
+  }
+`
+
+export const SprintActions = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
 `

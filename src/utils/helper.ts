@@ -170,3 +170,25 @@ export const DefaultIssueTypeIcon = [
     path: ''
   }
 ]
+
+export const calculateEndDate = (
+  startDay: Date,
+  duration: number,
+  workingDays: number[]
+): Date => {
+  let endDate = dayjs(startDay)
+  let remainDays = duration * workingDays.length
+  let testDate = endDate
+  while (remainDays > 0) {
+    testDate = testDate.add(1, 'day')
+    if (workingDays.includes(testDate.day())) {
+      endDate = testDate
+      remainDays--
+    }
+    if (remainDays === 1 && !workingDays.includes(testDate.day())) {
+      endDate = testDate
+      remainDays--
+    }
+  }
+  return endDate.toDate()
+}
