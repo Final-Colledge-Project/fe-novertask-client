@@ -96,9 +96,14 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
           actualBurnDown[index] = actualBurnDown[index - 1]
         }
       })
+      console.log('~~~~~~~~~~>sprintDays', sprintDays)
+      const idealSprintDays = sprintDays.filter((day) =>
+        dayjs(day).isBefore(sprintData.endDate)
+      )
       const idealBurnDown = Array.from(
         { length: sprintDays.length },
-        (_, i) => totalStoryPoint - (totalStoryPoint / sprintDays.length) * i
+        (_, i) =>
+          totalStoryPoint - (totalStoryPoint / idealSprintDays.length) * i
       )
       setDataChart({
         sprintDays: extendSprintDays,
