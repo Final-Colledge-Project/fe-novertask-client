@@ -69,6 +69,7 @@ export const StoryPoint = styled.div`
   align-items: center;
   justify-content: center;
   background-color: var(--mui-palette-gray4-main);
+  flex-shrink: 0;
 `
 
 export const Assignee = styled.div`

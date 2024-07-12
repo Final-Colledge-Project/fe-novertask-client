@@ -59,7 +59,7 @@ export const MenuHeader = styled.div`
 export const MenuBody = styled.div`
   display: flex;
   align-items: center;
-  /* flex-direction: column; */
+  flex-direction: column;
   gap: 10px;
   margin: 0 10px;
   max-height: 300px;
@@ -110,4 +110,5 @@ export const WatcherItem = styled.div`
   gap: 12px;
   align-items: center;
   font-size: 14px;
+  width: 100%;
 `

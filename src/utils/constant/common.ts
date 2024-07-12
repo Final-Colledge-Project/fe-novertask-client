@@ -54,3 +54,5 @@ export const DATA_SETTING = {
   priority: 'priority',
   issueLinkType: 'issueLinkType'
 }
+
+export const DATE_FORMAT = 'DD/MM/YYYY'

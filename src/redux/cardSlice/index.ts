@@ -4,6 +4,7 @@ import { getTaskAssignedToMe } from './actions'
 
 export interface IFilterOptions {
   assignToMe?: boolean
+  currentSprint?: boolean
 }
 
 const initialState: {
@@ -30,7 +31,8 @@ const initialState: {
 } = {
   searchString: undefined,
   filter: {
-    assignToMe: false
+    assignToMe: false,
+    currentSprint: false
   },
   getCardAssignedToMe: {
     loading: false,

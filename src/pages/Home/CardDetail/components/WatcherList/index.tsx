@@ -104,7 +104,7 @@ export default function WatcherList({ watcherIds }: { watcherIds: string[] }) {
                         key={watcher._id}
                         disableTouchRipple
                         dense
-                        sx={{ cursor: 'default' }}>
+                        sx={{ cursor: 'default', width: '100%' }}>
                         <WatcherItem>
                           <Avatar
                             src={watcher.avatar}

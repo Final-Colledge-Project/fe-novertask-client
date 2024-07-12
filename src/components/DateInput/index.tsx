@@ -8,7 +8,9 @@ const DateInput = ({
   sx,
   disabled,
   value,
-  onChange
+  onChange,
+  minDate,
+  disablePast
 }: IInputProps) => {
   return (
     <DatePicker
@@ -26,7 +28,9 @@ const DateInput = ({
       }}
       value={value}
       onChange={onChange}
+      minDate={minDate}
       disabled={disabled}
+      disablePast={disablePast}
       disableFuture={disableFuture}
       views={['year', 'month', 'day']}
       slotProps={{

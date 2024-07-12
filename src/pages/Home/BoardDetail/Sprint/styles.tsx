@@ -8,18 +8,30 @@ export const SprintSummary = styled.div`
 
   & .sprint-key {
     font-weight: 600;
+    flex-shrink: 0;
   }
 
   & .time {
     font-size: 12px;
     color: var(--mui-palette-gray-main);
     font-style: italic;
+    flex-shrink: 0;
   }
 
   & .status-static {
     display: flex;
     gap: 8px;
     align-items: center;
+    justify-content: flex-end;
+    padding-right: 16px;
+    flex-shrink: 0;
+  }
+
+  & .actions {
+    flex: 1;
+    display: flex;
+    algin-items: center;
+    justify-content: flex-end;
   }
 `
 

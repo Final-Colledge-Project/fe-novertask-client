@@ -17,6 +17,7 @@ interface IInputProps {
   autofocus?: boolean
   sx?: SxProps
   multiple?: boolean
+  minDate?: object
   row?: number
   disabled?: boolean
   persistLabel?: boolean

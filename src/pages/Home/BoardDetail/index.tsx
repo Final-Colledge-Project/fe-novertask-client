@@ -144,6 +144,7 @@ import { StringSchema } from 'yup'
 import Sprint from './Sprint'
 import { getAllSprintsDetail } from '~/services/sprintService'
 import AddSprintDialog from './AddSprintDialog'
+import { SPRINT_MODAL_VIEW_MODE, SPRINT_STATUS } from '~/utils/constant/sprint'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -997,6 +998,11 @@ const BoardDetail = () => {
 
   const isKanbanView = () => viewType === 'Kanban'
   const isBacklogView = () => viewType === 'Backlog'
+  const haveSprintActive = () => {
+    if (sprints) {
+      return sprints.find((sprint) => sprint.status === SPRINT_STATUS.active)
+    }
+  }
 
   /*
     Render title breadcrumb for each view
@@ -1139,7 +1145,7 @@ const BoardDetail = () => {
               <CurrentFilters />
 
               {/* Filter task option list*/}
-              <FilterMenu />
+              <FilterMenu board={board} />
 
               {/* Add column or add card */}
               {/* {isAdmin() && items.length > 0 && (
@@ -1226,6 +1232,7 @@ const BoardDetail = () => {
                   key={sprint._id}
                   sprint={sprint}
                   board={board as IBoard}
+                  canStartSprint={!haveSprintActive()}
                 />
               ))}
 
@@ -1240,9 +1247,11 @@ const BoardDetail = () => {
               </SprintActions>
 
               <AddSprintDialog
-                board={board}
+                board={board as IBoard}
+                createSuccessCb={getSprintsDetail}
                 open={openAddSprint}
                 onCancel={() => handleAddingSprint(false)}
+                mode={SPRINT_MODAL_VIEW_MODE.create}
               />
             </Body>
           )
@@ -1278,7 +1287,7 @@ const BoardDetail = () => {
         <AddMemberPopup />
 
         {/* ACTIONS MENU */}
-        {canCreateCard() && <ActionMenu />}
+        {canCreateCard() && isKanbanView() && <ActionMenu />}
 
         {/* ADD CARD DIALOG */}
         {canCreateCard() && <AddCardDialog board={board as IBoard} />}

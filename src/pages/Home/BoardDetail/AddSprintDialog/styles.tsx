@@ -96,3 +96,12 @@ export const SubTitle = styled.div<{ $isRequired?: boolean }>`
     }
   `}
 `
+
+export const Error = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  width: 100%;
+  color: var(--mui-palette-pink-main);
+  text-align: left;
+  padding-right: 10px;
+`

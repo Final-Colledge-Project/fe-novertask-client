@@ -1,6 +1,10 @@
 import { AxiosError } from 'axios'
 import axiosInstance from '../axiosInstance'
-import { ICreateSprintResponse, IGetAllSprintDetailResponse, ISprintByBoardResponse } from './resTypes'
+import {
+  ICreateSprintResponse,
+  IGetAllSprintDetailResponse,
+  ISprintByBoardResponse
+} from './resTypes'
 import requests from './request'
 import { ICreateSprintBody } from './reqTypes'
 
@@ -29,7 +33,7 @@ export const createSprint = async (body: ICreateSprintBody) => {
       body.sprint
     )
     if (res && res.status === 200 && res.data) {
-      return res.data?.data
+      return res.data
     }
   } catch (error) {
     const status = (error as AxiosError).response?.status

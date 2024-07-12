@@ -71,7 +71,7 @@ const AddCardDialog = (props: IProps) => {
   const userInfo = useInfo() // logged user info
   const issueTypesData = useSelector(
     (state: StoreType) => state.issueType.allIssueTypes
-  )
+  ).filter((issue) => issue.hierarchy === 2)
   const sprintData = useSelector((state: StoreType) => state.sprint.allSprints)
 
   // TOOLS

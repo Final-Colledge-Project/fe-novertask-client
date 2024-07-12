@@ -23,14 +23,18 @@ import { Badge, Switch, Typography } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 import { setFilter } from '~/redux/cardSlice'
+import { BOARD_TEMPLATE } from '~/utils/constant/board'
+import IProps from './IProps'
 
-export default function FilterMenu() {
+export default function FilterMenu(props: IProps) {
+  // ----------------PROPS & DATA----------------
+  const { board } = props
   const [open, setOpen] = useState(false)
   const anchorRef = useRef<HTMLButtonElement>(null)
-
   const filter = useSelector((state: StoreType) => state.card.filter)
-  const dispatch = useDispatch()
 
+  // ----------------FUNCTIONS----------------
+  const dispatch = useDispatch()
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen)
   }
@@ -66,13 +70,35 @@ export default function FilterMenu() {
   }, [open])
 
   const handleToggleAssignToMe = (e: ChangeEvent<HTMLInputElement>) => {
-    dispatch(setFilter({ assignToMe: e.target.checked }))
+    handleToggleFilter('assignToMe', e.target.checked)
+  }
+
+  const handleToggleCurrentSprint = (e: ChangeEvent<HTMLInputElement>) => {
+    handleToggleFilter('currentSprint', e.target.checked)
+  }
+
+  const handleToggleFilter = (filterName: string, newValue: boolean) => {
+    switch (filterName) {
+      case 'assignToMe':
+        dispatch(setFilter({ ...filter, assignToMe: newValue }))
+        break
+      case 'currentSprint':
+        dispatch(setFilter({ ...filter, currentSprint: newValue }))
+        break
+      default:
+        break
+    }
   }
 
   const countFilterIsOn = () => {
     let total = 0
     if (filter.assignToMe) total++
+    if (filter.currentSprint) total++
     return total
+  }
+
+  const isScrumBoard = () => {
+    return board?.template === BOARD_TEMPLATE.SCRUM
   }
 
   return (
@@ -123,6 +149,18 @@ export default function FilterMenu() {
                   aria-labelledby="composition-button"
                   onKeyDown={handleListKeyDown}
                   sx={{ borderRadius: '8px' }}>
+                  {isScrumBoard() && (
+                    <MenuItem dense>
+                      <ItemContainer>
+                        <Typography>Current sprint</Typography>
+                        <Switch
+                          size="small"
+                          checked={filter.currentSprint}
+                          onChange={handleToggleCurrentSprint}
+                        />
+                      </ItemContainer>
+                    </MenuItem>
+                  )}
                   <MenuItem dense>
                     <ItemContainer>
                       <Typography>Assign to me</Typography>
