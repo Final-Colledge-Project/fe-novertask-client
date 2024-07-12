@@ -5,7 +5,7 @@ import './style.scss'
 import dayjs from 'dayjs'
 import useInitSchedule from '~/hooks/useInitSchedule'
 const MyTask = () => {
-  useInitSchedule()
+  // useInitSchedule()
   const [date, setDate] = useState<Date>(dayjs().toDate())
   return (
     <div className="schedule-container">

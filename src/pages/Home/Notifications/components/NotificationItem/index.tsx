@@ -32,16 +32,15 @@ const NotificationItem = (props: INotification) => {
   return (
     <div
       className={clsx('noti-item', !isRead && 'noti-item-unread')}
-      onClick={handleOnClick}
-    >
+      onClick={handleOnClick}>
       <div className="noti-avatar">
         <Avatar alt={sender.fullName} src={sender.avatar} />
       </div>
       <div className="noti-body">
         <div className="noti-content">
-          <span>
+          <div className="noti-msg">
             <b>{sender.fullName}</b> {message} <b>{targetType}</b>
-          </span>
+          </div>
           {!isRead && <div className="noti-unreadDot"></div>}
         </div>
         <div className="noti-footer">
