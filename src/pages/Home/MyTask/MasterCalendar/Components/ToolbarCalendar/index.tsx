@@ -113,7 +113,7 @@ const ToolbarCalendar = ({
           </IconButton>
         </div>
       </div>
-      <div className="toolbarCalendar__right">
+      {/* <div className="toolbarCalendar__right">
         <Button
           variant="outlined"
           startIcon={<RiVideoAddLine style={{ fontSize: '16px' }} />}>
@@ -124,7 +124,7 @@ const ToolbarCalendar = ({
           startIcon={<RiAddCircleLine className="toolbar-icon" />}>
           Add event
         </Button>
-      </div>
+      </div> */}
     </div>
   )
 }

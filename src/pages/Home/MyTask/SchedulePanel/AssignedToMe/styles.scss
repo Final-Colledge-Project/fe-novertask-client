@@ -1,0 +1,33 @@
+.taskWrapper {
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 4px;
+  &:hover {
+    cursor: pointer;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+      rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    top: -1px;
+  }
+}
+
+.taskEvents {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.taskHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.taskTitle {
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

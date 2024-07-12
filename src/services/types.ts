@@ -347,10 +347,17 @@ export interface IAssignedCard {
   board: {
     _id: string
     title: string
+    key: string
   }
   column: {
     _id: string
     title: string
+    isResolved: boolean
+  }
+  issueType: {
+    _id: string
+    name: string
+    icon: string
   }
 }
 

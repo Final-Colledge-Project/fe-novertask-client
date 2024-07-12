@@ -15,9 +15,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setGoogleCalendarEvents } from '~/redux/scheduleSlice'
 import { convertToGoogleEvents } from '~/utils/helper'
 import utc from 'dayjs/plugin/utc'
-import { TYPE_EVENT } from '~/utils/constant'
+import { QUERY_KEY, TYPE_EVENT } from '~/utils/constant'
 import { addSchedule } from '~/redux/scheduleSlice/actions'
 import { Chip } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
+import { cardAssignToMe } from '~/services/cardService'
 dayjs.extend(utc)
 interface IGeneralScheduleProps {
   date: Date
@@ -32,8 +34,9 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
   const [isRetry, setIsRetry] = useState(false)
   const { schedules } = useSelector((state: StoreType) => state.schedule)
   const calendarSchedule = schedules?.find(
-    (itme) => itme.type === TYPE_EVENT.googleEvent
+    (item) => item.type === TYPE_EVENT.googleEvent
   )
+
   const dispatch = useDispatch<StoreDispatchType>()
   useEffect(() => {
     const updateToken = async () => {
@@ -49,6 +52,7 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
+    dispatch(setGoogleCalendarEvents([]))
   }
 
   const handleLoginGoogle = async () => {
@@ -205,8 +209,7 @@ const GeneralSchedule = ({ date, setDate }: IGeneralScheduleProps) => {
             <Button
               icon={<GoogleOutlined style={{ fontSize: '18px' }} />}
               className="addCalendar-btn"
-              onClick={handleLoginGoogle}
-            >
+              onClick={handleLoginGoogle}>
               Connect Calendar
             </Button>
           </div>

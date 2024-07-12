@@ -4,6 +4,7 @@ import { StoreType } from '~/redux'
 import { useSelector } from 'react-redux'
 import GeneralSchedule from './GeneralSchedule'
 import { EventItem } from '~/services/types'
+import AssignedTasks from './AssignedToMe'
 
 interface ISchedulePanelProps {
   date: Date
@@ -14,6 +15,7 @@ const SchedulePanel = ({ date, setDate }: ISchedulePanelProps) => {
   const { cardsAssignedToMe, getCardAssignedToMe } = useSelector(
     (state: StoreType) => state.card
   )
+
   const items = [
     {
       key: 'general',
@@ -22,8 +24,8 @@ const SchedulePanel = ({ date, setDate }: ISchedulePanelProps) => {
     },
     {
       key: 'upcomingEvent',
-      label: 'Upcoming Events',
-      children: 'Content of Tab Pane 2'
+      label: 'Assigned To Me',
+      children: <AssignedTasks />
     }
   ]
 

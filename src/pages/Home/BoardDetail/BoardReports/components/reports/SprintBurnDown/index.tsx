@@ -86,7 +86,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
       }
 
       sprintDays.forEach((day, index) => {
-        const dailyStoryPoint = dailyStoryPoints.find(
+        const dailyStoryPoint = (dailyStoryPoints || []).find(
           (point) =>
             dayjs(point.date).format(FORMAT_DATE).toString() === day.toString()
         )

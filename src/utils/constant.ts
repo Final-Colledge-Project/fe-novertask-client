@@ -86,7 +86,8 @@ export const QUERY_KEY = {
   get_all_issue_types: 'get_all_issue_types',
   get_all_priorities: 'get_all_priorities',
   get_all_labels: 'get_all_labels',
-  get_all_issue_link_types: 'get_all_issue_link_types'
+  get_all_issue_link_types: 'get_all_issue_link_types',
+  assigned_me: 'assigned_me'
 }
 
 export const OPTION_VIEWS = {
