@@ -11,7 +11,7 @@ import { IBoardPermission } from '~/services/types'
 const usePermission: () => IBoardPermission | undefined = () => {
   const currentUser = useSelector((state: StoreType) => state.auth.userInfo)
   const boardPermission = useSelector(
-    (state: StoreType) => state.permission.currentBoardPermission
+    (state: StoreType) => state.permission.userPermissionOnBoard
   )
 
   // return if the current user or board permission is empty
@@ -25,13 +25,13 @@ const usePermission: () => IBoardPermission | undefined = () => {
   }
 
   // find permission of current user
-  const userPermission = boardPermission.find((permission) =>
-    isValueExistInNestedObject(permission, currentUser._id)
-  )
+  // const userPermission = boardPermission.find((permission) =>
+  //   isValueExistInNestedObject(permission, currentUser._id)
+  // )
 
-  if (!userPermission) return undefined
+  // if (!userPermission) return undefined
 
-  return userPermission
+  return boardPermission
 }
 
 export default usePermission
