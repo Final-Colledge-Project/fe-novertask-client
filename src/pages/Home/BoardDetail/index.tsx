@@ -145,6 +145,7 @@ import Sprint from './Sprint'
 import { getAllSprintsDetail } from '~/services/sprintService'
 import AddSprintDialog from './AddSprintDialog'
 import { SPRINT_MODAL_VIEW_MODE, SPRINT_STATUS } from '~/utils/constant/sprint'
+import { fetchSprints } from '~/redux/sprintSlice/actions'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -335,12 +336,26 @@ const BoardDetail = () => {
 
   const getSprintsDetail = async () => {
     try {
+      // fetch data in store
+      dispatch(fetchSprints(id as string))
       const res = await getAllSprintsDetail(id as string)
       if (res) {
         // reorder columns by order
         const sprints = res
         sprints.forEach((sprint) => {
           sprint.cards = mapOrder(sprint.cards, sprint.cardOrderIds, '_id')
+        })
+        const customOrder = [
+          SPRINT_STATUS.active,
+          SPRINT_STATUS.active,
+          SPRINT_STATUS.completed,
+          SPRINT_STATUS.backlog
+        ]
+        // status active is alway first, then others, backlog is the last one
+        sprints.sort((a, b) => {
+          const indexA = customOrder.indexOf(a.status)
+          const indexB = customOrder.indexOf(b.status)
+          return indexA - indexB
         })
         setSprints(cloneDeep(sprints))
       }
@@ -370,7 +385,7 @@ const BoardDetail = () => {
       }
       getAllPermission()
     }
-  }, [id, board])
+  }, [id, board, isMemberOfBoard])
 
   useEffect(() => {
     // clear permission when get out of board
@@ -1233,6 +1248,7 @@ const BoardDetail = () => {
                   sprint={sprint}
                   board={board as IBoard}
                   canStartSprint={!haveSprintActive()}
+                  updateSuccessCb={getSprintsDetail}
                 />
               ))}
 
