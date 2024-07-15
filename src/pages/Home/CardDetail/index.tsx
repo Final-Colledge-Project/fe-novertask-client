@@ -144,6 +144,11 @@ export default function CardDetail() {
     (state: StoreType) => state.priority.allPriorities
   )
 
+  const handleSocketUpdateCard = (memberId: string[]) => {
+    const socket = socketIoClient(import.meta.env.VITE_SERVER_URL)
+    socket.emit('updateCard', memberId)
+  }
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const file = event.target.files[0]
@@ -252,6 +257,7 @@ export default function CardDetail() {
         dispatch(setShouldRefreshBoardDetail(true))
         await getCard()
       }
+      handleSocketUpdateCard(card?.watcherIds?.map((e) => e, toString) || [])
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
       setCard(card)

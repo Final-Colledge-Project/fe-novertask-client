@@ -23,7 +23,7 @@ const NotificationItem = (props: INotification) => {
   const updatedDate = dayjs(updatedAt)
   const timeNoti =
     updatedDate.diff(createdDate, 'hour') > 0 ? updatedAt : createAt
-  const displayTime = getRecordTime(timeNoti)
+  const displayTime = getRecordTime(updatedAt)
   const dispatch = useDispatch<StoreDispatchType>()
   const handleOnClick = () => {
     dispatch(getMarkReadNotification(_id))

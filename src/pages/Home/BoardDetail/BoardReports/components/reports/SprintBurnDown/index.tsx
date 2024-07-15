@@ -7,7 +7,7 @@ import {
   exportChartPdf
 } from './helper'
 import { Button, MenuItem, Select } from '@mui/material'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './styles.scss'
 import LineChart from '~/components/Charts/LineChart'
 import dayjs from 'dayjs'
@@ -41,6 +41,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
   const [sprintData, setSprintData] = useState<IBurnDownReport>(
     {} as IBurnDownReport
   )
+  const [vertiLinePlugin, setVertiPlugin] = useState<unknown>(null)
 
   const getReportData = async () => {
     try {
@@ -96,14 +97,15 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
           actualBurnDown[index] = actualBurnDown[index - 1]
         }
       })
-      console.log('~~~~~~~~~~>sprintDays', sprintDays)
       const idealSprintDays = sprintDays.filter((day) =>
         dayjs(day).isBefore(sprintData.endDate)
       )
       const idealBurnDown = Array.from(
         { length: sprintDays.length },
-        (_, i) =>
-          totalStoryPoint - (totalStoryPoint / idealSprintDays.length) * i
+        (_, i) => {
+          const value = totalStoryPoint * (1 - i / (idealSprintDays.length - 1))
+          return value < 0 ? 0 : value
+        }
       )
       setDataChart({
         sprintDays: extendSprintDays,
@@ -135,7 +137,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
     ]
   }
 
-  const verticalLinePlugin = {
+  const createVerticalLinePlugin = (endDate) => ({
     id: 'verticalLinePlugin',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     afterDraw: (chart: any) => {
@@ -144,8 +146,10 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
 
       // Draw vertical line at x-axis value (assuming it's index-based)
       const xValue = xAxis.getPixelForValue(
-        dayjs(sprintData.endDate).toISOString().split('T')[0]
-      ) // Change to match your date label
+        dayjs(endDate).toISOString().split('T')[0]
+      )
+
+      // Change to match your date label
       if (xValue) {
         ctx.save()
         ctx.strokeStyle = 'rgb(255, 99, 132)'
@@ -160,14 +164,17 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
         ctx.fillText('Sprint End', xValue, chart.height - 20)
       }
     }
-  }
+  })
+
+  const verticalLinePlugin = useMemo(() => {
+    return createVerticalLinePlugin(sprintData.endDate)
+  }, [sprintData])
 
   const exportReport = async () => {
     try {
       const fileName = `sprint-burn-down-${dayjs().unix()}`
       await exportChartPdf(chartRef, fileName, reportType, setIsExport)
     } catch (err) {
-      console.log('🚀 ~ exportReport ~ err:', err)
       setIsExport(false)
       enqueueSnackbar('Export Failed', { variant: 'error' })
     }
@@ -232,6 +239,7 @@ const SprintBurnDownReport = (props: ISprintBurnDownProps) => {
             <Empty />
           ) : (
             <LineChart
+              key={sprintData.endDate}
               options={chartOptions}
               data={dataSet}
               chartRef={chartRef}

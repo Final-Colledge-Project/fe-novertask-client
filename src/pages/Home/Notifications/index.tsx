@@ -3,12 +3,7 @@ import { StoreDispatchType, StoreType } from '~/redux'
 import './style.scss'
 import { Box, Tab, Tabs } from '@mui/material'
 import CustomTabPanel from './components/NotificationItem/CustomTabPanel'
-import {
-  SyntheticEvent,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import { SyntheticEvent, useEffect, useRef, useState } from 'react'
 import NotificationItem from './components/NotificationItem'
 import { INotification } from '~/services/types'
 import {
@@ -17,7 +12,7 @@ import {
 } from '~/redux/notiSlice/actions'
 import { setPopupNotification } from '~/redux/popupSlice'
 import { useOnClickOutside } from 'usehooks-ts'
-
+import { orderBy } from 'lodash'
 const Notification = () => {
   const popupRef = useRef(null)
   const { PopupNotification } = useSelector((state: StoreType) => state.popup)
@@ -26,6 +21,7 @@ const Notification = () => {
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
+
   useEffect(() => {
     const getNotification = async () => {
       try {
@@ -41,6 +37,7 @@ const Notification = () => {
   )
   const { eventSource } = useSelector((state: StoreType) => state.popup)
   const { data } = notifications
+  console.log('~~~~~~~~~~~~>data', data)
   const handleMarkReadAll = () => {
     const getAllMark = async () => await dispatch(getMarkReadAllNotification())
     getAllMark()
@@ -101,8 +98,7 @@ const Notification = () => {
               value={value}
               onChange={handleChange}
               aria-label="basic tabs example"
-              className="notification-tabs"
-            >
+              className="notification-tabs">
               <Tab
                 label="All"
                 // icon={
@@ -135,12 +131,18 @@ const Notification = () => {
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={1}>
-            {data.map((noti: INotification) => (
-              <NotificationItem {...noti} />
-            ))}
+            {orderBy(data, [(obj) => new Date(obj.updatedAt)], ['desc']).map(
+              (noti: INotification) => (
+                <NotificationItem {...noti} />
+              )
+            )}
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
-            Item Two
+            {orderBy(data, [(obj) => new Date(obj.updatedAt)], ['desc'])
+              .filter((e) => !e.isRead)
+              .map((noti: INotification) => (
+                <NotificationItem {...noti} />
+              ))}
           </CustomTabPanel>
         </div>
       </div>
