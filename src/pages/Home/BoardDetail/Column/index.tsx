@@ -41,6 +41,10 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import mapOrder from '~/utils/mapOrder'
 import usePermission from '~/hooks/usePermission'
+import { useSelector } from 'react-redux'
+import { StoreType } from '~/redux'
+import useInfo from '~/hooks/useInfo'
+import { SPRINT_STATUS } from '~/utils/constant'
 
 const Column = ({
   column,
@@ -54,6 +58,11 @@ const Column = ({
   const [showModal, setShowModal] = useState(false)
   const [isMouseDowing, setIsMouseDowning] = useState(false)
   const userPermission = usePermission()
+  const filters = useSelector((state: StoreType) => state.card.filter)
+  const loggedUserInfo = useInfo()
+  const isAssignToMeApplied = () => filters.assignToMe
+  const isCurrentSprintApplied = () => filters.currentSprint
+  const sprintData = useSelector((state: StoreType) => state.sprint.allSprints)
 
   // const handleChangeMouseGrabing = (
   //   event: React.MouseEvent<HTMLParagraphElement>
@@ -94,6 +103,31 @@ const Column = ({
     e?.stopPropagation()
     setShowModal(false)
     reset()
+  }
+
+  const countShowCard = () => {
+    let resultList = column.cards
+    resultList = resultList?.filter((c) => !c.FE_ONLY_PLACEHOLDER)
+
+    // filter by assign to me
+    if (isAssignToMeApplied()) {
+      resultList = resultList?.filter((card) =>
+        card.memberIds.find((mem) => mem._id === loggedUserInfo?._id)
+      )
+    }
+
+    if (isCurrentSprintApplied()) {
+      const currentSprint = sprintData.find(
+        (sprint) => sprint.status === SPRINT_STATUS.active
+      )
+      if (currentSprint) {
+        resultList = resultList?.filter(
+          (card) => card.sprintId === currentSprint._id
+        )
+      }
+    }
+
+    return resultList?.length
   }
 
   const {
@@ -226,9 +260,7 @@ const Column = ({
                   </ActionGroup>
                 )}
               </Form>
-              <p className="cards-count">
-                {column.cards?.filter((c) => !c.FE_ONLY_PLACEHOLDER).length}
-              </p>
+              <p className="cards-count">{countShowCard()}</p>
               {/* <div className="add-task-button">
                 <RiAddFill />
               </div> */}

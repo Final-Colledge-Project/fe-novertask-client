@@ -480,3 +480,9 @@ export const PlaceHolder = styled.div`
   font-size: 13px;
   font-style: italic;
 `
+export const LogItem = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+`

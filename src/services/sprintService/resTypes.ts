@@ -19,7 +19,7 @@ export interface ISprint {
 }
 
 export interface ISprintByBoardResponse {
-  data: ISprint
+  data: ISprint[]
   message: string
 }
 
@@ -31,4 +31,9 @@ export interface ICreateSprintResponse {
 export interface IGetAllSprintDetailResponse {
   message: string
   data: IGeneralSprint[]
+}
+
+export interface IUpdateSprintResponse {
+  data: ISprint
+  message: string
 }

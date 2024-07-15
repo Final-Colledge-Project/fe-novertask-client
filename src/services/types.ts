@@ -447,7 +447,7 @@ export interface ISprint {
   name: string
   cardOrderIds: string[]
   cards: ISprintCard[]
-  duration: string
+  duration: number | string
   creatorId: string
   startDate: Date
   endDate: Date
@@ -579,4 +579,17 @@ export interface ISprintCard {
     fullName: string
     _id: string
   }
+}
+
+export interface ITaskLog {
+  _id?: string
+  userId: string
+  target: string
+  msg: string
+  oldVal?: string
+  newVal?: string
+  issueModel: string
+  issueId: string
+  createdAt?: Date
+  updatedAt?: Date
 }

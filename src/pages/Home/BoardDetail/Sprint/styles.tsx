@@ -6,9 +6,54 @@ export const SprintSummary = styled.div`
   gap: 16px;
   align-items: baseline;
 
+  & .status-badge-container {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    width: 70px;
+  }
+
+  & .status-badge {
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 0 4px;
+    color: white;
+    background-color: var(--mui-palette-blue-main);
+    flex-shrink: 0;
+    border: 1px solid var(--mui-palette-blue-main);
+
+    &.completed {
+      color: var(--mui-palette-green-main);
+      background-color: rgba(var(--mui-palette-green-mainChannel) / 0.15);
+      border: 1px solid var(--mui-palette-green-main);
+    }
+
+    &.active {
+      color: var(--mui-palette-blue-main);
+      background-color: rgba(var(--mui-palette-blue-mainChannel) / 0.15);
+      border: 1px solid var(--mui-palette-blue-main);
+    }
+
+    &.pending {
+      color: var(--mui-palette-black-main);
+      background-color: rgba(var(--mui-palette-gray-mainChannel) / 0.15);
+      border: 1px solid var(--mui-palette-black-main);
+    }
+
+    &.backlog {
+      color: var(--mui-palette-purple-main);
+      background-color: rgba(var(--mui-palette-purple-mainChannel) / 0.15);
+      border: 1px solid var(--mui-palette-purple-main);
+    }
+  }
+
   & .sprint-key {
     font-weight: 600;
     flex-shrink: 0;
+
+    &.completed {
+      text-decoration: line-through;
+    }
   }
 
   & .time {
@@ -30,8 +75,9 @@ export const SprintSummary = styled.div`
   & .actions {
     flex: 1;
     display: flex;
-    algin-items: center;
+    align-items: center;
     justify-content: flex-end;
+    gap: 12px;
   }
 `
 

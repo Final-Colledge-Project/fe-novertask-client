@@ -45,7 +45,8 @@ import {
   ReadOnlyInput,
   IssueTypeItem,
   PlaceHolder,
-  Watcher
+  Watcher,
+  LogItem
 } from './style'
 import DateTimeInput from '~/components/DateTimeInput'
 import GeneralLoading from '../components/GeneralLoading'
@@ -58,7 +59,13 @@ import Subtask from './components/Subtask'
 import AddSubtask from './components/AddSubtask'
 
 // services
-import { IBoard, ICard, ISubtask, IUpdatableCard } from '~/services/types'
+import {
+  IBoard,
+  ICard,
+  ISubtask,
+  ITaskLog,
+  IUpdatableCard
+} from '~/services/types'
 import {
   assignMemberToCard,
   getCard as getCardDetail,
@@ -82,6 +89,8 @@ import usePermission from '~/hooks/usePermission'
 import useInfo from '~/hooks/useInfo'
 import WatcherList from './components/WatcherList'
 import StoryPointInput from './components/StoryPointInput'
+import { getIssueLog } from '~/services/taskLogService'
+import { ISSUE_MODELS } from '~/utils/constant/taskLog'
 
 const UPDATING_FIELDS = {
   description: 'description',
@@ -124,6 +133,9 @@ export default function CardDetail() {
 
   const [dueDateError, setDueDateError] = useState<string>()
   const [currentDueDate, setCurrentDueDate] = useState<Date | Dayjs | null>()
+
+  const [logs, setLogs] = useState<ITaskLog[]>([])
+  const memberData = useSelector((state: StoreType) => state.board.members)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cardId = useMemo(() => board?.key + '-' + card?.cardId, [board, card])
@@ -324,6 +336,15 @@ export default function CardDetail() {
     }
   }
 
+  const getUserInfoById = (userId: string) => {
+    if (!memberData || !userId) return null
+    let info = memberData.members.find((member) => member._id === userId)
+    if (!info) {
+      info = memberData.oweners.find((member) => member._id === userId)
+    }
+    return info
+  }
+
   const getCard = async () => {
     try {
       const res = await getCardDetail({ cardId: selectedCardId as string })
@@ -331,6 +352,21 @@ export default function CardDetail() {
         setCard(res.data)
         setImageUrl(res.data.cover)
         setCurrentDueDate(dayjs(res.data.dueDate))
+      }
+    } catch (err) {
+      enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
+    }
+  }
+
+  const getLogs = async () => {
+    try {
+      const res = await getIssueLog({
+        boardId: boardId as string,
+        id: selectedCardId as string,
+        model: ISSUE_MODELS.card
+      })
+      if (res && res.data) {
+        setLogs(res.data)
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -438,6 +474,13 @@ export default function CardDetail() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [boardId])
+
+  useEffect(() => {
+    if (boardId && selectedCardId) {
+      getLogs()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boardId, selectedCardId])
 
   const handleCancel = () => {
     setFile(undefined)
@@ -657,6 +700,35 @@ export default function CardDetail() {
                       />
                     ))}
                   </SubTaskContainer>
+                </Section>
+
+                <div className="part__divider"></div>
+                <Section className="section">
+                  <div className="section__header">
+                    <p className="section__title">History</p>
+                  </div>
+                  {logs.map((log) => (
+                    <LogItem>
+                      <Tooltip
+                        title={
+                          getUserInfoById(log.userId)?.firstName +
+                          ' ' +
+                          getUserInfoById(log.userId)?.lastName
+                        }>
+                        <Avatar>
+                          <img
+                            src={getUserInfoById(log.userId)?.avatar}
+                            alt=""
+                          />
+                        </Avatar>
+                      </Tooltip>
+                      <p>{`${
+                        getUserInfoById(log.userId)?.firstName +
+                        ' ' +
+                        getUserInfoById(log.userId)?.lastName
+                      } ${log.msg} ${log.issueModel}`}</p>
+                    </LogItem>
+                  ))}
                 </Section>
               </CardInfoPart>
 

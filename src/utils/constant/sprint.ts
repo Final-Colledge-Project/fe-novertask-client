@@ -1,4 +1,4 @@
-export const SPRINT_DURATION_IN_WEEK = [0, 1, 2, 3, 4]
+export const SPRINT_DURATION_IN_WEEK = ['custom', 1, 2, 3, 4]
 
 export const SPRINT_STATUS = {
   pending: 'pending',
@@ -9,5 +9,6 @@ export const SPRINT_STATUS = {
 
 export const SPRINT_MODAL_VIEW_MODE = {
   create: 1,
-  edit: 2
+  edit: 2,
+  start: 3
 }

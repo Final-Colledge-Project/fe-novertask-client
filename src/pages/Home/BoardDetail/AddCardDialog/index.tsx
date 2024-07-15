@@ -32,7 +32,8 @@ import { createCard } from '~/services/cardService'
 import { enqueueSnackbar } from 'notistack'
 import { AxiosError } from 'axios'
 import { setShouldRefreshBoardDetail } from '~/redux/boardSlice'
-import { showLoading } from '~/redux/progressSlice'
+import { hideLoading, showLoading } from '~/redux/progressSlice'
+import { SPRINT_STATUS } from '~/utils/constant'
 
 const AddCardDialog = (props: IProps) => {
   const defaultCard = {
@@ -118,7 +119,7 @@ const AddCardDialog = (props: IProps) => {
       } catch (err) {
         enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
       } finally {
-        dispatch(showLoading())
+        dispatch(hideLoading())
       }
     }
   }
@@ -164,7 +165,14 @@ const AddCardDialog = (props: IProps) => {
       handleChange('priorityId', priorityData[0]._id)
     }
     if (sprintData && sprintData.length > 0 && issue.sprintId === undefined) {
-      handleChange('sprintId', sprintData[0]._id)
+      const backlog = sprintData.find(
+        (sprint) => sprint.status === SPRINT_STATUS.backlog
+      )
+      if (backlog) {
+        handleChange('sprintId', backlog._id)
+      } else {
+        handleChange('sprintId', sprintData[0]._id)
+      }
     }
   }, [board, openDialog])
 
@@ -189,11 +197,13 @@ const AddCardDialog = (props: IProps) => {
                   handleChange('sprintId', e.target.value as string)
                 }
                 sx={{ height: '35px', 'MuiInputBase-root': { width: '100%' } }}>
-                {sprintData.map((sprint) => (
-                  <MenuItem key={sprint._id} value={sprint._id}>
-                    {sprint.name}
-                  </MenuItem>
-                ))}
+                {sprintData
+                  .filter((sprint) => sprint.status !== SPRINT_STATUS.completed)
+                  .map((sprint) => (
+                    <MenuItem key={sprint._id} value={sprint._id}>
+                      {sprint.name}
+                    </MenuItem>
+                  ))}
                 {sprintData.length === 0 && (
                   <Empty
                     description="No issue type available!"

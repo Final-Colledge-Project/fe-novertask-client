@@ -1,6 +1,14 @@
+/* eslint-disable indent */
 import WindowDialog from '~/components/dialog/WIndowDialog'
 import IProps from './IProps'
-import { ActionButtonsGroup, Body, Container, Group, SubTitle } from './styles'
+import {
+  ActionButtonsGroup,
+  Body,
+  Container,
+  Error,
+  Group,
+  SubTitle
+} from './styles'
 import { Button, MenuItem, Select, TextField } from '@mui/material'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
@@ -10,92 +18,103 @@ import {
 } from '~/utils/constant/sprint'
 import DateInput from '~/components/DateInput'
 import { calculateEndDate } from '~/utils/helper'
-import { createSprint } from '~/services/sprintService'
+import { createSprint, updateSprint } from '~/services/sprintService'
 import { enqueueSnackbar } from 'notistack'
+import { cloneDeep } from 'lodash'
+import { DATE_FORMAT, SPRINT_STATUS } from '~/utils/constant'
 
 export default function AddSprintDialog(props: IProps) {
   // ----------------PROPS----------------
-  const { open, onCancel, board, createSuccessCb, mode } = props
-  const [sprint, setSprint] = useState({
-    title: '',
+  const { open, onCancel, board, createSuccessCb, mode, defaultSprint } = props
+  const isCreateMode = () => mode === SPRINT_MODAL_VIEW_MODE.create
+  const isEditMode = () => mode === SPRINT_MODAL_VIEW_MODE.edit
+  const isStartMode = () => mode === SPRINT_MODAL_VIEW_MODE.start
+  const emptySprint = {
+    name: '',
     duration: 0,
     startDate: dayjs().toDate(),
     endDate: dayjs().toDate(),
-    goal: ''
-  })
-  const [error, setError] = useState({
-    title: '',
+    goal: '',
+    status: '',
+    _id: ''
+  }
+  const emptyError = {
+    name: '',
     duration: '',
     startDate: '',
     endDate: '',
-    goal: ''
-  })
+    goal: '',
+    status: ''
+  }
+  const initSprint = isCreateMode()
+    ? cloneDeep(emptySprint)
+    : cloneDeep(defaultSprint)
+  const [sprint, setSprint] = useState(initSprint)
+  const [error, setError] = useState(cloneDeep(emptyError))
 
   // ----------------FUNCTIONS----------------
   const handleCloseDialog = () => {
-    setSprint({
-      title: '',
-      duration: 0,
-      startDate: dayjs().toDate(),
-      endDate: dayjs().toDate(),
-      goal: ''
-    })
-    setError({
-      title: '',
-      duration: '',
-      startDate: '',
-      endDate: '',
-      goal: ''
-    })
+    setSprint(initSprint)
+    setError(cloneDeep(emptyError))
     onCancel()
   }
 
   const validate = () => {
     let isValid = true
-    const newError = {
-      title: '',
-      duration: '',
-      startDate: '',
-      endDate: '',
-      goal: ''
-    }
+    const newError = cloneDeep(emptyError)
 
-    if (!sprint.title) {
-      newError.title = 'Title is required'
+    if (!sprint?.name) {
+      newError.name = 'Title is required'
       isValid = false
     } else {
-      if (sprint.title.length < 2) {
-        newError.title = 'Title must be at least 2 characters long'
+      if (sprint?.name.length < 2) {
+        newError.name = 'Title must be at least 2 characters long'
         isValid = false
       }
-      if (sprint.title.length > 100) {
-        newError.title = 'Title must be at most 100 characters long'
+      if (sprint?.name.length > 100) {
+        newError.name = 'Title must be at most 100 characters long'
         isValid = false
       }
     }
 
-    if (!sprint.startDate) {
+    if (!sprint?.startDate) {
       newError.startDate = 'Start date is required'
       isValid = false
     }
 
-    if (!sprint.endDate) {
+    if (!sprint?.endDate) {
       newError.endDate = 'End date is required'
       isValid = false
     }
 
-    if (sprint.goal) {
-      if (sprint.goal.length < 2) {
+    // check if start date is before now
+    if (dayjs(sprint?.startDate).isBefore(dayjs().startOf('day'))) {
+      newError.startDate = 'Start date must be after today'
+      isValid = false
+    }
+
+    // check if end date is before now
+    if (dayjs(sprint?.endDate).isBefore(dayjs().startOf('day'))) {
+      newError.endDate = 'End date must be after today'
+      isValid = false
+    }
+
+    if (isCustomDuration()) {
+      // check if end date is before or equal start date
+      if (dayjs(sprint?.endDate).isBefore(dayjs(sprint?.startDate))) {
+        newError.endDate = 'End date must be after start date'
+        isValid = false
+      }
+    }
+    if (sprint?.goal) {
+      if (sprint?.goal.length < 2) {
         newError.goal = 'Goal must be at least 2 characters long'
         isValid = false
       }
-      if (sprint.goal.length > 2000) {
+      if (sprint?.goal.length > 2000) {
         newError.goal = 'Goal must be at most 2000 characters long'
         isValid = false
       }
-    } else {
-      newError.goal = 'Goal is required'
-      isValid = false
     }
 
     setError(newError)
@@ -105,17 +124,86 @@ export default function AddSprintDialog(props: IProps) {
   const handleCreateSprint = async () => {
     if (!validate()) return
     try {
+      const data: {
+        name: string
+        goal?: string
+      } = {
+        name: sprint?.name as string
+      }
+      if (sprint?.goal) {
+        data['goal'] = sprint?.goal
+      }
       await createSprint({
         boardId: board._id,
         sprint: {
-          name: sprint.title,
-          goal: sprint.goal
+          ...data
         }
       })
+      enqueueSnackbar('Create sprint successfully', { variant: 'success' })
       createSuccessCb()
       handleCloseDialog()
     } catch (e) {
       enqueueSnackbar('Create sprint failed', { variant: 'error' })
+    }
+  }
+
+  const handleStartSprint = async () => {
+    if (!validate()) return
+    if (!board?._id || !sprint?._id) return
+    try {
+      if (isEditMode()) {
+        const data: {
+          name: string
+          goal?: string
+        } = {
+          name: sprint?.name as string
+        }
+        if (sprint?.goal) {
+          data['goal'] = sprint?.goal
+        }
+        await updateSprint({
+          boardId: board._id,
+          sprint: {
+            _id: sprint._id,
+            ...data
+          }
+        })
+        enqueueSnackbar('Edit sprint successfully', { variant: 'success' })
+      } else {
+        await updateSprint({
+          boardId: board._id,
+          sprint: {
+            name: sprint.name,
+            duration:
+              sprint?.duration === 'custom' ? 0 : (sprint?.duration as number),
+            startDate: dayjs(sprint?.startDate).format(DATE_FORMAT).toString(),
+            endDate: dayjs(sprint?.endDate).format(DATE_FORMAT).toString(),
+            goal: sprint?.goal,
+            _id: sprint._id,
+            status: SPRINT_STATUS.active
+          }
+        })
+        enqueueSnackbar('Start sprint successfully', { variant: 'success' })
+      }
+
+      createSuccessCb()
+      handleCloseDialog()
+    } catch (e) {
+      enqueueSnackbar('Start sprint failed', { variant: 'error' })
+    }
+  }
+
+  const onSubmit = () => {
+    switch (mode) {
+      case SPRINT_MODAL_VIEW_MODE.create:
+        handleCreateSprint()
+        break
+      case SPRINT_MODAL_VIEW_MODE.edit:
+      case SPRINT_MODAL_VIEW_MODE.start:
+        handleStartSprint()
+        break
+      default:
+        break
     }
   }
 
@@ -126,20 +214,30 @@ export default function AddSprintDialog(props: IProps) {
     })
   }
 
-  const displayDuration = (duration: number) => {
+  const displayDuration = (duration: number | string) => {
     // if 0 show 'custom'
-    if (duration === 0) {
+    if (duration === 0 || duration === 'custom') {
       return 'Custom'
     }
-    return `${duration} week${duration > 1 ? 's' : ''}`
+    if (typeof duration === 'number')
+      return `${duration} week${duration > 1 ? 's' : ''}`
   }
 
   const isCustomDuration = () => {
-    return sprint.duration === 0
+    return sprint?.duration === 0 || sprint?.duration === 'custom'
   }
 
-  const isCreateMode = () => mode === SPRINT_MODAL_VIEW_MODE.create
-  const isEditMode = () => mode === SPRINT_MODAL_VIEW_MODE.edit
+  const windowTitle = () => {
+    if (isStartMode()) return 'Start Sprint'
+    if (isEditMode()) return 'Edit Sprint'
+    return 'Create Sprint'
+  }
+
+  const submitButtonText = () => {
+    if (isStartMode()) return 'Start'
+    if (isEditMode()) return 'Save'
+    return 'Create'
+  }
 
   // ----------------EFFECT----------------
   useEffect(() => {
@@ -147,16 +245,28 @@ export default function AddSprintDialog(props: IProps) {
     else {
       if (!board?.workingDays.length) return
       const endDate = calculateEndDate(
-        sprint.startDate,
-        sprint.duration,
+        sprint?.startDate as Date,
+        sprint?.duration as number,
         board.workingDays
       )
       setSprint({ ...sprint, endDate: endDate })
     }
-  }, [sprint, board])
+  }, [board])
 
+  useEffect(() => {
+    if (
+      (isStartMode() || isEditMode()) &&
+      !sprint?.endDate &&
+      !sprint?.startDate &&
+      sprint
+    ) {
+      const initEndDate = dayjs().toDate()
+      const initStartDate = dayjs().toDate()
+      setSprint({ ...sprint, endDate: initEndDate, startDate: initStartDate })
+    }
+  }, [])
   return (
-    <WindowDialog open={open} onClose={handleCloseDialog} title="Create sprint">
+    <WindowDialog open={open} onClose={handleCloseDialog} title={windowTitle()}>
       <Container>
         <Body>
           {/* ----------TITLE--------- */}
@@ -166,15 +276,15 @@ export default function AddSprintDialog(props: IProps) {
               label=""
               placeholder="Sprint name..."
               size="small"
-              value={sprint.title}
-              onChange={(e) => handleUpdateSprint('title', e.target.value)}
-              error={!!error.title}
-              helperText={error.title}
+              value={sprint?.name}
+              onChange={(e) => handleUpdateSprint('name', e.target.value)}
+              error={!!error.name}
+              helperText={error.name}
             />
           </Group>
 
           {/* ----------DURATION--------- */}
-          {isEditMode() && (
+          {isStartMode() && (
             <Group>
               <SubTitle $isRequired>Duration</SubTitle>
               <Select
@@ -182,7 +292,7 @@ export default function AddSprintDialog(props: IProps) {
                 placeholder="Duration"
                 size="small"
                 error={!!error.duration}
-                value={sprint.duration}
+                value={sprint?.duration}
                 onChange={(e) =>
                   handleUpdateSprint('duration', Number(e.target.value))
                 }>
@@ -196,7 +306,7 @@ export default function AddSprintDialog(props: IProps) {
           )}
 
           {/* ----------DATE--------- */}
-          {isEditMode() && (
+          {isStartMode() && (
             <Group className="row c-gap-5">
               <Group className="level-2 mb-0">
                 <SubTitle $isRequired={true}>Start date</SubTitle>
@@ -204,19 +314,22 @@ export default function AddSprintDialog(props: IProps) {
                   label=""
                   disablePast
                   size="small"
+                  error={!!error.startDate}
                   sx={{ height: '35px' }}
                   onChange={(date: Date) =>
                     handleUpdateSprint('startDate', date)
                   }
-                  value={dayjs(sprint.startDate)}
+                  value={dayjs(sprint?.startDate)}
                 />
+                {error.startDate && <Error>{error.startDate}</Error>}
               </Group>
               <Group className="level-2 mb-0">
                 <SubTitle $isRequired>End date</SubTitle>
                 <DateInput
                   label=""
                   size="small"
-                  minDate={dayjs(sprint.startDate)}
+                  error={!!error.endDate}
+                  minDate={dayjs(sprint?.startDate)}
                   sx={{
                     height: '35px',
                     '.Mui-disabled': {
@@ -224,16 +337,17 @@ export default function AddSprintDialog(props: IProps) {
                     }
                   }}
                   onChange={(date: Date) => handleUpdateSprint('endDate', date)}
-                  value={dayjs(sprint.endDate)}
+                  value={dayjs(sprint?.endDate)}
                   disabled={!isCustomDuration()}
                 />
+                {error.endDate && <Error>{error.endDate}</Error>}
               </Group>
             </Group>
           )}
 
           {/* ----------GOAL--------- */}
           <Group>
-            <SubTitle $isRequired>Goal</SubTitle>
+            <SubTitle>Goal</SubTitle>
             <TextField
               error={!!error.goal}
               helperText={error.goal}
@@ -242,7 +356,7 @@ export default function AddSprintDialog(props: IProps) {
               rows={4}
               placeholder="Sprint goal..."
               size="small"
-              value={sprint.goal}
+              value={sprint?.goal}
               onChange={(e) => handleUpdateSprint('goal', e.target.value)}
             />
           </Group>
@@ -255,8 +369,8 @@ export default function AddSprintDialog(props: IProps) {
             onClick={handleCloseDialog}>
             Cancel
           </Button>
-          <Button size="small" variant="contained" onClick={handleCreateSprint}>
-            {isEditMode() ? 'Start' : 'Create'}
+          <Button size="small" variant="contained" onClick={onSubmit}>
+            {submitButtonText()}
           </Button>
         </ActionButtonsGroup>
       </Container>

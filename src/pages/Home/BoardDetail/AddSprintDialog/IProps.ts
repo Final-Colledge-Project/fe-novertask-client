@@ -1,4 +1,4 @@
-import { IBoard } from '~/services/types'
+import { IBoard, ISprint } from '~/services/types'
 
 export default interface IProps {
   open: boolean
@@ -6,4 +6,5 @@ export default interface IProps {
   board: IBoard
   createSuccessCb: () => void
   mode: number
+  defaultSprint?: ISprint
 }

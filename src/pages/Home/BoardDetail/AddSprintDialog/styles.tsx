@@ -31,10 +31,10 @@ export const Group = styled.div`
   flex-direction: column;
   gap: 4px;
   margin-bottom: 20px;
-
+  
   &.row {
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     column-gap: 10px;
   }
 

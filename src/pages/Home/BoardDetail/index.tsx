@@ -14,7 +14,7 @@ import clsx from 'clsx'
 import { AxiosError } from 'axios'
 import { enqueueSnackbar } from 'notistack'
 import { useDispatch, useSelector } from 'react-redux'
-import { cloneDeep, isEmpty } from 'lodash'
+import { cloneDeep, isEmpty, without } from 'lodash'
 
 // component libraries
 import {
@@ -142,7 +142,10 @@ import ActionMenu from './ActionMenu'
 import AddCardDialog from './AddCardDialog'
 import { StringSchema } from 'yup'
 import Sprint from './Sprint'
-import { getAllSprintsDetail } from '~/services/sprintService'
+import {
+  getAllSprintsByBoard,
+  getAllSprintsDetail
+} from '~/services/sprintService'
 import AddSprintDialog from './AddSprintDialog'
 import { SPRINT_MODAL_VIEW_MODE, SPRINT_STATUS } from '~/utils/constant/sprint'
 import { fetchSprints } from '~/redux/sprintSlice/actions'
@@ -177,6 +180,7 @@ const BoardDetail = () => {
   )
   const [addingColumn, setAddingColumn] = useState(false)
   const [openAddSprint, setOpenAddSprint] = useState(false)
+  const originalBoard = useRef<IBoard | undefined>()
 
   // logged user info
   const userInfo = useSelector((state: StoreType) => state.auth.userInfo)
@@ -263,13 +267,42 @@ const BoardDetail = () => {
       // dispatch(showLoading())
       dispatch(setCreateColumn({ loading: true }))
       const res = await getBoardDetail({ id: id as string })
-      if (res && res?.data) {
+      if (res?.data) {
         const board = res.data
+        originalBoard.current = cloneDeep(board)
         if (board.columns && board.columnOrderIds) {
           const { columns, columnOrderIds } = board
 
           // reorder columns by order
           board.columns = mapOrder(columns, columnOrderIds, '_id')
+
+          // filter by current sprint
+          if (board?.template === BOARD_TEMPLATE.SCRUM) {
+            const sprints = await getAllSprintsByBoard(id as string)
+            if (sprints) {
+              board?.columns?.forEach((column) => {
+                const currentSprint = sprints.find(
+                  (sprint) => sprint.status === SPRINT_STATUS.active
+                )
+                const backlog = sprints.find(
+                  (sprint) => sprint.status === SPRINT_STATUS.backlog
+                )
+                if (currentSprint) {
+                  column.cards = column.cards?.filter(
+                    (card) => card.sprintId === currentSprint._id
+                  )
+                } else {
+                  column.cards = column.cards?.filter(
+                    (card) => card.sprintId === backlog?._id
+                  )
+                }
+
+                column.cardOrderIds = column.cards?.map(
+                  (c) => c._id
+                ) as string[]
+              })
+            }
+          }
 
           board.columns.forEach((column) => {
             // create key for each card base on baord identifier
@@ -304,9 +337,10 @@ const BoardDetail = () => {
             }
           })
           setOrderedColumns(mapOrder(columns, columnOrderIds, '_id'))
+
           // console.log(mapOrder(columns, columnOrderIds, '_id'))
         }
-        setBoard(board)
+        setBoard(cloneDeep(board))
       }
     } catch (err) {
       const message = (err as AxiosError).message
@@ -385,7 +419,7 @@ const BoardDetail = () => {
       }
       getAllPermission()
     }
-  }, [id, board, isMemberOfBoard])
+  }, [id, isMemberOfBoard])
 
   useEffect(() => {
     // clear permission when get out of board
@@ -775,12 +809,100 @@ const BoardDetail = () => {
       const overColumn = findColumnByCardID(overCardId as string)
 
       if (!activeColumn || !overColumn) return
-      newChangesWithDiffColumn.current &&
-        updateColumnCardsOrder(
-          [...newChangesWithDiffColumn.current],
-          activeDraggingCardId as string
-        )
-      newChangesWithDiffColumn.current = undefined
+      //  KANBAN
+      if (board?.template === BOARD_TEMPLATE.KANBAN) {
+        newChangesWithDiffColumn.current &&
+          updateColumnCardsOrder(
+            [...newChangesWithDiffColumn.current],
+            activeDraggingCardId as string
+          )
+
+        newChangesWithDiffColumn.current = undefined
+      }
+      // SCRUM
+      else if (originalBoard.current) {
+        newChangesWithDiffColumn.current?.forEach((column) => {
+          const originColumn = cloneDeep(
+            originalBoard.current?.columns?.find((c) => c._id === column.id)
+          )
+
+          // from column
+          if (
+            originColumn &&
+            originColumn?.cardOrderIds.includes(activeDraggingCardId as string)
+          ) {
+            console.log('original Column:', originColumn)
+            column.changes.cardOrderIds = originColumn.cardOrderIds.filter(
+              (id) => id !== (activeDraggingCardId as string)
+            )
+          }
+          // to column
+          else if (originColumn) {
+            if (column.changes.cardOrderIds.length === 1) {
+              column.changes.cardOrderIds = [
+                ...without(
+                  originColumn.cardOrderIds,
+                  activeDraggingCardId as string
+                ),
+                activeDraggingCardId as string
+              ]
+            } else {
+              const indexInNewColumn = column.changes.cardOrderIds.findIndex(
+                (id) => id === activeDraggingCardId
+              )
+              if (indexInNewColumn === 0) {
+                column.changes.cardOrderIds = [
+                  activeDraggingCardId as string,
+                  ...without(
+                    originColumn.cardOrderIds,
+                    activeDraggingCardId as string
+                  )
+                ]
+              } else if (
+                indexInNewColumn ===
+                column.changes.cardOrderIds.length - 1
+              ) {
+                column.changes.cardOrderIds = [
+                  ...without(
+                    originColumn.cardOrderIds,
+                    activeDraggingCardId as string
+                  ),
+                  activeDraggingCardId as string
+                ]
+              } else {
+                // get before id of dragging card
+                const beforeId =
+                  column.changes.cardOrderIds[indexInNewColumn - 1]
+                // get after id of dragging card
+
+                const beforeIndex = originColumn.cardOrderIds.findIndex(
+                  (id) => id === beforeId
+                )
+                // add dragging card to new column
+                column.changes.cardOrderIds.splice(
+                  beforeIndex + 1,
+                  0,
+                  activeDraggingCardId as string
+                )
+              }
+            }
+          }
+
+          column.changes.cardOrderIds = column.changes.cardOrderIds.filter(
+            (id) => !id.startsWith('placeholder')
+          )
+        })
+        console.log(newChangesWithDiffColumn.current)
+        newChangesWithDiffColumn.current &&
+          updateColumnCardsOrder(
+            [...newChangesWithDiffColumn.current],
+            activeDraggingCardId as string
+          )
+
+        newChangesWithDiffColumn.current = undefined
+      } else {
+        //
+      }
 
       // Phải dùng column khi bắt đầu kéo thả chứ không phải activeItem
       // Vì khi kéo state đã bị thay đổi ở handleDragOver
@@ -821,16 +943,76 @@ const BoardDetail = () => {
             targetColumn.cardOrderIds = nextOrderedCards.map((card) => card._id)
             // console.log('[Move card in the same column] > ', nextOrderColumns)
 
-            updateColumnCardsOrder([
-              {
-                id: targetColumn._id,
-                changes: {
-                  cardOrderIds: targetColumn.cards
-                    .filter((c) => !c.FE_ONLY_PLACEHOLDER)
-                    .map((c) => c._id)
+            // UPDATE FOR KANBAN
+            if (board?.template === BOARD_TEMPLATE.KANBAN) {
+              updateColumnCardsOrder([
+                {
+                  id: targetColumn._id,
+                  changes: {
+                    cardOrderIds: targetColumn.cards
+                      .filter((c) => !c.FE_ONLY_PLACEHOLDER)
+                      .map((c) => c._id)
+                  }
                 }
+              ])
+            }
+            // UPDATE FOR SCRUM
+            else if (originalBoard.current) {
+              const lengthAfterFilter = targetColumn.cardOrderIds.length
+              const indexAfterFilter = targetColumn.cardOrderIds.findIndex(
+                (id) => id === activeDraggingCardId
+              )
+              const columnBeforeFilter = cloneDeep(
+                originalBoard.current?.columns?.find(
+                  (c) => c._id === targetColumn._id
+                )
+              )
+              if (columnBeforeFilter) {
+                if (
+                  indexAfterFilter < lengthAfterFilter - 1 &&
+                  lengthAfterFilter > 1
+                ) {
+                  const nextCardId = targetColumn.cardOrderIds[indexAfterFilter]
+                  const originNextIndexCardId =
+                    columnBeforeFilter.cardOrderIds.findIndex(
+                      (id) => id === nextCardId
+                    )
+                  columnBeforeFilter.cardOrderIds = without(
+                    columnBeforeFilter.cardOrderIds,
+                    activeDraggingCardId as string
+                  )
+                  columnBeforeFilter.cardOrderIds.splice(
+                    originNextIndexCardId,
+                    0,
+                    activeDraggingCardId as string
+                  )
+                } else if (lengthAfterFilter > 1) {
+                  const prevCardId =
+                    targetColumn.cardOrderIds[indexAfterFilter - 1]
+                  const originPrevIndexCardId =
+                    columnBeforeFilter.cardOrderIds.findIndex(
+                      (id) => id === prevCardId
+                    )
+                  columnBeforeFilter.cardOrderIds = without(
+                    columnBeforeFilter.cardOrderIds,
+                    activeDraggingCardId as string
+                  )
+                  columnBeforeFilter.cardOrderIds.splice(
+                    originPrevIndexCardId + 1,
+                    0,
+                    activeDraggingCardId as string
+                  )
+                }
+                updateColumnCardsOrder([
+                  {
+                    id: targetColumn._id,
+                    changes: {
+                      cardOrderIds: columnBeforeFilter.cardOrderIds
+                    }
+                  }
+                ])
               }
-            ])
+            }
             return nextOrderColumns
           })
         }
@@ -1145,14 +1327,20 @@ const BoardDetail = () => {
         {isTaskView() && (
           <TypeHeader>
             <TypeMenu>
-              {viewList.map((type) => (
-                <TypeItem
-                  className={clsx(viewType === type && 'index')}
-                  onClick={() => setViewType(type)}
-                  key={type}>
-                  {type}
-                </TypeItem>
-              ))}
+              {viewList
+                .filter(
+                  (item) =>
+                    board?.template !== BOARD_TEMPLATE.SCRUM &&
+                    item !== 'Backlog'
+                )
+                .map((type) => (
+                  <TypeItem
+                    className={clsx(viewType === type && 'index')}
+                    onClick={() => setViewType(type)}
+                    key={type}>
+                    {type}
+                  </TypeItem>
+                ))}
             </TypeMenu>
 
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -1248,7 +1436,7 @@ const BoardDetail = () => {
                   sprint={sprint}
                   board={board as IBoard}
                   canStartSprint={!haveSprintActive()}
-                  updateSuccessCb={getSprintsDetail}
+                  updateSuccessCb={getBoard}
                 />
               ))}
 
@@ -1264,7 +1452,7 @@ const BoardDetail = () => {
 
               <AddSprintDialog
                 board={board as IBoard}
-                createSuccessCb={getSprintsDetail}
+                createSuccessCb={getBoard}
                 open={openAddSprint}
                 onCancel={() => handleAddingSprint(false)}
                 mode={SPRINT_MODAL_VIEW_MODE.create}

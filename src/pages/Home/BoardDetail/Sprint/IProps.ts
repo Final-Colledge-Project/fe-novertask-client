@@ -4,4 +4,5 @@ export interface IProps {
   sprint: ISprint
   board: IBoard
   canStartSprint?: boolean
+  updateSuccessCb?: () => void
 }
