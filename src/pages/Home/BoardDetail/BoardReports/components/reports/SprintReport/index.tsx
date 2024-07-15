@@ -88,6 +88,9 @@ const SprintReport = (props: ISprintReportProps) => {
               <Select
                 value={selectedSprint}
                 onChange={handleChangeSprint}
+                sx={{
+                  width: '200px'
+                }}
                 size="small">
                 {sprintOptions.map((item) => (
                   <MenuItem key={item.value} value={item.value}>
