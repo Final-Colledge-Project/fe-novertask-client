@@ -239,10 +239,11 @@ export const downloadAttachment = async (body: IDownloadAttachmentBody) => {
         params: {
           fileName: body.fileName
         }
+        // responseType: 'blob'
       }
     )
-    if (res && res.status === 200 && res.data) {
-      return res.data
+    if (res) {
+      return res
     }
   } catch (error) {
     const status = (error as AxiosError).response?.status

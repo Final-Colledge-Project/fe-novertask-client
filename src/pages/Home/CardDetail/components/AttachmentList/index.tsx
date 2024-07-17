@@ -32,6 +32,39 @@ export default function AttachmentList(props: Readonly<IProps>) {
     }
   }
 
+  const downloadFile = (url, name) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('GET', url, true)
+    xhr.responseType = 'blob'
+
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        const blob = xhr.response
+        const urlCreator = window.URL || window.webkitURL
+        const downloadUrl = urlCreator.createObjectURL(blob)
+
+        const tag = document.createElement('a')
+        tag.href = downloadUrl
+        tag.download = name
+
+        document.body.appendChild(tag)
+        tag.click()
+        document.body.removeChild(tag)
+      } else {
+        console.error(
+          'Failed to download file. Server returned status:',
+          xhr.status
+        )
+      }
+    }
+
+    xhr.onerror = function () {
+      console.error('Failed to download file. Network error occurred.')
+    }
+
+    xhr.send()
+  }
+
   const handleDownloadAttachment = async (name: string) => {
     if (!card || !boardId) return
     try {
@@ -40,12 +73,15 @@ export default function AttachmentList(props: Readonly<IProps>) {
         cardId: card._id,
         fileName: name
       })
-      if (res) {
-        enqueueSnackbar('Download attachment successfully', {
-          variant: 'success'
-        })
-      }
+      const url = res?.data?.data
+      downloadFile(url, name)
+      // if (res) {
+      //   enqueueSnackbar('Download attachment successfully', {
+      //     variant: 'success'
+      //   })
+      // }
     } catch (e) {
+      console.log('~~~~~~>e', e)
       // handle err
     }
   }

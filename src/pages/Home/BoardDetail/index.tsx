@@ -149,6 +149,7 @@ import {
 import AddSprintDialog from './AddSprintDialog'
 import { SPRINT_MODAL_VIEW_MODE, SPRINT_STATUS } from '~/utils/constant/sprint'
 import { fetchSprints } from '~/redux/sprintSlice/actions'
+import ListView from './ListView'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -175,6 +176,10 @@ const BoardDetail = () => {
     {
       text: 'Backlog',
       templates: [BOARD_TEMPLATE.SCRUM]
+    },
+    {
+      text: 'List View',
+      templates: [BOARD_TEMPLATE.KANBAN, BOARD_TEMPLATE.SCRUM]
     }
   ]
   const { id } = useParams()
@@ -1204,6 +1209,7 @@ const BoardDetail = () => {
 
   const isKanbanView = () => viewType === 'Kanban'
   const isBacklogView = () => viewType === 'Backlog'
+  const isListView = () => viewType === 'List View'
   const haveSprintActive = () => {
     if (sprints) {
       return sprints.find((sprint) => sprint.status === SPRINT_STATUS.active)
@@ -1467,6 +1473,11 @@ const BoardDetail = () => {
             </Body>
           )
         }
+        {isTaskView() && isListView() && (
+          <Body>
+            <ListView />
+          </Body>
+        )}
 
         <Routes>
           <Route element={<BoardViewLayout />} path="*">
