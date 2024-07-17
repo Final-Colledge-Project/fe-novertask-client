@@ -16,6 +16,7 @@ import {
   CARD_DESCRIPTION_MAX_LENGTH
 } from '~/utils/constant/card'
 import { Button } from '@mui/material'
+import { toDescriptionObject } from '~/utils/helper'
 
 interface IProps {
   card: ICard
@@ -38,25 +39,12 @@ export default function DescriptionInput({
   }
 
   const onReset = () => {
-    setDescription(toObject(card.description))
+    setDescription(toDescriptionObject(card.description))
     changeMode(CARD_DESC_MODE.VIEW)
   }
 
   const handleChangeDesc = (newData: IDescription) => {
     setDescription(newData)
-  }
-
-  const toObject = (descriptionStr: string): IDescription => {
-    let descriptionObject: IDescription
-    try {
-      descriptionObject = JSON.parse(descriptionStr)
-    } catch (e) {
-      descriptionObject = {
-        content: descriptionStr,
-        formatter: `<p>${descriptionStr}</p>`
-      }
-    }
-    return cloneDeep(descriptionObject)
   }
 
   const changeMode = (mode: number) => {
@@ -66,7 +54,7 @@ export default function DescriptionInput({
   const isDirty = () => {
     // if card is have just create => should be added <p> tag
     if (!description || !card) return false
-    const descObject = toObject(card.description)
+    const descObject = toDescriptionObject(card.description)
 
     return (
       descObject.content !== description.content ||
@@ -86,7 +74,7 @@ export default function DescriptionInput({
   useEffect(() => {
     const rawDescription = card.description
     if (!rawDescription) setDescription(undefined)
-    const descriptionObject = toObject(card.description)
+    const descriptionObject = toDescriptionObject(card.description)
     setDescription(descriptionObject)
   }, [card])
 

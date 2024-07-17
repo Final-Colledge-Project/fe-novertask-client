@@ -3,7 +3,9 @@ import axiosInstance from '../axiosInstance'
 import {
   IAssignMemberToCardBody,
   ICreateCardBody,
+  IDeleteAttachmentBody,
   IDeleteCard,
+  IDownloadAttachmentBody,
   IGetCardBody,
   IGetCardMembersBody,
   IUnassignMemberToCardBody,
@@ -195,6 +197,56 @@ export const deleteCard = async (body: IDeleteCard) => {
 
     if (status && status === 409) {
       throw new Error('Delete card failed!')
+    }
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const deleteAttachment = async (body: IDeleteAttachmentBody) => {
+  try {
+    const res = await axiosInstance.delete(
+      requests.deleteAttachment(body.cardId, body.boardId),
+      {
+        params: {
+          fileName: body.fileName
+        }
+      }
+    )
+    if (res && res.status === 200 && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    if (status && status === 409) {
+      throw new Error('Delete attachment failed!')
+    }
+
+    // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const downloadAttachment = async (body: IDownloadAttachmentBody) => {
+  try {
+    const res = await axiosInstance.get(
+      requests.downloadAttachment(body.cardId, body.boardId),
+      {
+        params: {
+          fileName: body.fileName
+        }
+      }
+    )
+    if (res && res.status === 200 && res.data) {
+      return res.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+
+    if (status && status === 409) {
+      throw new Error('Download attachment failed!')
     }
 
     // general error

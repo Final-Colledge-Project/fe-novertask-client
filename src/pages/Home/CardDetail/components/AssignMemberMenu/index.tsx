@@ -34,6 +34,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 import { refreshMembers, setMembers } from '~/redux/boardSlice'
 import Empty from '~/components/Empty'
+import { cardAssignToMe } from '~/services/cardService'
 
 export default function AssignMemberMenu({
   currentMembers,
@@ -137,6 +138,12 @@ export default function AssignMemberMenu({
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
     }
+  }
+
+  const getCardAssignToMe = async () => {
+    try {
+      const res = await cardAssignToMe()
+    } catch (e) {}
   }
 
   const handleAddMember = async (memberId: string) => {

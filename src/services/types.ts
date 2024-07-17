@@ -243,7 +243,6 @@ export interface ICard {
   updatedAt?: string
   FE_ONLY_PLACEHOLDER?: boolean
   isActive: boolean
-  attachments?: []
   reporter: {
     _id: string
     avatar: string
@@ -262,6 +261,7 @@ export interface ICard {
   issueTypeId?: string
   assigneeId?: string
   reporterIds?: string
+  attachments?: IAttachment[]
 }
 
 export interface ISubtask {

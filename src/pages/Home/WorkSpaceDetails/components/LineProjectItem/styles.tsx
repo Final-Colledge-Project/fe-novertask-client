@@ -150,7 +150,7 @@ export const Badge = styled.div`
   text-align: center;
   background-color: var(--mui-palette-green-main);
   color: var(--mui-palette-white-main);
-  &.private {
+  &.scrum {
     background-color: var(--mui-palette-orange-main);
   }
 `

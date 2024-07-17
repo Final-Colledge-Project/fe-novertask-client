@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import dayjs, { Dayjs } from 'dayjs'
 import { isEmpty } from 'lodash'
 import { useState, useEffect, useRef, useMemo } from 'react'
@@ -17,9 +18,22 @@ import {
   Select as MuiSelect,
   IconButton,
   Select,
-  Stack
+  Stack,
+  Tabs,
+  Tab
 } from '@mui/material'
-import { RiCheckLine, RiCloseLine, RiEyeLine, RiLinkM } from 'react-icons/ri'
+import {
+  RiAlertLine,
+  RiArrowRightLine,
+  RiCheckLine,
+  RiCloseLine,
+  RiEyeLine,
+  RiInformationLine,
+  RiLinkM,
+  RiSortAsc,
+  RiSortDesc
+} from 'react-icons/ri'
+import html from 'sanitize-html'
 
 // components
 import {
@@ -46,7 +60,10 @@ import {
   IssueTypeItem,
   PlaceHolder,
   Watcher,
-  LogItem
+  LogItem,
+  DataComparison,
+  LogData,
+  LogSection
 } from './style'
 import DateTimeInput from '~/components/DateTimeInput'
 import GeneralLoading from '../components/GeneralLoading'
@@ -62,6 +79,7 @@ import AddSubtask from './components/AddSubtask'
 import {
   IBoard,
   ICard,
+  IDescription,
   ISubtask,
   ITaskLog,
   IUpdatableCard
@@ -91,13 +109,31 @@ import WatcherList from './components/WatcherList'
 import StoryPointInput from './components/StoryPointInput'
 import { getIssueLog } from '~/services/taskLogService'
 import { ISSUE_MODELS } from '~/utils/constant/taskLog'
+import clsx from 'clsx'
+import Log from './components/Log'
+import History from './components/History'
+import FileUpload from './components/FileUpload'
+import AttachmentList from './components/AttachmentList'
+import { MAX_UPLOAD } from '~/utils/constant/common'
 
 const UPDATING_FIELDS = {
   description: 'description',
   priority: 'priority',
   dueDate: 'dueDate',
   label: 'label',
-  storyPoint: 'storyPoint'
+  storyPoint: 'storyPoint',
+  startDate: 'startDate'
+}
+
+const SORT_TYPES = {
+  newest: 'newest',
+  oldest: 'oldest'
+}
+
+const TABS = {
+  history: 'history',
+  comment: 'comment',
+  attachment: 'attachment'
 }
 
 type TPriority = keyof typeof PRIORITIES
@@ -134,8 +170,15 @@ export default function CardDetail() {
   const [dueDateError, setDueDateError] = useState<string>()
   const [currentDueDate, setCurrentDueDate] = useState<Date | Dayjs | null>()
 
+  const [startDateError, setStartDateError] = useState<string>()
+  const [currentStartDate, setCurrentStartDate] = useState<
+    Date | Dayjs | null
+  >()
+
+  const [infoSort, setInfoSort] = useState(SORT_TYPES.newest)
   const [logs, setLogs] = useState<ITaskLog[]>([])
   const memberData = useSelector((state: StoreType) => state.board.members)
+  const [tab, setTab] = useState(TABS.history)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cardId = useMemo(() => board?.key + '-' + card?.cardId, [board, card])
@@ -155,6 +198,10 @@ export default function CardDetail() {
   const priorityList = useSelector(
     (state: StoreType) => state.priority.allPriorities
   )
+
+  const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
+    setTab(newValue)
+  }
 
   const handleSocketUpdateCard = (memberId: string[]) => {
     const socket = socketIoClient(import.meta.env.VITE_SERVER_URL)
@@ -247,6 +294,7 @@ export default function CardDetail() {
   }
 
   const handleUpdateCard = async (changes: IUpdatableCard) => {
+    console.log(changes)
     // check permission before updating
     if (!canUpdateCard()) {
       enqueueSnackbar('You do not have permission to do this action!', {
@@ -302,6 +350,14 @@ export default function CardDetail() {
     setCurrentDueDate(dueDate ? dayjs(dueDate) : null)
   }
 
+  const handleUpdateStartDate = async (startDate: string) => {
+    if (startDateError) return
+    setUpdatingField(UPDATING_FIELDS.startDate)
+    await handleUpdateCard({ startDate })
+    setUpdatingField('')
+    setCurrentDueDate(startDate ? dayjs(startDate) : null)
+  }
+
   const handleUpdateIssueType = async (issueTypeId: string) => {
     await handleUpdateCard({ issueTypeId })
   }
@@ -322,6 +378,18 @@ export default function CardDetail() {
     if (newDate === 'Invalid Date' || newDate === 'minDate') return
     await handleUpdateDueDate(dayjs(e).format(DATE_FORMAT))
     setDueDateError(undefined)
+  }
+
+  const handleSubmitStartDate = async (e: Dayjs | Date | null) => {
+    // delete start date
+    if (e === null) {
+      await handleUpdateStartDate('')
+      return
+    }
+    const newDate = dayjs(e).format(DATE_FORMAT).toString()
+    if (newDate === 'Invalid Date' || newDate === 'minDate') return
+    await handleUpdateStartDate(dayjs(e).format(DATE_FORMAT))
+    setStartDateError(undefined)
   }
 
   const handleUpdateLabel = async (
@@ -351,13 +419,22 @@ export default function CardDetail() {
     return info
   }
 
+  const getUserFullName = (userId: string) => {
+    if (!memberData || !userId) return ''
+    const info = getUserInfoById(userId)
+    if (!info) return ''
+    return info.firstName + ' ' + info.lastName
+  }
+
   const getCard = async () => {
     try {
       const res = await getCardDetail({ cardId: selectedCardId as string })
       if (res && res.data) {
         setCard(res.data)
         setImageUrl(res.data.cover)
-        setCurrentDueDate(dayjs(res.data.dueDate))
+        if (res.data.startDate) setCurrentStartDate(dayjs(res.data.startDate))
+        if (res.data.dueDate) setCurrentDueDate(dayjs(res.data.dueDate))
+        await getLogs()
       }
     } catch (err) {
       enqueueSnackbar((err as AxiosError).message, { variant: 'error' })
@@ -537,10 +614,18 @@ export default function CardDetail() {
     }
   }
 
+  const changeSortType = () => {
+    if (infoSort === SORT_TYPES.newest) {
+      setInfoSort(SORT_TYPES.oldest)
+    } else {
+      setInfoSort(SORT_TYPES.newest)
+    }
+  }
+
   return (
     <Container onClick={() => {}}>
       <Modal onClick={(e) => e.stopPropagation()}>
-        {!(board && card) ? (
+        {!(board && card && logs) ? (
           <GeneralLoading />
         ) : (
           <>
@@ -710,35 +795,78 @@ export default function CardDetail() {
 
                 <div className="part__divider"></div>
                 <Section className="section">
-                  <div className="section__header">
-                    <p className="section__title">History</p>
+                  <div className="section__header section__header--multi-items">
+                    <div className="section__title">
+                      <Tabs
+                        value={tab}
+                        variant="standard"
+                        onChange={handleChangeTab}
+                        sx={{
+                          minHeight: '0',
+                          '.MuiTab-root': {
+                            padding: '8px 12px',
+                            minWidth: '0',
+                            minHeight: '0',
+                            textTransform: 'none'
+                          }
+                        }}
+                        aria-label="secondary tabs example">
+                        <Tab value={TABS.history} label="History" />
+                        <Tab value={TABS.comment} label="Comment" />
+                        <Tab value={TABS.attachment} label="Attachment" />
+                      </Tabs>
+                    </div>
+                    {infoSort === SORT_TYPES.newest && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={changeSortType}
+                        endIcon={<RiSortDesc />}>
+                        Newest first
+                      </Button>
+                    )}
+                    {infoSort === SORT_TYPES.oldest && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={changeSortType}
+                        endIcon={<RiSortAsc />}>
+                        Oldest first
+                      </Button>
+                    )}
                   </div>
-                  {logs.map((log) => (
-                    <LogItem>
-                      <Tooltip
-                        title={
-                          getUserInfoById(log.userId)?.firstName +
-                          ' ' +
-                          getUserInfoById(log.userId)?.lastName
-                        }>
-                        <Avatar>
-                          <img
-                            src={getUserInfoById(log.userId)?.avatar}
-                            alt=""
-                          />
-                        </Avatar>
-                      </Tooltip>
-                      <p>{`${
-                        getUserInfoById(log.userId)?.firstName +
-                        ' ' +
-                        getUserInfoById(log.userId)?.lastName
-                      } ${log.msg} ${log.issueModel}`}</p>
-                    </LogItem>
-                  ))}
+                  {tab === TABS.history && (
+                    <History
+                      getUserFullName={getUserFullName}
+                      getUserInfoById={getUserInfoById}
+                      infoSort={infoSort}
+                      logs={logs}
+                    />
+                  )}
+                  {tab === TABS.attachment &&
+                    MAX_UPLOAD -
+                      (card.attachments ? card.attachments.length : 0) && (
+                      <>
+                        <AttachmentList
+                          card={card}
+                          boardId={board._id}
+                          uploadSuccessCb={getCard}
+                        />
+                        <FileUpload
+                          maxFiles={
+                            MAX_UPLOAD -
+                            (card.attachments ? card.attachments.length : 0)
+                          }
+                          boardId={board._id}
+                          cardId={card._id}
+                          uploadSuccessCb={getCard}
+                        />
+                      </>
+                    )}
                 </Section>
               </CardInfoPart>
 
-              <CardInfoPartDivider />
+              {/* <CardInfoPartDivider /> */}
 
               <CardInfoPart className="part--sub">
                 <Section>
@@ -788,10 +916,70 @@ export default function CardDetail() {
 
                 <div className="part__divider"></div>
 
+                {/* START DATE */}
+                <Section>
+                  <p className="section__label">
+                    <span>Start date</span>
+                    {dayjs(card.startDate).isAfter(card.dueDate) && (
+                      <Tooltip title="Start date must be before due date">
+                        <div className="alert-icon">
+                          <RiAlertLine size={20} />
+                        </div>
+                      </Tooltip>
+                    )}
+                    {dayjs(card.startDate).isTomorrow() &&
+                      !dayjs(card.startDate).isAfter(card.dueDate) && (
+                        <Tooltip title="Tomorrow is start date of this issue">
+                          <div className="info-icon">
+                            <RiInformationLine size={20} />
+                          </div>
+                        </Tooltip>
+                      )}
+                    <span>
+                      {updatingField === UPDATING_FIELDS.startDate && (
+                        <Loading />
+                      )}
+                    </span>
+                  </p>
+                  <DateTimeInput
+                    disableOpenPicker={false}
+                    disabled={!canUpdateCard()}
+                    className={clsx(
+                      dayjs(card.startDate).isTomorrow()
+                        ? 'start-date--tomorrow due-date'
+                        : 'due-date',
+                      dayjs(card.startDate).isAfter(card.dueDate) &&
+                        'start-date--error'
+                    )}
+                    format={'MMM DD YYYY, HH:mm'}
+                    value={currentStartDate && dayjs(currentStartDate)}
+                    sx={{ width: '100%' }}
+                    minDateTime={dayjs(card.createdAt)}
+                    onError={(e) => {
+                      setStartDateError(e as string)
+                    }}
+                    onAccept={handleSubmitStartDate}
+                  />
+                </Section>
+
                 {/* DUE DATE */}
                 <Section>
                   <p className="section__label">
                     <span>Due date</span>
+                    {dayjs(card.dueDate).isTomorrow() && (
+                      <Tooltip title="Tomorrow is the due date of this issue">
+                        <div className="alert-icon">
+                          <RiAlertLine size={20} />
+                        </div>
+                      </Tooltip>
+                    )}
+                    {dayjs(card.dueDate).isSame(dayjs(), 'D') && (
+                      <Tooltip title="Today is the due date of this issue">
+                        <div className="alert-icon">
+                          <RiAlertLine size={20} />
+                        </div>
+                      </Tooltip>
+                    )}
                     <span>
                       {updatingField === UPDATING_FIELDS.dueDate && <Loading />}
                     </span>
@@ -800,12 +988,13 @@ export default function CardDetail() {
                     disableOpenPicker={false}
                     disabled={!canUpdateCard()}
                     className={
-                      dayjs(card.dueDate).isTomorrow()
+                      dayjs(card.dueDate).isTomorrow() ||
+                      dayjs(card.dueDate).isSame(dayjs(), 'D')
                         ? 'due-date--tomorrow due-date'
                         : 'due-date'
                     }
                     format={'MMM DD YYYY, HH:mm'}
-                    value={currentDueDate}
+                    value={currentDueDate && dayjs(currentDueDate)}
                     sx={{ width: '100%' }}
                     minDateTime={dayjs(card.createdAt)}
                     onError={(e) => {

@@ -86,6 +86,7 @@ export const CardInfo = styled.div`
   overflow-y: auto;
   padding: 0 20px 30px 0;
   flex: 1;
+  width: 100%;
 `
 export const CardInfoPartDivider = styled.div`
   flex: 0 0 1px;
@@ -99,6 +100,7 @@ export const CardInfoPart = styled.div`
   flex-direction: column;
   height: 100%;
   gap: 20px;
+  width: 100%;
 
   & .title {
     font-weight: 700;
@@ -108,10 +110,15 @@ export const CardInfoPart = styled.div`
 
   &.part--main {
     flex: 5;
+    border-right: 1px solid var(--mui-palette-divider);
+    padding-right: 20px;
+    flex-shrink: 1;
+    max-width: calc(100% - 330px);
   }
 
   &.part--sub {
     flex: 2;
+    flex-shrink: 0;
   }
 
   & > .part__divider {
@@ -121,6 +128,8 @@ export const CardInfoPart = styled.div`
   }
 
   & .section {
+    max-width: 100%;
+
     &__label {
       font-size: 14px;
       font-weight: 700;
@@ -131,7 +140,6 @@ export const CardInfoPart = styled.div`
 `
 
 export const Section = styled.div`
-  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -145,6 +153,13 @@ export const Section = styled.div`
     align-items: center;
     gap: 10px;
 
+    &--multi-items {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
     & > .section__title {
       font-weight: 700;
     }
@@ -157,6 +172,16 @@ export const Section = styled.div`
     text-align: left;
     display: flex;
     align-items: center;
+
+    & .alert-icon {
+      color: var(--mui-palette-orange-main);
+      margin-left: 4px;
+    }
+
+    & .info-icon {
+      color: var(--mui-palette-blue-main);
+      margin-left: 4px;
+    }
   }
 
   /* .due-date {
@@ -173,6 +198,22 @@ export const Section = styled.div`
   } */
 
   .due-date--tomorrow {
+    background-color: rgba(var(--mui-palette-orange-mainChannel) / 0.1);
+    border: 1px solid var(--mui-palette-orange-main);
+    & input {
+      color: var(--mui-palette-orange-main);
+    }
+  }
+
+  .start-date--tomorrow {
+    background-color: rgba(var(--mui-palette-blue-mainChannel) / 0.1);
+    border: 1px solid var(--mui-palette-blue-main);
+    & input {
+      color: var(--mui-palette-blue-main);
+    }
+  }
+
+  .start-date--error {
     background-color: rgba(var(--mui-palette-orange-mainChannel) / 0.1);
     border: 1px solid var(--mui-palette-orange-main);
     & input {
@@ -339,11 +380,12 @@ export const Owner = styled.div`
   gap: 10px;
 `
 
-export const Avatar = styled.div`
-  width: 35px;
-  height: 35px;
+export const Avatar = styled.div<{ $size?: string }>`
+  width: ${(props) => props.$size || '35px'};
+  height: ${(props) => props.$size || '35px'};
   border-radius: 100px;
   position: relative;
+  flex-shrink: 0;
 
   img {
     width: 100%;
@@ -480,9 +522,9 @@ export const PlaceHolder = styled.div`
   font-size: 13px;
   font-style: italic;
 `
-export const LogItem = styled.div`
+
+export const LogSection = styled.div`
   display: flex;
-  gap: 10px;
-  align-items: center;
-  font-size: 13px;
+  flex-direction: column;
+  gap: 16px;
 `

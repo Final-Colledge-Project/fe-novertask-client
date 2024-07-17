@@ -18,6 +18,7 @@ import { useRef, useState } from 'react'
 import { Avatar, Button, IconButton, MenuItem, Typography } from '@mui/material'
 import { useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
+import Empty from '~/components/Empty'
 
 export default function WatcherList({ watcherIds }: { watcherIds: string[] }) {
   const [open, setOpen] = useState(false)
@@ -114,6 +115,9 @@ export default function WatcherList({ watcherIds }: { watcherIds: string[] }) {
                         </WatcherItem>
                       </MenuItem>
                     ))}
+                    {watcherList().length === 0 && (
+                      <Empty description="No watcher!" size={80} pX={80} />
+                    )}
                   </MenuBody>
                 </MenuGeneralContainer>
               </ClickAwayListener>

@@ -43,3 +43,10 @@ export interface IAssignedToMeResponse {
   data: IAssignedCard[],
   message: string
 }
+
+export interface IDeleteAttachmentResponse {
+  message: string
+}
+export interface IDownloadAttachmentResponse {
+  message: string
+}

@@ -167,13 +167,22 @@ const FAKE_CARD_KEY = 'fake-card-id'
 
 const BoardDetail = () => {
   // -------------------------STATE-------------------------
-  const viewList = ['Kanban', 'Backlog']
+  const viewList = [
+    {
+      text: 'Kanban',
+      templates: [BOARD_TEMPLATE.KANBAN, BOARD_TEMPLATE.SCRUM]
+    },
+    {
+      text: 'Backlog',
+      templates: [BOARD_TEMPLATE.SCRUM]
+    }
+  ]
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useDispatch<StoreDispatchType>()
   // const socket = socketIoClient('http://localhost:5000')
-  const [viewType, setViewType] = useState(viewList[0])
+  const [viewType, setViewType] = useState(viewList[0].text)
   const [board, setBoard] = useState<IBoard | undefined>(undefined)
   const [members, setMembers] = useState<IAllMemberInBoard | undefined>(
     undefined
@@ -1328,17 +1337,15 @@ const BoardDetail = () => {
           <TypeHeader>
             <TypeMenu>
               {viewList
-                .filter(
-                  (item) =>
-                    board?.template !== BOARD_TEMPLATE.SCRUM &&
-                    item !== 'Backlog'
+                .filter((view) =>
+                  view.templates.includes(board?.template || '')
                 )
-                .map((type) => (
+                .map((view) => (
                   <TypeItem
-                    className={clsx(viewType === type && 'index')}
-                    onClick={() => setViewType(type)}
-                    key={type}>
-                    {type}
+                    className={clsx(viewType === view.text && 'index')}
+                    onClick={() => setViewType(view.text)}
+                    key={view.text}>
+                    {view.text}
                   </TypeItem>
                 ))}
             </TypeMenu>

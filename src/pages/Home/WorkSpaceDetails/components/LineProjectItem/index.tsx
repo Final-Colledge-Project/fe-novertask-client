@@ -23,10 +23,14 @@ import {
 
 // services
 import convertDate from '~/utils/convertDate'
+import { Stack } from '@mui/material'
 
 const WorkSpaceItem = ({ data }: IWSItemProps) => {
   // clean up members list -> avoid dupicates
-  const count = [...data.memberIds, ...data.ownerIds.map((item) => item._id)].filter(
+  const count = [
+    ...data.memberIds,
+    ...data.ownerIds.map((item) => item._id)
+  ].filter(
     (member, index, all) => index === all.findIndex((obj) => obj === member)
   ).length
 
@@ -35,8 +39,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
   return (
     <Item
       $img={data.cover as string}
-      onClick={() => navigate('/u/boards/' + data._id)}
-    >
+      onClick={() => navigate('/u/boards/' + data._id)}>
       <ItemCover className="section">
         <img src={data.cover} alt="" />
         {/* <div className="item__cover-fallback"></div> */}
@@ -45,7 +48,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
         <p>{data.title}</p>
       </Title>
       <div className="section">
-        <Badge className={data.type}>{data.type}</Badge>
+        <Badge className={data.template}>{data.template}</Badge>
       </div>
       <div className="section">
         <div className="member-count">
@@ -64,10 +67,12 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
       {data.dueDate ? (
         <TargetDate className="section">
           <RiFlagLine />
-          <p>{convertDate(data.dueDate)}</p>
+          <p>{convertDate(data.dueDate) ?? 'None'}</p>
         </TargetDate>
       ) : (
-        <div></div>
+        <Stack justifyContent={'center'} margin={'0 auto'}>
+          None
+        </Stack>
       )}
 
       <MoreButton className="section">

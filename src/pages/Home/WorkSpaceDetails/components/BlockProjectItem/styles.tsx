@@ -94,6 +94,7 @@ export const ItemCover = styled.div`
 
   .item-header {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: flex-start;
     position: absolute;
@@ -140,9 +141,26 @@ export const ItemCover = styled.div`
         background-color: var(--mui-palette-green-main);
       }
 
-      .circle.private {
+      .circle.scrum {
         background-color: var(--mui-palette-orange-main);
       }
     }
   }
+`
+
+export const Cover = styled.div<{ $img?: string }>`
+  background-image: url(${(props) => props.$img}), url('/img/item-cover.jpg');
+  background-size: cover;
+  object-fit: cover;
+  background-position: center;
+  background-clip: border-box;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.2s;
+  text-indent: -10000px;
 `

@@ -12,7 +12,7 @@ import { Tooltip } from '@mui/material'
 import { BsPerson } from 'react-icons/bs'
 
 // components
-import { Item, ItemCover } from './styles'
+import { Cover, Item, ItemCover } from './styles'
 
 // services
 import IWSItemProps from './IWSItemProps'
@@ -22,7 +22,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
   // clean up members list -> avoid dupicates
   const count = [
     ...data.memberIds,
-    ...data.ownerIds.map((item) => item._id)
+    ...data.ownerIds.map((item) => item)
   ].filter(
     (member, index, all) => index === all.findIndex((obj) => obj === member)
   ).length
@@ -34,16 +34,16 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
       <ItemCover>
         <div className="item-header">
           <div className="item-header__title">
-            {/* <Tooltip title={'This board is ' + data.type} placement="top">
+            <Tooltip title={'This board is ' + data.template} placement="top">
               <div
                 className={clsx(
                   'circle',
-                  data.type === 'private' && 'private'
+                  data.template === 'scrum' && 'scrum'
                 )}>
-                {data.type}
+                {data.template}
               </div>
-            </Tooltip> */}
-            <p>{data.title}</p>
+            </Tooltip>
+            <p>{`[${data.key || 'None'}] ${data.title}`}</p>
           </div>
           {/* <IconButton
             aria-label="more"
@@ -55,7 +55,7 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
             <RiMore2Fill />
           </IconButton> */}
         </div>
-        <img src={data.cover} alt="" />
+        <Cover $img={data.cover} />
       </ItemCover>
       <div className="item-bottom">
         <div className="item-bottom__info-group">
@@ -67,10 +67,12 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
           ) : (
             <div></div>
           )}
-          <div className="item__avatar-group">
-            <BsPerson />
-            <p>{count}</p>
-          </div>
+          <Tooltip title="Number of members" placement="top">
+            <div className="item__avatar-group">
+              <BsPerson />
+              <p>{count}</p>
+            </div>
+          </Tooltip>
         </div>
       </div>
     </Item>
