@@ -32,7 +32,7 @@ export default function AttachmentList(props: Readonly<IProps>) {
     }
   }
 
-  const downloadFile = (url, name) => {
+  const downloadFile = (url: string, name: string) => {
     const xhr = new XMLHttpRequest()
     xhr.open('GET', url, true)
     xhr.responseType = 'blob'

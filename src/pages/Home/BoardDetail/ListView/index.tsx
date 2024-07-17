@@ -227,7 +227,16 @@ const ListView = () => {
       filterSearch: true,
       render: (text: IAssigneeCol) => (
         <div className="normalCell">
-          {text?.avatar && <img src={text?.avatar} width={40} height={40} />}
+          {text?.avatar && (
+            <img
+              src={text?.avatar}
+              width={35}
+              height={35}
+              style={{
+                borderRadius: '50%'
+              }}
+            />
+          )}
           <div>{text?.fullName}</div>
         </div>
       )
