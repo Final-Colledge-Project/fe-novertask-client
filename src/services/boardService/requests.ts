@@ -15,6 +15,8 @@ const requests = {
     `/boards/revoke-ba/${boardId}/members/${memberId}`,
   deleteBoard: (boardId: string) => `/boards/${boardId}`,
   deleteMember: (boardId: string, memberId: string) =>
-    `/boards/${boardId}/members/${memberId}`
+    `/boards/${boardId}/members/${memberId}`,
+  getAllIssues: (boardId: string, hierarchy: number) =>
+    `/boards/${boardId}/issues?hierarchy=${hierarchy}`
 }
 export default requests

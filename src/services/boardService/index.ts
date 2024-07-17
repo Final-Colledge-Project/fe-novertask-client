@@ -1,6 +1,7 @@
 import axiosInstance from '../axiosInstance'
 import {
   ICreateBoardResponse,
+  IGeneralIssueResponse,
   IGetAllByUserIdResponse,
   IGetAllByWSIdResponse,
   IGetBoardDetailResponse,
@@ -278,6 +279,24 @@ export const deleteMember = async (body: IDeleteMemberBody) => {
       throw new Error(errorData.message as string)
     }
     // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const getAllIssues = async (boardId: string, hierarchy: number) => {
+  try {
+    const res = await axiosInstance.get<IGeneralIssueResponse>(
+      requests.getAllIssues(boardId, hierarchy)
+    )
+    if (res && res.status === 200 && res.data) {
+      return res.data?.data
+    }
+  } catch (error) {
+    const status = (error as AxiosError).response?.status
+    const message = (error as AxiosError).message
+    if (status && status.toString().startsWith('4')) {
+      throw new Error(message)
+    }
     throw new Error('Something went wrong! Please try later.')
   }
 }

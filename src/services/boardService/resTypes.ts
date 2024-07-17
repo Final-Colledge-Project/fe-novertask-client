@@ -1,3 +1,4 @@
+import { IGeneralIssue } from '~/pages/Home/BoardDetail/ListView/helper'
 import { IAllMemberInBoard, IBoard, IGeneralWorkspace } from '../types'
 
 export interface IGetAllByUserIdResponse {
@@ -41,5 +42,10 @@ export interface IAssignAdminResponse {
 }
 
 export interface IRevokeAdminResponse {
+  message: string
+}
+
+export interface IGeneralIssueResponse {
+  data: IGeneralIssue[]
   message: string
 }

@@ -149,6 +149,7 @@ import {
 import AddSprintDialog from './AddSprintDialog'
 import { SPRINT_MODAL_VIEW_MODE, SPRINT_STATUS } from '~/utils/constant/sprint'
 import { fetchSprints } from '~/redux/sprintSlice/actions'
+import ListView from './ListView'
 
 const ACTIVE_ITEM_TYPE = {
   COLUMN: 'column',
@@ -167,7 +168,7 @@ const FAKE_CARD_KEY = 'fake-card-id'
 
 const BoardDetail = () => {
   // -------------------------STATE-------------------------
-  const viewList = ['Kanban', 'Backlog']
+  const viewList = ['Kanban', 'Backlog', 'List View']
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -1195,6 +1196,7 @@ const BoardDetail = () => {
 
   const isKanbanView = () => viewType === 'Kanban'
   const isBacklogView = () => viewType === 'Backlog'
+  const isListView = () => viewType === 'List View'
   const haveSprintActive = () => {
     if (sprints) {
       return sprints.find((sprint) => sprint.status === SPRINT_STATUS.active)
@@ -1327,20 +1329,14 @@ const BoardDetail = () => {
         {isTaskView() && (
           <TypeHeader>
             <TypeMenu>
-              {viewList
-                .filter(
-                  (item) =>
-                    board?.template !== BOARD_TEMPLATE.SCRUM &&
-                    item !== 'Backlog'
-                )
-                .map((type) => (
-                  <TypeItem
-                    className={clsx(viewType === type && 'index')}
-                    onClick={() => setViewType(type)}
-                    key={type}>
-                    {type}
-                  </TypeItem>
-                ))}
+              {viewList.map((type) => (
+                <TypeItem
+                  className={clsx(viewType === type && 'index')}
+                  onClick={() => setViewType(type)}
+                  key={type}>
+                  {type}
+                </TypeItem>
+              ))}
             </TypeMenu>
 
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -1460,6 +1456,11 @@ const BoardDetail = () => {
             </Body>
           )
         }
+        {isTaskView() && isListView() && (
+          <Body>
+            <ListView />
+          </Body>
+        )}
 
         <Routes>
           <Route element={<BoardViewLayout />} path="*">
