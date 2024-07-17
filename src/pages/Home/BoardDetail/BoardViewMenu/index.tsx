@@ -37,10 +37,10 @@ export default function BoardViewMenu() {
     let path = ''
     let title = ''
     switch (name) {
-      case allRoutes.home.board.boardOverView.name:
-        path = allRoutes.home.board.boardOverView.path
-        title = TITLE.board.boardOverView
-        break
+      // case allRoutes.home.board.boardOverView.name:
+      //   path = allRoutes.home.board.boardOverView.path
+      //   title = TITLE.board.boardOverView
+      //   break
       case allRoutes.home.board.boardDetail.name:
         path = allRoutes.home.board.boardDetail.path
         title = TITLE.board.boardDetail
@@ -67,9 +67,9 @@ export default function BoardViewMenu() {
   const routeName = (route: string) => {
     let name = ''
     switch (route) {
-      case allRoutes.home.board.boardOverView.name:
-        name = TITLE.board.boardOverView
-        break
+      // case allRoutes.home.board.boardOverView.name:
+      //   name = TITLE.board.boardOverView
+      //   break
       case allRoutes.home.board.boardDetail.name:
         name = TITLE.board.boardDetail
         break
@@ -93,9 +93,9 @@ export default function BoardViewMenu() {
     const segment = location.pathname.split('/').pop()
     let name = ''
     switch (segment) {
-      case allRoutes.home.board.boardOverView.segment:
-        name = allRoutes.home.board.boardOverView.name
-        break
+      // case allRoutes.home.board.boardOverView.segment:
+      //   name = allRoutes.home.board.boardOverView.name
+      //   break
       case allRoutes.home.board.boardDetail.segment || '':
         name = allRoutes.home.board.boardDetail.name
         break

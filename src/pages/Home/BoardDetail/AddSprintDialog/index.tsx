@@ -251,7 +251,7 @@ export default function AddSprintDialog(props: IProps) {
       )
       setSprint({ ...sprint, endDate: endDate })
     }
-  }, [board])
+  }, [board, sprint?.duration, sprint?.startDate])
 
   useEffect(() => {
     if (
@@ -294,10 +294,13 @@ export default function AddSprintDialog(props: IProps) {
                 error={!!error.duration}
                 value={sprint?.duration}
                 onChange={(e) =>
-                  handleUpdateSprint('duration', Number(e.target.value))
+                  handleUpdateSprint(
+                    'duration',
+                    e.target.value !== 'custom' ? Number(e.target.value) : 0
+                  )
                 }>
                 {SPRINT_DURATION_IN_WEEK.map((duration) => (
-                  <MenuItem value={duration} key={duration}>
+                  <MenuItem value={duration !== 'custom' ? duration : 0} key={duration}>
                     {displayDuration(duration)}
                   </MenuItem>
                 ))}

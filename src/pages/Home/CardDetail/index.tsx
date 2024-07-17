@@ -585,10 +585,6 @@ export default function CardDetail() {
           fileInputRef.current.click()
         }
       }
-    },
-    {
-      title: 'Change column',
-      onChoose: () => {}
     }
   ]
 
@@ -766,7 +762,7 @@ export default function CardDetail() {
                   />
                 </Section>
 
-                <div className="part__divider"></div>
+                {/* <div className="part__divider"></div>
 
                 <Section className="section">
                   <SubTaskContainer>
@@ -783,6 +779,7 @@ export default function CardDetail() {
                     </div>
                     {subtasks?.map((subtask) => (
                       <Subtask
+                        board={board}
                         card={card}
                         cardMembers={cardMembers!}
                         subtask={subtask}
@@ -791,7 +788,7 @@ export default function CardDetail() {
                       />
                     ))}
                   </SubTaskContainer>
-                </Section>
+                </Section> */}
 
                 <div className="part__divider"></div>
                 <Section className="section">
@@ -812,7 +809,7 @@ export default function CardDetail() {
                         }}
                         aria-label="secondary tabs example">
                         <Tab value={TABS.history} label="History" />
-                        <Tab value={TABS.comment} label="Comment" />
+                        {/* <Tab value={TABS.comment} label="Comment" /> */}
                         <Tab value={TABS.attachment} label="Attachment" />
                       </Tabs>
                     </div>
@@ -888,6 +885,7 @@ export default function CardDetail() {
                     <p className="section__title">Assignee</p>
                     {canUpdateCard() && (
                       <AssignMemberMenu
+                        card={card}
                         currentMembers={cardMembers!}
                         boardId={card.boardId}
                         onChoose={assignMember}

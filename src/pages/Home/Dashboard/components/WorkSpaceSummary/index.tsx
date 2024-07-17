@@ -73,9 +73,9 @@ const WorkSpaceSummary = ({ data }: IWSSummaryProps) => {
           </p>
         </div>
         <div className="header-divider"></div>
-        <div className="header-show-type">
+        {/* <div className="header-show-type">
           <ToggleViewButton />
-        </div>
+        </div> */}
       </div>
       <div className="workspace-summary-outlet">
         {data.boards && data.boards.length > 0 ? (

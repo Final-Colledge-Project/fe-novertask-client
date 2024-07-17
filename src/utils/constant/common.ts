@@ -10,7 +10,7 @@ export const FALLBACK_IMAGE = '/img/item-cover.jpg'
 
 export const TITLE = {
   board: {
-    boardOverView: 'Overview',
+    // boardOverView: 'Overview',
     boardDetail: 'Task',
     boardMember: 'Team',
     boardReports: 'Reports',

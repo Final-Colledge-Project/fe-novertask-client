@@ -40,7 +40,7 @@ export interface IUnassignMemberToCardReponse {
 }
 
 export interface IAssignedToMeResponse {
-  data: IAssignedCard[],
+  data: IAssignedCard[]
   message: string
 }
 
@@ -49,4 +49,9 @@ export interface IDeleteAttachmentResponse {
 }
 export interface IDownloadAttachmentResponse {
   message: string
+}
+
+export interface IGetAllByUserIdResponse {
+  message: string
+  data: IAssignedCard[]
 }

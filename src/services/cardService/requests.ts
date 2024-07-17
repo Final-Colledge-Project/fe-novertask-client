@@ -16,6 +16,7 @@ const requests = {
   deleteAttachment: (cardId: string, boardId: string) =>
     `/cards/${cardId}/attachments/board/${boardId}`,
   downloadAttachment: (cardId: string, boardId: string) =>
-    `/cards/${cardId}/attachments/board/${boardId}/download`
+    `/cards/${cardId}/attachments/board/${boardId}/download`,
+  getAllByUserId: (userId: string, boardId: string) => `/cards/user/${userId}/board/${boardId}`
 }
 export default requests

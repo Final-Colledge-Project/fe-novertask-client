@@ -42,8 +42,9 @@ export default function FileUpload(props: Readonly<IProps>) {
     setVideoSrc(videoSource)
   }
   const handleStart = (filesToUpload: ExtFile[]) => {}
-  const handleFinish = (uploadedFiles: ExtFile[]) => {
-    uploadSuccessCb()
+  const handleFinish = async (uploadedFiles: ExtFile[]) => {
+    await uploadSuccessCb()
+    setExtFiles([])
   }
   const handleAbort = (id: FileMosaicProps['id']) => {
     setExtFiles(
