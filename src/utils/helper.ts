@@ -2,6 +2,7 @@
 import { cloneDeep } from 'lodash'
 import dayjs from 'dayjs'
 import { FORMAT_DATE_TIME } from './constant'
+import { IDescription } from '~/services/types'
 export const getRecordTime = (date: string) => {
   const convertDate = dayjs(date)
   return dayjs().diff(convertDate, 'hour') < 24
@@ -191,4 +192,22 @@ export const calculateEndDate = (
     }
   }
   return endDate.toDate()
+}
+
+export const toDescriptionObject = (descriptionStr: string): IDescription => {
+  if (!descriptionStr) return { content: '', formatter: '' }
+  let descriptionObject: IDescription
+  try {
+    descriptionObject = JSON.parse(descriptionStr)
+    // escape over-stringify
+    if (typeof descriptionObject === 'string') {
+      descriptionObject = JSON.parse(descriptionObject)
+    }
+  } catch (e) {
+    descriptionObject = {
+      content: descriptionStr || '',
+      formatter: `<p>${descriptionStr}</p>`
+    }
+  }
+  return cloneDeep(descriptionObject)
 }

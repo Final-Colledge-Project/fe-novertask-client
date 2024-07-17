@@ -60,6 +60,7 @@ export const InputContainer = styled.div`
 
 export const DescriptionReview = styled.div`
   transition: all 0.2s;
+  font-size: 0.85rem;
 
   &:hover {
     background-color: var(--mui-palette-gray6-main);

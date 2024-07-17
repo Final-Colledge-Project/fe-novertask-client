@@ -56,3 +56,44 @@ export const DATA_SETTING = {
 }
 
 export const DATE_FORMAT = 'DD/MM/YYYY'
+
+export const LOG_MSG_CREATE = 'created the'
+
+export const ACCEPT_FILES = [
+  'image/jpeg',
+  'image/png',
+  'application/pdf',
+  'text/csv',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/pdf',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/plain',
+  'application/xml',
+  'text/xml',
+  'application/atom+xml',
+  'application/zip',
+  'application/rtf',
+  'application/vnd.rar',
+  'text/rtf',
+  'text/xml',
+  'application/x-rar-compressed',
+  'application/octet-stream'
+]
+
+export const ACCEPTS_EXTENSIONS = [
+  'doc',
+  'docx',
+  'pdf',
+  'xlsx',
+  'txt',
+  'xml',
+  'zip',
+  'rtf',
+  'rar'
+]
+
+export const MAX_FILE_SIZE = 2 * 1024 * 1024
+
+export const MAX_UPLOAD = 3

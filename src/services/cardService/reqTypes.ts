@@ -33,7 +33,7 @@ export interface IGetCardMembersBody {
 
 export interface IUpdateCoverBody {
   cardId: string
-  file: File,
+  file: File
   boardId: string // 2024-06-21 update permission
 }
 
@@ -44,7 +44,7 @@ export interface IAssignMemberToCardBody {
 }
 
 export interface IDeleteCard {
-  cardId: string,
+  cardId: string
   boardId: string // 2024-05-26 update permission
 }
 
@@ -52,4 +52,16 @@ export interface IUnassignMemberToCardBody {
   cardId: string
   memberId: string
   boardId: string // 2024-05-26 update permission
+}
+
+export interface IDeleteAttachmentBody {
+  cardId: string
+  fileName: string
+  boardId: string
+}
+
+export interface IDownloadAttachmentBody {
+  cardId: string
+  fileName: string
+  boardId: string
 }

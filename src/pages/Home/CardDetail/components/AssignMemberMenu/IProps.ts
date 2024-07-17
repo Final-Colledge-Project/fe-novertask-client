@@ -6,7 +6,7 @@ export interface ITempUser {
 
 export default interface IProps {
   currentMembers: ITempUser[]
-  onChoose: (chosenMemberId: string) => void
+  onChoose: (chosenMemberId: string) => Promise<void> | void
   boardId: string
-  onRemove: (memberId: string) => void
+  onRemove: (memberId: string) => Promise<void> | void
 }

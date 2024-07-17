@@ -1,5 +1,4 @@
 import styled from '@emotion/styled'
-import { isDarkColor } from '~/utils/helper'
 
 export const IssueContainer = styled.div`
   width: 100%;
@@ -49,10 +48,6 @@ export const StatusContainer = styled.div`
 export const Status = styled.div<{ $color: string }>`
   width: fit-content;
   font-size: 12px;
-  /* color: ${({ $color }) =>
-    isDarkColor($color + '1A')
-      ? 'var(--mui-palette-white-main)'
-      : 'var(--mui-palette-black-main)'}; */
   color: ${({ $color }) => $color};
   background-color: ${({ $color }) => $color + '1A'};
   padding: 4px 8px;
