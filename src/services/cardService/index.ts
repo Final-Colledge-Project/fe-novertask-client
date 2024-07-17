@@ -6,6 +6,7 @@ import {
   IDeleteAttachmentBody,
   IDeleteCard,
   IDownloadAttachmentBody,
+  IGetAllByUserBody,
   IGetCardBody,
   IGetCardMembersBody,
   IUnassignMemberToCardBody,
@@ -16,6 +17,7 @@ import requests from './requests'
 import {
   IAssignMemberToCardReponse,
   IAssignedToMeResponse,
+  IGetAllByUserIdResponse,
   IGetMemberInCardResponse,
   IUnassignMemberToCardReponse,
   IUpdateCoverResponse
@@ -251,6 +253,19 @@ export const downloadAttachment = async (body: IDownloadAttachmentBody) => {
     }
 
     // general error
+    throw new Error('Something went wrong! Please try later.')
+  }
+}
+
+export const getAllCardByUser = async (body: IGetAllByUserBody) => {
+  try {
+    const res = await axiosInstance.get<IGetAllByUserIdResponse>(
+      requests.getAllByUserId(body.userId, body.boardId)
+    )
+    if (res && res.status === 200 && res.data) {
+      return res.data
+    }
+  } catch (error) {
     throw new Error('Something went wrong! Please try later.')
   }
 }

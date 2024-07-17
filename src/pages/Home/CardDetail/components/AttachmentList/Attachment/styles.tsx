@@ -19,7 +19,7 @@ export const AttachmentName = styled.div<{ $isImage?: boolean }>`
   flex: 1;
   display: flex;
   align-items: baseline;
-  gap: 4px;
+  gap: ${({ $isImage }) => ($isImage ? '8px' : '4px')};
 
   flex-direction: ${({ $isImage }) => ($isImage ? 'column' : 'row')};
 

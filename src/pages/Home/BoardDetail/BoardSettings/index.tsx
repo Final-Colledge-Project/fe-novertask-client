@@ -78,7 +78,7 @@ export default function BoardSettings() {
             },
             padding: '0 10px'
           }}>
-          {isAdmin && <Tab label="General Setting" {...a11yProps(0)} />}
+          {/* {isAdmin && <Tab label="General Setting" {...a11yProps(0)} />} */}
           <Tab
             label="Data Setting"
             {...a11yProps(1)}
@@ -91,11 +91,11 @@ export default function BoardSettings() {
       </div>
 
       <div className="sectionBody">
-        {isAdmin && (
+        {/* {isAdmin && (
           <CustomTabPanel value={value} index={0}>
             <div>General Setting</div>
           </CustomTabPanel>
-        )}
+        )} */}
         <CustomTabPanel value={value} index={1}>
           <DataSettings settingItem={selectedDataSetting} />
         </CustomTabPanel>

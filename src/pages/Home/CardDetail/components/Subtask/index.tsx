@@ -33,6 +33,7 @@ import DateTimeInput from '~/components/DateTimeInput'
 
 // services
 import {
+  IBoard,
   ICard,
   ISubtask,
   IUpdatableSubtask,
@@ -51,6 +52,7 @@ interface IProps {
   card: ICard
   cardMembers: { _id: string; avatar: string; fullName: string }[]
   onRefresh: () => Promise<void>
+  board: IBoard
 }
 
 const UPDATE_FIELDS = {
@@ -64,7 +66,8 @@ export default function Subtask({
   subtask,
   card,
   cardMembers,
-  onRefresh
+  onRefresh,
+  board
 }: IProps) {
   const dispatch = useDispatch()
   const [updatingField, setUpdatingField] = useState<string>('')
@@ -99,7 +102,7 @@ export default function Subtask({
         dispatch(setShouldRefreshBoardDetail(true))
       }
     } catch (error) {
-      enqueueSnackbar((error as Error).message)
+      enqueueSnackbar((error as Error).message, )
     }
   }
 
@@ -176,7 +179,7 @@ export default function Subtask({
           onClick={() =>
             handleAddToClipBoard(`/u/boards/${card.boardId}/cards/${card._id}`)
           }>
-          <span>{subtask.subCardId}</span>
+          <span>{`${board.key}-${subtask.subCardId}`}</span>
           <RiLinkM />
         </div>
 
@@ -222,7 +225,7 @@ export default function Subtask({
             <span className="section-loading">
               {updatingField === UPDATE_FIELDS.assignee && <Loading />}
             </span>
-            <Select
+            {/* <Select
               sx={{
                 border: 'none',
                 padding: '0',
@@ -257,7 +260,7 @@ export default function Subtask({
                   </Owner>
                 </MenuItem>
               ))}
-            </Select>
+            </Select> */}
           </div>
           <div className="section section-date">
             <span className="section-loading">

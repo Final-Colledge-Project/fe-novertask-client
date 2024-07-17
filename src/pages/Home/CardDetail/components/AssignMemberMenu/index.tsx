@@ -10,7 +10,15 @@ import MenuList from '@mui/material/MenuList'
 
 // component props
 import IProps, { ITempUser } from './IProps'
-import { Button, IconButton, Typography } from '@mui/material'
+import {
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Typography
+} from '@mui/material'
 import {
   RiAddLine,
   RiCheckLine,
@@ -34,24 +42,40 @@ import { useDispatch, useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
 import { refreshMembers, setMembers } from '~/redux/boardSlice'
 import Empty from '~/components/Empty'
-import { cardAssignToMe } from '~/services/cardService'
+import { cardAssignToMe, getAllCardByUser } from '~/services/cardService'
+import ConfirmDialog from '~/components/dialog/ConfirmDialog'
+import { IAssignedCard } from '~/services/types'
+import dayjs from 'dayjs'
+import { cloneDeep } from 'lodash'
 
 export default function AssignMemberMenu({
   currentMembers,
   boardId,
   onChoose,
-  onRemove
+  onRemove,
+  card
 }: IProps) {
   const [open, setOpen] = React.useState(false)
   const anchorRef = React.useRef<HTMLButtonElement>(null)
   const [allMemberInBoard, setAllMemberInBoard] = React.useState<ITempUser[]>()
   const [isUpdating, setIsUpdating] = React.useState<boolean>(false)
+  const [openDialog, setOpenDialog] = React.useState<boolean>(false)
+  const [chosenMemberId, setChosenMemberId] = React.useState<string>('')
+  const [conflictCard, setConflictCard] = React.useState<IAssignedCard[]>([])
 
   const memberData = useSelector((state: StoreType) => state.board.members)
   const dispatch = useDispatch()
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen)
+  }
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+  }
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true)
   }
 
   const handleClose = (event: Event | React.SyntheticEvent) => {
@@ -62,6 +86,8 @@ export default function AssignMemberMenu({
       return
     }
 
+    setChosenMemberId('')
+    setConflictCard([])
     setOpen(false)
   }
 
@@ -140,10 +166,70 @@ export default function AssignMemberMenu({
     }
   }
 
-  const getCardAssignToMe = async () => {
+  const getCardAssignUser = async (userId: string) => {
     try {
-      const res = await cardAssignToMe()
-    } catch (e) {}
+      const res = await getAllCardByUser({ boardId, userId })
+      if (res && res.data) {
+        return res.data
+      }
+    } catch (e) {
+      // handle err
+    }
+  }
+
+  const checkTaskConflicts = (
+    startDate1: string,
+    dueDate1: string,
+    startDate2: string,
+    dueDate2: string
+  ) => {
+    // Convert strings to dayjs objects
+    const start1 = dayjs(startDate1)
+    const due1 = dayjs(dueDate1)
+    const start2 = dayjs(startDate2)
+    const due2 = dayjs(dueDate2)
+
+    // Check for overlaps using isBefore, isAfter, or isBetween methods
+    const isConflict =
+      (start1.isBefore(due2) && due1.isAfter(start2)) ||
+      (start2.isBefore(due1) && due2.isAfter(start1))
+
+    return isConflict
+  }
+
+  const handleBeforeAddMember = async (memberId: string) => {
+    setChosenMemberId(memberId)
+    let cards: IAssignedCard[] = []
+    const res = await getCardAssignUser(memberId)
+    if (res) {
+      cards = cloneDeep(res)
+    }
+    if (cards.length === 0 || !card.startDate || !card.dueDate) {
+      await handleAddMember(memberId)
+      setChosenMemberId('')
+    } else {
+      // check start date and end date of each card
+      const conflictTask = cards.filter((existingCard) => {
+        return checkTaskConflicts(
+          existingCard.startDate,
+          existingCard.endDate,
+          card.startDate,
+          card.dueDate
+        )
+      })
+
+      if (conflictTask.length) {
+        setConflictCard(conflictTask)
+        handleOpenDialog()
+      }
+    }
+  }
+
+  const handleContinueAddMember = async () => {
+    setOpenDialog(false)
+    await handleAddMember(chosenMemberId)
+    setChosenMemberId('')
+    setConflictCard([])
   }
 
   const handleAddMember = async (memberId: string) => {
@@ -156,6 +242,13 @@ export default function AssignMemberMenu({
     setIsUpdating(true)
     await onRemove(memberId)
     setIsUpdating(false)
+  }
+
+  const genDate = (startDate: string, endDate: string) => {
+    const FORMAT = 'DD/MM/YYYY, h:mm A'
+    return `${startDate ? dayjs(startDate).format(FORMAT) : 'None'} - ${
+      endDate ? dayjs(endDate).format(FORMAT) : 'None'
+    }`
   }
 
   React.useEffect(() => {
@@ -255,7 +348,8 @@ export default function AssignMemberMenu({
                               <RiCloseLine />
                             </IconButton>
                           ) : (
-                            <Button onClick={() => handleAddMember(member._id)}>
+                            <Button
+                              onClick={() => handleBeforeAddMember(member._id)}>
                               {' '}
                               Add
                             </Button>
@@ -274,6 +368,41 @@ export default function AssignMemberMenu({
           </Grow>
         )}
       </Popper>
+      <ConfirmDialog
+        title="Task conflict"
+        onClose={handleCloseDialog}
+        onConfirm={handleContinueAddMember}
+        open={openDialog}
+        cancelBtnText="Cancel"
+        confirmBtnText="Continue"
+        content={
+          <>
+            <p>
+              There are some tasks that conflict with the selected date range.
+            </p>
+            <div style={{ maxHeight: '250px', overflowY: 'auto' }}></div>
+            {
+              <List
+                sx={{
+                  width: '100%',
+                  maxWidth: 360,
+                  bgcolor: 'background.paper'
+                }}>
+                {conflictCard.map((c) => (
+                  <ListItem>
+                    <ListItemText
+                      primaryTypographyProps={{ fontWeight: 600 }}
+                      primary={c.title}
+                      secondary={genDate(c.startDate, c.endDate)}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            }
+            <p>Do you want to continue</p>
+          </>
+        }
+      />
     </div>
   )
 }

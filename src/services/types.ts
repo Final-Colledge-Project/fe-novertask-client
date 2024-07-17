@@ -336,6 +336,7 @@ export interface IAssignedCard {
   dueDate: string
   priority: string
   startDate: string
+  endDate: string
   description: string
   labels: [
     {

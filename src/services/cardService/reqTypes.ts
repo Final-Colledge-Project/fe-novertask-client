@@ -65,3 +65,8 @@ export interface IDownloadAttachmentBody {
   fileName: string
   boardId: string
 }
+
+export interface IGetAllByUserBody {
+  userId: string
+  boardId: string
+}

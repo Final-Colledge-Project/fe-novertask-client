@@ -5,4 +5,5 @@ export const DataList = styled.div`
   flex-direction: column;
   gap: 8px;
   padding: 0 8px;
+  margin-top: 8px;
 `

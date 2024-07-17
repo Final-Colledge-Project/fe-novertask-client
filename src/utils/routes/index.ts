@@ -23,12 +23,12 @@ const allRoutes = {
         segment: '',
         adminOnly: false
       },
-      boardOverView: {
-        path: '/u/boards/:boardId/overview',
-        name: 'boardOverView',
-        segment: 'overview',
-        adminOnly: false
-      },
+      // boardOverView: {
+      //   path: '/u/boards/:boardId/overview',
+      //   name: 'boardOverView',
+      //   segment: 'overview',
+      //   adminOnly: false
+      // },
       boardMember: {
         path: '/u/boards/:boardId/members',
         name: 'boardMember',

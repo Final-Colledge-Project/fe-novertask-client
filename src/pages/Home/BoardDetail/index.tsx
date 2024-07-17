@@ -1199,8 +1199,8 @@ const BoardDetail = () => {
     matchPath(allRoutes.home.board.boardDetail.path, location.pathname)
   const isMemberView = () =>
     matchPath(allRoutes.home.board.boardMember.path, location.pathname)
-  const isOverviewView = () =>
-    matchPath(allRoutes.home.board.boardOverView.path, location.pathname)
+  // const isOverviewView = () =>
+  //   matchPath(allRoutes.home.board.boardOverView.path, location.pathname)
   const isSettingsView = () =>
     matchPath(allRoutes.home.board.boardSettings.path, location.pathname)
   const isReportView = () => {
@@ -1222,7 +1222,7 @@ const BoardDetail = () => {
   const renderBreadcrumbTitle = () => {
     if (isTaskView()) return TITLE.board.boardDetail
     else if (isMemberView()) return TITLE.board.boardMember
-    else if (isOverviewView()) return TITLE.board.boardOverView
+    // else if (isOverviewView()) return TITLE.board.boardOverView
     else if (isSettingsView()) return TITLE.board.boardSettings
     else if (isReportView()) return TITLE.board.boardReports
   }
@@ -1481,10 +1481,10 @@ const BoardDetail = () => {
 
         <Routes>
           <Route element={<BoardViewLayout />} path="*">
-            <Route
+            {/* <Route
               path={allRoutes.home.board.boardOverView.segment}
               element={<BoardOverview />}
-            />
+            /> */}
             <Route
               path={allRoutes.home.board.boardMember.segment}
               element={

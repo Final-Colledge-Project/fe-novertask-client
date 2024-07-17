@@ -21,14 +21,14 @@ const WorkSpaceItem = ({ data }: IWSItemProps) => {
     >
       <div className="item-header">
         <div className="item-header__title">{title}</div>
-        <IconButton
+        {/* <IconButton
           aria-label="more"
           sx={{
             p: '2px'
           }}
         >
           <RiMore2Fill />
-        </IconButton>
+        </IconButton> */}
       </div>
       <div className="item__cover">
         <img src={cover || '/img/item-cover.jpg'} alt="" />
