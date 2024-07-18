@@ -355,7 +355,7 @@ export default function CardDetail() {
     setUpdatingField(UPDATING_FIELDS.startDate)
     await handleUpdateCard({ startDate })
     setUpdatingField('')
-    setCurrentDueDate(startDate ? dayjs(startDate) : null)
+    setCurrentStartDate(startDate ? dayjs(startDate) : null)
   }
 
   const handleUpdateIssueType = async (issueTypeId: string) => {
@@ -840,15 +840,17 @@ export default function CardDetail() {
                       logs={logs}
                     />
                   )}
-                  {tab === TABS.attachment &&
-                    MAX_UPLOAD -
-                      (card.attachments ? card.attachments.length : 0) && (
-                      <>
-                        <AttachmentList
-                          card={card}
-                          boardId={board._id}
-                          uploadSuccessCb={getCard}
-                        />
+                  {tab === TABS.attachment && (
+                    <>
+                      <AttachmentList
+                        card={card}
+                        boardId={board._id}
+                        uploadSuccessCb={getCard}
+                      />
+                      {!!(
+                        MAX_UPLOAD -
+                        (card.attachments ? card.attachments.length : 0)
+                      ) && (
                         <FileUpload
                           maxFiles={
                             MAX_UPLOAD -
@@ -858,8 +860,9 @@ export default function CardDetail() {
                           cardId={card._id}
                           uploadSuccessCb={getCard}
                         />
-                      </>
-                    )}
+                      )}
+                    </>
+                  )}
                 </Section>
               </CardInfoPart>
 

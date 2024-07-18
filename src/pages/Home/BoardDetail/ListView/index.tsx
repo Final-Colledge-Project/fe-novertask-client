@@ -31,6 +31,7 @@ import { useQuery } from '@tanstack/react-query'
 import { uniqBy, uniq } from 'lodash'
 import { RiEqualizerLine } from 'react-icons/ri'
 import { ColumnTitleProps } from 'antd/es/table/interface'
+import { toDescriptionObject } from '~/utils/helper'
 
 const ListView = () => {
   const [searchVal, setSearchVal] = useState('')
@@ -168,7 +169,7 @@ const ListView = () => {
       sorter: (a: IGeneralIssue, b: IGeneralIssue) =>
         a.name.localeCompare(b.name),
       render: (text) => (
-        <Tooltip title={text}>
+        <Tooltip title={toDescriptionObject(text).content}>
           <div
             className="normalCell"
             style={{
@@ -177,7 +178,7 @@ const ListView = () => {
               overflow: 'hidden',
               textOverflow: 'ellipsis'
             }}>
-            {text}
+            {toDescriptionObject(text).content}
           </div>
         </Tooltip>
       )
@@ -276,7 +277,9 @@ const ListView = () => {
       sorter: (a: IGeneralIssue, b: IGeneralIssue) =>
         dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
       render: (text: string) => (
-        <span className="normalCell">{dayjs(text).format(FORMAT_DATE)}</span>
+        <span className="normalCell">
+          {dayjs(text).isValid() ? dayjs(text).format(FORMAT_DATE) : ''}
+        </span>
       )
     },
     {
@@ -287,7 +290,9 @@ const ListView = () => {
       sorter: (a: IGeneralIssue, b: IGeneralIssue) =>
         dayjs(a.dueDate).unix() - dayjs(b.dueDate).unix(),
       render: (text: string) => (
-        <span className="normalCell">{dayjs(text).format(FORMAT_DATE)}</span>
+        <span className="normalCell">
+          {dayjs(text).isValid() ? dayjs(text).format(FORMAT_DATE) : ''}
+        </span>
       )
     },
     {
@@ -353,7 +358,9 @@ const ListView = () => {
       sorter: (a: IGeneralIssue, b: IGeneralIssue) =>
         dayjs(a.resolvedAt).unix() - dayjs(b.resolvedAt).unix(),
       render: (text: string) => (
-        <span className="normalCell">{dayjs(text).format(FORMAT_DATE)}</span>
+        <span className="normalCell">
+          {dayjs(text).isValid() ? dayjs(text).format(FORMAT_DATE) : ''}
+        </span>
       )
     },
     {
@@ -364,7 +371,9 @@ const ListView = () => {
       sorter: (a: IGeneralIssue, b: IGeneralIssue) =>
         dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
       render: (text: string) => (
-        <span className="normalCell">{dayjs(text).format(FORMAT_DATE)}</span>
+        <span className="normalCell">
+          {dayjs(text).isValid() ? dayjs(text).format(FORMAT_DATE) : ''}
+        </span>
       )
     },
     {

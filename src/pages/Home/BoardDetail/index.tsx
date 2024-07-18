@@ -1356,26 +1356,28 @@ const BoardDetail = () => {
                 ))}
             </TypeMenu>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {/* current chosen filter option */}
-              <CurrentFilters />
+            {isKanbanView() && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {/* current chosen filter option */}
+                <CurrentFilters />
 
-              {/* Filter task option list*/}
-              <FilterMenu board={board} />
+                {/* Filter task option list*/}
+                <FilterMenu board={board} />
 
-              {/* Add column or add card */}
-              {/* {isAdmin() && items.length > 0 && (
+                {/* Add column or add card */}
+                {/* {isAdmin() && items.length > 0 && (
                 <AddMenu items={isAdmin() ? items : items.slice(0, 1)} />
-              )} */}
+                )} */}
 
-              {/* Search card */}
-              <SearchBox
-                label=""
-                sx={{ height: '35px' }}
-                onChange={handleChangeSearchString}
-                value={searchString}
-              />
-            </div>
+                {/* Search card */}
+                <SearchBox
+                  label=""
+                  sx={{ height: '35px' }}
+                  onChange={handleChangeSearchString}
+                  value={searchString}
+                />
+              </div>
+            )}
           </TypeHeader>
         )}
 

@@ -19,9 +19,9 @@ export const DATA_SETTING_ITEMS = [
   {
     label: 'Label',
     value: DATA_SETTING.label
-  },
-  {
-    label: 'Issue Link Type',
-    value: DATA_SETTING.issueLinkType
   }
+  // {
+  //   label: 'Issue Link Type',
+  //   value: DATA_SETTING.issueLinkType
+  // }
 ]

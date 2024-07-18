@@ -1,12 +1,12 @@
 import { getSprintReport } from '~/services/reportService'
-import { DATE_FORMAT2, SPRINT_STATUS } from '~/utils/constant'
+import { DATE_FORMAT2, QUERY_KEY, SPRINT_STATUS } from '~/utils/constant'
 import { ISprintReportProps, exportChartPdf } from './helper'
 import './styles.scss'
 import { useSelector } from 'react-redux'
 import { StoreType } from '~/redux'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, MenuItem, Select, SelectChangeEvent } from '@mui/material'
-import { ISprint } from '~/services/types'
+import { IMemberInBoard, ISprint } from '~/services/types'
 import { enqueueSnackbar } from 'notistack'
 import { AxiosError } from 'axios'
 import dayjs from 'dayjs'
@@ -15,6 +15,8 @@ import { ISprintReport } from '~/services/reportService/resTypes'
 import { RiDownloadLine } from 'react-icons/ri'
 import { LoadingOutlined } from '@ant-design/icons'
 import { Empty } from 'antd'
+import { getAllMemberInBoard } from '~/services/boardService'
+import { useQuery } from '@tanstack/react-query'
 const SprintReport = (props: ISprintReportProps) => {
   const { boardId, reportType } = props
   const allSprints = useSelector((state: StoreType) => state.sprint.allSprints)
@@ -133,12 +135,14 @@ const SprintReport = (props: ISprintReportProps) => {
                 </span>
               </div>
             </div>
-            <div className="sprintItemGroup">
+            {/* <div className="sprintItemGroup">
               <div className="sprintItem">
                 <span className="itemLabel">Created By:</span>
-                <span className="itemValue">{sprintData.creatorId}</span>
+                <span className="itemValue">
+                  {creator?.firstName + ' ' + creator?.lastName}
+                </span>
               </div>
-            </div>
+            </div> */}
             <div className="sprintItemGroup">
               <div className="sprintItem">
                 <span className="itemLabel">Story point committed:</span>
